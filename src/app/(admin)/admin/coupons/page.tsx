@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { CouponForm } from '@/components/admin/CouponForm';
 import Swal from 'sweetalert2';
 import { useLanguage } from '@/contexts/LanguageContext';

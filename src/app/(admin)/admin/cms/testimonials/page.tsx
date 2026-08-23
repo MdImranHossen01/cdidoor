@@ -55,6 +55,7 @@ export default function TestimonialsPage() {
 
   const fetchTestimonials = async () => {
     try {
+      const response = await fetch('/api/testimonials');
       if (!response.ok) throw new Error(t("testimonials.failed_fetch") as string);
       const data = await response.json();
       setTestimonials(data);

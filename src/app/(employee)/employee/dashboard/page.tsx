@@ -117,20 +117,20 @@ export default function EmployeeDashboard() {
       {isMonthly ? (
         <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <StatCard
-            title=t('store.employee.this_month_salary') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦¬à§‡à¦¤à¦¨'
+            title={t('store.employee.this_month_salary') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦¬à§‡à¦¤à¦¨'}
             value={fmt(data?.salary?.thisMonth || 0)}
             sub={`{t('store.employee.base_salary') || 'à¦¬à§‡à¦¸ à¦¸à§à¦¯à¦¾à¦²à¦¾à¦°à¦¿: '} ${fmt(data?.profile?.baseSalary || 0)}`}
             icon={DollarSign}
             href="/employee/salary"
           />
           <StatCard
-            title=t('store.employee.this_month_attendance') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'
+            title={t('store.employee.this_month_attendance') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'}
             value={`${data?.attendance?.presentThisMonth || 0} à¦¦à¦¿à¦¨`}
-            sub=t('store.employee.total_attendance_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦®à§‹à¦Ÿ à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'
+            sub={t('store.employee.total_attendance_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦®à§‹à¦Ÿ à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'}
             icon={CheckCircle2}
           />
           <StatCard
-            title=t('store.employee.leave_status') || 'à¦²à¦¿à¦­ à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸'
+            title={t('store.employee.leave_status') || 'à¦²à¦¿à¦­ à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸'}
             value={`${data?.leaves?.approved || 0}à¦Ÿà¦¿`}
             sub={`{t('store.employee.pending') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚: '} ${data?.leaves?.pending || 0}à¦Ÿà¦¿`}
             icon={CalendarOff}
@@ -140,30 +140,30 @@ export default function EmployeeDashboard() {
       ) : (
         <div className="grid gap-2 sm:gap-4 grid-cols-2 md:grid-cols-4">
           <StatCard
-            title=t('store.employee.total_earned_wages') || 'à¦®à§‹à¦Ÿ à¦…à¦°à§à¦œà¦¿à¦¤ à¦®à¦œà§à¦°à¦¿'
+            title={t('store.employee.total_earned_wages') || 'à¦®à§‹à¦Ÿ à¦…à¦°à§à¦œà¦¿à¦¤ à¦®à¦œà§à¦°à¦¿'}
             value={fmt(data?.tasks?.totalEarnings || 0)}
-            sub=t('store.employee.total_completed_wages') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œà§‡à¦° à¦®à§‹à¦Ÿ à¦®à¦œà§à¦°à¦¿'
+            sub={t('store.employee.total_completed_wages') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œà§‡à¦° à¦®à§‹à¦Ÿ à¦®à¦œà§à¦°à¦¿'}
             icon={DollarSign}
             href="/employee/tasks"
           />
           <StatCard
-            title=t('store.employee.paid_amount') || 'à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦…à¦°à§à¦¥'
+            title={t('store.employee.paid_amount') || 'à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦…à¦°à§à¦¥'}
             value={fmt(data?.salary?.thisMonth || 0)}
-            sub=t('store.employee.received_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦ªà§à¦°à¦¾à¦ªà§à¦¤'
+            sub={t('store.employee.received_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦ªà§à¦°à¦¾à¦ªà§à¦¤'}
             icon={CheckCircle2}
             href="/employee/salary"
           />
           <StatCard
-            title=t('store.employee.pending_tasks') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚ à¦Ÿà¦¾à¦¸à§à¦•'
+            title={t('store.employee.pending_tasks') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚ à¦Ÿà¦¾à¦¸à§à¦•'}
             value={`${data?.tasks?.pending || 0}`}
-            sub=t('store.employee.ongoing_work') || 'à¦šà¦²à¦®à¦¾à¦¨ à¦•à¦¾à¦œ'
+            sub={t('store.employee.ongoing_work') || 'à¦šà¦²à¦®à¦¾à¦¨ à¦•à¦¾à¦œ'}
             icon={Clock}
             href="/employee/tasks"
           />
           <StatCard
-            title=t('store.employee.completed_work') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œ'
+            title={t('store.employee.completed_work') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œ'}
             value={fmt(data?.tasks?.pendingPayout || 0)}
-            sub=t('store.employee.payment_processing') || 'à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦ªà§à¦°à¦•à§à¦°à¦¿à§Ÿà¦¾à¦§à§€à¦¨'
+            sub={t('store.employee.payment_processing') || 'à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦ªà§à¦°à¦•à§à¦°à¦¿à§Ÿà¦¾à¦§à§€à¦¨'}
             icon={CheckSquare}
             href="/employee/tasks"
           />

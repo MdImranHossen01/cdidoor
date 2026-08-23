@@ -1,153 +1,145 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { generateProductSchema, generateBreadcrumbSchema } from '@/lib/seo';
+import { ProductDetailsSelector } from '@/components/templates/ServerRegistry';
+import { ProductCard } from '@/components/storefront/ProductCard';
+import { ViewTracker } from '@/components/common/ViewTracker';
+import { getCachedProductBySlug, getCachedSettings } from '@/lib/data-fetching';
+import { notFound } from 'next/navigation';
 
-import { Separator } from '@/components/ui/separator';
-import { ShieldCheck, Info, Share2, Lock, Eye, Bell } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+const sanitizeForScript = (json: any) => {
+  return JSON.stringify(json).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+};
 
-export default function PrivacyClient({ settings, lastUpdated }: { settings: any, lastUpdated: string }) {
-  const { t } = useLanguage();
-  const brandName = settings?.brandName || "RPL Market";
-  const contactEmail = settings?.contact?.email || "support@cdidoorind.com";
+const getProduct = async (slug: string) => {
+  return getCachedProductBySlug(slug);
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const [product, settings] = await Promise.all([
+    getProduct(slug),
+    getCachedSettings()
+  ]);
+  if (!product) return { title: 'Product Not Found' };
+
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const headersList = await headers();
+  const hostname = headersList.get('host') || 'localhost';
+  const baseUrl = `${protocol}://${hostname}`;
+
+  // Strip HTML tags and JSON structure for a clean meta description
+  const cleanDescription = (product.description ?? '')
+    .replace(/<[^>]*>?/gm, '') // Remove HTML tags
+    .replace(/\{"type":"doc"[\s\S]*\}/g, (match: string) => {
+        try {
+            const parsed = JSON.parse(match);
+            const getText = (node: any): string => {
+                if (node.text) return node.text;
+                if (node.content) return node.content.map(getText).join(' ');
+                return '';
+            };
+            return getText(parsed);
+        } catch (e) {
+            return match;
+        }
+    })
+    .slice(0, 160);
+
+  const safeDescription = cleanDescription;
+  const mainImage = product.images?.[0] ? [{ url: product.images[0] }] : [];
+  const twitterImage = product.images?.[0] ? [product.images[0]] : [];
+  const siteName = settings?.brandName || 'Online Shop';
+
+  return {
+    title: product.name,
+    description: safeDescription,
+    openGraph: {
+      title: product.name,
+      description: safeDescription,
+      images: mainImage,
+      type: 'website',
+      url: `${baseUrl}/product/${slug}`,
+      siteName: siteName,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description: safeDescription,
+      images: twitterImage,
+    }
+  };
+}
+
+import Script from 'next/script';
+
+export default async function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const [product, settings] = await Promise.all([
+    getProduct(slug),
+    getCachedSettings()
+  ]);
+
+  if (!product) {
+    notFound();
+  }
+
+
+
+  let related = [];
+  try {
+    const conn = await (await import('@/lib/db')).default();
+    const ProductModel = (await import('@/models/Product')).default;
+    const relatedProducts = await ProductModel.find({
+      _id: { $ne: product._id },
+      isPublished: true,
+      $or: [
+        { categories: { $in: (product.categories ?? []).map((category: { _id: string }) => category._id) } },
+        { tags: { $in: product.tags || [] } },
+      ],
+    })
+      .populate('categories')
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .lean();
+    related = JSON.parse(JSON.stringify(relatedProducts));
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    related = [];
+  }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Header */}
-      <section className="bg-primary/5 py-16 md:py-24 border-b">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center justify-center p-3 mb-6 rounded-full bg-primary/10 text-primary">
-            <ShieldCheck className="h-8 w-8" />
+    <div className="container px-4 md:px-0 mx-auto pt-2 pb-10">
+
+      <div className="w-full">
+        {/* Track View */}
+        <ViewTracker id={product._id.toString()} type="product" />
+        {/* Dynamic Product Detail Template Selector */}
+        <ProductDetailsSelector style={settings?.uiTemplates?.productDetail || 'v1'} product={product} />
+      </div>
+
+      {Array.isArray(related) && related.length > 0 && (
+        <section className="mt-20">
+          <div className="flex items-end justify-between mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight">You May Also Like</h2>
+              <p className="text-muted-foreground mt-1">Similar picks based on this product&apos;s category and tags.</p>
+            </div>
+            <Button variant="outline" render={<Link href="/shop" />} nativeButton={false}>
+              Explore More
+            </Button>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-            {t('privacy.hero.title_start') as string || 'Privacy'} <span className="text-primary">{t('privacy.hero.title_end') as string || 'Policy'}</span>
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            {t('privacy.hero.desc') as string || 'Your privacy is important to us. This policy explains how we handle your data and ensure your security while shopping with us.'}
-          </p>
-          <p className="mt-8 text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            {t('privacy.hero.updated') as string || 'Last Updated:'} {lastUpdated}
-          </p>
-        </div>
-      </section>
-
-      {/* Content Section */}
-      <section className="py-12 md:py-20">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="prose prose-slate dark:prose-invert max-w-none space-y-12">
-
-            {/* Introduction */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Info className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold m-0 italic">{t('privacy.sections.intro.title') as string || 'Introduction'}</h2>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('privacy.sections.intro.desc_start') as string || 'Welcome to'} {brandName}. {t('privacy.sections.intro.desc_end') as string || 'We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.'}
-              </p>
-            </div>
-
-            <Separator className="my-8" />
-
-            {/* Information We Collect */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Eye className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold m-0 italic">{t('privacy.sections.collect.title') as string || 'Information We Collect'}</h2>
-              </div>
-              <p className="text-muted-foreground mb-4 leading-relaxed">
-                {t('privacy.sections.collect.desc') as string || 'We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:'}
-              </p>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground list-none p-0">
-                <li className="flex gap-3 bg-muted/30 p-4 rounded-xl border">
-                  <span className="font-bold text-primary">{t('privacy.sections.collect.identity.label') as string || 'Identity:'}</span> {t('privacy.sections.collect.identity.desc') as string || 'Includes first name, last name, and username.'}
-                </li>
-                <li className="flex gap-3 bg-muted/30 p-4 rounded-xl border">
-                  <span className="font-bold text-primary">{t('privacy.sections.collect.contact.label') as string || 'Contact:'}</span> {t('privacy.sections.collect.contact.desc') as string || 'Includes email address, phone number, and delivery address.'}
-                </li>
-                <li className="flex gap-3 bg-muted/30 p-4 rounded-xl border">
-                  <span className="font-bold text-primary">{t('privacy.sections.collect.financial.label') as string || 'Financial:'}</span> {t('privacy.sections.collect.financial.desc') as string || 'Includes payment card details (processed securely).'}
-                </li>
-                <li className="flex gap-3 bg-muted/30 p-4 rounded-xl border">
-                  <span className="font-bold text-primary">{t('privacy.sections.collect.technical.label') as string || 'Technical:'}</span> {t('privacy.sections.collect.technical.desc') as string || 'Includes IP address, browser type, and login data.'}
-                </li>
-              </ul>
-            </div>
-
-            <Separator className="my-8" />
-
-            {/* How We Use Your Data */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Bell className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold m-0 italic">{t('privacy.sections.use.title') as string || 'How We Use Your Data'}</h2>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('privacy.sections.use.desc') as string || 'We will only use your personal data for the following purposes:'}
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground pl-4">
-                <li>{t('privacy.sections.use.li1') as string || 'To register you as a new customer and process your orders.'}</li>
-                <li>{t('privacy.sections.use.li2') as string || 'To deliver and manage payments, fees, and charges.'}</li>
-                <li>{t('privacy.sections.use.li3') as string || 'To manage our relationship with you, including notifications about policy changes.'}</li>
-                <li>{t('privacy.sections.use.li4') as string || 'To enable you to partake in competitions or complete surveys.'}</li>
-                <li>{t('privacy.sections.use.li5') as string || 'To improve our website, products, services, and customer experiences.'}</li>
-              </ul>
-            </div>
-
-            <Separator className="my-8" />
-
-            {/* Data Sharing */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Share2 className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold m-0 italic">{t('privacy.sections.sharing.title') as string || 'Sharing Your Information'}</h2>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('privacy.sections.sharing.desc') as string || 'We do not sell your personal data to third parties. We only share your data with trusted partners (like delivery services and payment processors) who are essential for fulfilling your orders and providing our services. All third-party service providers are required to take appropriate security measures to protect your personal data.'}
-              </p>
-            </div>
-
-            <Separator className="my-8" />
-
-            {/* Security */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Lock className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold m-0 italic">{t('privacy.sections.security.title') as string || 'Security of Data'}</h2>
-              </div>
-              <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl">
-                <p className="text-muted-foreground italic leading-relaxed m-0">
-                  {t('privacy.sections.security.desc') as string || 'We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed. In addition, we limit access to your personal data to those employees and partners who have a business need to know.'}
-                </p>
-              </div>
-            </div>
-
-            <Separator className="my-8" />
-
-            {/* Contact Information */}
-            <div className="bg-muted p-8 rounded-3xl text-center shadow-inner">
-              <h2 className="text-2xl font-bold mb-4 italic">{t('privacy.contact.title') as string || 'Questions or Concerns?'}</h2>
-              <p className="text-muted-foreground mb-6">
-                {t('privacy.contact.desc') as string || 'If you have any questions about this privacy policy or our privacy practices, please contact us.'}
-              </p>
-              <a
-                href={`mailto:${contactEmail}`}
-                className="text-primary font-bold text-lg hover:underline transition-all"
-              >
-                {contactEmail}
-              </a>
-            </div>
-
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {related.map((item: any) => (
+              <ProductCard key={item._id} product={item} style={settings?.uiTemplates?.productCard || 'v1'} />
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* Footer Disclaimer */}
-      <section className="bg-muted/50 py-12 border-t">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-xs text-muted-foreground max-w-xl mx-auto">
-            {t('privacy.footer.desc_start') as string || 'This privacy policy is a living document. We reserve the right to update it as our services and legal requirements evolve. Your continued use of'} {brandName} {t('privacy.footer.desc_end') as string || 'constitutes acceptance of these terms.'}
-          </p>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
