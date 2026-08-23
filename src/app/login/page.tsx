@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -102,7 +102,7 @@ export default function LoginPage() {  const { t } = useLanguage();
         toast.error(response.error);
       } else {
         toast.success('Logged in successfully!');
-        // Redirect to /dashboard — proxy will read fresh JWT and redirect to correct role-based dashboard
+        // Redirect to /dashboard â€” proxy will read fresh JWT and redirect to correct role-based dashboard
         window.location.replace('/dashboard');
       }
     } catch (error) {
@@ -208,7 +208,7 @@ export default function LoginPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="••••••••"
+                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                               type={showPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading || isGoogleLoading}

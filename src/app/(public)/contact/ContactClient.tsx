@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, ExternalLink, MessageCircleMore } from 'lucide-rea
 import { Facebook, X, Instagram, Youtube } from '@/components/ui/social-icons';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ContactClient({ settings }: { settings: any }) {
   const { t } = useLanguage();

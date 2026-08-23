@@ -2,7 +2,7 @@
 
 import { Separator } from '@/components/ui/separator';
 import { FileText, ShoppingBag, Truck, UserCheck, Scale, HelpCircle } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TermsClient({ settings, lastUpdated }: { settings: any, lastUpdated: string }) {
   const { t } = useLanguage();
@@ -148,7 +148,7 @@ export default function TermsClient({ settings, lastUpdated }: { settings: any, 
       <section className="bg-muted py-12 border-t mt-auto">
         <div className="container mx-auto px-4 md:px-0 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {brandName}. {t('terms.footer.rights') as string || 'All rights reserved.'}
+            Â© {new Date().getFullYear()} {brandName}. {t('terms.footer.rights') as string || 'All rights reserved.'}
             <br className="sm:hidden" />
             <span className="hidden sm:inline mx-2">|</span>
             {t('terms.footer.crafted') as string || 'Crafted for premium service.'}

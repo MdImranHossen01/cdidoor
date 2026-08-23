@@ -18,7 +18,7 @@ import {
   Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AboutClient({ settings }: { settings: any }) {
   const { t } = useLanguage();
@@ -58,15 +58,15 @@ export default function AboutClient({ settings }: { settings: any }) {
   ];
 
   const doorTypes = [
-    { name: t('about.door.solid.name') as string || 'Solid Wood Doors', desc: t('about.door.solid.desc') as string || '100% natural hardwood — strongest and most durable option for entrance doors.' },
+    { name: t('about.door.solid.name') as string || 'Solid Wood Doors', desc: t('about.door.solid.desc') as string || '100% natural hardwood â€” strongest and most durable option for entrance doors.' },
     { name: t('about.door.flush.name') as string || 'Flush Doors', desc: t('about.door.flush.desc') as string || 'Smooth flat-surface doors with wood or HDF core. Ideal for all interior spaces.' },
     { name: t('about.door.panelled.name') as string || 'Panelled Doors', desc: t('about.door.panelled.desc') as string || 'Classic raised or recessed panel design available in all wood species.' },
     { name: t('about.door.carved.name') as string || 'Carved / Designer Doors', desc: t('about.door.carved.desc') as string || 'Handcrafted intricate wood carvings for premium entrance statements.' },
-    { name: t('about.door.veneer.name') as string || 'Veneer Doors', desc: t('about.door.veneer.desc') as string || 'Natural wood veneer finish over engineered core — elegant look at lower cost.' },
-    { name: t('about.door.laminated.name') as string || 'Laminated Doors', desc: t('about.door.laminated.desc') as string || 'HPL laminate on wood core — scratch-resistant and easy to maintain.' },
+    { name: t('about.door.veneer.name') as string || 'Veneer Doors', desc: t('about.door.veneer.desc') as string || 'Natural wood veneer finish over engineered core â€” elegant look at lower cost.' },
+    { name: t('about.door.laminated.name') as string || 'Laminated Doors', desc: t('about.door.laminated.desc') as string || 'HPL laminate on wood core â€” scratch-resistant and easy to maintain.' },
     { name: t('about.door.french.name') as string || 'French Doors', desc: t('about.door.french.desc') as string || 'Double-leaf wooden doors with glass inserts for living rooms and balconies.' },
-    { name: t('about.door.sliding.name') as string || 'Sliding Barn Doors', desc: t('about.door.sliding.desc') as string || 'Rustic solid wood sliding doors for interior partitions and modern décor.' },
-    { name: t('about.door.louvred.name') as string || 'Louvred Doors', desc: t('about.door.louvred.desc') as string || 'Wooden slatted doors for ventilation — ideal for wardrobes and bathrooms.' },
+    { name: t('about.door.sliding.name') as string || 'Sliding Barn Doors', desc: t('about.door.sliding.desc') as string || 'Rustic solid wood sliding doors for interior partitions and modern dÃ©cor.' },
+    { name: t('about.door.louvred.name') as string || 'Louvred Doors', desc: t('about.door.louvred.desc') as string || 'Wooden slatted doors for ventilation â€” ideal for wardrobes and bathrooms.' },
     { name: t('about.door.custom.name') as string || 'Custom / OEM Doors', desc: t('about.door.custom.desc') as string || 'Fully bespoke wooden doors built to exact client specifications and sizes.' },
   ];
 
@@ -74,7 +74,7 @@ export default function AboutClient({ settings }: { settings: any }) {
     {
       icon: TreePine,
       title: t('about.values.sourcing.title') as string || 'Premium Wood Sourcing',
-      desc: t('about.values.sourcing.desc') as string || 'We source only the highest-grade timber from certified suppliers — ensuring every door starts with the finest raw material.',
+      desc: t('about.values.sourcing.desc') as string || 'We source only the highest-grade timber from certified suppliers â€” ensuring every door starts with the finest raw material.',
     },
     {
       icon: Wrench,
@@ -90,7 +90,7 @@ export default function AboutClient({ settings }: { settings: any }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* ── Hero ── */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-transparent py-20 md:py-32 border-b border-primary/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
         <div className="container mx-auto px-4 text-center relative z-10">
@@ -101,13 +101,13 @@ export default function AboutClient({ settings }: { settings: any }) {
             {t('about.hero.title_start') as string || 'About'} <span className="text-primary">{brandName}</span>
           </h1>
           <p className="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            {t('about.hero.desc_start') as string || 'Crafting premium wooden doors with the beauty of natural wood and the precision of modern manufacturing — '}{' '}
+            {t('about.hero.desc_start') as string || 'Crafting premium wooden doors with the beauty of natural wood and the precision of modern manufacturing â€” '}{' '}
             <strong className="text-primary">{brandName}</strong> {t('about.hero.desc_end') as string || 'serves residential, commercial, and industrial clients across Bangladesh through multiple factories and showrooms.'}
           </p>
         </div>
       </section>
 
-      {/* ── Stats ── */}
+      {/* â”€â”€ Stats â”€â”€ */}
       <section className="py-12 bg-card/30 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -126,7 +126,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Story & Mission ── */}
+      {/* â”€â”€ Story & Mission â”€â”€ */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -139,7 +139,7 @@ export default function AboutClient({ settings }: { settings: any }) {
                 <strong>{brandName}</strong> {t('about.story.p1') as string || 'has been crafting premium wooden doors for over 15 years. With multiple fully equipped manufacturing facilities and showrooms across Bangladesh, we combine cutting-edge CNC machinery with the skilled hands of master carpenters.'}
               </p>
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                {t('about.story.p2') as string || 'We craft exclusively wooden doors — from solid teak entrance doors and ornate carved designer doors to smooth flush doors and moisture-resistant laminated doors. Every door is built using carefully selected wood species, processed with precision, and finished to perfection.'}
+                {t('about.story.p2') as string || 'We craft exclusively wooden doors â€” from solid teak entrance doors and ornate carved designer doors to smooth flush doors and moisture-resistant laminated doors. Every door is built using carefully selected wood species, processed with precision, and finished to perfection.'}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
@@ -150,7 +150,7 @@ export default function AboutClient({ settings }: { settings: any }) {
                   <div>
                     <h4 className="font-bold text-sm mb-1">{t('about.mission.title') as string || 'Our Mission'}</h4>
                     <p className="text-xs text-muted-foreground">
-                      {t('about.mission.desc') as string || 'To manufacture world-class wooden doors that blend natural beauty, durability, and security — accessible to every segment of the Bangladesh market.'}
+                      {t('about.mission.desc') as string || 'To manufacture world-class wooden doors that blend natural beauty, durability, and security â€” accessible to every segment of the Bangladesh market.'}
                     </p>
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export default function AboutClient({ settings }: { settings: any }) {
                   <blockquote className="text-lg md:text-xl font-bold leading-relaxed italic">
                     &quot;{t('about.promise.quote') as string || 'Every door we craft is a testament to the timeless beauty and enduring strength of wood.'}&quot;
                   </blockquote>
-                  <p className="text-xs text-slate-300 font-medium">— {t('about.promise.team') as string || 'The'} {brandName} {t('about.promise.team2') as string || 'Team'}</p>
+                  <p className="text-xs text-slate-300 font-medium">â€” {t('about.promise.team') as string || 'The'} {brandName} {t('about.promise.team2') as string || 'Team'}</p>
                 </div>
               </div>
             </div>
@@ -188,7 +188,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Core Values ── */}
+      {/* â”€â”€ Core Values â”€â”€ */}
       <section className="py-16 md:py-24 bg-primary/5 border-t border-b border-primary/10">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto mb-16 space-y-4">
@@ -214,7 +214,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Wood Types ── */}
+      {/* â”€â”€ Wood Types â”€â”€ */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
@@ -223,7 +223,7 @@ export default function AboutClient({ settings }: { settings: any }) {
             </span>
             <h2 className="text-3xl font-bold tracking-tight">{t('about.woods.title') as string || 'Woods We Work With'}</h2>
             <p className="text-muted-foreground text-sm">
-              {t('about.woods.desc') as string || 'We source and work with six distinct wood types — each selected for a specific purpose, price range, and aesthetic quality.'}
+              {t('about.woods.desc') as string || 'We source and work with six distinct wood types â€” each selected for a specific purpose, price range, and aesthetic quality.'}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,7 +249,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Door Types ── */}
+      {/* â”€â”€ Door Types â”€â”€ */}
       <section className="py-16 md:py-20 bg-muted/30 border-t border-b">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
@@ -258,7 +258,7 @@ export default function AboutClient({ settings }: { settings: any }) {
             </span>
             <h2 className="text-3xl font-bold tracking-tight">{t('about.doors.title') as string || 'Types of Wooden Doors We Make'}</h2>
             <p className="text-muted-foreground text-sm">
-              {t('about.doors.desc') as string || 'From classic solid wood to modern engineered panels — we manufacture 10 distinct styles of wooden doors for every room and purpose.'}
+              {t('about.doors.desc') as string || 'From classic solid wood to modern engineered panels â€” we manufacture 10 distinct styles of wooden doors for every room and purpose.'}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -278,7 +278,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Factories & Showrooms (generic) ── */}
+      {/* â”€â”€ Factories & Showrooms (generic) â”€â”€ */}
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
@@ -314,7 +314,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Numbers ── */}
+      {/* â”€â”€ Numbers â”€â”€ */}
       <section className="py-12 bg-primary/5 border-t border-b border-primary/10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -336,7 +336,7 @@ export default function AboutClient({ settings }: { settings: any }) {
         </div>
       </section>
 
-      {/* ── Technology Partner ── */}
+      {/* â”€â”€ Technology Partner â”€â”€ */}
       <section className="py-16 bg-gradient-to-b from-card to-background border-y border-muted relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.15)_1px,transparent_1px)] bg-[length:16px_16px]" />
         <div className="container mx-auto px-4 max-w-3xl text-center space-y-6 relative z-10">
@@ -356,12 +356,12 @@ export default function AboutClient({ settings }: { settings: any }) {
             >
               Jia Pixel
             </a>
-            , {t('about.tech.desc_mid') as string || 'the Leading Digital Agency In Bangladesh — engineering custom digital solutions for manufacturing industries like'} <strong>{brandName}</strong>.
+            , {t('about.tech.desc_mid') as string || 'the Leading Digital Agency In Bangladesh â€” engineering custom digital solutions for manufacturing industries like'} <strong>{brandName}</strong>.
           </p>
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* â”€â”€ CTA â”€â”€ */}
       <section className="py-20 text-center relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10 space-y-6">
           <h2 className="text-3xl md:text-5xl font-black tracking-tight max-w-2xl mx-auto leading-tight">

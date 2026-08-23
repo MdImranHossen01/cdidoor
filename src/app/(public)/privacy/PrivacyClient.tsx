@@ -2,7 +2,7 @@
 
 import { Separator } from '@/components/ui/separator';
 import { ShieldCheck, Info, Share2, Lock, Eye, Bell } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PrivacyClient({ settings, lastUpdated }: { settings: any, lastUpdated: string }) {
   const { t } = useLanguage();

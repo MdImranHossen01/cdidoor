@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   ShoppingBag, DollarSign, TrendingUp, Package,
   Loader2, AlertTriangle, ArrowRight, Store,
@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
     metricLabel = 'Revenue';
     metricColorClass = 'text-primary';
     getValue = (vals: any) => vals.revenue || 0;
-    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'orders') {
     metricLabel = 'Sales Count';
     metricColorClass = 'text-orange-600';
@@ -62,12 +62,12 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
     metricLabel = 'Expense';
     metricColorClass = 'text-red-600';
     getValue = (vals: any) => vals.expense || 0;
-    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'netIncome') {
     metricLabel = 'Net Income';
     metricColorClass = 'text-green-600';
     getValue = (vals: any) => (vals.revenue || 0) - (vals.expense || 0);
-    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
   }
 
   return (
@@ -281,7 +281,7 @@ export default function ShowroomDashboard() {
     );
   }
 
-  const fmt = (n: number) => `৳${Math.round(n).toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `à§³${Math.round(n).toLocaleString('en-BD')}`;
   const stats = data?.stats;
   return (
     <div className="flex-1 space-y-6 px-0 py-6 md:p-8">
@@ -293,7 +293,7 @@ export default function ShowroomDashboard() {
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">{data?.showroom?.name || 'My Showroom'}</h2>
           </div>
           <p className="text-muted-foreground text-xs md:text-sm mt-1">
-            {t('store.showroom.welcome') || 'স্বাগতম, '} {session?.user?.name}! {t('store.showroom.dashboard_desc') || 'এখানে আপনার শো-রুমের সামারি দেখুন।'}
+            {t('store.showroom.welcome') || 'à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®, '} {session?.user?.name}! {t('store.showroom.dashboard_desc') || 'à¦à¦–à¦¾à¦¨à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦¶à§‹-à¦°à§à¦®à§‡à¦° à¦¸à¦¾à¦®à¦¾à¦°à¦¿ à¦¦à§‡à¦–à§à¦¨à¥¤'}
           </p>
           {data?.showroom?.address && (
             <p className="text-xs text-muted-foreground hidden md:block">{data.showroom.address}</p>
@@ -502,7 +502,7 @@ export default function ShowroomDashboard() {
                     {chartConfig[key].label}
                   </span>
                   <span className="text-xs sm:text-base md:text-2xl leading-none font-bold">
-                    {key === 'orders' ? total[key].toLocaleString() : `৳${total[key].toLocaleString()}`}
+                    {key === 'orders' ? total[key].toLocaleString() : `à§³${total[key].toLocaleString()}`}
                   </span>
                 </button>
               ))}
@@ -608,16 +608,16 @@ export default function ShowroomDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base">{t('store.showroom.recent_orders') || 'সাম্প্রতিক অর্ডার'}</CardTitle>
-              <CardDescription>{t('store.showroom.last_5_orders') || 'শো-রুমের সর্বশেষ ৫টি অর্ডার'}</CardDescription>
+              <CardTitle className="text-base">{t('store.showroom.recent_orders') || 'à¦¸à¦¾à¦®à§à¦ªà§à¦°à¦¤à¦¿à¦• à¦…à¦°à§à¦¡à¦¾à¦°'}</CardTitle>
+              <CardDescription>{t('store.showroom.last_5_orders') || 'à¦¶à§‹-à¦°à§à¦®à§‡à¦° à¦¸à¦°à§à¦¬à¦¶à§‡à¦· à§«à¦Ÿà¦¿ à¦…à¦°à§à¦¡à¦¾à¦°'}</CardDescription>
             </div>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/showroom/orders">{t('store.showroom.see_all') || 'সব দেখুন'} <ArrowRight className="h-3 w-3 ml-1" /></Link>
+              <Link href="/showroom/orders">{t('store.showroom.see_all') || 'à¦¸à¦¬ à¦¦à§‡à¦–à§à¦¨'} <ArrowRight className="h-3 w-3 ml-1" /></Link>
             </Button>
           </CardHeader>
           <CardContent>
             {data?.recentOrders?.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">{t('store.showroom.no_orders') || 'কোনো অর্ডার নেই'}</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t('store.showroom.no_orders') || 'à¦•à§‹à¦¨à§‹ à¦…à¦°à§à¦¡à¦¾à¦° à¦¨à§‡à¦‡'}</p>
             ) : (
               <div className="space-y-2">
                 {data?.recentOrders?.map((order: any) => (
@@ -643,16 +643,16 @@ export default function ShowroomDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base">{t('store.showroom.stock_status') || 'স্টক স্ট্যাটাস'}</CardTitle>
-              <CardDescription>{t('store.showroom.low_stock_first') || 'কম স্টক আগে দেখানো হচ্ছে'}</CardDescription>
+              <CardTitle className="text-base">{t('store.showroom.stock_status') || 'à¦¸à§à¦Ÿà¦• à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸'}</CardTitle>
+              <CardDescription>{t('store.showroom.low_stock_first') || 'à¦•à¦® à¦¸à§à¦Ÿà¦• à¦†à¦—à§‡ à¦¦à§‡à¦–à¦¾à¦¨à§‹ à¦¹à¦šà§à¦›à§‡'}</CardDescription>
             </div>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/showroom/stock">{t('store.showroom.see_all') || 'সব দেখুন'} <ArrowRight className="h-3 w-3 ml-1" /></Link>
+              <Link href="/showroom/stock">{t('store.showroom.see_all') || 'à¦¸à¦¬ à¦¦à§‡à¦–à§à¦¨'} <ArrowRight className="h-3 w-3 ml-1" /></Link>
             </Button>
           </CardHeader>
           <CardContent>
             {data?.stockItems?.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">{t('store.showroom.no_products') || 'কোনো প্রোডাক্ট নেই'}</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t('store.showroom.no_products') || 'à¦•à§‹à¦¨à§‹ à¦ªà§à¦°à§‹à¦¡à¦¾à¦•à§à¦Ÿ à¦¨à§‡à¦‡'}</p>
             ) : (
               <div className="space-y-2">
                 {data?.stockItems?.slice(0, 6).map((item: any, i: number) => (
@@ -665,7 +665,7 @@ export default function ShowroomDashboard() {
                       variant={item.stock === 0 ? 'destructive' : item.stock < 5 ? 'secondary' : 'default'}
                       className="text-xs"
                     >
-                      {item.stock === 0 ? '{t('store.showroom.out_of_stock') || 'আউট অব স্টক'}' : `${item.stock} {t('store.showroom.pcs') || 'পিস'}`}
+                      {item.stock === 0 ? '{t('store.showroom.out_of_stock') || 'à¦†à¦‰à¦Ÿ à¦…à¦¬ à¦¸à§à¦Ÿà¦•'}' : `${item.stock} {t('store.showroom.pcs') || 'à¦ªà¦¿à¦¸'}`}
                     </Badge>
                   </div>
                 ))}

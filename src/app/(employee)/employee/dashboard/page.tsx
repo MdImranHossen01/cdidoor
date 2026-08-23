@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   DollarSign, CalendarOff, CheckSquare, Clock,
   Loader2, AlertTriangle, ArrowRight, Briefcase, CheckCircle2
@@ -85,7 +85,7 @@ export default function EmployeeDashboard() {
     );
   }
 
-  const fmt = (n: number) => `৳${n.toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `à§³${n.toLocaleString('en-BD')}`;
   const isMonthly = data?.profile?.employeeType === 'monthly';
 
   return (
@@ -95,19 +95,19 @@ export default function EmployeeDashboard() {
         <div>
           <div className="flex items-center gap-2">
             <Briefcase className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold tracking-tight">{t('store.employee.welcome') || 'স্বাগতম,'} {session?.user?.name}!</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{t('store.employee.welcome') || 'à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®,'} {session?.user?.name}!</h2>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            {t('store.employee.dashboard_desc') || 'আপনার কর্মক্ষেত্রের সামগ্রিক তথ্য এখানে দেখুন।'}
+            {t('store.employee.dashboard_desc') || 'à¦†à¦ªà¦¨à¦¾à¦° à¦•à¦°à§à¦®à¦•à§à¦·à§‡à¦¤à§à¦°à§‡à¦° à¦¸à¦¾à¦®à¦—à§à¦°à¦¿à¦• à¦¤à¦¥à§à¦¯ à¦à¦–à¦¾à¦¨à§‡ à¦¦à§‡à¦–à§à¦¨à¥¤'}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Badge variant="outline" className="text-xs">
-            {isMonthly ? '{t('store.employee.monthly_staff') || 'মাসিক কর্মী'}' : '{t('store.employee.contractual_staff') || 'চুক্তিভিত্তিক কর্মী'}'}
+            {isMonthly ? '{t('store.employee.monthly_staff') || 'à¦®à¦¾à¦¸à¦¿à¦• à¦•à¦°à§à¦®à§€'}' : '{t('store.employee.contractual_staff') || 'à¦šà§à¦•à§à¦¤à¦¿à¦­à¦¿à¦¤à§à¦¤à¦¿à¦• à¦•à¦°à§à¦®à§€'}'}
           </Badge>
           {data?.profile?.joinedDate && (
             <Badge variant="secondary" className="text-xs">
-              {t('store.employee.joined') || 'যোগদান: '} {format(new Date(data.profile.joinedDate), 'dd MMM yyyy')}
+              {t('store.employee.joined') || 'à¦¯à§‹à¦—à¦¦à¦¾à¦¨: '} {format(new Date(data.profile.joinedDate), 'dd MMM yyyy')}
             </Badge>
           )}
         </div>
@@ -117,22 +117,22 @@ export default function EmployeeDashboard() {
       {isMonthly ? (
         <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <StatCard
-            title=t('store.employee.this_month_salary') || 'এই মাসের বেতন'
+            title=t('store.employee.this_month_salary') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦¬à§‡à¦¤à¦¨'
             value={fmt(data?.salary?.thisMonth || 0)}
-            sub={`{t('store.employee.base_salary') || 'বেস স্যালারি: '} ${fmt(data?.profile?.baseSalary || 0)}`}
+            sub={`{t('store.employee.base_salary') || 'à¦¬à§‡à¦¸ à¦¸à§à¦¯à¦¾à¦²à¦¾à¦°à¦¿: '} ${fmt(data?.profile?.baseSalary || 0)}`}
             icon={DollarSign}
             href="/employee/salary"
           />
           <StatCard
-            title=t('store.employee.this_month_attendance') || 'এই মাসের উপস্থিতি'
-            value={`${data?.attendance?.presentThisMonth || 0} দিন`}
-            sub=t('store.employee.total_attendance_this_month') || 'চলতি মাসে মোট উপস্থিতি'
+            title=t('store.employee.this_month_attendance') || 'à¦à¦‡ à¦®à¦¾à¦¸à§‡à¦° à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'
+            value={`${data?.attendance?.presentThisMonth || 0} à¦¦à¦¿à¦¨`}
+            sub=t('store.employee.total_attendance_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦®à§‹à¦Ÿ à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿'
             icon={CheckCircle2}
           />
           <StatCard
-            title=t('store.employee.leave_status') || 'লিভ স্ট্যাটাস'
-            value={`${data?.leaves?.approved || 0}টি`}
-            sub={`{t('store.employee.pending') || 'পেন্ডিং: '} ${data?.leaves?.pending || 0}টি`}
+            title=t('store.employee.leave_status') || 'à¦²à¦¿à¦­ à¦¸à§à¦Ÿà§à¦¯à¦¾à¦Ÿà¦¾à¦¸'
+            value={`${data?.leaves?.approved || 0}à¦Ÿà¦¿`}
+            sub={`{t('store.employee.pending') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚: '} ${data?.leaves?.pending || 0}à¦Ÿà¦¿`}
             icon={CalendarOff}
             href="/employee/leaves"
           />
@@ -140,30 +140,30 @@ export default function EmployeeDashboard() {
       ) : (
         <div className="grid gap-2 sm:gap-4 grid-cols-2 md:grid-cols-4">
           <StatCard
-            title=t('store.employee.total_earned_wages') || 'মোট অর্জিত মজুরি'
+            title=t('store.employee.total_earned_wages') || 'à¦®à§‹à¦Ÿ à¦…à¦°à§à¦œà¦¿à¦¤ à¦®à¦œà§à¦°à¦¿'
             value={fmt(data?.tasks?.totalEarnings || 0)}
-            sub=t('store.employee.total_completed_wages') || 'সম্পন্ন কাজের মোট মজুরি'
+            sub=t('store.employee.total_completed_wages') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œà§‡à¦° à¦®à§‹à¦Ÿ à¦®à¦œà§à¦°à¦¿'
             icon={DollarSign}
             href="/employee/tasks"
           />
           <StatCard
-            title=t('store.employee.paid_amount') || 'পরিশোধিত অর্থ'
+            title=t('store.employee.paid_amount') || 'à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦…à¦°à§à¦¥'
             value={fmt(data?.salary?.thisMonth || 0)}
-            sub=t('store.employee.received_this_month') || 'চলতি মাসে প্রাপ্ত'
+            sub=t('store.employee.received_this_month') || 'à¦šà¦²à¦¤à¦¿ à¦®à¦¾à¦¸à§‡ à¦ªà§à¦°à¦¾à¦ªà§à¦¤'
             icon={CheckCircle2}
             href="/employee/salary"
           />
           <StatCard
-            title=t('store.employee.pending_tasks') || 'পেন্ডিং টাস্ক'
+            title=t('store.employee.pending_tasks') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚ à¦Ÿà¦¾à¦¸à§à¦•'
             value={`${data?.tasks?.pending || 0}`}
-            sub=t('store.employee.ongoing_work') || 'চলমান কাজ'
+            sub=t('store.employee.ongoing_work') || 'à¦šà¦²à¦®à¦¾à¦¨ à¦•à¦¾à¦œ'
             icon={Clock}
             href="/employee/tasks"
           />
           <StatCard
-            title=t('store.employee.completed_work') || 'সম্পন্ন কাজ'
+            title=t('store.employee.completed_work') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œ'
             value={fmt(data?.tasks?.pendingPayout || 0)}
-            sub=t('store.employee.payment_processing') || 'পেমেন্ট প্রক্রিয়াধীন'
+            sub=t('store.employee.payment_processing') || 'à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦ªà§à¦°à¦•à§à¦°à¦¿à§Ÿà¦¾à¦§à§€à¦¨'
             icon={CheckSquare}
             href="/employee/tasks"
           />
@@ -177,18 +177,18 @@ export default function EmployeeDashboard() {
           <Card className="shadow-sm border">
             <CardHeader className="p-4 sm:p-6 border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold">{t('store.employee.recent_tasks_progress') || 'সাম্প্রতিক টাস্ক ও কাজের অগ্রগতি'}</CardTitle>
-                <CardDescription className="text-xs">{t('store.employee.assigned_contractual_tasks') || 'আপনাকে অ্যাসাইন করা চুক্তিভিত্তিক কাজের তালিকা'}</CardDescription>
+                <CardTitle className="text-base font-bold">{t('store.employee.recent_tasks_progress') || 'à¦¸à¦¾à¦®à§à¦ªà§à¦°à¦¤à¦¿à¦• à¦Ÿà¦¾à¦¸à§à¦• à¦“ à¦•à¦¾à¦œà§‡à¦° à¦…à¦—à§à¦°à¦—à¦¤à¦¿'}</CardTitle>
+                <CardDescription className="text-xs">{t('store.employee.assigned_contractual_tasks') || 'à¦†à¦ªà¦¨à¦¾à¦•à§‡ à¦…à§à¦¯à¦¾à¦¸à¦¾à¦‡à¦¨ à¦•à¦°à¦¾ à¦šà§à¦•à§à¦¤à¦¿à¦­à¦¿à¦¤à§à¦¤à¦¿à¦• à¦•à¦¾à¦œà§‡à¦° à¦¤à¦¾à¦²à¦¿à¦•à¦¾'}</CardDescription>
               </div>
               <Button variant="ghost" size="sm" asChild className="h-8 text-xs font-semibold">
-                <Link href="/employee/tasks">{t('store.employee.see_all') || 'সব দেখুন'} <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
+                <Link href="/employee/tasks">{t('store.employee.see_all') || 'à¦¸à¦¬ à¦¦à§‡à¦–à§à¦¨'} <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
               </Button>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               {data?.tasks?.recent?.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground">
                   <CheckSquare className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                  <p className="text-sm font-medium">{t('store.employee.no_tasks_assigned') || 'কোনো টাস্ক অ্যাসাইন করা নেই'}</p>
+                  <p className="text-sm font-medium">{t('store.employee.no_tasks_assigned') || 'à¦•à§‹à¦¨à§‹ à¦Ÿà¦¾à¦¸à§à¦• à¦…à§à¦¯à¦¾à¦¸à¦¾à¦‡à¦¨ à¦•à¦°à¦¾ à¦¨à§‡à¦‡'}</p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -212,7 +212,7 @@ export default function EmployeeDashboard() {
                           <p className="text-sm font-bold text-foreground line-clamp-1">{task.title}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             <span className="font-bold text-primary">{fmt(task.payout || 0)}</span>
-                            {task.dueDate && <span>• Due: {format(new Date(task.dueDate), 'dd MMM yyyy')}</span>}
+                            {task.dueDate && <span>â€¢ Due: {format(new Date(task.dueDate), 'dd MMM yyyy')}</span>}
                           </div>
                         </div>
                       </div>
@@ -220,7 +220,7 @@ export default function EmployeeDashboard() {
                         variant={task.status === 'Paid' ? 'default' : task.status === 'Completed' ? 'secondary' : 'outline'}
                         className="text-xs font-semibold"
                       >
-                        {task.status === 'Paid' ? t('store.employee.paid') || 'পরিশোধিত' : task.status === 'Completed' ? t('store.employee.completed') || 'সম্পন্ন' : t('store.employee.ongoing') || 'চলমান'}
+                        {task.status === 'Paid' ? t('store.employee.paid') || 'à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤' : task.status === 'Completed' ? t('store.employee.completed') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨' : t('store.employee.ongoing') || 'à¦šà¦²à¦®à¦¾à¦¨'}
                       </Badge>
                     </div>
                   ))}
@@ -235,18 +235,18 @@ export default function EmployeeDashboard() {
           <Card className="shadow-sm border">
             <CardHeader className="p-4 sm:p-6 border-b bg-muted/20 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold">{t('store.employee.leave_request') || 'লিভ রিকোয়েস্ট'}</CardTitle>
-                <CardDescription className="text-xs">{t('store.employee.recent_leave_applications') || 'আপনার সাম্প্রতিক ছুটির আবেদনসমূহ'}</CardDescription>
+                <CardTitle className="text-base font-bold">{t('store.employee.leave_request') || 'à¦²à¦¿à¦­ à¦°à¦¿à¦•à§‹à¦¯à¦¼à§‡à¦¸à§à¦Ÿ'}</CardTitle>
+                <CardDescription className="text-xs">{t('store.employee.recent_leave_applications') || 'à¦†à¦ªà¦¨à¦¾à¦° à¦¸à¦¾à¦®à§à¦ªà§à¦°à¦¤à¦¿à¦• à¦›à§à¦Ÿà¦¿à¦° à¦†à¦¬à§‡à¦¦à¦¨à¦¸à¦®à§‚à¦¹'}</CardDescription>
               </div>
               <Button variant="ghost" size="sm" asChild className="h-8 text-xs font-semibold">
-                <Link href="/employee/leaves">{t('store.employee.see_all') || 'সব দেখুন'} <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
+                <Link href="/employee/leaves">{t('store.employee.see_all') || 'à¦¸à¦¬ à¦¦à§‡à¦–à§à¦¨'} <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
               </Button>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               {data?.leaves?.recent?.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground">
                   <CalendarOff className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                  <p className="text-sm font-medium">কোনো {t('store.employee.leave_request') || 'লিভ রিকোয়েস্ট'} নেই</p>
+                  <p className="text-sm font-medium">à¦•à§‹à¦¨à§‹ {t('store.employee.leave_request') || 'à¦²à¦¿à¦­ à¦°à¦¿à¦•à§‹à¦¯à¦¼à§‡à¦¸à§à¦Ÿ'} à¦¨à§‡à¦‡</p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -255,14 +255,14 @@ export default function EmployeeDashboard() {
                       <div>
                         <p className="text-sm font-bold text-foreground line-clamp-1">{leave.reason}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {format(new Date(leave.startDate), 'dd MMM')} – {format(new Date(leave.endDate), 'dd MMM yyyy')}
+                          {format(new Date(leave.startDate), 'dd MMM')} â€“ {format(new Date(leave.endDate), 'dd MMM yyyy')}
                         </p>
                       </div>
                       <Badge
                         variant={leave.status === 'Approved' ? 'default' : leave.status === 'Rejected' ? 'destructive' : 'secondary'}
                         className="text-xs font-semibold"
                       >
-                        {leave.status === 'Approved' ? t('store.employee.approved') || 'অনুমোদিত' : leave.status === 'Rejected' ? t('store.employee.rejected') || 'প্রত্যাখ্যাত' : t('store.employee.pending') || 'পেন্ডিং'}
+                        {leave.status === 'Approved' ? t('store.employee.approved') || 'à¦…à¦¨à§à¦®à§‹à¦¦à¦¿à¦¤' : leave.status === 'Rejected' ? t('store.employee.rejected') || 'à¦ªà§à¦°à¦¤à§à¦¯à¦¾à¦–à§à¦¯à¦¾à¦¤' : t('store.employee.pending') || 'à¦ªà§‡à¦¨à§à¦¡à¦¿à¦‚'}
                       </Badge>
                     </div>
                   ))}

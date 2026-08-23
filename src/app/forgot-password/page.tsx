@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';

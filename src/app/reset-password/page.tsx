@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -161,7 +161,7 @@ function ResetPasswordForm() {
                 <div className="relative">
                   <FormControl>
                     <Input
-                      placeholder="••••••••"
+                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                       type={showPassword ? "text" : "password"}
                       {...field}
                       disabled={isLoading}
@@ -200,7 +200,7 @@ function ResetPasswordForm() {
                 <div className="relative">
                   <FormControl>
                     <Input
-                      placeholder="••••••••"
+                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                       type={showConfirmPassword ? "text" : "password"}
                       {...field}
                       disabled={isLoading}
@@ -298,7 +298,7 @@ export default function ResetPasswordPage() {  const { t } = useLanguage();
         </motion.div>
 
         <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} চিটাগাং ডোর। সর্বস্বত্ব সংরক্ষিত।
+          &copy; {new Date().getFullYear()} à¦šà¦¿à¦Ÿà¦¾à¦—à¦¾à¦‚ à¦¡à§‹à¦°à¥¤ à¦¸à¦°à§à¦¬à¦¸à§à¦¬à¦¤à§à¦¬ à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤à¥¤
         </div>
       </div>
     </div>

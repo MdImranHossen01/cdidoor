@@ -1,6 +1,6 @@
 'use client';
 
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -345,7 +345,7 @@ export default function RegisterPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="••••••••"
+                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                               type={showPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading}
@@ -384,7 +384,7 @@ export default function RegisterPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="••••••••"
+                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                               type={showConfirmPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading}
