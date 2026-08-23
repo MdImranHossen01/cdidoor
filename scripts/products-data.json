@@ -1,0 +1,1166 @@
+[
+  {
+    "catSlug": "solid-wood-doors",
+    "name": "Premium Teak Single Entry Door",
+    "slug": "premium-teak-single-entry-door",
+    "description": "Crafted from premium Burmese teak, this solid single entry door offers unmatched durability and a rich honey-brown grain finish. The high-gloss lacquer coat resists moisture, termites, and UV fading — making it ideal for main entrances in Bangladeshi homes. Features a brushed gold handle and heavy-duty hinges. Thickness: 45mm. Available with custom sizing.",
+    "price": 28000,
+    "salePrice": 23500,
+    "purchasePrice": 17000,
+    "discountRate": 16,
+    "sku": "SWD-001",
+    "stock": 15,
+    "tags": [
+      "teak",
+      "solid wood",
+      "entry door",
+      "main door"
+    ],
+    "images": [
+      "/assets/images/products/teak-single-entry-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Burmese Teak"
+      },
+      {
+        "key": "Finish",
+        "value": "High-Gloss Lacquer"
+      },
+      {
+        "key": "Thickness",
+        "value": "45mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Brushed Gold"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.8,
+    "numReviews": 34,
+    "wholesalePrice": 22400,
+    "wholesaleSalePrice": 18800
+  },
+  {
+    "catSlug": "solid-wood-doors",
+    "name": "Mahogany Double Entry Door Set",
+    "slug": "mahogany-double-entry-door-set",
+    "description": "A grand double-leaf mahogany door set that commands instant attention. Deep reddish-brown mahogany with a satin finish and raised border molding on each leaf. The interlocking grain pattern adds a sense of elegance and heritage. Fitted with matching iron handles on both leaves. Perfect for luxury residences, bungalows, and commercial reception areas. Thickness: 50mm.",
+    "price": 55000,
+    "salePrice": 48000,
+    "purchasePrice": 35000,
+    "discountRate": 13,
+    "sku": "SWD-002",
+    "stock": 8,
+    "tags": [
+      "mahogany",
+      "double door",
+      "entry",
+      "luxury"
+    ],
+    "images": [
+      "/assets/images/products/mahogany-double-entry-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Mahogany"
+      },
+      {
+        "key": "Finish",
+        "value": "Satin"
+      },
+      {
+        "key": "Thickness",
+        "value": "50mm"
+      },
+      {
+        "key": "Type",
+        "value": "Double Leaf"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.9,
+    "numReviews": 21,
+    "wholesalePrice": 44000,
+    "wholesaleSalePrice": 38400
+  },
+  {
+    "catSlug": "solid-wood-doors",
+    "name": "Shegun Teak Interior Door",
+    "slug": "shegun-teak-interior-door",
+    "description": "Genuine Bangladeshi Shegun (teak) wood interior door, renowned for its straight grain and natural oil content that prevents warping. Oil-finished to preserve the wood's natural character. A perfect fit for living rooms, dining areas, and master bedrooms seeking a warm, traditional aesthetic. Brass round knob included. Thickness: 38mm.",
+    "price": 18500,
+    "salePrice": null,
+    "purchasePrice": 11000,
+    "discountRate": null,
+    "sku": "SWD-003",
+    "stock": 22,
+    "tags": [
+      "shegun",
+      "teak",
+      "interior",
+      "bedroom door"
+    ],
+    "images": [
+      "/assets/images/products/shegun-teak-interior-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Bangladeshi Shegun Teak"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte Oil"
+      },
+      {
+        "key": "Thickness",
+        "value": "38mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Brass Round Knob"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": false,
+    "ratings": 4.7,
+    "numReviews": 18,
+    "wholesalePrice": 14800,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "solid-wood-doors",
+    "name": "Sal Wood Heavy Duty Commercial Door",
+    "slug": "sal-wood-heavy-duty-commercial-door",
+    "description": "Built for strength, this heavy-duty Sal wood door is the go-to choice for commercial spaces, warehouses, and high-traffic areas. Dense and thick at 50mm, it offers excellent sound insulation and resistance to impact. Clean flat-face design with a robust stainless steel lever handle. Walnut brown finish that suits both modern and industrial interiors.",
+    "price": 22000,
+    "salePrice": null,
+    "purchasePrice": 13500,
+    "discountRate": null,
+    "sku": "SWD-004",
+    "stock": 18,
+    "tags": [
+      "sal wood",
+      "heavy duty",
+      "commercial",
+      "strong door"
+    ],
+    "images": [
+      "/assets/images/products/sal-wood-heavy-duty-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Sal Wood"
+      },
+      {
+        "key": "Finish",
+        "value": "Walnut Brown Stain"
+      },
+      {
+        "key": "Thickness",
+        "value": "50mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Stainless Steel Lever"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": false,
+    "ratings": 4.5,
+    "numReviews": 12,
+    "wholesalePrice": 17600,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "solid-wood-doors",
+    "name": "Meranti Hardwood Bedroom Door",
+    "slug": "meranti-hardwood-bedroom-door",
+    "description": "Smooth, elegant, and affordable — this Meranti hardwood door brings a warm orange-brown tone with subtle interlocked grain to your bedroom. The semi-gloss lacquer gives a clean, modern look that complements contemporary interiors. Lightweight yet sturdy with a satin nickel knob. Thickness: 35mm. Ideal for apartments, condominiums, and urban homes.",
+    "price": 12500,
+    "salePrice": 10800,
+    "purchasePrice": 7500,
+    "discountRate": 14,
+    "sku": "SWD-005",
+    "stock": 30,
+    "tags": [
+      "meranti",
+      "bedroom",
+      "interior door",
+      "affordable"
+    ],
+    "images": [
+      "/assets/images/products/meranti-hardwood-bedroom-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Meranti Hardwood"
+      },
+      {
+        "key": "Finish",
+        "value": "Semi-Gloss Lacquer"
+      },
+      {
+        "key": "Thickness",
+        "value": "35mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Satin Nickel Knob"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.3,
+    "numReviews": 27,
+    "wholesalePrice": 10000,
+    "wholesaleSalePrice": 8600
+  },
+  {
+    "catSlug": "flush-doors",
+    "name": "Natural Oak Veneer Flush Door",
+    "slug": "natural-oak-veneer-flush-door",
+    "description": "A flush door with a beautifully applied natural oak veneer surface offering a premium wood look at a practical price. The flat, smooth face with satin chrome lever handle suits modern Scandinavian and minimalist interiors perfectly. The core is HDF for rigidity, and the veneer is precision-bonded for a seamless finish. Thickness: 40mm.",
+    "price": 14000,
+    "salePrice": 11500,
+    "purchasePrice": 8000,
+    "discountRate": 18,
+    "sku": "FLD-001",
+    "stock": 25,
+    "tags": [
+      "oak",
+      "veneer",
+      "flush door",
+      "modern"
+    ],
+    "images": [
+      "/assets/images/products/oak-veneer-flush-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Oak Veneer over HDF Core"
+      },
+      {
+        "key": "Finish",
+        "value": "Satin"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Satin Chrome Lever"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.6,
+    "numReviews": 19,
+    "wholesalePrice": 11200,
+    "wholesaleSalePrice": 9200
+  },
+  {
+    "catSlug": "flush-doors",
+    "name": "White Primer Flush Door",
+    "slug": "white-primer-flush-door",
+    "description": "A versatile white primer-coated flush door ready for any paint finish to match your interior décor. The perfectly flat matte white surface is ideal for residential apartments where a clean, neutral look is desired. Lightweight construction makes installation easy. Brushed steel lever handle included. Thickness: 35mm. Popular choice for bathrooms, utility rooms, and closets.",
+    "price": 6500,
+    "salePrice": 5200,
+    "purchasePrice": 3500,
+    "discountRate": 20,
+    "sku": "FLD-002",
+    "stock": 50,
+    "tags": [
+      "white",
+      "primer",
+      "flush door",
+      "budget"
+    ],
+    "images": [
+      "/assets/images/products/white-primer-flush-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "White Primer Coat"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte"
+      },
+      {
+        "key": "Thickness",
+        "value": "35mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Brushed Steel Lever"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": true,
+    "ratings": 4.1,
+    "numReviews": 42,
+    "wholesalePrice": 5200,
+    "wholesaleSalePrice": 4200
+  },
+  {
+    "catSlug": "flush-doors",
+    "name": "HDF Core Solid Flush Door",
+    "slug": "hdf-core-solid-flush-door",
+    "description": "This high-density fiberboard (HDF) core flush door delivers superior flatness, density, and screw-holding strength compared to hollow-core alternatives. Finished with a walnut grain paper laminate that closely mimics real wood. The solid core provides excellent sound and thermal insulation. Ideal for main interior corridors and living spaces. Thickness: 42mm.",
+    "price": 9800,
+    "salePrice": null,
+    "purchasePrice": 6000,
+    "discountRate": null,
+    "sku": "FLD-003",
+    "stock": 35,
+    "tags": [
+      "HDF",
+      "solid core",
+      "flush door",
+      "sound insulation"
+    ],
+    "images": [
+      "/assets/images/products/hdf-core-flush-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Core",
+        "value": "High-Density Fiberboard (HDF)"
+      },
+      {
+        "key": "Surface",
+        "value": "Walnut Grain Laminate"
+      },
+      {
+        "key": "Thickness",
+        "value": "42mm"
+      },
+      {
+        "key": "Feature",
+        "value": "Sound & Thermal Insulation"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": false,
+    "isFlashSale": false,
+    "ratings": 4.4,
+    "numReviews": 15,
+    "wholesalePrice": 7800,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "flush-doors",
+    "name": "Dark Wenge Flush Door",
+    "slug": "dark-wenge-flush-door",
+    "description": "A strikingly dramatic flush door finished with dark wenge grain — an almost black-brown hue with subtle lighter veins that exudes sophistication. The high-gloss lacquer amplifies the contrast and gives a contemporary, luxurious appearance. Perfect for master bedrooms, executive offices, and hotel corridors. Slim black aluminum lever handle included. Thickness: 40mm.",
+    "price": 16500,
+    "salePrice": 14000,
+    "purchasePrice": 9500,
+    "discountRate": 15,
+    "sku": "FLD-004",
+    "stock": 12,
+    "tags": [
+      "wenge",
+      "dark",
+      "flush door",
+      "luxury",
+      "modern"
+    ],
+    "images": [
+      "/assets/images/products/wenge-flush-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "Wenge Grain High-Gloss"
+      },
+      {
+        "key": "Finish",
+        "value": "High-Gloss Lacquer"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Black Aluminum Lever"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": false,
+    "ratings": 4.7,
+    "numReviews": 9,
+    "wholesalePrice": 13200,
+    "wholesaleSalePrice": 11200
+  },
+  {
+    "catSlug": "flush-doors",
+    "name": "American Walnut Veneer Flush Door",
+    "slug": "american-walnut-veneer-flush-door",
+    "description": "Featuring genuine American walnut veneer with rich chocolate-brown tones and elegant wavy grain patterns, this premium flush door adds warmth and class to any interior space. The satin lacquer finish accentuates the natural grain while protecting the surface. Three-quarter angled view shows impeccable edge quality. Matte black lever handle. Thickness: 40mm.",
+    "price": 19500,
+    "salePrice": null,
+    "purchasePrice": 12000,
+    "discountRate": null,
+    "sku": "FLD-005",
+    "stock": 10,
+    "tags": [
+      "walnut",
+      "veneer",
+      "flush door",
+      "premium"
+    ],
+    "images": [
+      "/assets/images/products/walnut-veneer-flush-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "American Walnut Veneer"
+      },
+      {
+        "key": "Finish",
+        "value": "Satin Lacquer"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Matte Black Lever"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.8,
+    "numReviews": 7,
+    "wholesalePrice": 15600,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "panelled-doors",
+    "name": "Classic 6-Panel Mahogany Door",
+    "slug": "classic-6-panel-mahogany-door",
+    "description": "A timeless six-panel solid mahogany door that evokes old-world grandeur. Six raised rectangular panels arranged in two columns and three rows cast gentle shadows, creating a dynamic visual texture. Deep reddish-brown mahogany color and visible wood grain add to its heritage charm. Oval brass knob included. Perfect for traditional homes, bungalows, and heritage buildings. Thickness: 45mm.",
+    "price": 32000,
+    "salePrice": 27500,
+    "purchasePrice": 19000,
+    "discountRate": 14,
+    "sku": "PND-001",
+    "stock": 10,
+    "tags": [
+      "6-panel",
+      "mahogany",
+      "classic",
+      "heritage"
+    ],
+    "images": [
+      "/assets/images/products/6-panel-mahogany-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Mahogany"
+      },
+      {
+        "key": "Panel Count",
+        "value": "6 Panels"
+      },
+      {
+        "key": "Finish",
+        "value": "Semi-Gloss"
+      },
+      {
+        "key": "Handle",
+        "value": "Oval Brass Knob"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.9,
+    "numReviews": 31,
+    "wholesalePrice": 25600,
+    "wholesaleSalePrice": 22000
+  },
+  {
+    "catSlug": "panelled-doors",
+    "name": "4-Panel Teak Traditional Door",
+    "slug": "4-panel-teak-traditional-door",
+    "description": "A balanced four-panel teak door with two large upper panels and two smaller lower panels — a classic layout loved across Bangladesh for decades. Each panel features a simple raised flat border molding that catches light beautifully. Golden-brown teak grain and semi-gloss finish give warmth to hallways, drawing rooms, and guest bedrooms. Brushed gold lever handle. Thickness: 42mm.",
+    "price": 24000,
+    "salePrice": 20000,
+    "purchasePrice": 14000,
+    "discountRate": 17,
+    "sku": "PND-002",
+    "stock": 18,
+    "tags": [
+      "4-panel",
+      "teak",
+      "traditional",
+      "interior"
+    ],
+    "images": [
+      "/assets/images/products/4-panel-teak-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Teak"
+      },
+      {
+        "key": "Panel Count",
+        "value": "4 Panels"
+      },
+      {
+        "key": "Finish",
+        "value": "Semi-Gloss"
+      },
+      {
+        "key": "Handle",
+        "value": "Brushed Gold Lever"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.6,
+    "numReviews": 22,
+    "wholesalePrice": 19200,
+    "wholesaleSalePrice": 16000
+  },
+  {
+    "catSlug": "panelled-doors",
+    "name": "Arch Top 2-Panel Decorative Door",
+    "slug": "arch-top-2-panel-decorative-door",
+    "description": "Add a touch of architectural elegance with this two-panel door featuring a decorative carved arch at the top. The arched upper panel and rectangular lower panel create a flowing, graceful silhouette suited to formal dining rooms, master suites, and luxury hotels. Medium walnut brown finish with a smooth texture. Round brass knob. Thickness: 40mm.",
+    "price": 26500,
+    "salePrice": null,
+    "purchasePrice": 16000,
+    "discountRate": null,
+    "sku": "PND-003",
+    "stock": 8,
+    "tags": [
+      "arch",
+      "2-panel",
+      "decorative",
+      "designer"
+    ],
+    "images": [
+      "/assets/images/products/arch-top-2-panel-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Hardwood"
+      },
+      {
+        "key": "Panel Count",
+        "value": "2 Panels (Arched Top)"
+      },
+      {
+        "key": "Finish",
+        "value": "Walnut Brown"
+      },
+      {
+        "key": "Handle",
+        "value": "Round Brass Knob"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.7,
+    "numReviews": 11,
+    "wholesalePrice": 21200,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "panelled-doors",
+    "name": "Colonial 8-Panel Mahogany Door",
+    "slug": "colonial-8-panel-mahogany-door",
+    "description": "Eight symmetrically arranged raised panels make this colonial-style door one of the most visually impressive in our collection. Dark mahogany brown with consistent grain across all panels creates a powerful, authoritative look. Ideal for the main entrance of offices, banks, or premium residences seeking to make a statement. Antique brass rectangular handle. Thickness: 48mm.",
+    "price": 38000,
+    "salePrice": 33000,
+    "purchasePrice": 23000,
+    "discountRate": 13,
+    "sku": "PND-004",
+    "stock": 6,
+    "tags": [
+      "8-panel",
+      "colonial",
+      "mahogany",
+      "office",
+      "main entrance"
+    ],
+    "images": [
+      "/assets/images/products/colonial-8-panel-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Solid Dark Mahogany"
+      },
+      {
+        "key": "Panel Count",
+        "value": "8 Panels"
+      },
+      {
+        "key": "Finish",
+        "value": "Dark Stain"
+      },
+      {
+        "key": "Handle",
+        "value": "Antique Brass Rectangle"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": false,
+    "ratings": 4.8,
+    "numReviews": 8,
+    "wholesalePrice": 30400,
+    "wholesaleSalePrice": 26400
+  },
+  {
+    "catSlug": "panelled-doors",
+    "name": "Shaker Style 5-Panel Door",
+    "slug": "shaker-style-5-panel-door",
+    "description": "The Shaker style is defined by its clean lines and honest craftsmanship — and this five-panel door embodies it perfectly. Recessed flat panels in a classic Shaker layout are painted in a trendy sage green, making it an instant focal point in any Scandinavian or modern farmhouse interior. Matte black lever handle. Thickness: 38mm. Ready to hang.",
+    "price": 15500,
+    "salePrice": 13000,
+    "wholesalePrice": 12400,
+    "wholesaleSalePrice": 10400,
+    "purchasePrice": 8500,
+    "discountRate": 16,
+    "sku": "PND-005",
+    "stock": 20,
+    "tags": [
+      "shaker",
+      "5-panel",
+      "sage green",
+      "farmhouse",
+      "modern"
+    ],
+    "images": [
+      "/assets/images/products/shaker-5-panel-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Style",
+        "value": "Shaker"
+      },
+      {
+        "key": "Panel Count",
+        "value": "5 Panels"
+      },
+      {
+        "key": "Color",
+        "value": "Sage Green"
+      },
+      {
+        "key": "Handle",
+        "value": "Matte Black Lever"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.5,
+    "numReviews": 16
+  },
+  {
+    "catSlug": "carved-designer-doors",
+    "name": "Full Floral Relief Carved Entrance Door",
+    "slug": "full-floral-relief-carved-entrance-door",
+    "description": "A masterpiece of woodcarving — this grand entrance door is hand-carved from premium dark teak by skilled artisans. Deep floral relief carvings of roses and vines cascade across the entire door surface, from top frame to bottom rail. The matte oil finish preserves every petal and leaf in striking detail. Designed for luxury mansions, resort lobbies, and heritage properties where art meets architecture. Thickness: 55mm.",
+    "price": 75000,
+    "salePrice": 65000,
+    "purchasePrice": 45000,
+    "discountRate": 13,
+    "sku": "CDD-001",
+    "stock": 4,
+    "tags": [
+      "carved",
+      "floral",
+      "entrance",
+      "luxury",
+      "handcrafted"
+    ],
+    "images": [
+      "/assets/images/products/floral-carved-entrance-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Premium Dark Teak"
+      },
+      {
+        "key": "Carving",
+        "value": "Full Floral Relief"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte Oil"
+      },
+      {
+        "key": "Thickness",
+        "value": "55mm"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 5,
+    "numReviews": 6,
+    "wholesalePrice": 60000,
+    "wholesaleSalePrice": 52000
+  },
+  {
+    "catSlug": "carved-designer-doors",
+    "name": "Geometric Pattern Carved Door",
+    "slug": "geometric-pattern-carved-door",
+    "description": "Inspired by Islamic geometric art, this carved door features bold interlocking diamond and hexagonal patterns across the entire surface. The precision carving in medium walnut brown wood creates an extraordinary interplay of light and shadow. A statement piece for contemporary homes, mosques, hotels, and cultural centres that appreciate artisan design. Thickness: 50mm.",
+    "price": 58000,
+    "salePrice": 50000,
+    "purchasePrice": 34000,
+    "discountRate": 14,
+    "sku": "CDD-002",
+    "stock": 5,
+    "tags": [
+      "geometric",
+      "carved",
+      "Islamic pattern",
+      "designer",
+      "contemporary"
+    ],
+    "images": [
+      "/assets/images/products/geometric-carved-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Walnut Brown Wood"
+      },
+      {
+        "key": "Pattern",
+        "value": "Islamic Geometric"
+      },
+      {
+        "key": "Finish",
+        "value": "Natural Oil"
+      },
+      {
+        "key": "Thickness",
+        "value": "50mm"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.9,
+    "numReviews": 4,
+    "wholesalePrice": 46400,
+    "wholesaleSalePrice": 40000
+  },
+  {
+    "catSlug": "carved-designer-doors",
+    "name": "Mughal Arch Carved Designer Door",
+    "slug": "mughal-arch-carved-designer-door",
+    "description": "Celebrating the grandeur of Mughal architecture, this carved door features a majestic pointed arch motif dominating the upper two-thirds, framed by intricate floral border carvings. The lower third is adorned with geometric fill carvings. Dark teak brown with a matte finish. Suitable for heritage hotels, private estates, and cultural institutions. Thickness: 52mm.",
+    "price": 68000,
+    "salePrice": null,
+    "purchasePrice": 40000,
+    "discountRate": null,
+    "sku": "CDD-003",
+    "stock": 3,
+    "tags": [
+      "Mughal",
+      "arch",
+      "carved",
+      "heritage",
+      "luxury"
+    ],
+    "images": [
+      "/assets/images/products/mughal-arch-carved-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Dark Teak"
+      },
+      {
+        "key": "Design",
+        "value": "Mughal Pointed Arch + Floral"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte"
+      },
+      {
+        "key": "Thickness",
+        "value": "52mm"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.9,
+    "numReviews": 3,
+    "wholesalePrice": 54400,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "carved-designer-doors",
+    "name": "Nature Motif Full Body Carved Door",
+    "slug": "nature-motif-full-body-carved-door",
+    "description": "This extraordinary carved door tells a story through wood — a spreading tree with detailed branches fills the upper half, birds perch among carved leaves, and roots and grass adorn the lower section. The entire door surface is a living narrative. Light golden teak brown accentuates every carved detail. A collector's piece for nature lovers, boutique resorts, and eco-luxury homes. Thickness: 50mm.",
+    "price": 72000,
+    "salePrice": 62000,
+    "purchasePrice": 43000,
+    "discountRate": 14,
+    "sku": "CDD-004",
+    "stock": 3,
+    "tags": [
+      "nature",
+      "tree carving",
+      "artisan",
+      "luxury",
+      "bespoke"
+    ],
+    "images": [
+      "/assets/images/products/nature-motif-carved-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Golden Teak"
+      },
+      {
+        "key": "Carving",
+        "value": "Nature Tree & Birds Motif"
+      },
+      {
+        "key": "Finish",
+        "value": "Natural Oil"
+      },
+      {
+        "key": "Thickness",
+        "value": "50mm"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.8,
+    "numReviews": 5,
+    "wholesalePrice": 57600,
+    "wholesaleSalePrice": 49600
+  },
+  {
+    "catSlug": "carved-designer-doors",
+    "name": "Contemporary Minimalist Carved Door",
+    "slug": "contemporary-minimalist-carved-door",
+    "description": "Merging the craft of carving with modern minimalist sensibility, this door features deep horizontal channel grooves carved at precise intervals across the entire surface. The clean rhythm of lines creates a bold graphic identity that elevates any contemporary living space. Dark espresso brown stain, matte black lever handle. Ideal for upscale apartments, hotel rooms, and modern offices. Thickness: 45mm.",
+    "price": 42000,
+    "salePrice": 36000,
+    "purchasePrice": 25000,
+    "discountRate": 14,
+    "sku": "CDD-005",
+    "stock": 8,
+    "tags": [
+      "minimalist",
+      "modern",
+      "carved",
+      "linear",
+      "contemporary"
+    ],
+    "images": [
+      "/assets/images/products/minimalist-carved-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Material",
+        "value": "Hardwood"
+      },
+      {
+        "key": "Pattern",
+        "value": "Horizontal Channel Grooves"
+      },
+      {
+        "key": "Finish",
+        "value": "Dark Espresso Stain"
+      },
+      {
+        "key": "Handle",
+        "value": "Matte Black Lever"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.7,
+    "numReviews": 10,
+    "wholesalePrice": 33600,
+    "wholesaleSalePrice": 28800
+  },
+  {
+    "catSlug": "laminated-doors",
+    "name": "High Gloss White Laminated Door",
+    "slug": "high-gloss-white-laminated-door",
+    "description": "Clean, crisp, and contemporary — this high-gloss white HPL laminated door delivers a premium finish that instantly brightens any room. The perfectly smooth reflective surface is easy to wipe clean, making it ideal for kitchens, bathrooms, hospitals, and apartments. The aluminium door edge gives it a sharp, architectural feel. Matte silver aluminium handle. Thickness: 40mm. Water and moisture resistant.",
+    "price": 11500,
+    "salePrice": 9500,
+    "purchasePrice": 6500,
+    "discountRate": 17,
+    "sku": "LMD-001",
+    "stock": 40,
+    "tags": [
+      "white",
+      "gloss",
+      "laminated",
+      "modern",
+      "HPL"
+    ],
+    "images": [
+      "/assets/images/products/gloss-white-laminated-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "High-Gloss White HPL"
+      },
+      {
+        "key": "Finish",
+        "value": "High-Gloss"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Matte Silver Aluminium"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.5,
+    "numReviews": 38,
+    "wholesalePrice": 9200,
+    "wholesaleSalePrice": 7600
+  },
+  {
+    "catSlug": "laminated-doors",
+    "name": "Walnut Wood Grain Laminated Door",
+    "slug": "walnut-wood-grain-laminated-door",
+    "description": "Get the premium look of real walnut wood veneer at a fraction of the cost with this high-quality walnut grain HPL laminated door. The semi-gloss surface closely mimics the warm chocolate brown tones and grain lines of genuine walnut. Brushed gold lever handle. Ideal for home interiors, hotel rooms, and corporate offices wanting a luxurious wood look without the high price. Thickness: 40mm.",
+    "price": 13500,
+    "salePrice": 11000,
+    "purchasePrice": 7500,
+    "discountRate": 19,
+    "sku": "LMD-002",
+    "stock": 28,
+    "tags": [
+      "walnut",
+      "wood grain",
+      "laminated",
+      "HPL",
+      "interior"
+    ],
+    "images": [
+      "/assets/images/products/walnut-grain-laminated-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "Walnut Grain HPL Laminate"
+      },
+      {
+        "key": "Finish",
+        "value": "Semi-Gloss"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Brushed Gold Lever"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": false,
+    "isFlashSale": true,
+    "ratings": 4.6,
+    "numReviews": 25,
+    "wholesalePrice": 10800,
+    "wholesaleSalePrice": 8800
+  },
+  {
+    "catSlug": "laminated-doors",
+    "name": "Matte Grey Laminated Door",
+    "slug": "matte-grey-laminated-door",
+    "description": "Understated and sophisticated, this matte mid-grey HPL door absorbs light beautifully, creating a calm, refined atmosphere in any space. The completely flat surface with zero sheen is perfect for Scandinavian, Nordic, and minimalist interiors. Long slim black bar pull handle. Well-suited to bedrooms, study rooms, and contemporary living rooms. Moisture-resistant core. Thickness: 40mm.",
+    "price": 10500,
+    "salePrice": null,
+    "purchasePrice": 6000,
+    "discountRate": null,
+    "sku": "LMD-003",
+    "stock": 32,
+    "tags": [
+      "grey",
+      "matte",
+      "laminated",
+      "Scandinavian",
+      "minimalist"
+    ],
+    "images": [
+      "/assets/images/products/matte-grey-laminated-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "Matte Mid-Grey HPL"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte (Zero Sheen)"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Slim Black Bar Pull"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.4,
+    "numReviews": 20,
+    "wholesalePrice": 8400,
+    "wholesaleSalePrice": null
+  },
+  {
+    "catSlug": "laminated-doors",
+    "name": "Cherry Wood Finish Laminated Door",
+    "slug": "cherry-wood-finish-laminated-door",
+    "description": "Radiating warmth and comfort, this cherry wood grain HPL door brings a rich reddish-orange tone with fine straight grain lines to your interior. The semi-gloss finish gives a subtle warm sheen that complements traditional and transitional home décors. Round satin brass knob included. Popular for living rooms, drawing rooms, and family homes seeking a cozy, inviting look. Thickness: 40mm.",
+    "price": 12000,
+    "salePrice": 10200,
+    "purchasePrice": 6800,
+    "discountRate": 15,
+    "sku": "LMD-004",
+    "stock": 22,
+    "tags": [
+      "cherry",
+      "wood grain",
+      "laminated",
+      "warm tone",
+      "HPL"
+    ],
+    "images": [
+      "/assets/images/products/cherry-laminated-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "Cherry Wood Grain HPL"
+      },
+      {
+        "key": "Finish",
+        "value": "Semi-Gloss"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Satin Brass Round Knob"
+      }
+    ],
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.3,
+    "numReviews": 17,
+    "wholesalePrice": 9600,
+    "wholesaleSalePrice": 8200
+  },
+  {
+    "catSlug": "laminated-doors",
+    "name": "Black Matte Laminated Door",
+    "slug": "black-matte-laminated-door",
+    "description": "Bold, dramatic, and unmistakably modern — this black matte HPL door makes a powerful statement in any interior. The deep uniform flat black finish with zero reflectivity creates a striking contrast against white walls and light floors. The long minimal gold bar handle cutting across the black surface adds an element of luxury. Perfect for executive offices, luxury penthouses, boutique hotels, and modern show homes. Thickness: 40mm.",
+    "price": 14500,
+    "salePrice": 12500,
+    "purchasePrice": 8000,
+    "discountRate": 14,
+    "sku": "LMD-005",
+    "stock": 15,
+    "tags": [
+      "black",
+      "matte",
+      "laminated",
+      "luxury",
+      "bold",
+      "HPL"
+    ],
+    "images": [
+      "/assets/images/products/black-matte-laminated-door.webp"
+    ],
+    "attributes": [
+      {
+        "key": "Surface",
+        "value": "Matte Black HPL"
+      },
+      {
+        "key": "Finish",
+        "value": "Matte (Zero Sheen)"
+      },
+      {
+        "key": "Thickness",
+        "value": "40mm"
+      },
+      {
+        "key": "Handle",
+        "value": "Minimal Gold Bar Pull"
+      }
+    ],
+    "isFeatured": true,
+    "isNewArrival": true,
+    "isFlashSale": false,
+    "ratings": 4.8,
+    "numReviews": 14,
+    "wholesalePrice": 11600,
+    "wholesaleSalePrice": 10000
+  }
+]
