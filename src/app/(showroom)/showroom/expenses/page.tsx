@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Plus, Trash, Edit, Search, Loader2, Info, Clock, CheckCircle2, XCircle, ArrowDownCircle, ArrowUpCircle, Wallet, SlidersHorizontal, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

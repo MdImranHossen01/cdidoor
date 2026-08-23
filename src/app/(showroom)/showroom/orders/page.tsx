@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect, Suspense } from 'react';
 import { Search, Loader2, Calendar, FileText, CheckCircle2, XCircle, Clock, Truck, RefreshCw, Eye, Share2, Plus, Trash2 } from 'lucide-react';
 import {

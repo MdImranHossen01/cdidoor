@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect, Suspense } from 'react';
 import { ShoppingBag, Loader2, Search, Check, X, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { useSession, signOut } from 'next-auth/react';
 import { User, LogOut, Briefcase, Menu } from 'lucide-react';

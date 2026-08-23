@@ -9,6 +9,7 @@ import { Search, ShoppingBag, User, Heart, Menu, X, LogOut, LayoutDashboard, Set
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/store/hooks';
 import { useSession, signOut } from 'next-auth/react';
+import { useSettings } from '@/components/SettingsProvider';
 import { toast } from 'sonner';
 import { CartDrawer } from '@/components/layout/CartDrawer';
 import {
