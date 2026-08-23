@@ -117,8 +117,8 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             {isMonthly
-              ? '{t('store.employee.salary_desc_monthly') || 'à¦†à¦ªà¦¨à¦¾à¦° à¦¬à§‡à¦¤à¦¨ à¦“ à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦ªà¦¾à¦°à¦¿à¦¶à§à¦°à¦®à¦¿à¦•à§‡à¦° à¦¬à¦¿à¦¸à§à¦¤à¦¾à¦°à¦¿à¦¤ à¦¤à¦¥à§à¦¯ à¦“ à¦¹à¦¿à¦¸à¦¾à¦¬à¥¤'}'
-              : '{t('store.employee.salary_desc_task') || 'à¦†à¦ªà¦¨à¦¾à¦° à¦¸à¦®à§à¦ªà¦¨à§à¦¨ à¦•à¦¾à¦œà§‡à¦° à¦…à¦°à§à¦œà¦¿à¦¤ à¦®à¦œà§à¦°à¦¿ à¦“ à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦ªà¦¾à¦°à¦¿à¦¶à§à¦°à¦®à¦¿à¦•à§‡à¦° à¦¹à¦¿à¦¸à¦¾à¦¬ à¦¬à¦¿à¦¬à¦°à¦£à§€à¥¤'}'}
+              ? (t('store.employee.salary_desc_monthly') || 'আপনার বেতন ও পরিশোধিত পারিশ্রমিকের বিস্তারিত তথ্য ও হিসাব।')
+              : (t('store.employee.salary_desc_task') || 'আপনার সম্পন্ন কাজের অর্জিত মজুরি ও পরিশোধিত পারিশ্রমিকের হিসাব বিবরণী।')}
           </p>
         </div>
         <div className="flex gap-2">

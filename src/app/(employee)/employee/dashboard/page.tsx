@@ -98,16 +98,16 @@ export default function EmployeeDashboard() {
             <h2 className="text-2xl font-bold tracking-tight">{t('store.employee.welcome') || 'à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®,'} {session?.user?.name}!</h2>
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            {t('store.employee.dashboard_desc') || 'à¦†à¦ªà¦¨à¦¾à¦° à¦•à¦°à§à¦®à¦•à§à¦·à§‡à¦¤à§à¦°à§‡à¦° à¦¸à¦¾à¦®à¦—à§à¦°à¦¿à¦• à¦¤à¦¥à§à¦¯ à¦à¦–à¦¾à¦¨à§‡ à¦¦à§‡à¦–à§à¦¨à¥¤'}
+            {t('store.employee.dashboard_desc') || 'আপনার কর্মক্ষেত্রের সামগ্রিক তথ্য এখানে দেখুন।'}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Badge variant="outline" className="text-xs">
-            {isMonthly ? '{t('store.employee.monthly_staff') || 'à¦®à¦¾à¦¸à¦¿à¦• à¦•à¦°à§à¦®à§€'}' : '{t('store.employee.contractual_staff') || 'à¦šà§à¦•à§à¦¤à¦¿à¦­à¦¿à¦¤à§à¦¤à¦¿à¦• à¦•à¦°à§à¦®à§€'}'}
+            {isMonthly ? (t('store.employee.monthly_staff') || 'মাসিক কর্মী') : (t('store.employee.contractual_staff') || 'চুক্তিভিত্তিক কর্মী')}
           </Badge>
           {data?.profile?.joinedDate && (
             <Badge variant="secondary" className="text-xs">
-              {t('store.employee.joined') || 'à¦¯à§‹à¦—à¦¦à¦¾à¦¨: '} {format(new Date(data.profile.joinedDate), 'dd MMM yyyy')}
+              {t('store.employee.joined') || 'যোগদান: '} {format(new Date(data.profile.joinedDate), 'dd MMM yyyy')}
             </Badge>
           )}
         </div>

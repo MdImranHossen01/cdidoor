@@ -61,40 +61,7 @@ const navItems = [
     ],
   }
 ]
-/* replaced */
-  {
-    // title: "Overview",
-    icon: LayoutDashboard,
-    items: [{ // title: "Dashboard", url: "/showroom/dashboard" }],
-  },
-  {
-    title: "My Showroom",
-    icon: Store,
-    items: [
-      { // title: "Orders", url: "/showroom/orders" },
-      { title: "Client Bills", url: "/showroom/bills" },
-    ],
-  },
-  {
-    title: "Products",
-    icon: ShoppingBag,
-    items: [{ title: "Showroom Stock", url: "/showroom/stock" }],
-  },
-  {
-    // title: "Finance",
-    icon: DollarSign,
-    items: [{ // title: "Expenses", url: "/showroom/expenses" }],
-  },
-  {
-    title: "My Portal",
-    icon: User,
-    items: [
-      { title: "Attendance & Dashboard", url: "/employee/dashboard" },
-      { title: "Salary History", url: "/employee/salary" },
-      { title: "My Leaves", url: "/employee/leaves" },
-    ],
-  },
-]
+
 
 function NavMain({ items, pathname }: { items: typeof navItems; pathname: string }) {
   const { setOpenMobile, isMobile } = useSidebar()

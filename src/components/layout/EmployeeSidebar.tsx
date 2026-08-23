@@ -68,36 +68,7 @@ const navItems = [
     items: [{ titleKey: "store.employee.my_tasks", titleDefault: "My Tasks", url: "/employee/tasks" }],
   },
 ]
-/* replaced */
-  {
-    // title: "Overview",
-    icon: LayoutDashboard,
-    items: [{ // title: "Dashboard", url: "/employee/dashboard" }],
-  },
-  {
-    // title: "My Profile",
-    icon: User,
-    items: [
-      { // title: "Profile Info", url: "/employee/profile" },
-      { // title: "Change Password", url: "/employee/change-password" },
-    ],
-  },
-  {
-    // title: "Salary",
-    icon: DollarSign,
-    items: [{ // title: "Salary History", url: "/employee/salary" }],
-  },
-  {
-    // title: "Leave",
-    icon: CalendarOff,
-    items: [{ // title: "My Leaves", url: "/employee/leaves" }],
-  },
-  {
-    // title: "Tasks",
-    icon: CheckSquare,
-    items: [{ // title: "My Tasks", url: "/employee/tasks" }],
-  },
-]
+
 
 function NavMain({ items, pathname }: { items: typeof navItems; pathname: string }) {
   const { setOpenMobile, isMobile } = useSidebar()

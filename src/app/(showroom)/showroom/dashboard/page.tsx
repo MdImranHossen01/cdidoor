@@ -665,7 +665,7 @@ export default function ShowroomDashboard() {
                       variant={item.stock === 0 ? 'destructive' : item.stock < 5 ? 'secondary' : 'default'}
                       className="text-xs"
                     >
-                      {item.stock === 0 ? '{t('store.showroom.out_of_stock') || 'à¦†à¦‰à¦Ÿ à¦…à¦¬ à¦¸à§à¦Ÿà¦•'}' : `${item.stock} {t('store.showroom.pcs') || 'à¦ªà¦¿à¦¸'}`}
+                      {item.stock === 0 ? (t('store.showroom.out_of_stock') || 'আউট অব স্টক') : `${item.stock} ${t('store.showroom.pcs') || 'পিস'}`}
                     </Badge>
                   </div>
                 ))}
