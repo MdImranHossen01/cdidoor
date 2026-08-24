@@ -39,6 +39,8 @@ export default function EmployeeTopbar() {
       <div className="hidden md:flex items-center gap-2">
         <Briefcase className="h-4 w-4 text-primary" />
         <span className="font-semibold text-sm">Employee Panel</span>
+        <span className="text-muted-foreground mx-1">/</span>
+        <span className="font-bold text-lg">{getPageTitle(pathname)}</span>
       </div>
 
       <div className="hidden md:flex items-center gap-4">

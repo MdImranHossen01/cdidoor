@@ -167,6 +167,11 @@ const data = {
           url: "/admin/bills",
         },
         {
+          title: "Create Invoice",
+          tKey: "sidebar.create_invoice",
+          url: "/admin/bills/create",
+        },
+        {
           title: "Suppliers / Vendors",
           tKey: "sidebar.suppliers_vendors",
           url: "/admin/suppliers",

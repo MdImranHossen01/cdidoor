@@ -65,6 +65,8 @@ export default function ShowroomTopbar() {
         {showroomName && (
           <Badge variant="secondary" className="text-xs">{showroomName}</Badge>
         )}
+        <span className="text-muted-foreground mx-1">/</span>
+        <span className="font-bold text-lg">{getPageTitle(pathname)}</span>
       </div>
 
       <div className="hidden md:flex items-center gap-4">

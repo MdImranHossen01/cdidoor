@@ -38,9 +38,9 @@ export default function AdminTopbar() {
         <LanguageToggle />
       </div>
 
-      {/* Mobile Title (Centered) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden z-0">
-        <div className="font-bold text-lg truncate px-12">
+      {/* Page Title */}
+      <div className="absolute inset-0 flex items-center justify-center md:justify-start md:static md:inset-auto md:flex-1 pointer-events-none z-0">
+        <div className="font-bold text-lg truncate px-12 md:px-0">
           {getPageTitle(pathname)}
         </div>
       </div>
@@ -50,8 +50,7 @@ export default function AdminTopbar() {
         <ModeToggle />
       </div>
       
-      {/* Desktop spacer */}
-      <div className="hidden md:flex flex-1" />
+
       
       <div className="hidden md:flex items-center gap-4">
         <LanguageToggle />
