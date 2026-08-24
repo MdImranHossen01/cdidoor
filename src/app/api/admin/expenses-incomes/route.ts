@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const expenses = await Expense.find(query).populate('showroom', 'name').sort({ date: -1 });
+    const expenses = await Expense.find(query).populate('showroom', 'name').populate('employee', 'name email').sort({ date: -1 });
     return NextResponse.json(expenses);
   } catch (error: any) {
     console.error('Error fetching transactions:', error);
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, amount, category, date, description, type } = body;
+    const { title, amount, category, date, description, type, employee } = body;
 
     // Validate required fields (basic)
     if (!title || amount === undefined || !category || !type) {
@@ -108,7 +108,8 @@ export async function POST(req: NextRequest) {
       type,
       date: date ? new Date(date) : new Date(),
       description,
-      status: expenseStatus
+      status: expenseStatus,
+      employee
     };
 
     if (showroomId) {

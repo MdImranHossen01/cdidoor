@@ -66,7 +66,7 @@ export async function syncCreditOrdersToLedgerAR() {
 }
 
 export async function logLedgerTransaction(
-  accountCode: 'CASH' | 'BANK' | 'AR' | 'AP',
+  accountCode: string,
   type: 'debit' | 'credit',
   amount: number,
   description: string,
@@ -119,7 +119,7 @@ export async function logLedgerTransaction(
 
   // Recalculate to keep chronological order correct in the DB running balances only if inserted in the past
   if (needsRecalc) {
-    await recalculateLedgerBalance(accountCode, session);
+    await recalculateLedgerBalance(accountCode as any, session);
   }
 
   return transaction;

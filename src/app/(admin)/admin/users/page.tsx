@@ -316,6 +316,7 @@ function UsersContent() {
               <TableHead className="font-bold">{t("users.orders")}</TableHead>
               <TableHead className="font-bold">{t("users.role")}</TableHead>
               <TableHead className="font-bold">{t("users.joined")}</TableHead>
+              <TableHead className="font-bold">{t("users.last_visit") || "Last Login"}</TableHead>
               <TableHead className="text-right font-bold">{t("users.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -334,6 +335,7 @@ function UsersContent() {
                   <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
                   <TableCell className="text-right">
                     <Skeleton className="h-8 w-8 rounded-md ml-auto" />
                   </TableCell>
@@ -341,7 +343,7 @@ function UsersContent() {
               ))
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-48 text-center">
+                <TableCell colSpan={8} className="h-48 text-center">
                   <p className="text-muted-foreground">{t("users.no_users_found")}</p>
                 </TableCell>
               </TableRow>
@@ -398,6 +400,15 @@ function UsersContent() {
                       day: 'numeric',
                       year: 'numeric'
                     })}
+                  </TableCell>
+                  <TableCell className="text-slate-500 text-sm">
+                    {user.lastActive ? new Date(user.lastActive).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) : t("users.never") || 'Never'}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

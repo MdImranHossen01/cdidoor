@@ -15,7 +15,8 @@ import {
   Megaphone,
   Store,
   Mail,
-  CreditCard
+  CreditCard,
+  RotateCcw
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 
@@ -44,16 +45,24 @@ import {
 const data = {
   navMain: [
     {
-      title: "Overview",
-      tKey: "sidebar.overview",
+      title: "Dashboard",
+      tKey: "sidebar.dashboard",
       url: "/admin/dashboard",
       icon: LayoutDashboard,
       isActive: true,
       items: [
         {
-          title: "Dashboard",
-          tKey: "sidebar.dashboard",
+          title: "Overview",
+          tKey: "sidebar.overview",
           url: "/admin/dashboard",
+        },
+        {
+          title: "Report",
+          url: "/admin/dashboard/report",
+        },
+        {
+          title: "Insight",
+          url: "/admin/dashboard/insight",
         }
       ],
     },
@@ -87,9 +96,42 @@ const data = {
           url: "/admin/products/new",
         },
         {
+          title: "Upcoming Expire",
+          tKey: "sidebar.upcoming_expire",
+          url: "/admin/upcoming-expiry",
+        },
+        {
+          title: "Low Stock",
+          tKey: "sidebar.low_stock",
+          url: "/admin/low-stock",
+        },
+        {
           title: "Categories",
           tKey: "sidebar.categories",
           url: "/admin/categories",
+        },
+        {
+          title: "Brands",
+          tKey: "sidebar.brands",
+          url: "/admin/brands",
+        },
+      ],
+    },
+    {
+      title: "Product Return",
+      tKey: "sidebar.product_return",
+      url: "#",
+      icon: RotateCcw,
+      items: [
+        {
+          title: "New Return",
+          tKey: "sidebar.new_return",
+          url: "/admin/returns/new",
+        },
+        {
+          title: "Return List",
+          tKey: "sidebar.return_list",
+          url: "/admin/returns",
         },
       ],
     },
@@ -134,10 +176,44 @@ const data = {
           tKey: "sidebar.supplier_bills",
           url: "/admin/supplier-bills",
         },
+      ],
+    },
+    {
+      title: "Ledger & Accounting",
+      tKey: "sidebar.ledger_accounting",
+      url: "#",
+      icon: CreditCard,
+      items: [
+        {
+          title: "All Accounts",
+          tKey: "sidebar.all_accounts",
+          url: "/admin/accounts",
+        },
+        {
+          title: "Add Account",
+          tKey: "sidebar.add_account",
+          url: "/admin/accounts/new",
+        },
         {
           title: "Expenses & Incomes",
           tKey: "sidebar.expenses_incomes",
           url: "/admin/expenses-incomes",
+        },
+        {
+          title: "Add Expense-Income",
+          tKey: "sidebar.add_expense_income",
+          url: "/admin/expenses-incomes?action=new",
+        },
+        {
+          title: "Add Category",
+          tKey: "sidebar.add_category",
+          url: "/admin/expenses-incomes/categories",
+        },
+        {
+          title: "New Journal Entry",
+          tKey: "ledger.new_journal_entry",
+          url: "/admin/ledger?action=new-journal",
+          superOnly: true
         },
         {
           title: "Accounts Ledger",
@@ -338,7 +414,7 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
                               ))
                           }
                         >
-                          <span>{t(subItem.tKey as string) || subItem.title}</span>
+                          <span>{subItem.tKey ? t(subItem.tKey as string) : subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

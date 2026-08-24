@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -19,12 +20,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { getPageTitle } from '@/lib/page-title';
 
 export default function ShowroomTopbar() {
   const { t } = useLanguage();
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [showroomName, setShowroomName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,19 +41,33 @@ export default function ShowroomTopbar() {
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
-      <div className="flex items-center gap-3">
-        <Link href="/" className="inline-flex items-center justify-center rounded-md h-9 w-9 hover:bg-muted md:hidden">
-          <Home className="h-5 w-5 text-muted-foreground" />
-        </Link>
-        <div className="hidden md:flex items-center gap-2">
-          <Store className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Showroom Panel</span>
-          {showroomName && (
-            <Badge variant="secondary" className="text-xs">{showroomName}</Badge>
-          )}
+      {/* Mobile Left - Language Toggle */}
+      <div className="flex items-center md:hidden z-10 -ml-2">
+        <LanguageToggle />
+      </div>
+
+      {/* Mobile Title (Centered) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden z-0">
+        <div className="font-bold text-lg truncate px-12">
+          {getPageTitle(pathname)}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+
+      {/* Mobile Right - Theme Toggle */}
+      <div className="flex items-center md:hidden z-10 -mr-2">
+        <ModeToggle />
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:flex items-center gap-2">
+        <Store className="h-4 w-4 text-primary" />
+        <span className="font-semibold text-sm">Showroom Panel</span>
+        {showroomName && (
+          <Badge variant="secondary" className="text-xs">{showroomName}</Badge>
+        )}
+      </div>
+
+      <div className="hidden md:flex items-center gap-4">
         <ModeToggle />
         {session?.user ? (
           <DropdownMenu>

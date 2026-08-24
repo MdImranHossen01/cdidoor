@@ -11,7 +11,6 @@ export function EmployeeTabs() {
 
   const tabs = [
     { name: t("employees.tabs.staff_list"), href: '/admin/employees' },
-    { name: t("employees.tabs.disbursements"), href: '/admin/employees/salaries' },
     { name: t("employees.tabs.leave_requests"), href: '/admin/employees/leaves' },
     { name: t("employees.tabs.attendance_sheet"), href: '/admin/employees/attendance' },
     { name: t("employees.tabs.tasks"), href: '/admin/employees/tasks' },

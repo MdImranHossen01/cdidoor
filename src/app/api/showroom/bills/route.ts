@@ -99,6 +99,9 @@ export async function POST(req: NextRequest) {
       const p = Math.max(0, parseFloat(item.price) || 0);
       calculatedSubtotal += q * p;
       return {
+        productId: item.productId,
+        variantId: item.variantId,
+        batchNumber: item.batchNumber,
         name: String(item.name),
         quantity: q,
         price: p,
@@ -172,6 +175,92 @@ export async function POST(req: NextRequest) {
         convertedFrom: convertedFrom || undefined,
         showroom: showroom._id
       });
+
+      // Deduct Stock if it's a bill
+      if (docType === 'bill') {
+        const Product = (await import('@/models/Product')).default;
+        for (const item of sanitizedItems) {
+          if (!item.productId) continue;
+          const product = await Product.findById(item.productId).session(dbSession);
+          if (!product) throw new Error(`Product not found: ${item.name}`);
+
+          let remainingQty = item.quantity;
+          const batchesUsed: { batchNumber: string; quantity: number }[] = [];
+
+          const hasVariant = !!item.variantId;
+          if (hasVariant) {
+            const variant = product.variants?.find((v: any) => v._id.toString() === item.variantId);
+            if (!variant) throw new Error(`Variant not found for: ${item.name}`);
+            
+            // Deduct variant batch stock
+            let availableBatches = (variant.batches || []) || [];
+            if (item.batchNumber && item.batchNumber !== 'auto') {
+              const b = availableBatches.find((b: any) => b.batchNumber === item.batchNumber);
+              if (b) {
+                const qtyToTake = Math.min(b.stock, remainingQty);
+                batchesUsed.push({ batchNumber: b.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                b.stock -= qtyToTake;
+              }
+            } else {
+              // FIFO
+              const sortedBatches = [...availableBatches].sort((a, b) => {
+                if (!a.expiryDate) return 1;
+                if (!b.expiryDate) return -1;
+                return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+              });
+              for (const batch of sortedBatches) {
+                if (remainingQty <= 0) break;
+                if (batch.stock > 0) {
+                  const qtyToTake = Math.min(batch.stock, remainingQty);
+                  batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                  remainingQty -= qtyToTake;
+                  const originalBatch = (variant.batches || []).find((b: any) => b.batchNumber === batch.batchNumber);
+                  if (originalBatch) originalBatch.stock -= qtyToTake;
+                }
+              }
+            }
+          } else {
+            // Deduct base product batch stock
+            let availableBatches = (product.batches || []) || [];
+            if (item.batchNumber && item.batchNumber !== 'auto') {
+              const b = availableBatches.find((b: any) => b.batchNumber === item.batchNumber);
+              if (b) {
+                const qtyToTake = Math.min(b.stock, remainingQty);
+                batchesUsed.push({ batchNumber: b.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                b.stock -= qtyToTake;
+              }
+            } else {
+              // FIFO
+              const sortedBatches = [...availableBatches].sort((a, b) => {
+                if (!a.expiryDate) return 1;
+                if (!b.expiryDate) return -1;
+                return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+              });
+              for (const batch of sortedBatches) {
+                if (remainingQty <= 0) break;
+                if (batch.stock > 0) {
+                  const qtyToTake = Math.min(batch.stock, remainingQty);
+                  batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                  remainingQty -= qtyToTake;
+                  const originalBatch = (product.batches || []).find((b: any) => b.batchNumber === batch.batchNumber);
+                  if (originalBatch) originalBatch.stock -= qtyToTake;
+                }
+              }
+            }
+          }
+          item.batchesUsed = batchesUsed;
+
+          // Deduct from Showroom Stock (we don't block if negative to prevent POS blocking, just warn)
+          const srStock = product.showroomStocks?.find((s: any) => s.showroom.toString() === showroom._id.toString());
+          if (srStock) {
+            srStock.stock -= item.quantity;
+          }
+
+          await product.save({ session: dbSession });
+        }
+      }
 
       await newBill.save({ session: dbSession });
 

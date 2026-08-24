@@ -137,6 +137,16 @@ function ExpensesIncomesContent() {
     fetchTransactions();
   }, []);
 
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      setIsDialogOpen(true);
+      // Clean up URL parameter
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('action');
+      router.replace(`/admin/expenses-incomes?${params.toString()}`);
+    }
+  }, [searchParams, router]);
+
   const handleUpdateStatus = async (id: string, status: 'Approved' | 'Rejected') => {
     try {
       const res = await fetch(`/api/admin/expenses-incomes/${id}`, {

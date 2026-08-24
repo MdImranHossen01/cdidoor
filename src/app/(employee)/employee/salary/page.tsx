@@ -11,13 +11,8 @@ import {
   Gift,
   Briefcase,
   Loader2,
-  AlertCircle,
   FileText,
   Eye,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  HelpCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +35,8 @@ import {
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-export default function EmployeeSalaryPage() {  const { t } = useLanguage();
+export default function EmployeeSalaryPage() {
+  const { t } = useLanguage();
 
   const { data: session } = useSession();
   const [stats, setStats] = useState<any>(null);
@@ -53,7 +49,7 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
       try {
         const [statsRes, disbRes] = await Promise.all([
           fetch('/api/employee/dashboard/stats'),
-          fetch('/api/admin/employees/salaries')
+          fetch('/api/employee/dashboard/salaries')
         ]);
 
         if (statsRes.ok) {
@@ -83,19 +79,17 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
   const isMonthly = stats?.profile?.employeeType === 'monthly';
   const totalEarnedAllTime = disbursements.reduce((acc, curr) => acc + (curr.amount || 0), 0);
   const totalBonusAllTime = disbursements
-    .filter(d => d.type === 'bonus')
+    .filter(d => (d.description || d.title || '').toLowerCase().includes('bonus'))
     .reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
-  const getDisbursementTypeLabel = (type: string) => {
-    switch (type) {
-      case 'monthly_salary':
+  const getDisbursementTypeLabel = (category: string) => {
+    switch (category) {
+      case 'Staff Salary':
         return { label: 'Monthly Salary', badge: 'default' };
-      case 'bonus':
-        return { label: 'Bonus / Incentive', badge: 'secondary' };
-      case 'task_payment':
+      case 'Wages':
         return { label: 'Task Wage', badge: 'outline' };
       default:
-        return { label: 'Salary Payment', badge: 'default' };
+        return { label: category || 'Salary Payment', badge: 'default' };
     }
   };
 
@@ -252,7 +246,7 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
                   </TableRow>
                 ) : (
                   disbursements.map((item) => {
-                    const badgeInfo = getDisbursementTypeLabel(item.type);
+                    const badgeInfo = getDisbursementTypeLabel(item.category);
                     return (
                       <TableRow key={item._id} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-mono text-xs">
@@ -263,21 +257,17 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
                             {badgeInfo.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs font-medium">
-                          {item.period ? (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                              {item.period}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-[11px]">â€”</span>
-                          )}
+                        <TableCell className="text-xs font-medium max-w-xs truncate">
+                          <span className="flex items-center gap-1" title={item.title}>
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="truncate">{item.title}</span>
+                          </span>
                         </TableCell>
                         <TableCell className="font-bold text-sm text-foreground">
                           {fmt(item.amount)}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
-                          {item.remarks || 'â€”'}
+                          {item.description || '—'}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
@@ -306,7 +296,7 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
               </div>
             ) : (
               disbursements.map((item) => {
-                const badgeInfo = getDisbursementTypeLabel(item.type);
+                const badgeInfo = getDisbursementTypeLabel(item.category);
                 return (
                   <div key={item._id} className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
@@ -318,20 +308,18 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="flex flex-col text-[11px] text-muted-foreground gap-1">
+                      <span className="font-medium text-foreground/80">
+                        {item.title}
+                      </span>
                       <span>
                         {item.date ? format(new Date(item.date), 'dd MMM yyyy, p') : 'N/A'}
                       </span>
-                      {item.period && (
-                        <span className="font-medium text-foreground/80">
-                          Period: {item.period}
-                        </span>
-                      )}
                     </div>
 
-                    {item.remarks && (
+                    {item.description && (
                       <div className="text-[11px] bg-muted/40 p-2 rounded-md text-foreground/90">
-                        <span className="text-muted-foreground font-semibold">Note:</span> {item.remarks}
+                        <span className="text-muted-foreground font-semibold">Note:</span> {item.description}
                       </div>
                     )}
 
@@ -341,7 +329,7 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
                       onClick={() => setSelectedDisbursement(item)}
                       className="w-full text-xs h-8 font-semibold flex items-center justify-center gap-1"
                     >
-                      <Eye className="h-3.5 w-3.5" /> View Payslip & Calculation Details
+                      <Eye className="h-3.5 w-3.5" /> Details
                     </Button>
                   </div>
                 );
@@ -360,7 +348,7 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
               Salary & Payment Breakdown
             </DialogTitle>
             <DialogDescription>
-              {selectedDisbursement?.period ? `Period: ${selectedDisbursement.period}` : 'Disbursement Summary'}
+              {selectedDisbursement?.title || 'Payment Summary'}
             </DialogDescription>
           </DialogHeader>
 
@@ -377,135 +365,28 @@ export default function EmployeeSalaryPage() {  const { t } = useLanguage();
                 </Badge>
               </div>
 
-              {/* Breakdown details */}
-              {(() => {
-                const breakdown = selectedDisbursement.breakdown;
-                const baseSalary = breakdown?.baseSalary || stats?.profile?.baseSalary || 25000;
-                
-                // If breakdown exists, use it directly
-                if (breakdown) {
-                  return (
-                    <div className="space-y-2 border rounded-lg p-3.5 bg-background">
-                      <div className="flex justify-between items-center py-1 border-b text-xs">
-                        <span className="text-muted-foreground">{t('store.employee.monthly_base') || 'à¦®à§‚à¦² à¦®à¦¾à¦¸à¦¿à¦• à¦¬à§‡à¦¤à¦¨ (Monthly Base):'}</span>
-                        <span className="font-bold">{fmt(baseSalary)}</span>
-                      </div>
+              {/* Details */}
+              <div className="space-y-2 border rounded-lg p-3.5 bg-background">
+                <div className="flex justify-between items-center py-1 border-b text-xs">
+                  <span className="text-muted-foreground">{t('store.employee.payment_type') || 'Payment Type:'}</span>
+                  <span className="font-bold">{getDisbursementTypeLabel(selectedDisbursement.category).label}</span>
+                </div>
 
-                      {breakdown.proratedSalary && breakdown.proratedSalary !== breakdown.baseSalary && (
-                        <div className="flex justify-between items-center py-1 border-b text-xs bg-amber-500/5 px-2 rounded">
-                          <span className="text-amber-600 dark:text-amber-400 font-medium">{t('store.employee.prorated_basic') || 'à¦¯à§‹à¦—à¦¦à¦¾à¦¨à§‡à¦° à¦¤à¦¾à¦°à¦¿à¦– à¦…à¦¨à§à¦¸à¦¾à¦°à§‡ à¦ªà§à¦°à§‹à¦°à§‡à¦Ÿà§‡à¦¡ à¦¬à§‡à¦¸à¦¿à¦•:'}</span>
-                          <span className="font-bold text-amber-600 dark:text-amber-400">{fmt(breakdown.proratedSalary)}</span>
-                        </div>
-                      )}
+                <div className="flex justify-between items-center py-1 border-b text-xs">
+                  <span className="text-muted-foreground">Title:</span>
+                  <span className="font-medium text-right max-w-[200px]">{selectedDisbursement.title}</span>
+                </div>
 
-                      <div className="flex justify-between items-center py-1 border-b text-xs">
-                        <span className="text-muted-foreground">{t('store.employee.working_days') || 'à¦®à§‹à¦Ÿ à¦•à¦°à§à¦®à¦¦à¦¿à¦¬à¦¸ (Working Days):'}</span>
-                        <span className="font-bold">{breakdown.workingDays || 0} {t('store.employee.days') || 'à¦¦à¦¿à¦¨'}</span>
-                      </div>
-
-                      <div className="flex justify-between items-center py-1 border-b text-xs">
-                        <span className="text-muted-foreground text-emerald-600">{t('store.employee.present_days') || 'à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿ (Present Days):'}</span>
-                        <span className="font-bold text-emerald-600">
-                          {breakdown.presentDays || 0} à¦¦à¦¿à¦¨
-                        </span>
-                      </div>
-
-                      {Number(breakdown.leaveDays) > 0 && (
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground text-blue-600">{t('store.employee.approved_leaves_calc') || 'à¦…à¦¨à§à¦®à§‹à¦¦à¦¿à¦¤ à¦›à§à¦Ÿà¦¿ (Leaves):'}</span>
-                          <span className="font-bold text-blue-600">
-                            {breakdown.leaveDays} à¦¦à¦¿à¦¨
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center py-1 border-b text-xs">
-                        <span className="text-muted-foreground text-destructive">{t('store.employee.absents') || 'à¦…à¦¨à§à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿ (Absents):'}</span>
-                        <span className="font-bold text-destructive">
-                          {breakdown.absentDays || 0} à¦¦à¦¿à¦¨
-                        </span>
-                      </div>
-
-                      {Number(breakdown.deduction) > 0 ? (
-                        <div className="flex justify-between items-center py-1 border-b text-xs text-destructive">
-                          <span>{t('store.employee.absence_deduction') || 'à¦…à¦¨à§à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿à¦° à¦œà¦¨à§à¦¯ à¦•à¦°à§à¦¤à¦¨ (Deduction):'}</span>
-                          <span className="font-bold">- {fmt(breakdown.deduction)}</span>
-                        </div>
-                      ) : (
-                        <div className="flex justify-between items-center py-1 border-b text-xs text-muted-foreground">
-                          <span>{t('store.employee.deductions') || 'à¦•à¦°à§à¦¤à¦¨ (Deductions):'}</span>
-                          <span>{t('store.employee.no_deduction') || 'à§³à§¦ (à¦•à§‹à¦¨à§‹ à¦•à¦°à§à¦¤à¦¨ à¦¨à§‡à¦‡)'}</span>
-                        </div>
-                      )}
-
-                      {Number(breakdown.bonus) > 0 && (
-                        <div className="flex justify-between items-center py-1 border-b text-xs text-emerald-600">
-                          <span>{t('store.employee.bonus_incentive') || 'à¦¬à§‹à¦¨à¦¾à¦¸ / à¦‡à¦¨à¦¸à§‡à¦¨à§à¦Ÿà¦¿à¦­:'}</span>
-                          <span className="font-bold">+ {fmt(breakdown.bonus)}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                // If monthly salary without embedded breakdown (e.g. July 2026 joined on 19 July)
-                const joinedDate = stats?.profile?.joinedDate ? new Date(stats.profile.joinedDate) : null;
-                const isJulyJoin = selectedDisbursement.period === '2026-07' && joinedDate;
-                
-                return (
-                  <div className="space-y-2 border rounded-lg p-3.5 bg-background">
-                    <div className="flex justify-between items-center py-1 border-b text-xs">
-                      <span className="text-muted-foreground">{t('store.employee.monthly_base') || 'à¦®à§‚à¦² à¦®à¦¾à¦¸à¦¿à¦• à¦¬à§‡à¦¤à¦¨ (Monthly Base):'}</span>
-                      <span className="font-bold">{fmt(baseSalary)}</span>
-                    </div>
-
-                    {isJulyJoin && (
-                      <>
-                        <div className="flex justify-between items-center py-1 border-b text-xs bg-amber-500/10 p-2 rounded">
-                          <div>
-                            <div className="font-bold text-foreground">{t('store.employee.joining_date') || 'à¦¯à§‹à¦—à¦¦à¦¾à¦¨ (Joining Date):'}</div>
-                            <div className="text-[11px] text-muted-foreground">{t('store.employee.mid_month_join') || '19 July 2026 (à¦®à¦¾à¦¸à§‡à¦° à¦®à¦¾à¦à§‡ à¦¯à§‹à¦—à¦¦à¦¾à¦¨)'}</div>
-                          </div>
-                          <span className="font-bold text-xs text-amber-600 dark:text-amber-400">14 {t('store.employee.days_space') || 'à¦¦à¦¿à¦¨ '} à¦¸à¦•à§à¦°à¦¿à¦¯à¦¼</span>
-                        </div>
-
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground">{t('store.employee.prorated_calculation') || 'à¦ªà§à¦°à§‹à¦°à§‡à¦Ÿà§‡à¦¡ à¦¹à¦¿à¦¸à¦¾à¦¬ (Prorated Calculation):'}</span>
-                          <span className="font-mono text-xs font-semibold">(à§³25,000 Ã· 31) Ã— 14 {t('store.employee.days') || 'à¦¦à¦¿à¦¨'}</span>
-                        </div>
-
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground">{t('store.employee.present_days') || 'à¦‰à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿ (Present Days):'}</span>
-                          <span className="font-bold text-emerald-600">12 {t('store.employee.days_space') || 'à¦¦à¦¿à¦¨ '} (à¦¶à§à¦•à§à¦°à¦¬à¦¾à¦° à¦¬à§à¦¯à¦¤à¦¿à¦¤)</span>
-                        </div>
-
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground">{t('store.employee.absence_and_deduction') || 'à¦…à¦¨à§à¦ªà¦¸à§à¦¥à¦¿à¦¤à¦¿ à¦“ à¦•à¦°à§à¦¤à¦¨:'}</span>
-                          <span className="font-bold text-muted-foreground">{t('store.employee.no_deduction') || 'à§³à§¦ (à¦•à§‹à¦¨à§‹ à¦•à¦°à§à¦¤à¦¨ à¦¨à§‡à¦‡)'}</span>
-                        </div>
-                      </>
-                    )}
-
-                    {!isJulyJoin && (
-                      <>
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground">{t('store.employee.payment_type') || 'à¦ªà§‡à¦®à§‡à¦¨à§à¦Ÿ à¦Ÿà¦¾à¦‡à¦ª:'}</span>
-                          <span className="font-bold">{getDisbursementTypeLabel(selectedDisbursement.type).label}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-1 border-b text-xs">
-                          <span className="text-muted-foreground">{t('store.employee.remarks_details') || 'à¦®à¦¨à§à¦¤à¦¬à§à¦¯ / à¦¬à¦¿à¦¬à¦°à¦£:'}</span>
-                          <span>{selectedDisbursement.remarks || 'Monthly Salary'}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })()}
+                <div className="flex justify-between items-center py-1 border-b text-xs">
+                  <span className="text-muted-foreground">{t('store.employee.remarks_details') || 'Description:'}</span>
+                  <span className="text-right max-w-[200px]">{selectedDisbursement.description || '—'}</span>
+                </div>
+              </div>
 
               {/* Total Net Paid */}
               <div className="bg-primary/10 border border-primary/20 p-3.5 rounded-lg flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-primary">{t('store.employee.net_paid') || 'à¦¸à¦°à§à¦¬à¦®à§‹à¦Ÿ à¦ªà¦°à¦¿à¦¶à§‹à¦§à¦¿à¦¤ à¦…à¦°à§à¦¥ (Net Paid)'}</div>
+                  <div className="text-xs font-bold text-primary">{t('store.employee.net_paid') || 'Net Paid'}</div>
                   <div className="text-[10px] text-muted-foreground">Disbursed by Admin</div>
                 </div>
                 <div className="text-xl font-black text-primary">

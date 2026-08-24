@@ -24,24 +24,36 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { useRouter } from 'next/navigation';
-
+import { useRouter, usePathname } from 'next/navigation';
+import { getPageTitle } from '@/lib/page-title';
 export default function AdminTopbar() {
   const { data: session } = useSession();
   const { t } = useLanguage();
+  const pathname = usePathname();
 
   return (
     <header className="relative flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="inline-flex items-center justify-center rounded-md h-9 w-9 hover:bg-muted md:hidden">
-          <Home className="h-5 w-5 text-muted-foreground" />
-        </Link>
-        <div className="absolute left-1/2 -translate-x-1/2 font-semibold text-lg md:hidden max-w-[40%] truncate text-center">
-          {t("topbar.admin_panel")}
+      {/* Mobile Left - Language Toggle */}
+      <div className="flex items-center md:hidden z-10 -ml-2">
+        <LanguageToggle />
+      </div>
+
+      {/* Mobile Title (Centered) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden z-0">
+        <div className="font-bold text-lg truncate px-12">
+          {getPageTitle(pathname)}
         </div>
       </div>
+
+      {/* Mobile Right - Theme Toggle */}
+      <div className="flex items-center md:hidden z-10 -mr-2">
+        <ModeToggle />
+      </div>
+      
+      {/* Desktop spacer */}
       <div className="hidden md:flex flex-1" />
-      <div className="flex items-center gap-4">
+      
+      <div className="hidden md:flex items-center gap-4">
         <LanguageToggle />
         <ModeToggle />
 

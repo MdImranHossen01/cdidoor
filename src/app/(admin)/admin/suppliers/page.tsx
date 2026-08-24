@@ -100,6 +100,21 @@ function SuppliersContent() {
   const [payDate, setPayDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setEditingSupplier(null);
+      setSupplierName('');
+      setSupplierPhone('');
+      setSupplierEmail('');
+      setSupplierAddress('');
+      setSupplierCompany('');
+      setIsFormOpen(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('action');
+      router.replace(`/admin/suppliers${params.toString() ? '?' + params.toString() : ''}`, { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  useEffect(() => {
     fetchSuppliers();
   }, []);
 

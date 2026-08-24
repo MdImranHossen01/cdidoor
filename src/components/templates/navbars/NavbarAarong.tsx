@@ -46,20 +46,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Swal from 'sweetalert2';
-import { useLanguage } from '@/contexts/LanguageContext';
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/shop', label: 'Shop' },
+  { href: '/blog', label: 'Blogs' },
+  { href: '/contact', label: 'Contact' },
+];
 
 export default function NavbarAarong() {
-  const { t } = useLanguage();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const navItems = [
-    { href: '/', label: t('store.nav.home') },
-    { href: '/shop', label: t('store.nav.shop') },
-    { href: '/blog', label: t('store.nav.blogs') },
-    { href: '/contact', label: t('store.nav.contact') },
-  ];
   const [isListening, setIsListening] = useState(false);
   const [liveResults, setLiveResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -344,7 +342,7 @@ export default function NavbarAarong() {
         : 'bg-background lg:py-3'
         }`}>
         <div className="w-full px-2 lg:px-6 relative">
-          
+
           {/* ── Mobile Layout (Single Row) — V1 Style ── */}
           <div className="relative flex h-14 items-center justify-between px-1 lg:hidden">
 
@@ -371,7 +369,7 @@ export default function NavbarAarong() {
                     >
                       <input
                         type="text"
-                        placeholder={isListening ? (t('store.nav.listening') as string) : (t('store.nav.search_placeholder') as string)}
+                        placeholder={isListening ? "Listening..." : "Search products..."}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full h-9 pl-9 pr-8 text-xs bg-muted/50 border border-border/70 focus:border-primary focus:bg-background outline-none rounded-full transition-all"
@@ -445,7 +443,7 @@ export default function NavbarAarong() {
                             {index === 0 && (
                               <Accordion type="single" collapsible>
                                 <AccordionItem value="cats" className="border-none">
-                                  <AccordionTrigger className="py-2 hover:no-underline uppercase text-[12px] font-bold tracking-[0.2em] text-left">{t('store.nav.categories')}</AccordionTrigger>
+                                  <AccordionTrigger className="py-2 hover:no-underline uppercase text-[12px] font-bold tracking-[0.2em] text-left">Categories</AccordionTrigger>
                                   <AccordionContent className="pt-2 pl-4 flex flex-col gap-3">
                                     {mainCategories.map((cat) => {
                                       const subs = getSubcategories(cat._id);
@@ -573,7 +571,7 @@ export default function NavbarAarong() {
                           {profile && (
                             <div className="mt-1.5 flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
                               <Package className="h-3 w-3 text-primary" />
-                              <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} {t('store.nav.tokens')}</span>
+                              <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} Tokens</span>
                             </div>
                           )}
                         </div>
@@ -585,12 +583,12 @@ export default function NavbarAarong() {
                         <>
                           <DropdownMenuItem asChild>
                             <Link href="/admin/dashboard" className="cursor-pointer">
-                              <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                              <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href="/admin/system-design" className="cursor-pointer">
-                              <Settings className="mr-2 h-4 w-4" /> {t('store.nav.infrastructure')}
+                              <Settings className="mr-2 h-4 w-4" /> Infrastructure &amp; Marketing
                             </Link>
                           </DropdownMenuItem>
                         </>
@@ -598,12 +596,12 @@ export default function NavbarAarong() {
                         <>
                           <DropdownMenuItem asChild>
                             <Link href="/admin/dashboard" className="cursor-pointer">
-                              <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                              <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href="/admin/orders" className="cursor-pointer">
-                              <Truck className="mr-2 h-4 w-4" /> {t('store.nav.manage_orders')}
+                              <Truck className="mr-2 h-4 w-4" /> Manage Orders
                             </Link>
                           </DropdownMenuItem>
                         </>
@@ -611,12 +609,12 @@ export default function NavbarAarong() {
                         <>
                           <DropdownMenuItem asChild>
                             <Link href="/dashboard" className="cursor-pointer">
-                              <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.dashboard')}
+                              <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href="/track-order" className="cursor-pointer">
-                              <Truck className="mr-2 h-4 w-4" /> {t('store.nav.track_order')}
+                              <Truck className="mr-2 h-4 w-4" /> Track Order
                             </Link>
                           </DropdownMenuItem>
                         </>
@@ -624,7 +622,7 @@ export default function NavbarAarong() {
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut({ callbackUrl: window.location.origin })} className="text-destructive cursor-pointer">
-                      <LogOut className="mr-2 h-4 w-4" /> {t('store.nav.sign_out')}
+                      <LogOut className="mr-2 h-4 w-4" /> Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -746,7 +744,7 @@ export default function NavbarAarong() {
                   <form onSubmit={handleSearchSubmit} className="relative flex items-center">
                     <input
                       type="text"
-                      placeholder={isListening ? (t('store.nav.listening') as string) : (t('store.nav.search_placeholder') as string)}
+                      placeholder={isListening ? "Listening..." : "Search..."}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-32 xl:w-44 h-8 pl-8 pr-7 text-xs bg-muted/40 border border-border/70 focus:border-primary focus:bg-background outline-none rounded-full transition-all"
@@ -802,7 +800,7 @@ export default function NavbarAarong() {
                         onClick={handleResultClick}
                         className="block text-center text-xs font-black uppercase tracking-widest text-primary p-2.5 border-t border-border bg-muted/20 hover:bg-muted/40 transition-colors"
                       >
-                        {t('store.nav.see_all_results')}
+                        See All Matches
                       </Link>
                     </div>
                   )}
@@ -846,7 +844,7 @@ export default function NavbarAarong() {
                               {profile && (
                                 <div className="mt-1.5 flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
                                   <Package className="h-3 w-3 text-primary" />
-                                  <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} {t('store.nav.tokens')}</span>
+                                  <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} Tokens</span>
                                 </div>
                               )}
                             </div>
@@ -858,12 +856,12 @@ export default function NavbarAarong() {
                             <>
                               <DropdownMenuItem asChild>
                                 <Link href="/admin/dashboard" className="cursor-pointer">
-                                  <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                                  <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
                                 <Link href="/admin/system-design" className="cursor-pointer">
-                                  <Settings className="mr-2 h-4 w-4" /> {t('store.nav.infrastructure')}
+                                  <Settings className="mr-2 h-4 w-4" /> Infrastructure &amp; Marketing
                                 </Link>
                               </DropdownMenuItem>
                             </>
@@ -871,12 +869,12 @@ export default function NavbarAarong() {
                             <>
                               <DropdownMenuItem asChild>
                                 <Link href="/admin/dashboard" className="cursor-pointer">
-                                  <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                                  <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
                                 <Link href="/admin/orders" className="cursor-pointer">
-                                  <Truck className="mr-2 h-4 w-4" /> {t('store.nav.manage_orders')}
+                                  <Truck className="mr-2 h-4 w-4" /> Manage Orders
                                 </Link>
                               </DropdownMenuItem>
                             </>
@@ -884,12 +882,12 @@ export default function NavbarAarong() {
                             <>
                               <DropdownMenuItem asChild>
                                 <Link href="/dashboard" className="cursor-pointer">
-                                  <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.dashboard')}
+                                  <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
                                 <Link href="/track-order" className="cursor-pointer">
-                                  <Truck className="mr-2 h-4 w-4" /> {t('store.nav.track_order')}
+                                  <Truck className="mr-2 h-4 w-4" /> Track Order
                                 </Link>
                               </DropdownMenuItem>
                             </>
@@ -897,7 +895,7 @@ export default function NavbarAarong() {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => signOut({ callbackUrl: window.location.origin })} className="text-destructive cursor-pointer">
-                          <LogOut className="mr-2 h-4 w-4" /> {t('store.nav.sign_out')}
+                          <LogOut className="mr-2 h-4 w-4" /> Sign Out
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -916,7 +914,7 @@ export default function NavbarAarong() {
           ) : (
             /* 2-Row Default Desktop Layout */
             <div className="hidden lg:flex gap-3 items-stretch">
-              
+
               {/* Logo Image Column (Spanning both rows) */}
               <div className="flex items-center justify-center border-r border-border/10 pr-3 shrink-0 py-1">
                 <Link href="/" className="relative block w-[85px] h-[85px] transition-transform hover:scale-105">
@@ -933,7 +931,7 @@ export default function NavbarAarong() {
 
               {/* Content Column (Row 1 and Row 2) */}
               <div className="flex-1 flex flex-col justify-between py-1">
-                
+
                 {/* Row 1: Logo Brand Name, Sub-Brands, Utilities */}
                 <div className="flex items-center justify-between w-full border-b border-border/10 pb-2 gap-4">
                   {/* Logo Brand Name Text Only */}
@@ -948,7 +946,7 @@ export default function NavbarAarong() {
                       <form onSubmit={handleSearchSubmit} className="relative flex items-center">
                         <input
                           type="text"
-                          placeholder={isListening ? (t('store.nav.listening') as string) : (t('store.nav.search_placeholder') as string)}
+                          placeholder={isListening ? "Listening..." : "Search products..."}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="w-48 xl:w-60 h-9 pl-9 pr-8 text-xs bg-muted/40 border border-border/70 focus:border-primary focus:bg-background outline-none rounded-full transition-all"
@@ -969,7 +967,7 @@ export default function NavbarAarong() {
                       {showDropdown && liveResults.length > 0 && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-background border border-border shadow-xl rounded-none overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-200">
                           <div className="p-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border bg-muted/10">
-                            {t('store.nav.searching')}
+                            Matches Found
                           </div>
                           <div className="max-h-64 overflow-y-auto divide-y divide-border/60">
                             {liveResults.map((prod) => (
@@ -1004,7 +1002,7 @@ export default function NavbarAarong() {
                             onClick={handleResultClick}
                             className="block text-center text-xs font-black uppercase tracking-widest text-primary p-2.5 border-t border-border bg-muted/20 hover:bg-muted/40 transition-colors"
                           >
-                            {t('store.nav.see_all_results')}
+                            See All Matches
                           </Link>
                         </div>
                       )}
@@ -1071,7 +1069,7 @@ export default function NavbarAarong() {
                                   {profile && (
                                     <div className="mt-1.5 flex items-center gap-1.5 bg-primary/10 px-2 py-0.5 rounded-full w-fit border border-primary/20">
                                       <Package className="h-3 w-3 text-primary" />
-                                      <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} {t('store.nav.tokens')}</span>
+                                      <span className="text-[10px] font-bold text-primary">৳{profile.walletBalance || 0} Tokens</span>
                                     </div>
                                   )}
                                 </div>
@@ -1083,12 +1081,12 @@ export default function NavbarAarong() {
                                 <>
                                   <DropdownMenuItem asChild>
                                     <Link href="/admin/dashboard" className="cursor-pointer">
-                                      <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                                      <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                                     </Link>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem asChild>
                                     <Link href="/admin/system-design" className="cursor-pointer">
-                                      <Settings className="mr-2 h-4 w-4" /> {t('store.nav.infrastructure')}
+                                      <Settings className="mr-2 h-4 w-4" /> Infrastructure &amp; Marketing
                                     </Link>
                                   </DropdownMenuItem>
                                 </>
@@ -1096,12 +1094,12 @@ export default function NavbarAarong() {
                                 <>
                                   <DropdownMenuItem asChild>
                                     <Link href="/admin/dashboard" className="cursor-pointer">
-                                      <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
+                                      <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                                     </Link>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem asChild>
                                     <Link href="/admin/orders" className="cursor-pointer">
-                                      <Truck className="mr-2 h-4 w-4" /> {t('store.nav.manage_orders')}
+                                      <Truck className="mr-2 h-4 w-4" /> Manage Orders
                                     </Link>
                                   </DropdownMenuItem>
                                 </>
@@ -1109,12 +1107,12 @@ export default function NavbarAarong() {
                                 <>
                                   <DropdownMenuItem asChild>
                                     <Link href="/dashboard" className="cursor-pointer">
-                                      <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.dashboard')}
+                                      <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                                     </Link>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem asChild>
                                     <Link href="/track-order" className="cursor-pointer">
-                                      <Truck className="mr-2 h-4 w-4" /> {t('store.nav.track_order')}
+                                      <Truck className="mr-2 h-4 w-4" /> Track Order
                                     </Link>
                                   </DropdownMenuItem>
                                 </>
@@ -1122,7 +1120,7 @@ export default function NavbarAarong() {
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => signOut({ callbackUrl: window.location.origin })} className="text-destructive cursor-pointer">
-                              <LogOut className="mr-2 h-4 w-4" /> {t('store.nav.sign_out')}
+                              <LogOut className="mr-2 h-4 w-4" /> Sign Out
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

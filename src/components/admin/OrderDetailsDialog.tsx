@@ -1062,10 +1062,19 @@ export default function OrderDetailsDialog({
                         </div>
                         <div className="flex flex-col">
                           <span className="font-medium line-clamp-1">{item.name}</span>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5">
                             {item.color && <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 bg-muted/50">{item.color}</Badge>}
                             {item.size && <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 bg-muted/50">Size: {item.size}</Badge>}
                             <span className="text-xs text-muted-foreground ml-1">৳{Math.round(Number(item.price) || 0)} × {item.quantity}</span>
+                            {item.batchesUsed && item.batchesUsed.length > 0 && (
+                              <div className="flex gap-1 ml-2">
+                                {item.batchesUsed.map((b: any, bIdx: number) => (
+                                  <Badge key={bIdx} variant="secondary" className="text-[9px] py-0 h-4 px-1.5 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                                    Batch {b.batchNumber}: {b.quantity}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

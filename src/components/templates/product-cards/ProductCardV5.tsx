@@ -29,7 +29,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCardProps {
   product: {
@@ -52,7 +51,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCardV5({ product: initialProduct, isFlashSale }: ProductCardProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { data: session, status } = useSession();
   const wishlist = useAppSelector((state) => state.wishlist.items);
@@ -171,7 +169,7 @@ export default function ProductCardV5({ product: initialProduct, isFlashSale }: 
     >
       {/* Ethereal Floating Image Container */}
       <div className="relative aspect-[3/4] rounded-none overflow-hidden transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(var(--primary-rgb),0.25)] group-hover:-translate-y-4">
-        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="relative block h-full w-full">
           <Image
             src={product.images?.[0] || '/placeholder.png'}
             alt={product.name}
@@ -199,13 +197,12 @@ export default function ProductCardV5({ product: initialProduct, isFlashSale }: 
                   className="h-12 w-12 rounded-full shadow-2xl bg-primary text-white hover:bg-primary-foreground hover:text-primary transition-all duration-500"
                   onClick={handleAddToCartClick}
                   disabled={product.stock === 0}
-                  aria-label={t('store.product.add_cart') as string}
                 >
                   <ShoppingCart className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{product.stock === 0 ? t('store.product.out_of_stock') : t('store.product.add_cart')}</p>
+                <p>Add to cart</p>
               </TooltipContent>
             </Tooltip>
 
@@ -216,13 +213,12 @@ export default function ProductCardV5({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   className="h-10 w-10 rounded-full shadow-2xl bg-white/90 dark:bg-neutral-900/90 hover:bg-primary hover:text-white transition-all duration-500"
                   onClick={handleFavorite}
-                  aria-label={isInWishlist ? (t('store.product.remove_wishlist') as string) : (t('store.product.add_wishlist') as string)}
                 >
                   <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-primary text-primary' : ''}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{isInWishlist ? t('store.product.remove_wishlist') : t('store.product.add_wishlist')}</p>
+                <p>{isInWishlist ? 'Remove from favorites' : 'Add to favorites'}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -233,13 +229,12 @@ export default function ProductCardV5({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   className="h-10 w-10 rounded-full shadow-2xl bg-white/90 dark:bg-neutral-900/90 hover:bg-primary hover:text-white transition-all duration-500"
                   onClick={handleQuickView}
-                  aria-label={t('store.product.quick_view') as string}
                 >
                   <Search className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{t('store.product.quick_view')}</p>
+                <p>Quick View</p>
               </TooltipContent>
             </Tooltip>
            </TooltipProvider>
@@ -267,17 +262,17 @@ export default function ProductCardV5({ product: initialProduct, isFlashSale }: 
       <div className="pt-8 px-4 space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+             <div className="flex items-center gap-2">
                 {product.isNewArrival && <span className="h-1 w-1 rounded-full bg-emerald-500" />}
                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-                  {product.isNewArrival ? (t('store.product.new') || 'New Season') : 'Essential'}
+                  {product.isNewArrival ? 'New Season' : 'Essential'}
                 </span>
              </div>
-             <Link href={`/product/${product.slug}`} className="text-muted-foreground hover:text-primary transition-colors">
+             <Link prefetch={true} href={`/product/${product.slug}`} className="text-muted-foreground hover:text-primary transition-colors">
                 <ArrowUpRight className="h-4 w-4" />
              </Link>
           </div>
-          <Link href={`/product/${product.slug}`} className="block">
+          <Link prefetch={true} href={`/product/${product.slug}`} className="block">
             <h3 className="text-2xl font-bold tracking-tighter leading-tight hover:text-primary transition-colors line-clamp-1">
               {product.name}
             </h3>

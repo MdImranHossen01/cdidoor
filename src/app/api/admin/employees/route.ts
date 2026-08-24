@@ -4,7 +4,7 @@ import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import EmployeeProfile from '@/models/EmployeeProfile';
-import SalaryDisbursement from '@/models/SalaryDisbursement';
+import Expense from '@/models/Expense';
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,11 +31,12 @@ export async function GET(req: NextRequest) {
       profileMap.set(p.user.toString(), p);
     });
 
-    // Aggregate total earned (SalaryDisbursement) per employee
-    const disbursements = await SalaryDisbursement.aggregate([
+    // Aggregate total earned (Expense) per employee for Staff Salary and Wages
+    const disbursements = await Expense.aggregate([
       {
         $match: {
-          employee: { $in: users.map((u) => u._id) }
+          employee: { $in: users.map((u) => u._id) },
+          category: { $in: ['Staff Salary', 'Wages'] }
         }
       },
       {

@@ -29,7 +29,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCardProps {
   product: {
@@ -52,7 +51,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCardV4({ product: initialProduct, isFlashSale }: ProductCardProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { data: session, status } = useSession();
   const wishlist = useAppSelector((state) => state.wishlist.items);
@@ -168,7 +166,7 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
     >
       {/* Boutique Image Container */}
       <div className="relative aspect-[3/4] rounded-none overflow-hidden transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(var(--primary-rgb),0.25)] group-hover:-translate-y-4">
-        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="relative block h-full w-full">
           {product.images?.length > 1 ? (
             <>
               <Image
@@ -198,12 +196,12 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
           {discount > 0 && (
             <span className="bg-white/80 backdrop-blur-md text-primary text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-sm">
-              {t('store.product.off')} -{discount}%
+              Selection -{discount}%
             </span>
           )}
           {isFlashSale && (
             <span className="bg-primary text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-sm animate-pulse">
-              {t('store.product.flash')}
+              Flash Deal
             </span>
           )}
         </div>
@@ -218,13 +216,12 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   className="h-10 w-10 rounded-full shadow-xl bg-white/90 dark:bg-neutral-900/90 hover:bg-primary hover:text-white transition-colors"
                   onClick={handleFavorite}
-                  aria-label={isInWishlist ? (t('store.product.remove_wishlist') as string) : (t('store.product.add_wishlist') as string)}
                 >
                   <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-primary text-primary' : ''}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isInWishlist ? t('store.product.remove_wishlist') : t('store.product.add_wishlist')}</p>
+                <p>{isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -235,13 +232,12 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   className="h-10 w-10 rounded-full shadow-xl bg-white/90 dark:bg-neutral-900/90 hover:bg-primary hover:text-white transition-colors"
                   onClick={handleQuickView}
-                  aria-label={t('store.product.quick_view') as string}
                 >
                   <Search className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t('store.product.quick_view')}</p>
+                <p>Quick View</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -279,7 +275,7 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
           </div>
         )}
 
-        <Link href={`/product/${product.slug}`} className="block mb-2">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="block mb-2">
           <h3 className="text-xl font-serif italic tracking-tight line-clamp-1 hover:text-primary transition-colors">
             {product.name}
           </h3>
@@ -296,7 +292,7 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
               </span>
             )}
           </div>
-          {product.isNewArrival && <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-[0.3em]">{t('store.product.new') || 'New Collection'}</span>}
+          {product.isNewArrival && <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-[0.3em]">New Collection</span>}
         </div>
 
         <Button
@@ -305,7 +301,7 @@ export default function ProductCardV4({ product: initialProduct, isFlashSale }: 
           onClick={handleAddToCartClick}
           disabled={product.stock === 0}
         >
-          {product.stock === 0 ? t('store.product.out_of_stock') : (t('store.product.buy_now') || 'Discover More')}
+          {product.stock === 0 ? 'Sold Out' : 'Discover More'}
         </Button>
       </div>
 

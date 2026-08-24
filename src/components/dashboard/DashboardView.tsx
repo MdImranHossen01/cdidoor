@@ -37,6 +37,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
@@ -153,7 +154,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function AdminDashboard() {
+export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | 'insight' }) {
   const { t } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -161,7 +162,6 @@ export default function AdminDashboard() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("revenue");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'cards' | 'charts'>('cards');
   const [selectedShowroom, setSelectedShowroom] = useState<string>('all');
   const [showroomsList, setShowroomsList] = useState<{ _id: string; name: string }[]>([]);
 
@@ -356,7 +356,9 @@ export default function AdminDashboard() {
       <div className="flex flex-col gap-3">
         {/* Title Row */}
         <div className="flex flex-row items-center justify-between gap-2">
-          <h2 className="text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">{t("dashboard.overview")}</h2>
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">
+            {activeTab === 'report' ? 'Report' : activeTab === 'insight' ? 'Insight' : t("dashboard.overview")}
+          </h2>
           {/* Mobile buttons */}
           <div className="flex items-center gap-2 md:hidden">
             <Button variant="outline" size="sm" onClick={fetchStats} className="h-9 px-3">
@@ -491,29 +493,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Mobile Tabs (only visible on mobile) */}
-      <div className="flex md:hidden border border-muted/50 bg-muted/20 rounded-lg p-0.5 mt-2 gap-1">
-        <button
-          onClick={() => setMobileTab('cards')}
-          className={`flex-1 py-2 text-center text-xs font-extrabold rounded-md transition-all ${mobileTab === 'cards'
-              ? 'bg-primary text-white shadow'
-              : 'text-muted-foreground hover:bg-muted/50'
-            }`}
-        >
-          Overview Cards
-        </button>
-        <button
-          onClick={() => setMobileTab('charts')}
-          className={`flex-1 py-2 text-center text-xs font-extrabold rounded-md transition-all ${mobileTab === 'charts'
-              ? 'bg-primary text-white shadow'
-              : 'text-muted-foreground hover:bg-muted/50'
-            }`}
-        >
-          Trends & Reports
-        </button>
-      </div>
-
-      <div className={`grid gap-2 sm:gap-4 grid-cols-3 ${mobileTab === 'cards' ? 'grid' : 'hidden md:grid'}`}>
+      {/* Mobile tabs removed */}
+      <div className={`grid gap-2 sm:gap-4 grid-cols-3 ${activeTab === 'cards' ? 'grid' : 'hidden'}`}>
         {/* Pending Orders Card */}
         <Link href="/admin/orders" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
@@ -795,8 +776,8 @@ export default function AdminDashboard() {
         </Link>
       </div>
 
-      <div className={mobileTab === 'charts' ? 'space-y-6 block' : 'space-y-6 hidden md:block'}>
-        <div className="grid gap-4 grid-cols-1">
+      <div className={(activeTab === 'report' || activeTab === 'insight') ? 'space-y-6 block' : 'hidden'}>
+        <div className={activeTab === 'report' ? "grid gap-4 grid-cols-1" : "hidden"}>
           {/* Interactive Chart */}
           <Card className="col-span-full">
             <CardHeader className="flex flex-col items-stretch border-b p-0 sm:flex-row">
@@ -949,7 +930,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+        <div className={activeTab === 'insight' ? "grid gap-4 md:grid-cols-1 lg:grid-cols-3" : "hidden"}>
           {/* Customer Insights & New vs Returning (NEW/UPDATED) */}
           <div className="space-y-4">
             <Card className="bg-muted/20">

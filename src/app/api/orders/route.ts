@@ -222,58 +222,86 @@ export async function POST(req: NextRequest) {
         let product;
         const hasVariant = !!(item.color || item.size);
 
+        product = await Product.findOne({ _id: item.product, isPublished: true }).session(session);
+        if (!product) {
+          throw new StockError(`Product not found: ${item.name}`);
+        }
+
+        const batchesUsed: { batchNumber: string; quantity: number; }[] = [];
+        let remainingQty = item.quantity;
+
         if (hasVariant) {
-          const variantQuery: any = {
-            _id: item.product,
-            isPublished: true,
-            variants: {
-              $elemMatch: {
-                ...(item.color && { color: item.color }),
-                ...(item.size && { size: item.size }),
-                stock: { $gte: item.quantity }
+          const variant = product.variants?.find((v: any) =>
+            String(v.color || '').trim() === String(item.color || '').trim() &&
+            String(v.size || '').trim() === String(item.size || '').trim()
+          );
+
+          if (!variant || (variant.stock || 0) < item.quantity) {
+            throw new StockError(`Stock deduction failed unexpectedly for ${item.name}.`);
+          }
+
+          variant.stock -= item.quantity;
+
+          if (variant.batches && variant.batches.length > 0) {
+            const sortedBatches = [...variant.batches].sort((a, b) => {
+              if (!a.expiryDate) return 1;
+              if (!b.expiryDate) return -1;
+              return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+            });
+
+            for (const batch of sortedBatches) {
+              if (remainingQty <= 0) break;
+              if (batch.stock > 0) {
+                const qtyToTake = Math.min(batch.stock, remainingQty);
+                batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                const originalBatch = variant.batches.find((b: any) => b.batchNumber === batch.batchNumber);
+                if (originalBatch) originalBatch.stock -= qtyToTake;
               }
             }
-          };
-
-          product = await Product.findOneAndUpdate(
-            variantQuery,
-            { $inc: { "variants.$.stock": -item.quantity } },
-            { session, new: true }
-          );
-
-          if (product) {
-            const variant = product.variants?.find((v: any) =>
-              String(v.color || '').trim() === String(item.color || '').trim() &&
-              String(v.size || '').trim() === String(item.size || '').trim()
-            );
-            successfulDeductions.push({
-              productId: product._id.toString(),
-              quantity: item.quantity,
-              variantId: (variant as any)?._id?.toString()
-            });
           }
+
+          successfulDeductions.push({
+            productId: product._id.toString(),
+            quantity: item.quantity,
+            variantId: (variant as any)?._id?.toString(),
+            batchesUsed
+          } as any);
+
         } else {
-          product = await Product.findOneAndUpdate(
-            {
-              _id: item.product,
-              stock: { $gte: item.quantity },
-              isPublished: true
-            },
-            { $inc: { stock: -item.quantity } },
-            { session, new: true }
-          );
-
-          if (product) {
-            successfulDeductions.push({
-              productId: product._id.toString(),
-              quantity: item.quantity
-            });
+          if ((product.stock || 0) < item.quantity) {
+            throw new StockError(`Stock deduction failed unexpectedly for ${item.name}.`);
           }
+
+          product.stock -= item.quantity;
+
+          if (product.batches && product.batches.length > 0) {
+            const sortedBatches = [...product.batches].sort((a, b) => {
+              if (!a.expiryDate) return 1;
+              if (!b.expiryDate) return -1;
+              return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+            });
+
+            for (const batch of sortedBatches) {
+              if (remainingQty <= 0) break;
+              if (batch.stock > 0) {
+                const qtyToTake = Math.min(batch.stock, remainingQty);
+                batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                const originalBatch = product.batches.find((b: any) => b.batchNumber === batch.batchNumber);
+                if (originalBatch) originalBatch.stock -= qtyToTake;
+              }
+            }
+          }
+
+          successfulDeductions.push({
+            productId: product._id.toString(),
+            quantity: item.quantity,
+            batchesUsed
+          } as any);
         }
 
-        if (!product) {
-          throw new StockError(`Stock deduction failed unexpectedly for ${item.name}. Please try again.`);
-        }
+        await product.save({ session });
       }
 
       // 2d. Price Verification and Validated Items List (using ORIGINAL items for order structure)
@@ -298,6 +326,16 @@ export async function POST(req: NextRequest) {
 
         serverComputedTotal += itemPrice * item.quantity;
 
+        // Find the matched deduction to get batchesUsed
+        const matchedDeduction = successfulDeductions.find(d => 
+          d.productId === product._id.toString() && 
+          (!hasVariant || d.variantId === (product.variants?.find((v: any) =>
+            String(v.color || '').trim() === String(item.color || '').trim() &&
+            String(v.size || '').trim() === String(item.size || '').trim()
+          ) as any)?._id?.toString())
+        );
+        const batchesUsed = (matchedDeduction as any)?.batchesUsed || [];
+
         validatedItems.push({
           product: product._id,
           name: product.name,
@@ -307,6 +345,7 @@ export async function POST(req: NextRequest) {
           image: item.image || product.images?.[0] || '',
           color: item.color,
           size: item.size,
+          batchesUsed: batchesUsed.length > 0 ? batchesUsed : undefined,
         });
       }
     } catch (err: any) {

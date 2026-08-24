@@ -464,7 +464,7 @@ export async function GET(req: NextRequest) {
     const EmployeeProfile = (await import('@/models/EmployeeProfile')).default;
     const Task = (await import('@/models/Task')).default;
     const Attendance = (await import('@/models/Attendance')).default;
-    const SalaryDisbursement = (await import('@/models/SalaryDisbursement')).default;
+    
 
     const prevMonthDate = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1);
     const prevYear = prevMonthDate.getFullYear();
@@ -489,13 +489,10 @@ export async function GET(req: NextRequest) {
       date: { $gte: prevMonthStartStr, $lte: prevMonthEndStr }
     }).lean() as any[];
 
-    const disbursementsList = await SalaryDisbursement.find({
+    const disbursementsList = await Expense.find({
       employee: { $in: monthlyUserIds },
-      type: 'monthly_salary',
-      $or: [
-        { period: prevMonthPeriod },
-        { date: { $gte: prevMonthStart, $lte: prevMonthEnd } }
-      ]
+      category: 'Staff Salary',
+      date: { $gte: prevMonthStart, $lte: prevMonthEnd }
     }).lean() as any[];
 
     // Build Map indexes keyed by employee identifier

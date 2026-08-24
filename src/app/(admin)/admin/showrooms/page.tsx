@@ -1,15 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
 import {
   Dialog,
   DialogContent,
@@ -64,6 +58,8 @@ type ShowroomFormValues = z.infer<typeof showroomSchema>;
 
 export default function ShowroomsPage() {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [showrooms, setShowrooms] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,6 +107,17 @@ export default function ShowroomsPage() {
   };
 
   useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setEditingShowroom(null);
+      form.reset({ name: '', address: '', image: '', manager: '', isActive: true });
+      setOpen(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('action');
+      router.replace(`/admin/showrooms${params.toString() ? '?' + params.toString() : ''}`, { scroll: false });
+    }
+  }, [searchParams, router, form]);
+
+  useEffect(() => {
     fetchShowrooms();
     fetchManagers();
   }, []);
@@ -120,7 +127,7 @@ export default function ShowroomsPage() {
     try {
       const url = '/api/admin/showrooms';
       const method = editingShowroom ? 'PATCH' : 'POST';
-      const payload = editingShowroom 
+      const payload = editingShowroom
         ? { id: editingShowroom._id, ...values }
         : values;
 
@@ -196,8 +203,8 @@ export default function ShowroomsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 px-0 py-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between gap-4 px-2 md:px-0">
+    <div className="flex-1 flex flex-col gap-4 px-0 pb-2 pt-[2px] -mt-4 md:mt-0 md:p-8 md:pt-6">
+      <div className="hidden md:flex items-center justify-between gap-4 px-2 md:px-0">
         <h2 className="text-xl md:text-3xl font-bold tracking-tight">{t("showrooms.title")}</h2>
         <Button onClick={() => {
           setEditingShowroom(null);
@@ -213,11 +220,11 @@ export default function ShowroomsPage() {
           {t("showrooms.no_showrooms_found")}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {showrooms.map((showroom) => (
             <div key={showroom._id} className="relative flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
               {/* Image Section */}
-              <div className="relative h-28 md:h-44 w-full bg-muted overflow-hidden">
+              <div className="relative aspect-video w-full bg-muted overflow-hidden">
                 {showroom.image ? (
                   <img
                     src={showroom.image}
@@ -269,9 +276,12 @@ export default function ShowroomsPage() {
                 <div className="rounded-lg bg-muted/30 p-1.5 md:p-3 border border-muted/50">
                   <span className="text-[8px] md:text-[10px] uppercase tracking-wider font-extrabold text-muted-foreground block mb-0.5">{t("showrooms.showroom_manager")}</span>
                   {showroom.manager ? (
-                    <div>
+                    <div className="flex flex-col gap-0.5">
                       <p className="font-bold text-[10px] md:text-sm text-foreground truncate">{showroom.manager.name}</p>
-                      <p className="text-[8px] md:text-xs text-muted-foreground truncate">{showroom.manager.email}</p>
+                      <p className="text-[8px] md:text-xs text-muted-foreground truncate leading-tight">{showroom.manager.email}</p>
+                      {showroom.manager.phone && (
+                        <p className="text-[8px] md:text-xs text-muted-foreground truncate leading-tight">{showroom.manager.phone}</p>
+                      )}
                     </div>
                   ) : (
                     <span className="text-destructive text-[8px] md:text-xs font-bold">{t("showrooms.no_manager")}</span>
@@ -311,7 +321,7 @@ export default function ShowroomsPage() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{editingShowroom ? t("showrooms.edit_showroom") : t("showrooms.create_showroom")}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="sr-only">
               {t("showrooms.showroom_dialog_desc")}
             </DialogDescription>
           </DialogHeader>
@@ -372,11 +382,11 @@ export default function ShowroomsPage() {
                     <FormLabel>{t("showrooms.assign_manager")}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder={t("showrooms.select_manager") as string}>
                             {(() => {
                               const mgr = managers.find((m) => m._id === field.value);
-                              return mgr ? `${mgr.name} (${mgr.email})` : undefined;
+                              return mgr ? mgr.name : undefined;
                             })()}
                           </SelectValue>
                         </SelectTrigger>
@@ -387,7 +397,7 @@ export default function ShowroomsPage() {
                         ) : (
                           managers.map((manager) => (
                             <SelectItem key={manager._id} value={manager._id}>
-                              {manager.name} ({manager.email})
+                              {manager.name}
                             </SelectItem>
                           ))
                         )}

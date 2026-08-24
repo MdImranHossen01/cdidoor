@@ -52,7 +52,7 @@ export default function ShowroomLayout({ children }: { children: React.ReactNode
       <ShowroomSidebar />
       <SidebarInset>
         <ShowroomTopbar />
-        <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+        <main className="flex-1 items-start gap-4 px-1 py-4 md:px-4 md:py-6 md:gap-8">
           {children}
         </main>
       </SidebarInset>

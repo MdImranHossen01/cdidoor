@@ -29,7 +29,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCardProps {
   product: {
@@ -52,7 +51,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCardV2({ product: initialProduct, isFlashSale }: ProductCardProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { data: session, status } = useSession();
   const wishlist = useAppSelector((state) => state.wishlist.items);
@@ -203,7 +201,7 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
     <div className="group relative flex flex-col bg-background rounded-md border border-border/60 overflow-hidden transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] h-full">
       {/* Image & Hover Action Buttons */}
       <div className="relative aspect-square w-full overflow-hidden bg-muted/10 flex items-center justify-center border-b border-border/30">
-        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="relative block h-full w-full">
           <Image
             src={product.images?.[0] || '/placeholder.png'}
             alt={product.name}
@@ -221,10 +219,10 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
                   product.isNewArrival ? 'bg-emerald-600 text-white' :
                     'bg-amber-400 text-neutral-950'
               }`}>
-              {isFlashSale ? (t('store.product.flash') as string) :
-                discount > 0 ? `${discount}% ${t('store.product.off')}` :
-                  product.isNewArrival ? (t('store.product.new') as string) :
-                    (t('store.product.featured') as string)}
+              {isFlashSale ? 'Flash' :
+                discount > 0 ? `${discount}% OFF` :
+                  product.isNewArrival ? 'New' :
+                    'Featured'}
             </div>
           </div>
         )}
@@ -241,13 +239,13 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
                   onClick={handleAddToCartClick}
                   disabled={product.stock === 0}
                   className="w-8 h-8 rounded-full bg-white text-black hover:bg-primary hover:text-primary-foreground border border-neutral-200/80 shadow-md flex items-center justify-center transition-all duration-200 disabled:opacity-50"
-                  aria-label={t('store.product.add_cart') as string}
+                  aria-label="Add to Cart"
                 >
                   <ShoppingCart className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{product.stock === 0 ? t('store.product.out_of_stock') : t('store.product.add_cart')}</p>
+                <p>{product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -259,13 +257,13 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   onClick={handleFavorite}
                   className="w-8 h-8 rounded-full bg-white text-black hover:bg-primary hover:text-primary-foreground border border-neutral-200/80 shadow-md flex items-center justify-center transition-all duration-200"
-                  aria-label={isInWishlist ? (t('store.product.remove_wishlist') as string) : (t('store.product.add_wishlist') as string)}
+                  aria-label="Add to Wishlist"
                 >
                   <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{isInWishlist ? t('store.product.remove_wishlist') : t('store.product.add_wishlist')}</p>
+                <p>{isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -277,13 +275,13 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
                   variant="secondary"
                   onClick={handleQuickView}
                   className="w-8 h-8 rounded-full bg-white text-black hover:bg-primary hover:text-primary-foreground border border-neutral-200/80 shadow-md flex items-center justify-center transition-all duration-200"
-                  aria-label={t('store.product.quick_view') as string}
+                  aria-label="Quick View"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
-                <p>{t('store.product.quick_view')}</p>
+                <p>Quick View</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -324,7 +322,7 @@ export default function ProductCardV2({ product: initialProduct, isFlashSale }: 
           </Link>
 
           {/* Product Title */}
-          <Link href={`/product/${product.slug}`} className="block group/title">
+          <Link prefetch={true} href={`/product/${product.slug}`} className="block group/title">
             <h4 className="text-[13px] font-bold leading-snug tracking-tight line-clamp-2 min-h-[36px] text-foreground hover:text-primary transition-colors">
               {product.name}
             </h4>

@@ -21,7 +21,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCardProps {
   product: {
@@ -47,7 +46,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCardV6({ product: initialProduct, isFlashSale, priority, layout }: ProductCardProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -180,7 +178,7 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
     <div className={`group relative flex flex-col font-jost animate-in fade-in duration-700 ${layout === 'v3' ? 'lg:rounded-sm lg:overflow-hidden lg:border lg:border-border/40 lg:pb-3 lg:bg-card' : ''}`}>
       {/* Image Container */}
       <div className={`relative aspect-square overflow-hidden bg-muted ${layout === 'v3' ? 'lg:rounded-t-sm' : 'rounded-none'}`}>
-        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="relative block h-full w-full">
           <Image
             src={product.images?.[0] || '/placeholder.png'}
             alt={product.name}
@@ -200,11 +198,11 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
                   product.isTrending ? 'bg-rose-600 text-white animate-pulse' :
                     'bg-amber-400 text-neutral-950'
               }`}>
-              {isFlashSale ? (t('store.product.flash') as string) :
-                discount > 0 ? `${discount}% ${t('store.product.off')}` :
-                  product.isNewArrival ? (t('store.product.new') as string) :
-                    product.isTrending ? (t('store.product.trending') as string) :
-                      (t('store.product.featured') as string)}
+              {isFlashSale ? 'Flash' :
+                discount > 0 ? `${discount}% OFF` :
+                  product.isNewArrival ? 'New' :
+                    product.isTrending ? 'Trending' :
+                      'Featured'}
             </div>
           </div>
         )}
@@ -225,7 +223,7 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{t('store.product.quick_view')}</p>
+                <p>Quick View</p>
               </TooltipContent>
             </Tooltip>
 
@@ -236,13 +234,13 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
                   variant="secondary"
                   className={`h-12 w-12 rounded-full bg-white shadow-xl transition-all hover:scale-110 ${isInWishlist ? 'text-primary' : 'text-black hover:bg-primary hover:text-white'}`}
                   onClick={handleWishlist}
-                  aria-label={isInWishlist ? (t('store.product.remove_wishlist') as string) : (t('store.product.add_wishlist') as string)}
+                  aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
                 >
                   <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isInWishlist ? t('store.product.remove_wishlist') : t('store.product.add_wishlist')}</p>
+                <p>{isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -252,7 +250,7 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
       {/* Product Info */}
       <div className="mt-4 text-center space-y-4 px-2 pb-2 flex-1 flex flex-col justify-between">
         <div className="min-h-[5.25rem] sm:min-h-[4.5rem] flex flex-col justify-center">
-          <Link
+          <Link prefetch={true}
             href={`/product/${product.slug}`}
             className={`text-sm ${layout === 'v3' ? 'lg:text-xs' : 'sm:text-base'} font-semibold text-foreground hover:text-primary transition-colors leading-tight px-2 line-clamp-3 sm:line-clamp-2`}
             title={product.name}
@@ -279,14 +277,14 @@ export default function ProductCardV6({ product: initialProduct, isFlashSale, pr
             className={`flex-1 rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold text-[10px] ${layout === 'v3' ? 'lg:text-[10px] lg:h-9' : 'sm:text-xs sm:h-10'} h-11 transition-all active:scale-95 py-2`}
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> {t('store.product.add_cart') || 'Cart'}
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Cart
           </Button>
           <Button
             size="sm"
             className={`flex-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-[10px] ${layout === 'v3' ? 'lg:text-[10px] lg:h-9' : 'sm:text-xs sm:h-10'} h-11 shadow-lg shadow-primary/20 transition-all active:scale-95 py-2`}
             onClick={handleBuyNow}
           >
-            {t('store.product.buy_now') || 'Buy Now'}
+            Buy Now
           </Button>
         </div>
       </div>

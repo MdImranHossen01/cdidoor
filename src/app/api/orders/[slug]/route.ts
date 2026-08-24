@@ -15,12 +15,15 @@ export async function GET(
   try {
     const { slug } = await params;
     const session = await auth();
-    if (!mongoose.isValidObjectId(slug)) {
-      return NextResponse.json({ message: 'Invalid order ID' }, { status: 400 });
+    let query: any = {};
+    if (mongoose.isValidObjectId(slug)) {
+      query = { _id: slug };
+    } else {
+      query = { orderId: slug.startsWith('#') ? slug : `#${slug}` };
     }
 
     await connectToDatabase();
-    const order = await Order.findOne({ _id: slug })
+    const order = await Order.findOne(query)
       .populate('user', 'name email image')
       .populate('items.product', 'name price images slug');
 

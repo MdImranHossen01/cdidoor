@@ -9,6 +9,10 @@ export interface IOrderItem {
   image?: string;
   color?: string;
   size?: string;
+  batchesUsed?: {
+    batchNumber: string;
+    quantity: number;
+  }[];
 }
 
 export interface IOrder extends Document {
@@ -73,6 +77,12 @@ const OrderSchema: Schema<IOrder> = new Schema(
         image: { type: String },
         color: { type: String },
         size: { type: String },
+        batchesUsed: [
+          {
+            batchNumber: { type: String, required: true },
+            quantity: { type: Number, required: true, min: [1, 'Quantity must be at least 1'] },
+          }
+        ],
       },
     ],
     totalAmount: { type: Number, required: true, min: [0, 'Total amount cannot be negative'] },

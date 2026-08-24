@@ -9,6 +9,7 @@ export interface IProduct extends Document {
   salePrice?: number;
   wholesalePrice?: number;
   wholesaleSalePrice?: number;
+  showroomPrice?: number;
   purchasePrice?: number;
   discountRate?: number;
   sku: string;
@@ -17,7 +18,13 @@ export interface IProduct extends Document {
     showroom: mongoose.Types.ObjectId;
     stock: number;
   }[];
+  batches?: {
+    batchNumber: string;
+    expiryDate?: Date;
+    stock: number;
+  }[];
   categories: mongoose.Types.ObjectId[];
+  brand?: mongoose.Types.ObjectId;
   tags: string[];
   images: string[];
   attributes: {
@@ -32,12 +39,18 @@ export interface IProduct extends Document {
     salePrice?: number;
     wholesalePrice?: number;
     wholesaleSalePrice?: number;
+    showroomPrice?: number;
     purchasePrice?: number;
     discountRate?: number;
     stock: number;
     sku?: string;
     image?: string;
     images?: string[];
+    batches?: {
+      batchNumber: string;
+      expiryDate?: Date;
+      stock: number;
+    }[];
   }[];
   isFeatured: boolean;
   isNewArrival: boolean;
@@ -83,7 +96,15 @@ const ProductSchema: Schema<IProduct> = new Schema(
         stock: { type: Number, required: true, default: 0, min: [0, 'Stock cannot be negative'] },
       }
     ],
-    categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+    batches: [
+      {
+        batchNumber: { type: String, required: true },
+        expiryDate: { type: Date },
+        stock: { type: Number, required: true, default: 0, min: [0, 'Stock cannot be negative'] },
+      }
+    ],
+    categories: [{ type: Schema.Types.ObjectId, ref: 'Category', required: true }],
+    brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
     tags: [{ type: String }],
     images: [{ type: String }],
     attributes: [
@@ -100,12 +121,20 @@ const ProductSchema: Schema<IProduct> = new Schema(
         salePrice: { type: Number, min: [0, 'Sale price cannot be negative'] },
         wholesalePrice: { type: Number, min: [0, 'Wholesale price cannot be negative'] },
         wholesaleSalePrice: { type: Number, min: [0, 'Wholesale sale price cannot be negative'] },
+        showroomPrice: { type: Number, min: [0, 'Showroom price cannot be negative'] },
         purchasePrice: { type: Number, min: [0, 'Purchase price cannot be negative'] },
         discountRate: { type: Number },
         stock: { type: Number, required: true, default: 0, min: [0, 'Stock cannot be negative'] },
         sku: { type: String },
         image: { type: String },
         images: [{ type: String }],
+        batches: [
+          {
+            batchNumber: { type: String, required: true },
+            expiryDate: { type: Date },
+            stock: { type: Number, required: true, default: 0, min: [0, 'Stock cannot be negative'] },
+          }
+        ],
       },
     ],
     isFeatured: { type: Boolean, default: false },

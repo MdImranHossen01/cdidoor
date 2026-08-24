@@ -164,6 +164,22 @@ function SupplierBillsContent() {
   };
 
   useEffect(() => {
+    if (searchParams.get('action') === 'add') {
+      setEditingBill(null);
+      setSelectedSupplierId('');
+      setBillItems([{ name: '', quantity: 1, price: 0 }]);
+      setDiscountValue(0);
+      setPaidAmount(0);
+      setPaymentMethod('Cash');
+      setBillDate(format(new Date(), 'yyyy-MM-dd'));
+      setIsCreateOpen(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('action');
+      router.replace(`/admin/supplier-bills${params.toString() ? '?' + params.toString() : ''}`, { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  useEffect(() => {
     const loadData = async () => {
       await Promise.all([
         fetchBills(),
@@ -324,8 +340,8 @@ function SupplierBillsContent() {
   const accountsPayable = bills.reduce((sum, b) => sum + (b.dueAmount || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="flex flex-col gap-6">
+      <div className="hidden sm:flex sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t("supplier_bills.title")}</h1>
           <p className="text-muted-foreground text-sm">

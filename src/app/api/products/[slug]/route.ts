@@ -21,7 +21,7 @@ export async function GET(
       ? { _id: slug }
       : { slug: slug };
 
-    const product = await Product.findOne(query).populate('categories');
+    const product = await Product.findOne(query).populate('categories').populate('brand');
 
     if (!product) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
@@ -54,7 +54,7 @@ export async function PUT(
       'name', 'slug', 'description', 'price', 'salePrice', 'discountRate',
       'sku', 'stock', 'categories', 'tags', 'images',
       'attributes', 'variants', 'isFeatured', 'isNewArrival', 'isPublished', 'deliveryCharge',
-      'wholesalePrice', 'wholesaleSalePrice', 'purchasePrice', 'showroomStocks'
+      'wholesalePrice', 'wholesaleSalePrice', 'purchasePrice', 'showroomStocks', 'brand', 'showroomPrice'
     ];
     const safeUpdate: any = {};
 
@@ -84,6 +84,7 @@ export async function PUT(
             price: Number.isFinite(parseFloat(v.price)) ? parseFloat(v.price) : 0,
             purchasePrice: Number.isFinite(parseFloat(v.purchasePrice)) ? parseFloat(v.purchasePrice) : undefined,
             salePrice: Number.isFinite(parseFloat(v.salePrice)) ? parseFloat(v.salePrice) : undefined,
+            showroomPrice: Number.isFinite(parseFloat(v.showroomPrice)) ? parseFloat(v.showroomPrice) : undefined,
             stock: Number.isFinite(parseInt(v.stock, 10)) ? parseInt(v.stock, 10) : 0,
             discountRate: Number.isFinite(parseFloat(v.discountRate)) ? parseFloat(v.discountRate) : undefined,
           }));

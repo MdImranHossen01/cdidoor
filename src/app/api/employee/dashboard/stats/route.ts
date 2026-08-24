@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
-import SalaryDisbursement from '@/models/SalaryDisbursement';
+import Expense from '@/models/Expense';
 import Leave from '@/models/Leave';
 import Task from '@/models/Task';
 import EmployeeProfile from '@/models/EmployeeProfile';
@@ -34,14 +34,18 @@ export async function GET(req: NextRequest) {
     const profile = await EmployeeProfile.findOne({ user: userId }).lean() as any;
 
     // This month's salary disbursements
-    const monthSalaries = await SalaryDisbursement.find({
+    const monthSalaries = await Expense.find({
       employee: userId,
+      category: { $in: ['Staff Salary', 'Wages'] },
       date: { $gte: startOfMonth, $lte: endOfMonth },
     }).lean();
     const monthSalaryTotal = monthSalaries.reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
 
     // All salary total
-    const allSalaries = await SalaryDisbursement.find({ employee: userId }).sort({ date: -1 }).limit(6).lean();
+    const allSalaries = await Expense.find({ 
+      employee: userId,
+      category: { $in: ['Staff Salary', 'Wages'] }
+    }).sort({ date: -1 }).limit(6).lean();
 
     // Leaves
     const pendingLeaves = await Leave.countDocuments({ employee: userId, status: 'Pending' });

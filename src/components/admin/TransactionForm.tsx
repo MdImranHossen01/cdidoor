@@ -35,10 +35,11 @@ const transactionSchema = z.object({
     (val) => (val === '' || val === undefined ? undefined : Number(val)),
     z.number({ message: 'Amount is required' }).min(1, 'Amount must be at least 1')
   ),
-  category: z.string().default('Others'),
+  category: z.string().min(1, 'Category is required'),
   date: z.string().min(1, 'Date is required').refine(s => !isNaN(Date.parse(s)), { message: 'Invalid date format' }),
   description: z.string().optional(),
   showroom: z.string().optional(),
+  employee: z.string().optional(),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -52,12 +53,16 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [showrooms, setShowrooms] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
 
   const userRole = (session?.user as any)?.role;
   const isAdmin = ['admin', 'super_admin'].includes(userRole);
 
   // Refs for keyboard navigation
   const titleRef = useRef<HTMLInputElement>(null);
+  const categoryRef = useRef<HTMLButtonElement>(null);
+  const employeeRef = useRef<HTMLButtonElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -69,10 +74,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
       type: initialData?.type || 'expense',
       title: initialData?.title || '',
       amount: initialData?.amount !== undefined ? initialData.amount : '',
-      category: initialData?.category || 'Others',
+      category: initialData?.category || '',
       date: initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       description: initialData?.description || '',
       showroom: initialData?.showroom || undefined,
+      employee: initialData?.employee?._id || initialData?.employee || undefined,
     },
   });
 
@@ -82,10 +88,39 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         .then((res) => res.json())
         .then((data) => setShowrooms(data.showrooms || []))
         .catch((err) => console.error('Error fetching showrooms:', err));
+
+      fetch('/api/admin/employees')
+        .then((res) => res.json())
+        .then((data) => setEmployees(data.employees || []))
+        .catch((err) => console.error('Error fetching employees:', err));
     }
+
+    fetch('/api/admin/transaction-categories')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch((err) => console.error('Error fetching categories:', err));
   }, [isAdmin]);
 
   const selectedType = form.watch('type');
+  const selectedCategory = form.watch('category');
+  const selectedEmployeeId = form.watch('employee');
+  const filteredCategories = categories.filter(c => c.type === selectedType);
+
+  useEffect(() => {
+    if (!initialData) {
+      if (['Staff Salary', 'Wages'].includes(selectedCategory) && selectedEmployeeId && selectedEmployeeId !== 'none') {
+        const emp = employees.find(e => e._id === selectedEmployeeId);
+        if (emp) {
+          const prefix = selectedCategory === 'Staff Salary' ? 'Staff salary' : 'Wages';
+          form.setValue('title', `${prefix} paid to ${emp.name}`, { shouldValidate: true });
+        }
+      } else if (selectedCategory) {
+        form.setValue('title', selectedCategory, { shouldValidate: true });
+      }
+    }
+  }, [selectedCategory, selectedEmployeeId, employees, form, initialData]);
 
   const onSubmit = async (values: TransactionFormValues) => {
     setLoading(true);
@@ -108,14 +143,15 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
             type: form.getValues('type'),
             title: '',
             amount: '' as any,
-            category: 'Others',
+            category: '',
             date: form.getValues('date'),
             description: '',
             showroom: undefined,
+            employee: undefined,
           });
           onSuccess(false);
           setTimeout(() => {
-            titleRef.current?.focus();
+            categoryRef.current?.focus();
           }, 50);
         }
       } else {
@@ -132,7 +168,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const handleDateKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      titleRef.current?.focus();
+      categoryRef.current?.focus();
     }
   };
 
@@ -140,6 +176,24 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
     if (e.key === 'Enter') {
       e.preventDefault();
       amountRef.current?.focus();
+    }
+  };
+
+  const handleCategoryKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (['Staff Salary', 'Wages'].includes(selectedCategory)) {
+        employeeRef.current?.focus();
+      } else {
+        titleRef.current?.focus();
+      }
+    }
+  };
+
+  const handleEmployeeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleRef.current?.focus();
     }
   };
 
@@ -215,6 +269,82 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         />
         <FormField
           control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs md:text-sm">Category</FormLabel>
+              <Select value={field.value || ''} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger 
+                    className="h-8 md:h-10 text-xs md:text-sm" 
+                    ref={categoryRef}
+                    onKeyDown={handleCategoryKeyDown}
+                  >
+                    <SelectValue placeholder="Select Category">
+                      {field.value ? field.value : "Select Category"}
+                    </SelectValue>
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {filteredCategories.length === 0 ? (
+                    <SelectItem value="none" disabled className="text-xs md:text-sm">
+                      No categories found
+                    </SelectItem>
+                  ) : (
+                    filteredCategories.map((cat) => (
+                      <SelectItem key={cat._id} value={cat.name} className="text-xs md:text-sm">
+                        {cat.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-[10px] md:text-xs" />
+            </FormItem>
+          )}
+        />
+        {['Staff Salary', 'Wages'].includes(selectedCategory) && (
+          <FormField
+            control={form.control}
+            name="employee"
+            render={({ field }) => (
+              <FormItem className="space-y-1">
+                <FormLabel className="text-xs md:text-sm">Employee</FormLabel>
+                <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <FormControl>
+                  <SelectTrigger 
+                    className="h-8 md:h-10 text-xs md:text-sm"
+                    ref={employeeRef}
+                    onKeyDown={handleEmployeeKeyDown}
+                  >
+                    <SelectValue placeholder="Select Employee">
+                        {field.value && field.value !== 'none' 
+                          ? employees.find(e => e._id === field.value)?.name 
+                          : "Select Employee"}
+                      </SelectValue>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {employees.filter(emp => selectedCategory === 'Staff Salary' ? emp.employeeType === 'monthly' : emp.employeeType === 'task-based').length === 0 ? (
+                      <SelectItem value="none" disabled className="text-xs md:text-sm">
+                        No employees found
+                      </SelectItem>
+                    ) : (
+                      employees.filter(emp => selectedCategory === 'Staff Salary' ? emp.employeeType === 'monthly' : emp.employeeType === 'task-based').map((emp) => (
+                        <SelectItem key={emp._id} value={emp._id} className="text-xs md:text-sm">
+                          {emp.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-[10px] md:text-xs" />
+              </FormItem>
+            )}
+          />
+        )}
+        <FormField
+          control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem className="space-y-1">
@@ -269,7 +399,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 <Select value={field.value || 'none'} onValueChange={(val) => field.onChange(val === 'none' ? undefined : val)}>
                   <FormControl>
                     <SelectTrigger className="h-8 md:h-10 text-xs md:text-sm">
-                      <SelectValue placeholder="Select Showroom" />
+                      <SelectValue placeholder="Select Showroom">
+                        {field.value && field.value !== 'none'
+                          ? showrooms.find(s => s._id === field.value)?.name
+                          : "None (Global)"}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

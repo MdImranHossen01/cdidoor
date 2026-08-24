@@ -11,26 +11,28 @@ export function LanguageToggle() {
   };
 
   return (
-    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full p-1 border border-gray-200 dark:border-gray-700">
+    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full p-0.5 md:p-1 border border-gray-200 dark:border-gray-700">
       <button
         onClick={() => toggleLanguage("en")}
-        className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-200 ${
+        className={`px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs font-semibold rounded-full transition-colors duration-200 ${
           language === "en"
             ? "bg-[#ec4899] text-white" // pink-500 similar to the image
             : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
         }`}
       >
-        ENG
+        <span className="md:hidden">EN</span>
+        <span className="hidden md:inline">ENG</span>
       </button>
       <button
         onClick={() => toggleLanguage("bn")}
-        className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors duration-200 ${
+        className={`px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs font-semibold rounded-full transition-colors duration-200 ${
           language === "bn"
             ? "bg-[#ec4899] text-white" // pink-500 similar to the image
             : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
         }`}
       >
-        বাংলা
+        <span className="md:hidden">BN</span>
+        <span className="hidden md:inline">বাংলা</span>
       </button>
     </div>
   );

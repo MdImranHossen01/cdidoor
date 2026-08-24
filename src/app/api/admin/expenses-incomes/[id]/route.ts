@@ -42,7 +42,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { title, amount, category, date, description, type, status, showroom } = body;
+    const { title, amount, category, date, description, type, status, showroom, employee } = body;
 
     // Sanitize update data (whitelist)
     const updateData: any = {};
@@ -52,6 +52,7 @@ export async function PUT(
     if (date !== undefined) updateData.date = date;
     if (description !== undefined) updateData.description = description;
     if (type !== undefined) updateData.type = type;
+    if (employee !== undefined) updateData.employee = employee;
 
     if (['admin', 'super_admin'].includes(userRole)) {
       if (status !== undefined) updateData.status = status;

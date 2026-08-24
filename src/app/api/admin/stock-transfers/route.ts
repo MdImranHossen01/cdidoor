@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Invalid JSON request body' }, { status: 400 });
     }
 
-    const { productId, sourceShowroomId, showroomId, quantity, notes } = body;
+    const { productId, sourceShowroomId, showroomId, quantity, notes, batchNumber } = body;
 
     const qty = Number(quantity);
     if (!productId || !showroomId || isNaN(qty) || !Number.isFinite(qty) || !Number.isInteger(qty) || qty <= 0) {
@@ -45,6 +45,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: 'Product not found' }, { status: 404 });
       }
 
+      // Check global batch stock if transferring from central with specific batch
+      let batchIndex = -1;
+      if (normSource === 'central' && batchNumber && batchNumber !== 'auto') {
+        batchIndex = product.batches?.findIndex((b: any) => b.batchNumber === batchNumber) ?? -1;
+        if (batchIndex === -1 || product.batches![batchIndex].stock < qty) {
+          await dbSession.abortTransaction();
+          dbSession.endSession();
+          return NextResponse.json({ message: `Insufficient stock in batch ${batchNumber}` }, { status: 400 });
+        }
+      }
+
       // Deduct stock from the source
       if (normSource !== 'central') {
         const sourceShowroomIndex = product.showroomStocks?.findIndex(s => s.showroom.toString() === normSource) ?? -1;
@@ -61,6 +72,9 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ message: 'Insufficient central stock' }, { status: 400 });
         }
         product.stock -= qty;
+        if (batchIndex !== -1) {
+          product.batches![batchIndex].stock -= qty;
+        }
       }
 
       const isDestCentral = normDest === 'central';
@@ -77,7 +91,7 @@ export async function POST(req: NextRequest) {
         sourceShowroom: normSource !== 'central' ? normSource : undefined,
         showroom: isDestCentral ? undefined : normDest,
         quantity: qty,
-        notes,
+        notes: batchNumber && batchNumber !== 'auto' ? (notes ? `${notes} (Batch: ${batchNumber})` : `Batch: ${batchNumber}`) : notes,
         status: isDestCentral ? 'approved' : 'pending'
       }], { session: dbSession });
 

@@ -18,7 +18,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { useSession } from 'next-auth/react';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QuickViewModalProps {
   product: any;
@@ -51,7 +50,6 @@ function variantReducer(state: VariantState, action: VariantAction): VariantStat
 }
 
 export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { data: session } = useSession();
 
@@ -310,7 +308,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
           <div className="w-full md:w-[50%] p-10 flex flex-col font-jost overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-200">
             <div className="mb-2 flex items-center gap-2">
               <RatingStars rating={product.ratings || 5} />
-              <span className="text-xs text-gray-500">({product.numReviews || 0} {t('store.product.reviews') || 'Reviews'})</span>
+              <span className="text-xs text-gray-500">({product.numReviews || 0} Reviews)</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">{product.name}</h2>
@@ -330,7 +328,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
               <div className="flex items-center gap-2">
                 <span className={`h-2 w-2 rounded-none ${displayStock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
                 <span className="font-medium text-gray-600">
-                  {displayStock > 0 ? t('store.product.in_stock') : t('store.product.out_of_stock')}
+                  {displayStock > 0 ? `In stock (${displayStock} units)` : 'Out of stock'}
                 </span>
                 {displaySku && (
                   <>
@@ -444,7 +442,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 disabled={(activeVariant?.stock ?? product.stock) === 0}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                {(activeVariant?.stock ?? product.stock) === 0 ? t('store.product.out_of_stock') : t('store.product.add_cart')}
+                {(activeVariant?.stock ?? product.stock) === 0 ? 'Out of Stock' : 'Add to Cart'}
               </Button>
 
               <Button
@@ -452,7 +450,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 onClick={(e) => handleAddToCart(e, true)}
                 disabled={(activeVariant?.stock ?? product.stock) === 0}
               >
-                {t('store.product.buy_now') || 'Buy Now'}
+                Buy Now
               </Button>
 
               <button

@@ -1,9 +1,12 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IBillItem {
+  productId?: mongoose.Types.ObjectId;
+  variantId?: string;
   name: string;
   quantity: number;
   price: number;
+  batchesUsed?: { batchNumber: string; quantity: number }[];
 }
 
 export interface IBill extends Document {
@@ -46,9 +49,17 @@ const BillSchema: Schema<IBill> = new Schema(
     transactionId: { type: String },
     items: [
       {
+        productId: { type: Schema.Types.ObjectId, ref: 'Product' },
+        variantId: { type: String },
         name: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true, min: 0 },
+        batchesUsed: [
+          {
+            batchNumber: { type: String, required: true },
+            quantity: { type: Number, required: true, min: 1 }
+          }
+        ]
       },
     ],
     subtotal: { type: Number, required: true, min: 0 },

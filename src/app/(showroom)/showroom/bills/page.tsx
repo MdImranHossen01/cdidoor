@@ -56,9 +56,12 @@ import {
 import { Pagination } from '@/components/ui/pagination';
 
 interface BillItemInput {
+  productId?: string;
+  variantId?: string;
   name: string;
   quantity: number;
   price: number;
+  batchNumber?: string;
 }
 
 function ShowroomBillsContent() {
@@ -128,7 +131,7 @@ function ShowroomBillsContent() {
   const [clientPhone, setClientPhone] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [billItems, setBillItems] = useState<BillItemInput[]>([
-    { name: '', quantity: 1, price: 0 }
+    { name: '', quantity: 1, price: 0, batchNumber: 'auto' }
   ]);
   const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
   const [serviceFee, setServiceFee] = useState<number>(0);
@@ -247,12 +250,12 @@ function ShowroomBillsContent() {
       if (!prod) return;
 
       if (variantId === null) {
-        newItems.push({ name: prod.name, price: prod.salePrice || prod.price || 0, quantity: 1 });
+        newItems.push({ productId: prod._id, name: prod.name, price: prod.salePrice || prod.price || 0, quantity: 1, batchNumber: 'auto' });
       } else {
         const variant = (prod.variants || []).find((v: any) => v._id === variantId);
         if (!variant) return;
         const label = [prod.name, variant.color, variant.size].filter(Boolean).join(' — ');
-        newItems.push({ name: label, price: variant.salePrice || variant.price || 0, quantity: 1 });
+        newItems.push({ productId: prod._id, variantId: variant._id, name: label, price: variant.salePrice || variant.price || 0, quantity: 1, batchNumber: 'auto' });
       }
     });
 
@@ -269,12 +272,12 @@ function ShowroomBillsContent() {
   };
 
   const handleAddItemRow = () => {
-    setBillItems([...billItems, { name: '', quantity: 1, price: 0 }]);
+    setBillItems([...billItems, { name: '', quantity: 1, price: 0, batchNumber: 'auto' }]);
   };
 
   const handleRemoveItemRow = (index: number) => {
     if (billItems.length === 1) {
-      setBillItems([{ name: '', quantity: 1, price: 0 }]);
+      setBillItems([{ name: '', quantity: 1, price: 0, batchNumber: 'auto' }]);
     } else {
       setBillItems(billItems.filter((_, i) => i !== index));
     }
@@ -289,7 +292,7 @@ function ShowroomBillsContent() {
         } else if (field === 'price') {
           cloned.price = Math.max(0, parseFloat(value) || 0);
         } else {
-          cloned.name = value;
+          cloned[field] = value;
         }
         return cloned;
       }
@@ -374,7 +377,7 @@ function ShowroomBillsContent() {
     setClientPhone('');
     setPhoneError('');
     setClientAddress('');
-    setBillItems([{ name: '', quantity: 1, price: 0 }]);
+    setBillItems([{ name: '', quantity: 1, price: 0, batchNumber: 'auto' }]);
     setDeliveryCharge(0);
     setServiceFee(0);
     setDiscountType('fixed');
@@ -1011,41 +1014,70 @@ function ShowroomBillsContent() {
               <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                 {billItems.map((item, index) => (
                   <div key={index} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center border p-2 sm:p-0 sm:border-none rounded-md">
-                    <Input
-                      placeholder="Item Description"
-                      value={item.name}
-                      onChange={(e) => handleItemChange(index, 'name', e.target.value)}
-                      className="flex-1"
-                      required
-                    />
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full">
                       <Input
-                        type="number"
-                        placeholder="Qty"
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                        className="flex-1 sm:w-20"
-                        min="1"
+                        placeholder="Item Description"
+                        value={item.name}
+                        onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                        className="flex-1"
                         required
                       />
-                      <Input
-                        type="number"
-                        placeholder="Rate"
-                        value={item.price || ''}
-                        onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                        className="flex-1 sm:w-28"
-                        min="0"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveItemRow(index)}
-                        className="text-destructive hover:bg-destructive/10 shrink-0 h-10 w-10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {item.productId && (
+                        <Select
+                          value={item.batchNumber || 'auto'}
+                          onValueChange={(val) => handleItemChange(index, 'batchNumber', val)}
+                        >
+                          <SelectTrigger className="w-[120px] h-10">
+                            <SelectValue placeholder="Batch" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="auto">FIFO (Auto)</SelectItem>
+                            {(() => {
+                              const prod = products.find(p => p._id === item.productId);
+                              if (!prod) return null;
+                              let availableBatches = prod.batches || [];
+                              if (item.variantId) {
+                                const v = prod.variants?.find((va: any) => va._id === item.variantId);
+                                if (v && v.batches && v.batches.length > 0) availableBatches = v.batches;
+                              }
+                              return availableBatches.map((b: any, bIdx: number) => (
+                                <SelectItem key={bIdx} value={b.batchNumber}>
+                                  {b.batchNumber} (Qty: {b.stock})
+                                </SelectItem>
+                              ));
+                            })()}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Input
+                          type="number"
+                          placeholder="Qty"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                          className="flex-1 sm:w-20"
+                          min="1"
+                          required
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Rate"
+                          value={item.price || ''}
+                          onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                          className="flex-1 sm:w-28"
+                          min="0"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItemRow(index)}
+                          className="text-destructive hover:bg-destructive/10 shrink-0 h-10 w-10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

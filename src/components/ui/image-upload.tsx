@@ -136,7 +136,7 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
     <div className={cn("w-full", !compact && "space-y-3")}>
       {label && !compact && <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">{label}</Label>}
       
-      <div className="relative group h-full">
+      <div className="relative group h-full w-full">
         <Label
           htmlFor={generatedId}
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -206,7 +206,7 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
                   <p className="text-sm font-bold text-gray-900">
                     Click to <span className="text-primary underline underline-offset-4">upload</span>
                   </p>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
+                  <p className="text-[10px] text-gray-400 uppercase font-medium text-center max-w-full px-2 break-words">
                     PNG, JPG or WEBP (Max 5MB)
                   </p>
                 </div>

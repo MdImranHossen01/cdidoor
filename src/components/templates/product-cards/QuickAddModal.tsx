@@ -14,7 +14,6 @@ import { useAppDispatch } from '@/store/hooks';
 import { addToCart } from '@/store/slices/cartSlice';
 import { toast } from 'sonner';
 import Image from 'next/image';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QuickAddModalProps {
   product: any;
@@ -23,7 +22,6 @@ interface QuickAddModalProps {
 }
 
 export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -116,9 +114,9 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
-          <DialogTitle className="text-xl">{t('store.product.select_options') || 'Select Options'}</DialogTitle>
+          <DialogTitle className="text-xl">Select Options</DialogTitle>
           <DialogDescription>
-            {t('store.product.select_options_desc') || 'Choose your preferred options before adding to cart.'}
+            Choose your preferred options before adding to cart.
           </DialogDescription>
         </DialogHeader>
         
@@ -206,7 +204,7 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
             disabled={(activeVariant?.stock ?? product.stock) === 0}
           >
             <ShoppingCart className="mr-2 h-4 w-4" /> 
-            {(activeVariant?.stock ?? product.stock) === 0 ? t('store.product.out_of_stock') : t('store.product.add_cart')}
+            {(activeVariant?.stock ?? product.stock) === 0 ? 'Out of Stock' : 'Add to Cart'}
           </Button>
         </div>
       </DialogContent>

@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 import { QuickViewModal } from './QuickViewModal';
 import { fbEvent } from '@/lib/fpixel';
 import { ttEvent } from '@/lib/tiktok';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCardProps {
   product: {
@@ -39,7 +38,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCardAarong({ product: initialProduct, isFlashSale, priority, layout }: ProductCardProps) {
-  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -92,7 +90,7 @@ export default function ProductCardAarong({ product: initialProduct, isFlashSale
 
       {/* Aspect 3/4 Image Container */}
       <div className="relative aspect-[3/4] overflow-hidden bg-muted w-full">
-        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
+        <Link prefetch={true} href={`/product/${product.slug}`} className="relative block h-full w-full">
           <Image
             src={product.images?.[0] || '/placeholder.png'}
             alt={product.name}
@@ -107,7 +105,7 @@ export default function ProductCardAarong({ product: initialProduct, isFlashSale
         <button
           onClick={handleWishlist}
           className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-foreground hover:text-primary transition-all duration-300 z-10 shadow-sm"
-          title={isInWishlist ? (t('store.product.remove_wishlist') as string) : (t('store.product.add_wishlist') as string)}
+          title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart className={`h-4.5 w-4.5 ${isInWishlist ? 'fill-primary text-primary' : 'text-foreground'}`} />
         </button>
@@ -117,13 +115,13 @@ export default function ProductCardAarong({ product: initialProduct, isFlashSale
           onClick={(e) => { e.preventDefault(); setShowQuickViewModal(true); }}
           className="absolute bottom-0 left-0 w-full bg-black/60 hover:bg-black/85 text-white py-2 text-center text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
         >
-          <Eye className="h-4 w-4" /> {t('store.product.quick_view') || 'QUICK VIEW'}
+          <Eye className="h-4 w-4" /> QUICK VIEW
         </button>
       </div>
 
       {/* Product Text details - Left aligned */}
       <div className="mt-3 flex flex-col gap-1.5 text-left px-1">
-        <Link
+        <Link prefetch={true}
           href={`/product/${product.slug}`}
           className="text-xs sm:text-sm font-semibold text-foreground hover:text-primary transition-colors leading-snug line-clamp-2"
           title={product.name}

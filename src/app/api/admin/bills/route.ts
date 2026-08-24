@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get('filter'); // 'all', 'paid', 'due'
     const type = searchParams.get('type') || 'bill'; // 'offer', 'chalan', 'bill'
+    const invoiceNo = searchParams.get('invoiceNo');
     
     await connectToDatabase();
 
@@ -21,6 +22,10 @@ export async function GET(req: NextRequest) {
       query.$or = [{ documentType: 'bill' }, { documentType: { $exists: false } }];
     } else {
       query.documentType = type;
+    }
+
+    if (invoiceNo) {
+      query.invoiceNo = invoiceNo;
     }
 
     if (filter === 'paid') {
@@ -97,30 +102,117 @@ export async function POST(req: NextRequest) {
 
     const invoiceNo = `${prefix}${String(nextNum).padStart(7, '0')}`;
 
-    const newBill = new Bill({
-      clientName,
-      clientPhone,
-      clientAddress,
-      invoiceNo,
-      items,
-      subtotal,
-      deliveryCharge,
-      serviceFee: serviceFee || 0,
-      discountType,
-      discountValue,
-      discount,
-      total,
-      prevDue,
-      gTotal,
-      cashIn,
-      currentBillDue,
-      status,
-      expectedReceivableDate: status === 'Due' && expectedReceivableDate ? new Date(expectedReceivableDate) : undefined,
-      documentType: docType,
-      convertedFrom: convertedFrom || undefined
-    });
+    const mongoose = (await import('mongoose')).default;
+    const dbSession = await mongoose.startSession();
+    dbSession.startTransaction();
 
-    await newBill.save();
+    try {
+      const newBill = new Bill({
+        clientName,
+        clientPhone,
+        clientAddress,
+        invoiceNo,
+        items,
+        subtotal,
+        deliveryCharge,
+        serviceFee: serviceFee || 0,
+        discountType,
+        discountValue,
+        discount,
+        total,
+        prevDue,
+        gTotal,
+        cashIn,
+        currentBillDue,
+        status,
+        expectedReceivableDate: status === 'Due' && expectedReceivableDate ? new Date(expectedReceivableDate) : undefined,
+        documentType: docType,
+        convertedFrom: convertedFrom || undefined
+      });
+
+      // Deduct Stock if it's a bill
+      if (docType === 'bill') {
+        const Product = (await import('@/models/Product')).default;
+        for (const item of items) {
+          if (!item.productId) continue;
+          const product = await Product.findById(item.productId).session(dbSession);
+          if (!product) throw new Error(`Product not found: ${item.name}`);
+
+          let remainingQty = item.quantity;
+          const batchesUsed: { batchNumber: string; quantity: number }[] = [];
+
+          const hasVariant = !!item.variantId;
+          if (hasVariant) {
+            const variant = product.variants?.find((v: any) => v._id.toString() === item.variantId);
+            if (!variant) throw new Error(`Variant not found for: ${item.name}`);
+            
+            // Deduct variant batch stock
+            let availableBatches = (variant.batches || []) || [];
+            if (item.batchNumber && item.batchNumber !== 'auto') {
+              const b = availableBatches.find((b: any) => b.batchNumber === item.batchNumber);
+              if (b) {
+                const qtyToTake = Math.min(b.stock, remainingQty);
+                batchesUsed.push({ batchNumber: b.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                b.stock -= qtyToTake;
+              }
+            } else {
+              // FIFO
+              const sortedBatches = [...availableBatches].sort((a, b) => {
+                if (!a.expiryDate) return 1;
+                if (!b.expiryDate) return -1;
+                return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+              });
+              for (const batch of sortedBatches) {
+                if (remainingQty <= 0) break;
+                if (batch.stock > 0) {
+                  const qtyToTake = Math.min(batch.stock, remainingQty);
+                  batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                  remainingQty -= qtyToTake;
+                  const originalBatch = (variant.batches || []).find((b: any) => b.batchNumber === batch.batchNumber);
+                  if (originalBatch) originalBatch.stock -= qtyToTake;
+                }
+              }
+            }
+            variant.stock -= item.quantity;
+          } else {
+            // Deduct base product batch stock
+            let availableBatches = (product.batches || []) || [];
+            if (item.batchNumber && item.batchNumber !== 'auto') {
+              const b = availableBatches.find((b: any) => b.batchNumber === item.batchNumber);
+              if (b) {
+                const qtyToTake = Math.min(b.stock, remainingQty);
+                batchesUsed.push({ batchNumber: b.batchNumber, quantity: qtyToTake });
+                remainingQty -= qtyToTake;
+                b.stock -= qtyToTake;
+              }
+            } else {
+              // FIFO
+              const sortedBatches = [...availableBatches].sort((a, b) => {
+                if (!a.expiryDate) return 1;
+                if (!b.expiryDate) return -1;
+                return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+              });
+              for (const batch of sortedBatches) {
+                if (remainingQty <= 0) break;
+                if (batch.stock > 0) {
+                  const qtyToTake = Math.min(batch.stock, remainingQty);
+                  batchesUsed.push({ batchNumber: batch.batchNumber, quantity: qtyToTake });
+                  remainingQty -= qtyToTake;
+                  const originalBatch = (product.batches || []).find((b: any) => b.batchNumber === batch.batchNumber);
+                  if (originalBatch) originalBatch.stock -= qtyToTake;
+                }
+              }
+            }
+            product.stock -= item.quantity;
+          }
+          item.batchesUsed = batchesUsed;
+
+          await product.save({ session: dbSession });
+        }
+      }
+
+      await newBill.save({ session: dbSession });
 
     // Log to ledger if it is a final Bill (not offers/chalans)
     if (docType === 'bill') {
@@ -133,7 +225,11 @@ export async function POST(req: NextRequest) {
           'debit',
           gTotal,
           `Bill Generated for ${clientName}`,
-          invoiceNo
+          invoiceNo,
+          new Date(),
+          undefined,
+          undefined,
+          dbSession
         );
 
         // If client paid any cash upfront
@@ -144,7 +240,11 @@ export async function POST(req: NextRequest) {
             'debit',
             cashIn,
             `Cash Paid Upfront for Bill ${invoiceNo}`,
-            invoiceNo
+            invoiceNo,
+            new Date(),
+            undefined,
+            undefined,
+            dbSession
           );
           // Credit Accounts Receivable (decreases receivable asset)
           await logLedgerTransaction(
@@ -152,7 +252,11 @@ export async function POST(req: NextRequest) {
             'credit',
             cashIn,
             `Upfront payment credit for Bill ${invoiceNo}`,
-            invoiceNo
+            invoiceNo,
+            new Date(),
+            undefined,
+            undefined,
+            dbSession
           );
         }
       } catch (err) {
@@ -160,7 +264,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json(newBill, { status: 201 });
+      await dbSession.commitTransaction();
+      dbSession.endSession();
+
+      return NextResponse.json(newBill, { status: 201 });
+    } catch (transactionError: any) {
+      await dbSession.abortTransaction();
+      dbSession.endSession();
+      throw transactionError;
+    }
   } catch (error: any) {
     console.error('Error creating bill:', error);
     return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });

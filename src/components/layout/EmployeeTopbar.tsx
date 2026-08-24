@@ -6,35 +6,42 @@ import { User, LogOut, Briefcase, Menu } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { useSidebar } from '@/components/ui/sidebar';
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuGroup,
-  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { usePathname } from 'next/navigation';
+import { getPageTitle } from '@/lib/page-title';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 export default function EmployeeTopbar() {
   const { t } = useLanguage();
   const { data: session } = useSession();
-  const { toggleSidebar } = useSidebar();
+  const pathname = usePathname();
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
-      <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden h-9 w-9 text-muted-foreground hover:text-foreground"
-          onClick={toggleSidebar}
-          aria-label="Toggle Menu"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <div className="hidden md:flex items-center gap-2">
-          <Briefcase className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Employee Panel</span>
+      {/* Mobile Left - Language Toggle */}
+      <div className="flex items-center md:hidden z-10 -ml-2">
+        <LanguageToggle />
+      </div>
+
+      {/* Mobile Title (Centered) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden z-0">
+        <div className="font-bold text-lg truncate px-12">
+          {getPageTitle(pathname)}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+
+      {/* Mobile Right - Theme Toggle */}
+      <div className="flex items-center md:hidden z-10 -mr-2">
+        <ModeToggle />
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:flex items-center gap-2">
+        <Briefcase className="h-4 w-4 text-primary" />
+        <span className="font-semibold text-sm">Employee Panel</span>
+      </div>
+
+      <div className="hidden md:flex items-center gap-4">
         <ModeToggle />
         {session?.user ? (
           <DropdownMenu>
