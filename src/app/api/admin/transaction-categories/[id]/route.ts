@@ -3,7 +3,8 @@ import connectToDatabase from '@/lib/db';
 import TransactionCategory from '@/models/TransactionCategory';
 import { auth } from '@/auth';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const session = await auth();
     if (!session || !session.user || !(['admin', 'super_admin'].includes((session.user as any)?.role))) {
@@ -37,7 +38,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const session = await auth();
     if (!session || !session.user || !(['admin', 'super_admin'].includes((session.user as any)?.role))) {
