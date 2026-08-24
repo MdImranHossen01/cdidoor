@@ -92,7 +92,7 @@ export default function AddAccountPage() {
 
           <div className="space-y-2">
             <Label className="text-base font-semibold">অ্যাকাউন্টের ধরন (Account Type)</Label>
-            <Select value={formData.accountCategory} onValueChange={(val) => setFormData({ ...formData, accountCategory: val })}>
+            <Select value={formData.accountCategory} onValueChange={(val) => setFormData({ ...formData, accountCategory: val || '' })}>
               <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg">
                 <SelectValue placeholder="সিলেক্ট করুন" />
               </SelectTrigger>
@@ -108,7 +108,7 @@ export default function AddAccountPage() {
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 border p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50">
               <div className="space-y-2">
                 <Label className="text-base font-semibold">MFS Provider (bKash/Nagad etc.)</Label>
-                <Select value={formData.mfsProvider} onValueChange={(val) => setFormData({ ...formData, mfsProvider: val })}>
+                <Select value={formData.mfsProvider} onValueChange={(val) => setFormData({ ...formData, mfsProvider: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg bg-white dark:bg-black">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
@@ -124,7 +124,7 @@ export default function AddAccountPage() {
 
               <div className="space-y-2">
                 <Label className="text-base font-semibold">MFS Type</Label>
-                <Select value={formData.mfsType} onValueChange={(val) => setFormData({ ...formData, mfsType: val })}>
+                <Select value={formData.mfsType} onValueChange={(val) => setFormData({ ...formData, mfsType: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg bg-white dark:bg-black">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
@@ -151,7 +151,7 @@ export default function AddAccountPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-base font-semibold">ব্যাংক অ্যাকাউন্টের ধরন</Label>
-                <Select value={formData.bankAccountType} onValueChange={(val) => setFormData({ ...formData, bankAccountType: val })}>
+                <Select value={formData.bankAccountType} onValueChange={(val) => setFormData({ ...formData, bankAccountType: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
