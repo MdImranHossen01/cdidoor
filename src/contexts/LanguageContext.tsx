@@ -7,6 +7,18 @@ type Language = "en" | "bn";
 // Basic dictionary structure. We can move this to separate files (e.g. en.json, bn.json) later.
 const translations = {
   en: {
+    "store.home.testimonials.title_start": "What our",
+    "store.home.testimonials.title_highlight": "Customers",
+    "store.home.testimonials.title_end": "say",
+    "store.home.testimonials.desc": "Don't just take our word for it. Join thousands of happy customers all over Bangladesh!",
+    "store.home.features.title_start": "Why Shop With",
+    "store.home.features.title_highlight": "CDI Door Ind",
+    "store.home.view_all": "View All",
+    "store.home.new_arrivals": "New Arrivals",
+    "store.home.trending_now": "Trending Now",
+    "store.home.featured_collections": "Featured Collections",
+    "store.home.flash_sale": "Flash Sale",
+
     "store.categories.browse_by_category": "Browse by Category",
     "dashboard.overview": "Dashboard Overview",
     "sidebar.add_showroom": "Add Showroom",
@@ -1298,9 +1310,46 @@ const translations = {
     "store.blog.read_more": "Read More",
     "store.blog.published_on": "Published on",
     "store.blog.recent_posts": "Recent Posts",
-    "store.blog.share": "Share this article"
+    "store.blog.share": "Share this article",
+
+    "contact.unavailable": "Information currently unavailable. Please try again later.",
+    "contact.items.call.title": "Call Us",
+    "contact.items.call.not_set": "Phone not set",
+    "contact.items.call.label": "Call Now",
+    "contact.items.email.title": "Email Us",
+    "contact.items.email.not_set": "Email not set",
+    "contact.items.email.label": "Send Email",
+    "contact.items.visit.title": "Visit Us",
+    "contact.items.visit.not_set": "Address not set",
+    "contact.items.visit.label": "Get Directions",
+    "contact.items.whatsapp.title": "Chat on WhatsApp",
+    "contact.items.whatsapp.label": "Start Chat",
+    "contact.hero.title_start": "Contact",
+    "contact.hero.title_end": "Us",
+    "contact.hero.desc": "Have questions about our products or services? We're here to help. Reach out to us through any of the channels below.",
+    "contact.location.title": "Our Location",
+    "contact.location.desc": "Visit our physical store to experience our products firsthand. Our friendly staff is always ready to assist you.",
+    "contact.social.title": "Connect With Us",
+    "contact.social.desc_start": "Follow us on social media to stay updated with our latest collections, offers, and news from ",
+    "contact.social.coming_soon": "Social links coming soon...",
+    "contact.support.title": "Support Hours",
+    "contact.support.sat_thu": "Sat - Thu:",
+    "contact.support.friday": "Friday:",
+    "contact.support.off": "Off Day"
   },
   bn: {
+    "store.home.testimonials.title_start": "আমাদের",
+    "store.home.testimonials.title_highlight": "কাস্টমাররা",
+    "store.home.testimonials.title_end": "কী বলেন",
+    "store.home.testimonials.desc": "শুধুমাত্র আমাদের কথায় বিশ্বাস করবেন না। সারা বাংলাদেশের হাজারো সন্তুষ্ট কাস্টমারদের সাথে যোগ দিন!",
+    "store.home.features.title_start": "কেন",
+    "store.home.features.title_highlight": "CDI Door Ind",
+    "store.home.view_all": "সব দেখুন",
+    "store.home.new_arrivals": "নতুন কালেকশন",
+    "store.home.trending_now": "ট্রেন্ডিং",
+    "store.home.featured_collections": "ফিচার্ড কালেকশন",
+    "store.home.flash_sale": "ফ্ল্যাশ সেল",
+
     "store.categories.browse_by_category": "ক্যাটাগরি অনুযায়ী দেখুন",
     "dashboard.overview": "ড্যাশবোর্ড ওভারভিউ",
     "sidebar.add_expense_income": "নতুন আয়-ব্যয়",
@@ -2584,7 +2633,32 @@ const translations = {
     "store.blog.read_more": "আরও পড়ুন",
     "store.blog.published_on": "প্রকাশিত হয়েছে",
     "store.blog.recent_posts": "সাম্প্রতিক পোস্টসমূহ",
-    "store.blog.share": "শেয়ার করুন"
+    "store.blog.share": "শেয়ার করুন",
+
+    "contact.unavailable": "তথ্য বর্তমানে উপলব্ধ নয়। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
+    "contact.items.call.title": "কল করুন",
+    "contact.items.call.not_set": "ফোন নাম্বার দেওয়া নেই",
+    "contact.items.call.label": "এখনই কল করুন",
+    "contact.items.email.title": "ইমেইল করুন",
+    "contact.items.email.not_set": "ইমেইল দেওয়া নেই",
+    "contact.items.email.label": "ইমেইল পাঠান",
+    "contact.items.visit.title": "আমাদের ভিজিট করুন",
+    "contact.items.visit.not_set": "ঠিকানা দেওয়া নেই",
+    "contact.items.visit.label": "লোকেশন দেখুন",
+    "contact.items.whatsapp.title": "হোয়াটসঅ্যাপে চ্যাট করুন",
+    "contact.items.whatsapp.label": "চ্যাট শুরু করুন",
+    "contact.hero.title_start": "যোগাযোগ",
+    "contact.hero.title_end": "করুন",
+    "contact.hero.desc": "আমাদের পণ্য বা পরিষেবা সম্পর্কে কোনো প্রশ্ন আছে? আমরা সাহায্য করতে প্রস্তুত। নিচের যেকোনো মাধ্যমে আমাদের সাথে যোগাযোগ করুন।",
+    "contact.location.title": "আমাদের ঠিকানা",
+    "contact.location.desc": "আমাদের পণ্যগুলো সরাসরি দেখতে আমাদের দোকানে আসুন। আমাদের কর্মীরা সর্বদা আপনাকে সাহায্য করতে প্রস্তুত।",
+    "contact.social.title": "আমাদের সাথে সংযুক্ত থাকুন",
+    "contact.social.desc_start": "নতুন কালেকশন, অফার এবং খবরের আপডেট পেতে সোশ্যাল মিডিয়ায় আমাদের ফলো করুন: ",
+    "contact.social.coming_soon": "সোশ্যাল লিংক খুব শীঘ্রই আসছে...",
+    "contact.support.title": "সাপোর্ট আওয়ারস",
+    "contact.support.sat_thu": "শনি - বৃহস্পতি:",
+    "contact.support.friday": "শুক্রবার:",
+    "contact.support.off": "বন্ধ"
   }
 };
 
@@ -2619,7 +2693,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     // This is a simple implementation. In a real scenario, you'd want a more robust one 
     // that handles nested objects properly if your dictionary is nested.
     // For now, we are using flat keys like "dashboard.overview"
-    return (translations[language] as any)[key] || (translations.en as any)[key] || key;
+    return (translations[language] as any)[key] || (translations.en as any)[key] || "";
   };
 
   return (

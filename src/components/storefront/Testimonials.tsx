@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Quote, Star } from "lucide-react";
 
 import { useSettings } from "@/components/SettingsProvider";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const fallbackReviews = [
   {
@@ -42,6 +43,7 @@ const fallbackReviews = [
 ];
 
 export function Testimonials() {
+  const { t } = useLanguage();
   const settings = useSettings();
   const reviews = settings?.testimonials && settings.testimonials.length > 0
     ? settings.testimonials
@@ -53,10 +55,10 @@ export function Testimonials() {
         <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 mb-16">
           <div className="space-y-4 text-center md:text-left max-w-xl">
             <h2 className="text-2xl md:text-4xl font-black tracking-tighter">
-              What our <span className="text-primary italic">Customers</span> say
+              {t('store.home.testimonials.title_start') || 'What our'} <span className="text-primary italic">{t('store.home.testimonials.title_highlight') || 'Customers'}</span> {t('store.home.testimonials.title_end') || 'say'}
             </h2>
             <p className="text-muted-foreground font-medium">
-              Don&apos;t just take our word for it. Join thousands of happy customers all over Bangladesh!
+              {t('store.home.testimonials.desc') || 'Don\'t just take our word for it. Join thousands of happy customers all over Bangladesh!'}
             </p>
           </div>
           <div className="flex items-center gap-2 pb-2">

@@ -8,6 +8,7 @@ import { ProductCard } from '@/components/storefront/ProductCard';
 import Link from 'next/link';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProductCarouselSectionProps {
   title: string;
@@ -31,6 +32,7 @@ export function ProductCarouselSection({
   cardStyle = 'v1',
   layout
 }: ProductCarouselSectionProps) {
+  const { t } = useLanguage();
 
   // Initialize Embla Carousel with Autoplay
   const [emblaRef] = useEmblaCarousel(
@@ -54,7 +56,7 @@ export function ProductCarouselSection({
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <h2 className="text-xl md:text-4xl font-black tracking-tighter text-foreground">
-                {title}
+                {t(`store.home.${title.toLowerCase().replace(/ /g, '_')}`) || title}
               </h2>
               {isFlashSale && (
                 <Badge variant="default" className="hidden sm:flex bg-primary text-primary-foreground animate-pulse border-none rounded-full items-center gap-1.5 px-3">
@@ -71,7 +73,7 @@ export function ProductCarouselSection({
 
           <Button asChild variant="default" className="rounded-full font-bold group">
             <Link href={viewAllLink}>
-              View All
+              {t('store.home.view_all') || 'View All'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>

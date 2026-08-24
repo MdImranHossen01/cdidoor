@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, ChevronDown, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Category {
   _id: string;
@@ -13,6 +14,7 @@ interface Category {
 }
 
 export function CategoryNav({ isScrolled = true }: { isScrolled?: boolean }) {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isHovered, setIsHovered] = useState(false);
   const [activeParent, setActiveParent] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function CategoryNav({ isScrolled = true }: { isScrolled?: boolean }) {
       }}
     >
       <button className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest transition-colors h-full px-1 group ${isScrolled ? 'text-foreground/70 hover:text-primary' : 'text-white/80 hover:text-white'}`}>
-        Categories
+        {t('store.nav.categories') || 'Categories'}
         <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isHovered ? 'rotate-180' : ''}`} />
       </button>
 
