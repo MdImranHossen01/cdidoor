@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const type = url.searchParams.get('type');
     
-    const query = type ? { type } : {};
+    const query = type ? { type: type as 'expense' | 'income' } : {};
     const categories = await TransactionCategory.find(query).sort({ name: 1 }).lean();
     
     return NextResponse.json(categories, { status: 200 });

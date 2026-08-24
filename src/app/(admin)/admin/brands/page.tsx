@@ -47,6 +47,7 @@ const brandSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   slug: z.string().optional(),
   image: z.string().optional(),
+  parentBrand: z.string().optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -66,6 +67,7 @@ export default function BrandsPage() {
       name: '',
       slug: '',
       image: '',
+      parentBrand: '',
       isActive: true,
     },
   });

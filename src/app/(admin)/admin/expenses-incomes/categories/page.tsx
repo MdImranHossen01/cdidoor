@@ -52,7 +52,7 @@ export default function TransactionCategoriesPage() {
   const [submitting, setSubmitting] = useState(false);
   const { t } = useLanguage();
 
-  const form = useForm({
+  const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: '',
