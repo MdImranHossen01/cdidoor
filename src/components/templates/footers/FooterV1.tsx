@@ -17,6 +17,7 @@ import { useSettings } from '@/components/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
   facebook: SocialIcons.Facebook || Circle,
@@ -124,6 +125,9 @@ export default function FooterV1() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4 lg:col-span-2">
             <Logo textClassName="text-xl md:text-2xl whitespace-nowrap" />
+            <div className="mt-1 mb-2">
+              <LanguageToggle />
+            </div>
             <p className="text-sm text-muted-foreground w-full md:w-4/5">
               {t('store.footer.description')}
             </p>

@@ -55,6 +55,7 @@ const translations = {
     "sidebar.profile": "Profile",
     "sidebar.employee_management": "Employee Management",
     "sidebar.customer_management": "Customer Management",
+    "store.product.share": "Share",
 
     "dashboard.pending_orders": "Pending Orders",
     "dashboard.total_customers": "Total Customers",
@@ -1407,6 +1408,7 @@ const translations = {
     "sidebar.profile": "প্রোফাইল",
     "sidebar.employee_management": "কর্মী ব্যবস্থাপনা",
     "sidebar.customer_management": "কাস্টমার ব্যবস্থাপনা",
+    "store.product.share": "শেয়ার করুন",
     "dashboard.pending_orders": "পেন্ডিং অর্ডার",
     "dashboard.total_customers": "মোট কাস্টমার",
     "dashboard.cash_balance": "ক্যাশ ব্যালেন্স",

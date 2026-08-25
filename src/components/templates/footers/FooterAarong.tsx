@@ -20,6 +20,7 @@ import { useSettings } from '@/components/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
   facebook: SocialIcons.Facebook || Circle,
@@ -146,6 +147,9 @@ export default function FooterAarong() {
           {/* Logo & Contact details */}
           <div className="space-y-6">
             <Logo />
+            <div className="mt-1 mb-2">
+               <LanguageToggle />
+            </div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
               {t('store.footer.description')}
             </p>

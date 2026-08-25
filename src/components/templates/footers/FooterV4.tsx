@@ -9,6 +9,7 @@ import { useSettings } from '@/components/SettingsProvider';
 import * as SocialIcons from '@/components/ui/social-icons';
 import { Circle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
    facebook: SocialIcons.Facebook || Circle,
@@ -41,6 +42,9 @@ export default function FooterV4() {
                      <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.4em] text-[9px]">
                         <Star className="h-3 w-3 fill-current" /> The Boutique Atelier
                      </div>
+                  </div>
+                  <div className="flex justify-start">
+                     <LanguageToggle />
                   </div>
                   <p className="text-muted-foreground text-lg font-serif italic leading-relaxed max-w-xs">
                      {t('store.footer.description')}

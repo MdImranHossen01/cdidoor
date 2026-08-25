@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Plus, Trash2, Search, FileText, CalendarDays, Eye, DollarSign, MoreHorizontal, Edit, Download, Printer, Users, Loader2, SlidersHorizontal } from 'lucide-react';
+import { Plus, Trash2, Search, FileText, CalendarDays, Eye, DollarSign, MoreHorizontal, Edit, Download, Printer, Users, Loader2, SlidersHorizontal, Package, Tag } from 'lucide-react';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -37,11 +37,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Pagination } from '@/components/ui/pagination';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface BillItemInput {
   name: string;
   quantity: number;
   price: number;
+  batchNumber?: string;
+  variantName?: string;
+  productId?: string;
+  variantId?: string;
+  isProductItem?: boolean;
 }
 
 function SupplierBillsContent() {
@@ -121,6 +127,12 @@ function SupplierBillsContent() {
   const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
   const [ledgerAccounts, setLedgerAccounts] = useState<any[]>([]);
 
+  // Product picker state (Dialog-based, like BillForm)
+  const [products, setProducts] = useState<any[]>([]);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [selectedProductVariants, setSelectedProductVariants] = useState<Record<string, string | null>>({});
+
   // Detail View State
   const [selectedBill, setSelectedBill] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -137,6 +149,18 @@ function SupplierBillsContent() {
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/products?limit=500');
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data.products || data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
     }
   };
 
@@ -200,14 +224,71 @@ function SupplierBillsContent() {
         fetchBills(),
         fetchSuppliers(),
         fetchSettings(),
-        fetchLedgerAccounts()
+        fetchLedgerAccounts(),
+        fetchProducts()
       ]);
     };
     loadData();
   }, []);
 
-  const handleAddItem = () => {
-    setBillItems([...billItems, { name: '', quantity: 1, price: 0 }]);
+
+  const handleAddCustomItem = () => {
+    setBillItems([...billItems, { name: '', quantity: 1, price: 0, isProductItem: false }]);
+  };
+
+  const toggleProductVariant = (productId: string, variantId: string | null) => {
+    setSelectedProductVariants(prev => {
+      const current = prev[productId];
+      if (current === variantId) {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      }
+      return { ...prev, [productId]: variantId };
+    });
+  };
+
+  const handleAddSelectedProducts = () => {
+    const newItems: BillItemInput[] = [];
+    Object.entries(selectedProductVariants).forEach(([productId, variantId]) => {
+      const prod = products.find(p => p._id === productId);
+      if (!prod) return;
+      if (variantId === null) {
+        // No variant — use product-level purchase price
+        newItems.push({
+          productId: prod._id,
+          name: prod.name,
+          price: prod.purchasePrice || prod.price || 0,
+          quantity: 1,
+          batchNumber: '',
+          variantName: '',
+          isProductItem: true,
+        });
+      } else {
+        const variant = (prod.variants || []).find((v: any) => v._id === variantId);
+        if (!variant) return;
+        const label = [prod.name, variant.color, variant.size, variant.name].filter(Boolean).join(' — ');
+        newItems.push({
+          productId: prod._id,
+          variantId: variant._id,
+          name: label,
+          price: variant.purchasePrice || variant.price || prod.purchasePrice || prod.price || 0,
+          quantity: 1,
+          batchNumber: '',
+          variantName: [variant.color, variant.size, variant.name].filter(Boolean).join(' / '),
+          isProductItem: true,
+        });
+      }
+    });
+    if (newItems.length === 0) return;
+    if (billItems.length === 1 && billItems[0].name === '' && billItems[0].price === 0) {
+      setBillItems(newItems);
+    } else {
+      setBillItems(prev => [...prev, ...newItems]);
+    }
+    setSelectedProductVariants({});
+    setProductPickerOpen(false);
+    setProductSearchTerm('');
   };
 
   const handleRemoveItem = (index: number) => {
@@ -801,55 +882,91 @@ function SupplierBillsContent() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label>{t("supplier_bills.bill_items")}</Label>
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
-                  <Plus className="h-4 w-4 mr-1" /> {t("supplier_bills.add_item")}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setProductPickerOpen(true); setSelectedProductVariants({}); setProductSearchTerm(''); }}
+                    className="text-primary border-primary/40 hover:bg-primary/5"
+                  >
+                    <Package className="h-4 w-4 mr-1" /> Add Product
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddCustomItem}>
+                    <Plus className="h-4 w-4 mr-1" /> Custom Item
+                  </Button>
+                </div>
               </div>
 
               <div className="border rounded-md p-2 space-y-2 bg-slate-50/50">
                 {billItems.map((item, idx) => (
-                  <div key={idx} className="flex gap-2 items-center">
-                    <div className="flex-1">
-                      <Input
-                        placeholder={t("supplier_bills.item_name_placeholder") as string}
-                        value={item.name}
-                        onChange={(e) => handleItemChange(idx, 'name', e.target.value)}
-                        className="bg-white"
-                        required
-                      />
+                  <div key={idx} className="space-y-1">
+                    {/* Row label badge */}
+                    {item.isProductItem && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                        <Package className="h-2.5 w-2.5" /> Product
+                      </span>
+                    )}
+                    <div className="flex gap-2 items-center">
+                      <div className="flex-1">
+                        <Input
+                          placeholder={item.isProductItem ? 'Product name (auto-filled)' : t("supplier_bills.item_name_placeholder") as string}
+                          value={item.name}
+                          onChange={(e) => handleItemChange(idx, 'name', e.target.value)}
+                          className="bg-white"
+                          required
+                        />
+                      </div>
+                      <div className="w-20">
+                        <Input
+                          type="number"
+                          placeholder="Qty"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
+                          className="bg-white text-center"
+                          min="1"
+                          required
+                        />
+                      </div>
+                      <div className="w-28">
+                        <Input
+                          type="number"
+                          placeholder="Purchase Price"
+                          value={item.price || ''}
+                          onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
+                          className="bg-white text-right"
+                          min="0"
+                          required
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveItem(idx)}
+                        disabled={billItems.length === 1}
+                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <div className="w-20">
-                      <Input
-                        type="number"
-                        placeholder={t("supplier_bills.qty") as string}
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                        className="bg-white text-center"
-                        min="1"
-                        required
-                      />
-                    </div>
-                    <div className="w-32">
-                      <Input
-                        type="number"
-                        placeholder={t("supplier_bills.price") as string}
-                        value={item.price || ''}
-                        onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
-                        className="bg-white text-right"
-                        min="0"
-                        required
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveItem(idx)}
-                      disabled={billItems.length === 1}
-                      className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/* Batch + Variant row for product items */}
+                    {item.isProductItem && (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Batch Number (optional)"
+                          value={item.batchNumber || ''}
+                          onChange={(e) => { const n = [...billItems]; n[idx].batchNumber = e.target.value; setBillItems(n); }}
+                          className="bg-white h-8 text-xs"
+                        />
+                        <Input
+                          placeholder="Variant (e.g. Red / L)"
+                          value={item.variantName || ''}
+                          onChange={(e) => { const n = [...billItems]; n[idx].variantName = e.target.value; setBillItems(n); }}
+                          className="bg-white h-8 text-xs"
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -974,6 +1091,90 @@ function SupplierBillsContent() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Picker Dialog */}
+      <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Select Products to Purchase</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search products by name or SKU..."
+                className="pl-8"
+                value={productSearchTerm}
+                onChange={(e) => setProductSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="border rounded-md overflow-hidden max-h-[55vh] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Variants</TableHead>
+                    <TableHead className="text-right">Purchase Price</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products
+                    .filter(p => p.name?.toLowerCase().includes(productSearchTerm.toLowerCase()) || p.sku?.toLowerCase().includes(productSearchTerm.toLowerCase()))
+                    .map((prod) => {
+                      const hasVariants = prod.variants && prod.variants.length > 0;
+                      return (
+                        <TableRow key={prod._id}>
+                          <TableCell>
+                            {!hasVariants && (
+                              <Checkbox
+                                checked={selectedProductVariants[prod._id] === null}
+                                onCheckedChange={() => toggleProductVariant(prod._id, null)}
+                              />
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">{prod.name}{prod.sku && <span className="text-xs text-muted-foreground ml-2">SKU: {prod.sku}</span>}</TableCell>
+                          <TableCell>
+                            {hasVariants ? (
+                              <div className="flex flex-wrap gap-1.5 py-1">
+                                {prod.variants.map((v: any) => {
+                                  const label = [v.color, v.size, v.name].filter(Boolean).join(' / ');
+                                  const isSelected = selectedProductVariants[prod._id] === v._id;
+                                  return (
+                                    <Button
+                                      key={v._id}
+                                      type="button"
+                                      variant={isSelected ? 'default' : 'outline'}
+                                      size="sm"
+                                      onClick={() => toggleProductVariant(prod._id, v._id)}
+                                      className="text-xs py-0.5 px-2 h-7"
+                                    >
+                                      {label} (৳{v.purchasePrice || v.price || 0})
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            ) : <span className="text-xs text-muted-foreground">No variants</span>}
+                          </TableCell>
+                          <TableCell className="text-right font-medium">
+                            {!hasVariants && `৳${(prod.purchasePrice || prod.price || 0).toLocaleString()}`}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="flex justify-between items-center pt-2">
+              <span className="text-sm text-muted-foreground">{Object.keys(selectedProductVariants).length} product(s) selected</span>
+              <div className="flex gap-2">
+                <Button variant="outline" type="button" onClick={() => setProductPickerOpen(false)}>Cancel</Button>
+                <Button type="button" onClick={handleAddSelectedProducts} disabled={Object.keys(selectedProductVariants).length === 0}>
+                  Add Selected ({Object.keys(selectedProductVariants).length})
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

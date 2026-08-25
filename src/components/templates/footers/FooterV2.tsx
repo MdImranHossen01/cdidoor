@@ -13,6 +13,7 @@ import * as SocialIcons from '@/components/ui/social-icons';
 import { Circle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
   facebook: SocialIcons.Facebook || Circle,
@@ -116,6 +117,9 @@ export default function FooterV2() {
               <Image src="/logo.webp" width={40} height={40} alt="Omor Auto Corner Logo" className="object-contain" />
               {settings?.brandName || 'Omor Auto Corner'}
             </Link>
+            <div className="mt-1 mb-2">
+              <LanguageToggle />
+            </div>
             <p className="text-muted-foreground text-sm max-w-sm leading-relaxed font-medium">
               {t('store.footer.description')}
             </p>

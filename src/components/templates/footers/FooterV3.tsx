@@ -8,6 +8,7 @@ import DeveloperLogo from '@/components/ui/developerlogo';
 import { useSettings } from '@/components/SettingsProvider';
 import * as SocialIcons from '@/components/ui/social-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
    facebook: SocialIcons.Facebook || Circle,
@@ -36,6 +37,9 @@ export default function FooterV3() {
                   <div className="flex items-center gap-3 text-primary">
                      <Cpu className="h-6 w-6" />
                      <span className="font-black text-sm sm:text-base md:text-xl tracking-tighter break-words max-w-[200px] md:max-w-none">Omor Auto Corner</span>
+                  </div>
+                  <div className="flex justify-start">
+                     <LanguageToggle />
                   </div>
                   <p className="text-[10px] text-neutral-500 uppercase tracking-widest leading-relaxed">
                      {t('store.footer.description')}

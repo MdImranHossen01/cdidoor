@@ -9,6 +9,7 @@ import { useSettings } from '@/components/SettingsProvider';
 import * as SocialIcons from '@/components/ui/social-icons';
 import { Circle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 
 const socialIconMap: Record<string, any> = {
   facebook: SocialIcons.Facebook || Circle,
@@ -48,6 +49,9 @@ export default function FooterV5() {
             <h2 className="text-7xl md:text-[15rem] font-black tracking-tighter leading-none uppercase">
               Omor Auto Corner.
             </h2>
+            <div className="flex justify-center mt-4">
+              <LanguageToggle />
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-center gap-12 md:gap-24">
