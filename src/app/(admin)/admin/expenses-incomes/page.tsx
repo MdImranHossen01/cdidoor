@@ -623,23 +623,23 @@ function ExpensesIncomesContent() {
                 {paginatedTransactions.map((tx) => {
                   const isExpense = (tx.type || 'expense') === 'expense';
                   return (
-                    <div key={tx._id} className="py-3 flex items-center justify-between gap-3">
+                    <div key={tx._id} className="py-4.5 flex items-center justify-between gap-3 border-b">
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Details */}
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-foreground truncate">{tx.title}</p>
-                          <div className="flex flex-wrap gap-1.5 items-center pt-0.5">
+                          <p className="font-bold text-base text-foreground truncate">{tx.title}</p>
+                          <div className="flex flex-wrap gap-2 items-center pt-1">
                             {tx.showroom?.name ? (
-                              <span className="text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
                                 {tx.showroom.name}
                               </span>
                             ) : (
-                              <span className="text-[10px] italic text-muted-foreground">
+                              <span className="text-xs italic text-muted-foreground bg-muted px-2 py-0.5 rounded">
                                 {t("expenses.head_office")}
                               </span>
                             )}
                              {tx.status && (
-                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${tx.status === 'Approved'
+                              <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${tx.status === 'Approved'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
                                   : tx.status === 'Pending'
                                     ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
@@ -650,7 +650,7 @@ function ExpensesIncomesContent() {
                             )}
                           </div>
                           {tx.description && (
-                            <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[200px]">
+                            <p className="text-xs text-muted-foreground mt-1.5 truncate max-w-[240px]">
                               {tx.description}
                             </p>
                           )}
@@ -658,19 +658,19 @@ function ExpensesIncomesContent() {
                       </div>
 
                       {/* Right side Amount, Date & Action Menu */}
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <div className="text-right shrink-0">
-                          <p className={`font-extrabold text-sm ${isExpense ? 'text-rose-600' : 'text-emerald-600'}`}>
+                          <p className={`font-extrabold text-base ${isExpense ? 'text-rose-600' : 'text-emerald-600'}`}>
                             {isExpense ? '-' : '+'}৳{tx.amount.toLocaleString()}
                           </p>
-                          <p className="text-[10px] text-muted-foreground font-medium pt-0.5">
+                          <p className="text-xs text-muted-foreground font-medium pt-0.5">
                             {format(new Date(tx.date), 'dd MMM yyyy')}
                           </p>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                              <MoreHorizontal className="h-4.5 w-4.5" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">

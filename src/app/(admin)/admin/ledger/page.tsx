@@ -617,14 +617,14 @@ function AccountsLedgerContent() {
                 {paginatedTransactions.map((tx) => {
                   const isDebit = tx.type === 'debit';
                   return (
-                    <div key={tx._id} className="py-3 flex flex-col gap-2">
+                    <div key={tx._id} className="py-4.5 flex flex-col gap-2.5 border-b">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground font-semibold">
+                        <span className="text-sm text-muted-foreground font-semibold">
                           {format(new Date(tx.date), 'dd MMM yyyy')}
                         </span>
                         <Badge
                           variant={isDebit ? 'default' : 'outline'}
-                          className={isDebit ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 border-transparent font-extrabold text-[10px] px-2 py-0.5' : 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/10 border-transparent font-extrabold text-[10px] px-2 py-0.5'}
+                          className={isDebit ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10 border-transparent font-extrabold text-xs px-2 py-0.5' : 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/10 border-transparent font-extrabold text-xs px-2 py-0.5'}
                         >
                           {isDebit ? t("ledger.received") : t("ledger.spent")}
                         </Badge>
@@ -632,13 +632,13 @@ function AccountsLedgerContent() {
 
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1">
-                          <p className="font-bold text-sm leading-snug">{tx.description}</p>
-                          <div className="flex flex-wrap gap-1.5 items-center pt-0.5">
-                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-semibold text-muted-foreground">
+                          <p className="font-bold text-base leading-snug">{tx.description}</p>
+                          <div className="flex flex-wrap gap-2 items-center pt-1">
+                            <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground">
                               {tx.account?.name}
                             </span>
                             {tx.reference && (
-                              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-semibold text-muted-foreground uppercase">
+                              <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground uppercase">
                                 {t("ledger.ref")}: {tx.reference}
                               </span>
                             )}
@@ -646,10 +646,10 @@ function AccountsLedgerContent() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className={`font-extrabold text-sm ${isDebit ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          <p className={`font-extrabold text-base ${isDebit ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {isDebit ? '+' : '-'}৳{Math.round(tx.amount)}
                           </p>
-                          <p className="text-[10px] text-muted-foreground font-medium pt-0.5">
+                          <p className="text-xs text-muted-foreground font-medium pt-0.5">
                             {t("ledger.balance")}: ৳{Math.round(tx.balanceAfter)}
                           </p>
                         </div>
@@ -658,11 +658,11 @@ function AccountsLedgerContent() {
                       {/* Manual entries quick actions menu on mobile */}
                       {tx.reference && ['manual-deposit', 'manual-withdrawal', 'manual-transfer'].includes(tx.reference) && (
                         <div className="flex justify-end gap-2 pt-2 mt-1">
-                          <Button variant="outline" size="xs" onClick={() => handleEditClick(tx)} className="h-7 px-2.5 text-[10px] font-bold text-indigo-600">
-                            <Edit2 className="h-3 w-3 mr-1" /> {t("ledger.edit")}
+                          <Button variant="outline" size="xs" onClick={() => handleEditClick(tx)} className="h-8 px-3 text-xs font-bold text-indigo-600">
+                            <Edit2 className="h-3.5 w-3.5 mr-1" /> {t("ledger.edit")}
                           </Button>
-                          <Button variant="outline" size="xs" onClick={() => handleDeleteTx(tx._id)} className="h-7 px-2.5 text-[10px] font-bold text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-3 w-3 mr-1" /> {t("ledger.delete")}
+                          <Button variant="outline" size="xs" onClick={() => handleDeleteTx(tx._id)} className="h-8 px-3 text-xs font-bold text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("ledger.delete")}
                           </Button>
                         </div>
                       )}
