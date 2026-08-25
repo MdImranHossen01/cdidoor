@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const data = await req.json();
-    const { name, image, phone, address } = data;
+    const { name, image, phone, address, email, password } = data;
 
     if (!name) {
       return NextResponse.json({ message: 'Name is required' }, { status: 400 });
@@ -51,6 +51,18 @@ export async function PUT(req: NextRequest) {
     user.name = name;
     if (image !== undefined) user.image = image;
     if (phone !== undefined) user.phone = phone;
+
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        return NextResponse.json({ message: 'Email already in use' }, { status: 400 });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    if (password) {
+      user.password = password;
+    }
 
     if (address) {
       if (user.addresses && user.addresses.length > 0) {

@@ -17,7 +17,8 @@ import {
   Mail,
   CreditCard,
   RotateCcw,
-  Truck
+  Truck,
+  Landmark
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 
@@ -77,6 +78,11 @@ const data = {
           title: "Showrooms",
           tKey: "sidebar.showrooms",
           url: "/admin/showrooms",
+        },
+        {
+          title: "Add Showroom",
+          tKey: "sidebar.add_showroom",
+          url: "/admin/showrooms?action=add",
         }
       ],
     },
@@ -190,10 +196,33 @@ const data = {
           tKey: "sidebar.supplier_bills",
           url: "/admin/supplier-bills",
         },
+      ],
+    },
+    {
+      title: "Loan",
+      tKey: "sidebar.loan",
+      url: "#",
+      icon: Landmark,
+      items: [
         {
-          title: "Business Loans",
-          tKey: "sidebar.business_loans",
-          url: "/admin/business-loans",
+          title: "Add Loan Provider",
+          tKey: "sidebar.add_loan_provider",
+          url: "/admin/loans/providers/new",
+        },
+        {
+          title: "All Loan Providers",
+          tKey: "sidebar.all_loan_providers",
+          url: "/admin/loans/providers",
+        },
+        {
+          title: "All Loans",
+          tKey: "sidebar.all_loans",
+          url: "/admin/loans",
+        },
+        {
+          title: "Upcoming Payable",
+          tKey: "sidebar.upcoming_payable",
+          url: "/admin/loans/upcoming",
         },
       ],
     },
@@ -332,6 +361,11 @@ const data = {
           title: "General Settings",
           tKey: "sidebar.general_settings",
           url: "/admin/settings",
+        },
+        {
+          title: "Profile",
+          tKey: "sidebar.profile",
+          url: "/admin/settings/profile",
         },
         {
           title: "Marketing Settings",

@@ -9,6 +9,7 @@ export interface IBusinessLoan extends Document {
   date: Date;
   expectedRepaymentDate: Date;
   receivingAccountId: mongoose.Types.ObjectId;
+  lenderId?: mongoose.Types.ObjectId;
   repaymentType: 'One-time' | 'Installment';
   interestAmount: number;
   totalRepaymentAmount: number;
@@ -30,6 +31,7 @@ const BusinessLoanSchema: Schema<IBusinessLoan> = new Schema(
     date: { type: Date, default: Date.now },
     expectedRepaymentDate: { type: Date, required: true },
     receivingAccountId: { type: Schema.Types.ObjectId, ref: 'LedgerAccount', required: true },
+    lenderId: { type: Schema.Types.ObjectId, ref: 'LoanProvider' },
     repaymentType: { type: String, enum: ['One-time', 'Installment'], default: 'One-time' },
     interestAmount: { type: Number, default: 0, min: 0 },
     totalRepaymentAmount: { type: Number, required: true, min: 0 },
