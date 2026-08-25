@@ -623,36 +623,36 @@ function ClientChalansContent() {
               </div>
 
               {/* Mobile View */}
-              <div className="block md:hidden space-y-3 p-2">
+              <div className="block md:hidden space-y-3">
                 {paginatedChalans.map((chalan) => (
-                  <div key={chalan._id} className="p-3 border rounded-lg bg-background shadow-sm space-y-2.5">
+                  <div key={chalan._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-primary">{chalan.invoiceNo}</span>
-                      <span className="text-[10px] text-muted-foreground">{format(new Date(chalan.date), 'dd MMM yyyy')}</span>
+                      <span className="font-bold text-base text-primary">{chalan.invoiceNo}</span>
+                      <span className="text-xs text-muted-foreground">{format(new Date(chalan.date), 'dd MMM yyyy')}</span>
                     </div>
-                    <div className="space-y-1 text-xs">
-                      <div className="flex justify-between">
+                    <div className="space-y-2 text-sm md:text-xs">
+                      <div className="flex justify-between items-center py-0.5">
                         <span className="text-muted-foreground">{t("bills.client")}:</span>
-                        <span className="font-medium text-foreground">{chalan.clientName}</span>
+                        <span className="font-semibold text-foreground">{chalan.clientName}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                         <span className="text-muted-foreground">{t("bills.phone")}:</span>
-                        <span className="text-foreground">{chalan.clientPhone}</span>
+                        <span className="text-foreground font-medium">{chalan.clientPhone}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t">
+                    <div className="flex items-center justify-end gap-2 pt-2.5 border-t mt-1">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-teal-600 hover:text-teal-700 text-xs px-2.5"
+                        className="h-9 text-teal-600 hover:text-teal-700 text-xs px-3 py-1 flex items-center gap-1"
                         onClick={() => generateBillPDF(chalan, settings, 'print')}
                       >
                         <Printer className="h-3.5 w-3.5 mr-1" /> {t("bills.print")}
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
+                          <Button variant="outline" size="sm" className="h-9 w-9 p-0 flex items-center justify-center">
+                            <MoreHorizontal className="h-4.5 w-4.5" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">

@@ -442,13 +442,13 @@ export default function AdminEmployeesPage() {
           {/* Mobile View */}
           <div className="block md:hidden space-y-3 px-0 py-1">
             {employees.map((emp) => (
-              <div key={emp._id} className="relative p-3.5 border border-zinc-150 rounded-xl bg-background shadow-sm space-y-3 animate-in fade-in duration-200">
+              <div key={emp._id} className="relative p-4 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative animate-in fade-in duration-200">
                 {/* Dropdown Menu at Top Right */}
                 <div className="absolute top-3 right-3">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                        <MoreVertical className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full flex items-center justify-center">
+                        <MoreVertical className="h-4.5 w-4.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -470,57 +470,57 @@ export default function AdminEmployeesPage() {
 
                 {/* Header info */}
                 <div className="flex items-start gap-3 pr-8">
-                  <div className="h-10 w-10 rounded-full bg-zinc-100 flex-shrink-0 overflow-hidden flex items-center justify-center border border-zinc-200">
+                  <div className="h-11 w-11 rounded-full bg-zinc-100 flex-shrink-0 overflow-hidden flex items-center justify-center border border-zinc-200">
                     {emp.image ? (
-                      <Image src={emp.image} alt={emp.name} width={40} height={40} className="h-full w-full object-cover" unoptimized />
+                      <Image src={emp.image} alt={emp.name} width={44} height={44} className="h-full w-full object-cover" unoptimized />
                     ) : (
-                      <Users className="h-5 w-5 text-zinc-400" />
+                      <Users className="h-5.5 w-5.5 text-zinc-400" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-bold text-sm text-zinc-900 truncate">{emp.name}</h4>
+                    <h4 className="font-bold text-base text-zinc-900 truncate">{emp.name}</h4>
                     <p className="text-xs text-zinc-500 truncate">{emp.email}</p>
-                    {emp.phone && <p className="text-[11px] text-zinc-400 mt-0.5">{emp.phone}</p>}
+                    {emp.phone && <p className="text-xs text-zinc-500 mt-0.5">{emp.phone}</p>}
                   </div>
                 </div>
 
                 {/* Detail Rows */}
-                <div className="space-y-1.5 text-xs pt-1 border-t border-zinc-100">
-                  <div className="flex justify-between items-center">
+                <div className="space-y-2 text-sm md:text-xs pt-2 border-t border-border/30">
+                  <div className="flex justify-between items-center py-0.5">
                     <span className="text-zinc-500">{t("employees.employment_type")}:</span>
-                    <Badge variant={emp.employeeType === 'monthly' ? 'default' : 'secondary'} className="font-bold text-[10px] px-2 py-0">
+                    <Badge variant={emp.employeeType === 'monthly' ? 'default' : 'secondary'} className="font-bold text-xs px-2 py-0.5">
                       {emp.employeeType === 'monthly' ? t("employees.permanent") : t("employees.contractual")}
                     </Badge>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                     <span className="text-zinc-500">{t("employees.status")}:</span>
-                    <Badge variant={emp.status === 'discontinued' ? 'destructive' : 'default'} className="font-bold text-[10px] px-2 py-0">
+                    <Badge variant={emp.status === 'discontinued' ? 'destructive' : 'default'} className="font-bold text-xs px-2 py-0.5">
                       {emp.status === 'discontinued' ? t("employees.discontinued") : t("employees.active")}
                     </Badge>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                     <span className="text-zinc-500">{t("employees.compensation")}:</span>
-                    <span className="font-black text-zinc-900">
+                    <span className="font-semibold text-zinc-900">
                       {emp.employeeType === 'monthly' ? `৳${emp.baseSalary?.toLocaleString()} / mo` : t("employees.task_based")}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                     <span className="text-zinc-500">{t("employees.total_paid")}:</span>
                     <span className="font-bold text-zinc-700">
                       ৳{emp.totalEarned?.toLocaleString() || 0}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                     <span className="text-zinc-500">{t("employees.joined_date")}:</span>
                     <span className="text-zinc-700 font-medium">{new Date(emp.joinedDate).toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                     <span className="text-zinc-500">{t("employees.appointment_letter")}:</span>
                     <a 
                       href={`/appointment-letter/${emp._id}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-primary font-bold hover:underline inline-flex items-center gap-1 text-[11px]"
+                      className="text-primary font-bold hover:underline inline-flex items-center gap-1 text-xs"
                     >
                       <FileText className="h-3.5 w-3.5" /> {t("employees.view_letter")}
                     </a>

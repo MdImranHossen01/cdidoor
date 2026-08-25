@@ -226,9 +226,9 @@ export default function ShowroomManagersPage() {
         <div className="px-4 md:px-0">
           <Card className="border-muted overflow-hidden">
             <CardContent className="p-0">
-              <div className="overflow-x-auto md:overflow-visible">
-                <Table className="block md:table">
-                  <TableHeader className="hidden md:table-header-group">
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
                       <TableHead className="font-bold">{t("showroom_managers.name")}</TableHead>
                       <TableHead className="font-bold">{t("showroom_managers.email")}</TableHead>
@@ -237,10 +237,10 @@ export default function ShowroomManagersPage() {
                       <TableHead className="font-bold text-right">{t("showroom_managers.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+                  <TableBody>
                     {managers.map((manager) => (
-                      <TableRow key={manager._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none hover:bg-muted/30 transition-colors">
-                        <TableCell className="font-medium py-2 md:py-4 block md:table-cell text-left">
+                      <TableRow key={manager._id}>
+                        <TableCell className="font-medium py-4">
                           <div className="flex items-center gap-3">
                             {manager.image ? (
                               <img 
@@ -255,20 +255,17 @@ export default function ShowroomManagersPage() {
                             )}
                             <div>
                               <div className="font-bold text-sm md:text-base text-foreground">{manager.name}</div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">{t("showroom_managers.role")}</div>
+                              <div className="text-xs text-muted-foreground">{t("showroom_managers.role")}</div>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-1 md:py-4 text-xs md:text-sm text-muted-foreground block md:table-cell text-left">
-                          <span className="md:hidden text-[10px] text-muted-foreground font-bold mr-2 uppercase">{t("showroom_managers.email")}:</span>
+                        <TableCell className="py-4 text-sm text-muted-foreground">
                           {manager.email}
                         </TableCell>
-                        <TableCell className="py-1 md:py-4 text-xs md:text-sm text-muted-foreground block md:table-cell text-left">
-                          <span className="md:hidden text-[10px] text-muted-foreground font-bold mr-2 uppercase">{t("showroom_managers.phone")}:</span>
+                        <TableCell className="py-4 text-sm text-muted-foreground">
                           {manager.phone || 'N/A'}
                         </TableCell>
-                        <TableCell className="py-1 md:py-4 block md:table-cell text-left">
-                          <span className="md:hidden text-[10px] text-muted-foreground font-bold mr-2 uppercase">{t("showroom_managers.assigned_showroom")}:</span>
+                        <TableCell className="py-4">
                           <Badge 
                             variant={manager.showroomName === 'Not Assigned' ? 'outline' : 'default'}
                             className={`font-semibold border-none text-[10px] ${
@@ -280,8 +277,8 @@ export default function ShowroomManagersPage() {
                             {manager.showroomName === 'Not Assigned' ? t("showroom_managers.not_assigned") : manager.showroomName}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-2 md:py-4 text-left md:text-right block md:table-cell border-t md:border-t-0 mt-2 md:mt-0 pt-2 md:pt-4">
-                          <div className="flex gap-2 justify-start md:justify-end">
+                        <TableCell className="py-4 text-right">
+                          <div className="flex gap-2 justify-end">
                             <Button 
                               size="sm" 
                               variant="outline" 
@@ -304,6 +301,77 @@ export default function ShowroomManagersPage() {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="block md:hidden space-y-3 p-4 bg-muted/10">
+                {managers.map((manager) => (
+                  <div key={manager._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                    {/* Header info */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {manager.image ? (
+                          <img 
+                            src={manager.image} 
+                            alt={manager.name} 
+                            className="h-11 w-11 rounded-full object-cover border border-muted"
+                          />
+                        ) : (
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-base border border-primary/20">
+                            {manager.name ? manager.name.charAt(0).toUpperCase() : 'M'}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-bold text-base text-foreground">{manager.name}</div>
+                          <div className="text-xs text-muted-foreground">{t("showroom_managers.role")}</div>
+                        </div>
+                      </div>
+
+                      <Badge 
+                        variant={manager.showroomName === 'Not Assigned' ? 'outline' : 'default'}
+                        className={`font-semibold border-none text-xs px-2 py-0.5 ${
+                          manager.showroomName === 'Not Assigned' 
+                            ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' 
+                            : 'bg-primary/10 text-primary'
+                        }`}
+                      >
+                        {manager.showroomName === 'Not Assigned' ? t("showroom_managers.not_assigned") : manager.showroomName}
+                      </Badge>
+                    </div>
+
+                    {/* Details */}
+                    <div className="space-y-2 text-sm md:text-xs border-t pt-2 mt-1">
+                      <div className="flex justify-between items-center py-0.5">
+                        <span className="text-muted-foreground">{t("showroom_managers.email")}:</span>
+                        <span className="text-foreground font-semibold">{manager.email}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                        <span className="text-muted-foreground">{t("showroom_managers.phone")}:</span>
+                        <span className="text-foreground font-semibold">{manager.phone || 'N/A'}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-2 border-t pt-2.5 mt-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleEditClick(manager)}
+                        className="h-9 px-3 hover:bg-muted text-xs flex gap-1 font-bold items-center justify-center"
+                      >
+                        <Edit className="h-3.5 w-3.5" /> {t("showroom_managers.edit")}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleRevokeRole(manager._id)}
+                        className="h-9 px-3 text-destructive hover:bg-destructive/10 text-xs flex gap-1 font-bold items-center justify-center"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> {t("showroom_managers.revoke")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

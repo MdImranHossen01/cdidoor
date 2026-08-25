@@ -112,10 +112,10 @@ export default function BannersPage() {
         </Link>
       </div>
 
-      <div className="rounded-md border bg-background overflow-hidden shadow-sm">
-        <Table className="block md:table">
-          <TableHeader className="hidden md:table-header-group">
-            <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 bg-muted/50">
+      <div className="hidden md:block rounded-md border bg-background overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
               <TableHead className="w-[180px]">{t("banners.preview")}</TableHead>
               <TableHead>{t("banners.banner_title")}</TableHead>
               <TableHead>{t("banners.order")}</TableHead>
@@ -125,29 +125,29 @@ export default function BannersPage() {
               <TableHead className="text-right">{t("banners.actions")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+          <TableBody>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <TableRow key={i} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                <TableRow key={i}>
+                  <TableCell>
                     <Skeleton className="h-16 w-32 rounded-lg" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-36 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-12 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-5 w-16 rounded-full" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-24 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-24 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-right">
+                  <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Skeleton className="h-8 w-8 rounded-md" />
                       <Skeleton className="h-8 w-8 rounded-md" />
@@ -156,8 +156,8 @@ export default function BannersPage() {
                 </TableRow>
               ))
             ) : banners.length === 0 ? (
-              <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                <TableCell colSpan={7} className="block md:table-cell py-1.5 md:py-4 text-left h-40 text-center">
+              <TableRow>
+                <TableCell colSpan={7} className="text-left h-40 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <p className="text-lg font-medium">{t("banners.no_banners")}</p>
                     <p className="text-sm text-muted-foreground">{t("banners.no_banners_desc")}</p>
@@ -169,9 +169,9 @@ export default function BannersPage() {
               </TableRow>
             ) : (
               banners.map((banner) => (
-                <TableRow key={banner._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 group hover:bg-muted/30 transition-colors">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
-                    <div className="aspect-[21/9] w-full overflow-hidden rounded-md border bg-muted relative">
+                <TableRow key={banner._id} className="group hover:bg-muted/30 transition-colors">
+                  <TableCell className="py-4">
+                    <div className="aspect-[21/9] w-[180px] overflow-hidden rounded-md border bg-muted relative">
                       <Image
                         src={banner.image}
                         alt={banner.title}
@@ -181,15 +181,15 @@ export default function BannersPage() {
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <span className="font-semibold">{banner.title}</span>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <Badge variant="outline" className="font-mono">
                       {banner.order}
                     </Badge>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <button
                       onClick={() => toggleStatus(banner._id, banner.isActive)}
                       className="transition-opacity hover:opacity-80"
@@ -199,7 +199,7 @@ export default function BannersPage() {
                       </Badge>
                     </button>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium">{banner.primaryBtnText || t("banners.shop_now")}</span>
                       <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">
@@ -207,7 +207,7 @@ export default function BannersPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium">{banner.secondaryBtnText || t("banners.contact")}</span>
                       <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">
@@ -215,7 +215,7 @@ export default function BannersPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left md:text-right">
+                  <TableCell className="py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/admin/cms/banners/${banner._id}/edit`}>
                         <Button
@@ -241,6 +241,88 @@ export default function BannersPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-3">
+                <Skeleton className="h-32 w-full rounded-lg" />
+                <Skeleton className="h-4 w-40 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : banners.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("banners.no_banners")}</p>
+          </div>
+        ) : (
+          banners.map((banner) => (
+            <div key={banner._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              {/* Banner Image Preview */}
+              <div className="aspect-[21/9] w-full overflow-hidden rounded-lg border bg-muted relative">
+                <Image
+                  src={banner.image}
+                  alt={banner.title}
+                  width={400}
+                  height={171}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </div>
+
+              {/* Title & Status */}
+              <div className="flex items-start justify-between gap-3 border-t border-border/30 pt-2 mt-1">
+                <div>
+                  <h4 className="font-bold text-base text-foreground leading-tight">{banner.title}</h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">Order:</span>
+                    <Badge variant="outline" className="font-mono text-xs py-0 px-1.5">{banner.order}</Badge>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => toggleStatus(banner._id, banner.isActive)}
+                  className="transition-opacity hover:opacity-80 shrink-0"
+                >
+                  <Badge variant={banner.isActive ? 'default' : 'secondary'} className="cursor-pointer text-xs px-2 py-0.5">
+                    {banner.isActive ? t("banners.active") : t("banners.inactive")}
+                  </Badge>
+                </button>
+              </div>
+
+              {/* CTAs */}
+              <div className="grid grid-cols-2 gap-2 border-t border-border/30 pt-2 text-xs">
+                <div className="bg-muted/30 p-2 rounded-lg border border-border/20">
+                  <span className="font-bold text-foreground block">{banner.primaryBtnText || t("banners.shop_now")}</span>
+                  <span className="text-[10px] text-muted-foreground truncate block mt-0.5">{banner.primaryBtnLink || t("banners.no_link")}</span>
+                </div>
+                <div className="bg-muted/30 p-2 rounded-lg border border-border/20">
+                  <span className="font-bold text-foreground block">{banner.secondaryBtnText || t("banners.contact")}</span>
+                  <span className="text-[10px] text-muted-foreground truncate block mt-0.5">{banner.secondaryBtnLink || t("banners.no_link")}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 border-t pt-2 mt-1">
+                <Link href={`/admin/cms/banners/${banner._id}/edit`}>
+                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold">
+                    <Edit className="h-3.5 w-3.5" /> {t("banners.edit_banner") || "Edit"}
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 text-xs flex gap-1 font-bold"
+                  onClick={() => handleDelete(banner._id, banner.title)}
+                >
+                  <Trash className="h-3.5 w-3.5" /> {t("banners.delete_banner") || "Delete"}
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

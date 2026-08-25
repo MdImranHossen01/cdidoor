@@ -725,21 +725,21 @@ function SupplierBillsContent() {
           </div>
 
           {/* Mobile View */}
-          <div className="block md:hidden space-y-2 p-1">
+          <div className="block md:hidden space-y-3">
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="p-3 border rounded-lg bg-background shadow-sm space-y-2">
+                  <div key={i} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm space-y-3">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <Skeleton className="h-4 w-28 rounded" />
-                        <Skeleton className="h-3 w-36 rounded" />
+                        <Skeleton className="h-3.5 w-36 rounded" />
                       </div>
                       <Skeleton className="h-4 w-16 rounded" />
                     </div>
-                    <div className="flex justify-between pt-1 border-t">
-                      <Skeleton className="h-3 w-20 rounded" />
-                      <Skeleton className="h-3 w-20 rounded" />
+                    <div className="flex justify-between pt-2 border-t">
+                      <Skeleton className="h-3.5 w-20 rounded" />
+                      <Skeleton className="h-3.5 w-20 rounded" />
                     </div>
                   </div>
                 ))}
@@ -748,48 +748,48 @@ function SupplierBillsContent() {
               <div className="p-6 text-center text-muted-foreground text-xs">{t("supplier_bills.no_bills")}</div>
             ) : (
               paginatedBills.map((bill: any) => (
-                <div key={bill._id} className="p-2.5 border rounded-lg bg-background shadow-sm space-y-2">
+                <div key={bill._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
                   <div className="flex justify-between items-start">
-                    <span className="font-semibold text-primary text-sm">#{bill.billNo}</span>
-                    <span className={`px-2 py-0.5 text-[10px] rounded-full font-semibold ${bill.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' :
+                    <span className="font-bold text-base text-primary">#{bill.billNo}</span>
+                    <span className={`px-2 py-0.5 text-xs rounded-full font-semibold ${bill.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' :
                       bill.status === 'Partially Paid' ? 'bg-amber-100 text-amber-800' :
                         'bg-rose-100 text-rose-800'
                       }`}>
                       {bill.status === 'Paid' ? t("supplier_bills.paid") : bill.status === 'Partially Paid' ? t("supplier_bills.partially_paid") : t("supplier_bills.due")}
                     </span>
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
+                  <div className="space-y-2 text-sm md:text-xs">
+                    <div className="flex justify-between items-center py-0.5">
                       <span className="text-muted-foreground">{t("supplier_bills.supplier")}:</span>
-                      <span className="font-medium text-foreground">
+                      <span className="font-semibold text-foreground">
                         {bill.supplier ? bill.supplier.name : t("supplier_bills.deleted_supplier")}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                       <span className="text-muted-foreground">{t("supplier_bills.date")}:</span>
-                      <span className="text-foreground">{format(new Date(bill.date), 'dd MMM yyyy')}</span>
+                      <span className="text-foreground font-medium">{format(new Date(bill.date), 'dd MMM yyyy')}</span>
                     </div>
-                    <div className="flex justify-between pt-1 border-t">
+                    <div className="flex justify-between items-center pt-2 border-t mt-1">
                       <span className="text-muted-foreground">{t("supplier_bills.total")}:</span>
-                      <span className="font-bold text-foreground">৳{(bill.total || 0).toLocaleString()}</span>
+                      <span className="font-bold text-foreground text-base md:text-sm">৳{(bill.total || 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-emerald-600">
+                    <div className="flex justify-between items-center text-emerald-600 py-0.5">
                       <span>{t("supplier_bills.paid")}:</span>
-                      <span>৳{(bill.paidAmount || 0).toLocaleString()}</span>
+                      <span className="font-semibold text-sm">৳{(bill.paidAmount || 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-rose-600 font-semibold">
+                    <div className="flex justify-between items-center text-rose-600 font-semibold py-0.5 border-t border-border/30">
                       <span>{t("supplier_bills.due")}:</span>
-                      <span>৳{(bill.dueAmount || 0).toLocaleString()}</span>
+                      <span className="font-extrabold text-base md:text-sm">৳{(bill.dueAmount || 0).toLocaleString()}</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-end gap-1.5 pt-1.5 border-t">
-                    <Button variant="outline" size="sm" className="h-8 text-teal-600" onClick={() => generateBillPDF(bill, settings, 'print')}>
+                  <div className="flex items-center justify-end gap-2 pt-2.5 border-t mt-1">
+                    <Button variant="outline" size="sm" className="h-9 text-teal-600 text-xs px-3 py-1 flex items-center gap-1" onClick={() => generateBillPDF(bill, settings, 'print')}>
                       <Printer className="h-4 w-4 mr-1" /> {t("supplier_bills.print_bill")}
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button variant="outline" size="sm" className="h-9 w-9 p-0 flex items-center justify-center">
+                          <MoreHorizontal className="h-4.5 w-4.5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">

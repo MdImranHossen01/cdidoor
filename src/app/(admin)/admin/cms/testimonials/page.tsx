@@ -171,10 +171,10 @@ export default function TestimonialsPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border bg-background overflow-hidden shadow-sm">
-        <Table className="block md:table">
-          <TableHeader className="hidden md:table-header-group">
-            <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 bg-muted/50">
+      <div className="hidden md:block rounded-md border bg-background overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
               <TableHead className="w-[80px]">{t("testimonials.user")}</TableHead>
               <TableHead>{t("testimonials.customer_info")}</TableHead>
               <TableHead className="max-w-[400px]">{t("testimonials.content")}</TableHead>
@@ -182,29 +182,29 @@ export default function TestimonialsPage() {
               <TableHead className="text-right">{t("testimonials.actions")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+          <TableBody>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <TableRow key={i} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                <TableRow key={i}>
+                  <TableCell>
                     <Skeleton className="h-10 w-10 rounded-full" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <div className="space-y-1.5">
                       <Skeleton className="h-4 w-28 rounded" />
                       <Skeleton className="h-3 w-20 rounded" />
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 max-w-[400px]">
+                  <TableCell className="max-w-[400px]">
                     <div className="space-y-1">
                       <Skeleton className="h-3 w-full rounded" />
                       <Skeleton className="h-3 w-3/4 rounded" />
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-20 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-right">
+                  <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Skeleton className="h-8 w-8 rounded-md" />
                       <Skeleton className="h-8 w-8 rounded-md" />
@@ -213,8 +213,8 @@ export default function TestimonialsPage() {
                 </TableRow>
               ))
             ) : testimonials.length === 0 ? (
-              <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                <TableCell colSpan={5} className="block md:table-cell py-1.5 md:py-4 text-left h-40 text-center">
+              <TableRow>
+                <TableCell colSpan={5} className="text-left h-40 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <MessageSquare className="h-8 w-8 text-muted-foreground" />
                     <p className="text-lg font-medium">{t("testimonials.no_testimonials")}</p>
@@ -224,30 +224,30 @@ export default function TestimonialsPage() {
               </TableRow>
             ) : (
               testimonials.map((t) => (
-                <TableRow key={t._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 group hover:bg-muted/30 transition-colors">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                <TableRow key={t._id} className="group hover:bg-muted/30 transition-colors">
+                  <TableCell className="py-4">
                     <Avatar className="h-10 w-10 border">
                       <AvatarImage src={t.image} alt={t.name} />
                       <AvatarFallback><UserIcon className="size-4" /></AvatarFallback>
                     </Avatar>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <div className="flex flex-col">
                       <span className="font-semibold">{t.name}</span>
                       <span className="text-xs text-muted-foreground">{t.role}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left max-w-[400px]">
+                  <TableCell className="py-4 max-w-[400px]">
                     <p className="text-sm line-clamp-2 italic text-muted-foreground">"{t.content}"</p>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <div className="flex text-yellow-500">
                       {[...Array(t.rating || 5)].map((_, i) => (
                         <Star key={i} className="fill-current size-3" />
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left md:text-right">
+                  <TableCell className="py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Button 
                         variant="ghost" 
@@ -272,6 +272,78 @@ export default function TestimonialsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-4 w-28 rounded" />
+                </div>
+                <Skeleton className="h-12 w-full rounded" />
+              </div>
+            ))}
+          </div>
+        ) : testimonials.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("testimonials.no_testimonials")}</p>
+          </div>
+        ) : (
+          testimonials.map((item) => (
+            <div key={item._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              {/* Top Row: User Avatar & Customer Info */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-11 w-11 border border-border/60">
+                    <AvatarImage src={item.image} alt={item.name} />
+                    <AvatarFallback><UserIcon className="size-5" /></AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="font-bold text-base text-foreground">{item.name}</h4>
+                    <span className="text-xs text-muted-foreground block">{item.role}</span>
+                  </div>
+                </div>
+
+                <div className="flex text-yellow-500 shrink-0">
+                  {[...Array(item.rating || 5)].map((_, i) => (
+                    <Star key={i} className="fill-current size-3.5" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Content / Quote */}
+              <div className="border-t border-border/30 pt-2 mt-1">
+                <p className="text-sm italic text-muted-foreground bg-muted/40 p-3 rounded-lg border border-border/20 leading-relaxed">
+                  "{item.content}"
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 border-t border-dashed pt-2 mt-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 px-3 text-xs flex gap-1 font-bold items-center"
+                  onClick={() => openEditDialog(item)}
+                >
+                  <Edit className="h-3.5 w-3.5" /> {t("testimonials.edit") || "Edit"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 text-xs flex gap-1 font-bold items-center"
+                  onClick={() => handleDelete(item._id, item.name)}
+                >
+                  <Trash className="h-3.5 w-3.5" /> {t("testimonials.delete") || "Delete"}
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -140,10 +140,10 @@ function BlogsContent() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-        <Table className="block md:table">
-          <TableHeader className="hidden md:table-header-group bg-muted/50">
-            <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
+      <div className="hidden md:block rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
               <TableHead className="font-bold">{t("blogs.thumbnail")}</TableHead>
               <TableHead className="font-bold">{t("blogs.blog_title")}</TableHead>
               <TableHead className="font-bold">{t("blogs.views")}</TableHead>
@@ -152,26 +152,26 @@ function BlogsContent() {
               <TableHead className="text-right font-bold">{t("blogs.actions")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+          <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                <TableRow key={i}>
+                  <TableCell>
                     <Skeleton className="h-10 w-16 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-48 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-12 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-5 w-16 rounded-full" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-24 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-right">
+                  <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Skeleton className="h-8 w-8 rounded-md" />
                       <Skeleton className="h-8 w-8 rounded-md" />
@@ -181,15 +181,15 @@ function BlogsContent() {
                 </TableRow>
               ))
             ) : filteredBlogs.length === 0 ? (
-              <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                <TableCell colSpan={6} className="block md:table-cell py-1.5 md:py-4 text-left h-24 text-center text-muted-foreground">
+              <TableRow>
+                <TableCell colSpan={6} className="text-left h-24 text-center text-muted-foreground">
                   {t("blogs.no_blogs")}
                 </TableCell>
               </TableRow>
             ) : (
               filteredBlogs.map((blog) => (
-                <TableRow key={blog._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 hover:bg-muted/30 transition-colors">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                <TableRow key={blog._id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell>
                     <div className="h-10 w-16 bg-muted rounded overflow-hidden relative">
                       {blog.thumbnail ? (
                         <Image
@@ -207,7 +207,7 @@ function BlogsContent() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell>
                     <Link 
                       href={`/blog/${blog.slug}`} 
                       target="_blank" 
@@ -217,18 +217,18 @@ function BlogsContent() {
                     </Link>
                     <div className="text-[10px] text-muted-foreground font-mono truncate max-w-[300px]">/{blog.slug}</div>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell>
                     <span className="font-bold text-primary">{blog.views ?? 0}</span>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell>
                     <Badge variant={blog.isPublished ? 'default' : 'secondary'}>
                       {blog.isPublished ? t("blogs.published") : t("blogs.draft")}
                     </Badge>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left text-xs">
+                  <TableCell className="text-xs">
                     {new Date(blog.createdAt).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left md:text-right">
+                  <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/blog/${blog.slug}`} target="_blank">
                         <Button variant="ghost" size="icon-sm" title="View Publicly">
@@ -254,6 +254,98 @@ function BlogsContent() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <Skeleton className="h-40 w-full rounded-lg" />
+                <Skeleton className="h-4 w-1/2 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : filteredBlogs.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("blogs.no_blogs")}</p>
+          </div>
+        ) : (
+          filteredBlogs.map((blog) => (
+            <div key={blog._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              {/* Blog Thumbnail Banner */}
+              <div className="aspect-[16/9] w-full overflow-hidden rounded-lg border bg-muted relative">
+                {blog.thumbnail ? (
+                  <Image
+                    src={imageErrors[blog._id] ? 'https://placehold.co/400x225?text=Invalid+Image+URL' : blog.thumbnail}
+                    alt={blog.title}
+                    fill
+                    className="object-cover"
+                    onError={() =>
+                      setImageErrors((prev) => ({ ...prev, [blog._id]: true }))
+                    }
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-xs text-muted-foreground">{t("blogs.no_img")}</div>
+                )}
+              </div>
+
+              {/* Title & Slug */}
+              <div className="flex items-start justify-between gap-3 border-t border-border/30 pt-2.5 mt-1">
+                <div>
+                  <Link 
+                    href={`/blog/${blog.slug}`} 
+                    target="_blank" 
+                    className="font-bold text-base text-foreground leading-snug hover:underline block"
+                  >
+                    {blog.title}
+                  </Link>
+                  <div className="text-[10px] text-muted-foreground font-mono mt-0.5">/{blog.slug}</div>
+                </div>
+
+                <Badge variant={blog.isPublished ? 'default' : 'secondary'} className="shrink-0 text-xs px-2 py-0.5">
+                  {blog.isPublished ? t("blogs.published") : t("blogs.draft")}
+                </Badge>
+              </div>
+
+              {/* Views and Date row */}
+              <div className="flex items-center justify-between text-xs border-t border-border/30 pt-2 text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <span>Views:</span>
+                  <span className="font-extrabold text-foreground">{blog.views ?? 0}</span>
+                </div>
+                <div>
+                  <span>Date:</span>
+                  <span className="font-semibold text-foreground ml-1">{new Date(blog.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 border-t pt-2.5 mt-1">
+                <Link href={`/blog/${blog.slug}`} target="_blank">
+                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold items-center">
+                    <ExternalLink className="h-3.5 w-3.5" /> View
+                  </Button>
+                </Link>
+                <Link href={`/admin/blogs/edit/${blog._id}`}>
+                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold items-center">
+                    <Edit className="h-3.5 w-3.5" /> Edit
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 text-xs flex gap-1 font-bold items-center"
+                  onClick={() => handleDelete(blog._id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
       
       {!loading && pagination.totalPages > 1 && (

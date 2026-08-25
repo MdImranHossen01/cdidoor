@@ -504,32 +504,32 @@ function UsersContent() {
           </div>
         ) : (
           users.map((user) => (
-            <div key={user._id} className="bg-white border border-slate-150 rounded-2xl shadow-sm p-3 sm:p-4 space-y-3">
+            <div key={user._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {user.image && user.image !== '' ? (
-                    <div className="relative h-10 w-10 rounded-full overflow-hidden border">
+                    <div className="relative h-11 w-11 rounded-full overflow-hidden border border-border/60">
                       <Image
                         src={user.image}
                         alt={user.name}
-                        width={40}
-                        height={40}
+                        width={44}
+                        height={44}
                         className="h-full w-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                      <UserIcon className="h-5 w-5" />
+                    <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                      <UserIcon className="h-5.5 w-5.5" />
                     </div>
                   )}
                   <div>
                     <button
                       onClick={() => openUserDetails(user)}
-                      className="font-bold text-sm text-slate-900 hover:underline text-left block"
+                      className="font-bold text-base text-slate-900 hover:underline text-left block"
                     >
                       {user.name}
                     </button>
-                    <span className="text-[10px] text-muted-foreground block truncate max-w-[150px]">{user.email}</span>
+                    <span className="text-xs text-muted-foreground block truncate max-w-[200px] mt-0.5">{user.email}</span>
                   </div>
                 </div>
 
@@ -537,7 +537,7 @@ function UsersContent() {
                   <Badge
                     variant={user.role === 'admin' || user.role === 'manager' ? 'default' : 'outline'}
                     className={`
-                      capitalize px-2 py-0.5 rounded-full font-bold text-[9px] tracking-wider
+                      capitalize px-2 py-0.5 rounded-full font-bold text-xs tracking-wider
                       ${user.role === 'admin' ? 'bg-blue-600 hover:bg-blue-700' : ''}
                       ${user.role === 'manager' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
                     `}
@@ -547,8 +547,8 @@ function UsersContent() {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
-                        <MoreHorizontal className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary flex items-center justify-center">
+                        <MoreHorizontal className="h-4.5 w-4.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">

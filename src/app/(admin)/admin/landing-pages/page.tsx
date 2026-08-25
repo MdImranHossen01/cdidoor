@@ -164,7 +164,7 @@ export default function LandingPagesPage() {
         </div>
       </div>
 
-      <div className="border rounded-2xl bg-white overflow-hidden shadow-sm">
+      <div className="hidden md:block border rounded-2xl bg-white overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
@@ -246,6 +246,99 @@ export default function LandingPagesPage() {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <div className="h-4 bg-muted/60 animate-pulse rounded w-1/2" />
+                <div className="h-3.5 bg-muted/60 animate-pulse rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+        ) : filteredPages.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("landing_pages.no_pages")}</p>
+          </div>
+        ) : (
+          filteredPages.map((page) => (
+            <div key={page._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              {/* Header: Title, URL and Dropdown Action menu */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h4 className="font-bold text-base text-foreground leading-tight">{page.title}</h4>
+                  <Link 
+                    href={`/lp/${page.slug}`} 
+                    target="_blank" 
+                    className="text-xs text-primary hover:underline flex items-center gap-1 mt-1 font-medium"
+                  >
+                    /lp/{page.slug} <ExternalLink className="h-3 w-3" />
+                  </Link>
+                </div>
+
+                <div className="shrink-0 -mr-1 -mt-1">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-9 w-9 p-0 rounded-full flex items-center justify-center text-muted-foreground">
+                        <MoreHorizontal className="h-4.5 w-4.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl w-48 shadow-xl">
+                      <DropdownMenuLabel>{t("landing_pages.actions")}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={`/admin/landing-pages/${page._id}/builder`} className="flex items-center gap-2">
+                          <Edit3 className="h-4 w-4 text-blue-500" /> {t("landing_pages.open_builder")}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => window.open(`/lp/${page.slug}`, '_blank')}>
+                        <Eye className="h-4 w-4 text-emerald-500" /> {t("landing_pages.view_live")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer gap-2">
+                        <BarChart2 className="h-4 w-4 text-purple-500" /> {t("landing_pages.analytics")}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="cursor-pointer gap-2 text-red-500 focus:text-red-500"
+                        onClick={() => handleDelete(page._id)}
+                      >
+                        <Trash2 className="h-4 w-4" /> {t("landing_pages.delete_page")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              {/* Status and Meta Info Row */}
+              <div className="flex flex-wrap gap-2 items-center border-t border-border/30 pt-2 mt-1 text-xs">
+                <Badge variant={page.isActive ? "default" : "secondary"} className="rounded-full px-2.5 py-0.5 text-xs">
+                  {page.isActive ? t("landing_pages.active") : t("landing_pages.inactive")}
+                </Badge>
+                <div className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-xs text-muted-foreground font-semibold">
+                  <span>Sections:</span>
+                  <span className="font-mono">{page.sections?.length || 0}</span>
+                </div>
+              </div>
+
+              {/* Footer row: Orders count and builder quick link */}
+              <div className="flex items-center justify-between border-t pt-2.5 mt-1">
+                <div className="flex flex-col">
+                  <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">{t("landing_pages.orders") || "Orders"}</span>
+                  <span className="font-extrabold text-base text-emerald-600">{page.orderCount || 0}</span>
+                </div>
+
+                <Link href={`/admin/landing-pages/${page._id}/builder`}>
+                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold items-center">
+                    <Edit3 className="h-3.5 w-3.5" /> {t("landing_pages.open_builder") || "Builder"}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

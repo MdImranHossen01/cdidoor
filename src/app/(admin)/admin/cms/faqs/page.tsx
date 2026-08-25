@@ -111,30 +111,30 @@ export default function FAQsPage() {
         </Link>
       </div>
 
-      <div className="rounded-md border bg-background overflow-hidden shadow-sm">
-        <Table className="block md:table">
-          <TableHeader className="hidden md:table-header-group bg-muted/50">
-            <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
+      <div className="hidden md:block rounded-md border bg-background overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
               <TableHead className="w-[400px]">{t("faqs.question")}</TableHead>
               <TableHead>{t("faqs.order")}</TableHead>
               <TableHead>{t("faqs.status")}</TableHead>
               <TableHead className="text-right">{t("faqs.actions")}</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+          <TableBody>
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <TableRow key={i} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                <TableRow key={i}>
+                  <TableCell>
                     <Skeleton className="h-4 w-3/4 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-4 w-12 rounded" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4">
+                  <TableCell>
                     <Skeleton className="h-5 w-16 rounded-full" />
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-right">
+                  <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Skeleton className="h-8 w-8 rounded-md" />
                       <Skeleton className="h-8 w-8 rounded-md" />
@@ -143,8 +143,8 @@ export default function FAQsPage() {
                 </TableRow>
               ))
             ) : faqs.length === 0 ? (
-              <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                <TableCell colSpan={4} className="block md:table-cell py-1.5 md:py-4 text-left h-40 text-center">
+              <TableRow>
+                <TableCell colSpan={4} className="text-left h-40 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <p className="text-lg font-medium">{t("faqs.no_faqs")}</p>
                     <p className="text-sm text-muted-foreground">{t("faqs.first_faq")}</p>
@@ -156,16 +156,16 @@ export default function FAQsPage() {
               </TableRow>
             ) : (
               faqs.map((faq) => (
-                <TableRow key={faq._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 group hover:bg-muted/30 transition-colors">
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                <TableRow key={faq._id} className="group hover:bg-muted/30 transition-colors">
+                  <TableCell className="py-4">
                     <span className="font-semibold line-clamp-2">{faq.question}</span>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <Badge variant="outline" className="font-mono">
                       {faq.order}
                     </Badge>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                  <TableCell className="py-4">
                     <button
                       onClick={() => toggleStatus(faq._id, faq.isActive)}
                       className="transition-opacity hover:opacity-80"
@@ -175,7 +175,7 @@ export default function FAQsPage() {
                       </Badge>
                     </button>
                   </TableCell>
-                  <TableCell className="block md:table-cell py-1.5 md:py-4 text-left md:text-right">
+                  <TableCell className="py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/admin/cms/faqs/${faq._id}/edit`}>
                         <Button
@@ -201,6 +201,64 @@ export default function FAQsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <Skeleton className="h-4 w-full rounded" />
+                <Skeleton className="h-3.5 w-1/2 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : faqs.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("faqs.no_faqs")}</p>
+          </div>
+        ) : (
+          faqs.map((item) => (
+            <div key={item._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              {/* Header: Question Title & Status */}
+              <div className="flex items-start justify-between gap-3">
+                <h4 className="font-bold text-base text-foreground leading-snug">{item.question}</h4>
+                <button
+                  onClick={() => toggleStatus(item._id, item.isActive)}
+                  className="transition-opacity hover:opacity-80 shrink-0"
+                >
+                  <Badge variant={item.isActive ? 'default' : 'secondary'} className="cursor-pointer text-xs px-2 py-0.5">
+                    {item.isActive ? t("faqs.active") : t("faqs.inactive")}
+                  </Badge>
+                </button>
+              </div>
+
+              {/* Order Meta details */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border/30 pt-2 mt-1">
+                <span>Display Order:</span>
+                <Badge variant="outline" className="font-mono text-xs py-0 px-1.5">{item.order}</Badge>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 border-t pt-2.5 mt-1">
+                <Link href={`/admin/cms/faqs/${item._id}/edit`}>
+                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold items-center">
+                    <Edit className="h-3.5 w-3.5" /> {t("faqs.edit_faq") || "Edit"}
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 text-xs flex gap-1 font-bold items-center"
+                  onClick={() => handleDelete(item._id, item.question)}
+                >
+                  <Trash className="h-3.5 w-3.5" /> {t("faqs.delete_faq") || "Delete"}
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

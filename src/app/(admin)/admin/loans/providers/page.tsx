@@ -158,55 +158,115 @@ export default function LoanProvidersPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Notes</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-6">Loading...</TableCell></TableRow>
-              ) : filteredProviders.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">No providers found</TableCell></TableRow>
-              ) : (
-                filteredProviders.map((provider) => (
-                  <TableRow key={provider._id}>
-                    <TableCell className="font-semibold">{provider.name}</TableCell>
-                    <TableCell>
-                      {provider.phone ? (
-                        <span className="flex items-center gap-1"><Phone className="h-3 w-3 text-muted-foreground" /> {provider.phone}</span>
-                      ) : '-'}
-                    </TableCell>
-                    <TableCell>
-                      {provider.email ? (
-                        <span className="flex items-center gap-1"><Mail className="h-3 w-3 text-muted-foreground" /> {provider.email}</span>
-                      ) : '-'}
-                    </TableCell>
-                    <TableCell>
-                      {provider.address ? (
-                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-muted-foreground" /> {provider.address}</span>
-                      ) : '-'}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">{provider.description || '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(provider)} className="text-primary hover:text-primary/80 mr-1">
-                        <Edit className="h-4 w-4" />
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Notes</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6">Loading...</TableCell></TableRow>
+                ) : filteredProviders.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">No providers found</TableCell></TableRow>
+                ) : (
+                  filteredProviders.map((provider) => (
+                    <TableRow key={provider._id}>
+                      <TableCell className="font-semibold">{provider.name}</TableCell>
+                      <TableCell>
+                        {provider.phone ? (
+                          <span className="flex items-center gap-1"><Phone className="h-3 w-3 text-muted-foreground" /> {provider.phone}</span>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {provider.email ? (
+                          <span className="flex items-center gap-1"><Mail className="h-3 w-3 text-muted-foreground" /> {provider.email}</span>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {provider.address ? (
+                          <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-muted-foreground" /> {provider.address}</span>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">{provider.description || '-'}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditClick(provider)} className="text-primary hover:text-primary/80 mr-1">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(provider._id)} className="text-rose-500 hover:text-rose-700">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile View */}
+          <div className="block md:hidden space-y-3 p-4 bg-muted/10">
+            {loading ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">Loading...</div>
+            ) : filteredProviders.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">No providers found</div>
+            ) : (
+              filteredProviders.map((provider) => (
+                <div key={provider._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                  {/* Top Row: Provider Name & Actions */}
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-bold text-base text-foreground leading-snug">{provider.name}</p>
+                    <div className="flex items-center gap-1 shrink-0 -mr-1 -mt-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(provider)} className="text-primary hover:text-primary/80 h-9 w-9">
+                        <Edit className="h-4.5 w-4.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(provider._id)} className="text-rose-500 hover:text-rose-700">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(provider._id)} className="text-rose-500 hover:text-rose-700 h-9 w-9">
+                        <Trash2 className="h-4.5 w-4.5" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    </div>
+                  </div>
+
+                  {/* Contact Details */}
+                  <div className="space-y-2 text-sm md:text-xs border-t pt-2">
+                    {provider.phone && (
+                      <div className="flex justify-between items-center py-0.5">
+                        <span className="text-muted-foreground flex items-center gap-1"><Phone className="h-3.5 w-3.5 text-muted-foreground" /> Phone:</span>
+                        <span className="text-foreground font-semibold">{provider.phone}</span>
+                      </div>
+                    )}
+                    {provider.email && (
+                      <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                        <span className="text-muted-foreground flex items-center gap-1"><Mail className="h-3.5 w-3.5 text-muted-foreground" /> Email:</span>
+                        <span className="text-foreground font-medium">{provider.email}</span>
+                      </div>
+                    )}
+                    {provider.address && (
+                      <div className="flex flex-col gap-1 py-1 border-t border-border/30">
+                        <span className="text-muted-foreground flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> Address:</span>
+                        <span className="text-foreground text-xs leading-relaxed">{provider.address}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Notes */}
+                  {provider.description && (
+                    <div className="border-t border-dashed pt-2">
+                      <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider block mb-1">Notes:</span>
+                      <p className="text-xs text-muted-foreground leading-relaxed bg-muted/40 p-2 rounded border border-border/30">
+                        {provider.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 

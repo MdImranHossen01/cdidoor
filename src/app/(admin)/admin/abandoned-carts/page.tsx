@@ -278,7 +278,7 @@ function AbandonedCartsContent() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="overflow-x-auto rounded-md border">
+              <div className="hidden md:block overflow-x-auto rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -365,6 +365,90 @@ function AbandonedCartsContent() {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="block md:hidden space-y-3">
+                {carts.map((cart) => (
+                  <div key={cart._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                    {/* Header: Customer name & Date */}
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-base text-foreground flex items-center gap-1.5">
+                        <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                        {cart.fullName}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(cart.createdAt), 'dd MMM, hh:mm a')}
+                      </span>
+                    </div>
+
+                    {/* Contact & Address */}
+                    <div className="space-y-2 text-sm md:text-xs">
+                      <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                        <span className="text-muted-foreground">{t("abandoned_carts.phone") || "Phone"}:</span>
+                        <a href={`tel:${cart.phone}`} className="hover:underline text-primary font-semibold text-sm">
+                          {cart.phone}
+                        </a>
+                      </div>
+                      {cart.email && (
+                        <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                          <span className="text-muted-foreground">{t("abandoned_carts.email") || "Email"}:</span>
+                          <span className="text-foreground font-medium truncate max-w-[200px]">{cart.email}</span>
+                        </div>
+                      )}
+                      {cart.street && (
+                        <div className="flex flex-col gap-1 py-1 border-t border-border/30">
+                          <span className="text-muted-foreground">{t("abandoned_carts.address") || "Address"}:</span>
+                          <span className="text-foreground text-xs leading-relaxed">
+                            {cart.street} {cart.deliveryArea && `(${cart.deliveryArea === 'inside' ? t("abandoned_carts.inside_dhaka") : t("abandoned_carts.outside_dhaka")})`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Cart Items */}
+                    <div className="border-t border-dashed pt-2 space-y-2">
+                      <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider block">{t("abandoned_carts.cart_items")}:</span>
+                      <div className="space-y-2">
+                        {cart.items.map((item: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2.5 text-sm bg-muted/30 p-1.5 rounded-lg border border-border/20">
+                            {item.image && (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="h-10 w-10 object-cover rounded-md bg-muted shrink-0"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold text-foreground truncate">{item.name}</p>
+                              <p className="text-xs text-muted-foreground font-medium">
+                                {item.color && `Color: ${item.color} `}
+                                {item.size && `Size: ${item.size} `}
+                                Qty: {item.quantity} × ৳{item.price}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Footer: Total amount and delete button */}
+                    <div className="flex items-center justify-between border-t pt-2.5 mt-1">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{t("abandoned_carts.total_amount")}</span>
+                        <span className="font-bold text-lg text-primary">৳{Math.round(cart.totalAmount).toLocaleString()}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(cart._id)}
+                        className="h-9 w-9 p-0 text-destructive border-destructive/20 hover:bg-destructive/10 flex items-center justify-center rounded-xl"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {/* Pagination Component */}

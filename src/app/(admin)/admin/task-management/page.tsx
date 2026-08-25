@@ -231,10 +231,11 @@ export default function AdminTaskManagementPage() {
                 <p className="font-medium">{t("task_management.no_tasks")}</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="block md:table w-full text-left border-collapse text-sm">
-                  <thead className="hidden md:table-header-group">
-                    <tr className="block md:table-row bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-bold">
+              <>
+                <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-bold">
                       <th className="font-bold p-4">{t("task_management.assigned_employee")}</th>
                       <th className="font-bold p-4">{t("task_management.task_details")}</th>
                       <th className="font-bold p-4">{t("task_management.payout")}</th>
@@ -243,22 +244,22 @@ export default function AdminTaskManagementPage() {
                       <th className="font-bold p-4 text-right">{t("task_management.actions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+                  <tbody className="divide-y divide-zinc-100">
                     {tasks.map((task) => (
-                      <tr key={task._id} className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0 border-b border-zinc-100 hover:bg-zinc-50/50 transition-colors">
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left p-4 font-bold text-zinc-900">
+                      <tr key={task._id} className="hover:bg-zinc-50/50 transition-colors">
+                        <td className="py-4 p-4 font-bold text-zinc-900">
                           {task.employee?.name || t("task_management.unknown_user")}
                           <div className="text-xs text-zinc-400 font-normal">{task.employee?.email}</div>
                           {task.employee?.phone && <div className="text-[11px] text-zinc-500 font-normal mt-0.5">{task.employee.phone}</div>}
                         </td>
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left p-4 max-w-[280px]">
+                        <td className="py-4 p-4 max-w-[280px]">
                           <div className="font-bold text-zinc-900">{task.title}</div>
                           {task.description && <div className="text-xs text-zinc-500 mt-0.5 line-clamp-2" title={task.description}>{task.description}</div>}
                         </td>
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left p-4 font-black text-zinc-800">
+                        <td className="py-4 p-4 font-black text-zinc-800">
                           {task.payout?.toLocaleString()} Tk
                         </td>
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left p-4">
+                        <td className="py-4 p-4">
                           <Badge 
                             className="font-bold" 
                             variant={
@@ -272,7 +273,7 @@ export default function AdminTaskManagementPage() {
                             {task.status === 'Paid' ? t("task_management.paid_out") : task.status === 'Completed' ? t("task_management.completed") : t("task_management.pending_work")}
                           </Badge>
                         </td>
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left p-4 text-xs text-zinc-500 space-y-0.5">
+                        <td className="py-4 p-4 text-xs text-zinc-500 space-y-0.5">
                           <div><span className="font-semibold">{t("task_management.assigned_on")}</span> {new Date(task.assignedDate).toLocaleDateString()}</div>
                           {task.dueDate && (
                             <div className="text-amber-600 font-medium"><span className="font-semibold text-zinc-500">{t("task_management.expected_complete")}</span> {new Date(task.dueDate).toLocaleDateString()}</div>
@@ -281,7 +282,7 @@ export default function AdminTaskManagementPage() {
                             <div className="text-emerald-600"><span className="font-semibold text-zinc-500">{t("task_management.completed_on")}</span> {new Date(task.completedDate).toLocaleDateString()}</div>
                           )}
                         </td>
-                        <td className="block md:table-cell py-1.5 md:py-4 text-left md:text-right p-4">
+                        <td className="py-4 text-right p-4">
                           <div className="flex justify-end gap-2">
                             {task.status === 'Completed' && (
                               <Button 
@@ -312,7 +313,103 @@ export default function AdminTaskManagementPage() {
                   </tbody>
                 </table>
               </div>
-            )}
+
+              {/* Mobile View */}
+              <div className="block md:hidden space-y-3 p-4 bg-muted/10">
+                {tasks.map((task) => (
+                  <div key={task._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                    {/* Top Row: Employee Name & Status Badge */}
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-base text-foreground">
+                        {task.employee?.name || t("task_management.unknown_user")}
+                      </div>
+                      <Badge 
+                        className="font-bold text-xs px-2 py-0.5" 
+                        variant={
+                          task.status === 'Paid' 
+                            ? 'default' 
+                            : task.status === 'Completed' 
+                            ? 'secondary' 
+                            : 'outline'
+                        }
+                      >
+                        {task.status === 'Paid' ? t("task_management.paid_out") : task.status === 'Completed' ? t("task_management.completed") : t("task_management.pending_work")}
+                      </Badge>
+                    </div>
+
+                    {/* Task Title & Description */}
+                    <div className="border-t border-border/30 pt-2">
+                      <p className="font-bold text-sm text-foreground">{task.title}</p>
+                      {task.description && (
+                        <p className="text-xs text-muted-foreground mt-1 bg-muted/40 p-2 rounded border border-border/30 leading-relaxed whitespace-pre-line">
+                          {task.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Contact & Timeline Details */}
+                    <div className="space-y-2 text-xs text-muted-foreground pt-1">
+                      {task.employee?.phone && (
+                        <div className="flex justify-between items-center py-0.5">
+                          <span>Phone:</span>
+                          <span className="font-semibold text-foreground text-sm">{task.employee.phone}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                        <span>Assigned On:</span>
+                        <span className="font-medium text-foreground">{new Date(task.assignedDate).toLocaleDateString()}</span>
+                      </div>
+                      {task.dueDate && (
+                        <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                          <span>Expected Complete:</span>
+                          <span className="font-semibold text-amber-600">{new Date(task.dueDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      {task.completedDate && (
+                        <div className="flex justify-between items-center py-0.5 border-t border-border/30">
+                          <span>Completed On:</span>
+                          <span className="font-semibold text-emerald-600">{new Date(task.completedDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer: Payout & Actions */}
+                    <div className="flex items-center justify-between border-t pt-2.5 mt-1">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Payout</span>
+                        <span className="font-extrabold text-base text-foreground">{task.payout?.toLocaleString()} Tk</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {task.status === 'Completed' && (
+                          <Button 
+                            onClick={() => handleDisburseTaskPayout(task)}
+                            size="sm"
+                            className="bg-emerald-600 text-white hover:bg-emerald-700 h-9 px-3 text-xs flex items-center gap-1.5"
+                          >
+                            <DollarSign className="h-4 w-4" /> {t("task_management.disburse_payout")}
+                          </Button>
+                        )}
+                        {task.status === 'Pending' && (
+                          <Button
+                            onClick={() => handleDeleteTask(task._id)}
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 text-red-500 hover:bg-red-50 hover:text-red-600 border-red-200 flex items-center justify-center"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {task.status === 'Paid' && (
+                          <span className="text-xs text-zinc-400 italic font-medium p-1 bg-zinc-100 rounded">{t("task_management.paid_cleared")}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
           </CardContent>
         </Card>
 
