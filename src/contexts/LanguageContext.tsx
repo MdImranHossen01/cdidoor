@@ -1295,10 +1295,7 @@ const translations = {
     "store.nav.tokens": "Tokens",
     
     "store.footer.about": "About Us",
-    "store.footer.contact": "Contact",
     "store.footer.faq": "FAQ",
-    "store.footer.terms": "Terms & Conditions",
-    "store.footer.privacy": "Privacy Policy",
     "store.footer.newsletter": "Newsletter",
     "store.footer.subscribe": "Subscribe",
     
@@ -2636,10 +2633,7 @@ const translations = {
     "store.nav.tokens": "টোকেন",
     
     "store.footer.about": "আমাদের সম্পর্কে",
-    "store.footer.contact": "যোগাযোগ",
     "store.footer.faq": "সাধারণ জিজ্ঞাসা",
-    "store.footer.terms": "শর্তাবলী",
-    "store.footer.privacy": "গোপনীয়তা নীতি",
     "store.footer.newsletter": "নিউজলেটার",
     "store.footer.subscribe": "সাবস্ক্রাইব করুন",
     

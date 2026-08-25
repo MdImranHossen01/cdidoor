@@ -494,18 +494,18 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
       </div>
 
       {/* Mobile tabs removed */}
-      <div className={`grid gap-2 sm:gap-4 grid-cols-3 ${activeTab === 'cards' ? 'grid' : 'hidden'}`}>
+      <div className={`grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-3 ${activeTab === 'cards' ? 'grid' : 'hidden'}`}>
         {/* Pending Orders Card */}
         <Link href="/admin/orders" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
+                <span className="text-2xl font-black text-primary leading-none">
                   {stats?.pendingOrdersCount || 0}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 Pending Orders
               </span>
             </div>
@@ -523,29 +523,36 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
           </Card>
         </Link>
 
-        {/* Total Customers Card */}
-        <Link href="/admin/users" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        {/* Pending Expenses */}
+        <Link href="/admin/expense" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
-                  {stats?.totalUsers || 0}
+              <div className="flex-1 flex flex-col justify-center items-center gap-0.5">
+                <span className="text-2xl font-black text-primary leading-none">
+                  {stats?.pendingExpenseCount || 0}
                 </span>
+                <div className="text-xs font-bold text-red-600 leading-none">
+                  Total: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}
+                </div>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
-                {t("dashboard.total_customers")}
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                Pending Expenses
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.total_customers")}</CardTitle>
-                <Users className="h-4 w-4 text-primary shrink-0" />
+                <CardTitle className="text-sm font-semibold leading-tight">Pending Expenses</CardTitle>
+                <Receipt className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">{stats?.totalUsers || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.across_all_time")}</p>
+                <div className="text-lg md:text-2xl font-extrabold text-primary">
+                  {stats?.pendingExpenseCount || 0}
+                </div>
+                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-red-600 truncate">
+                  <span>Total: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}</span>
+                </div>
               </CardContent>
             </div>
           </Card>
@@ -557,11 +564,11 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
+                <span className="text-2xl font-black text-primary leading-none">
                   ৳{Math.round(stats?.cashBalance || 0).toLocaleString()}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.cash_balance")}
               </span>
             </div>
@@ -588,12 +595,21 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <span className="text-2xl font-black text-primary leading-none">
                   ৳{Math.round(stats?.bankBalance || 0).toLocaleString()}
                 </span>
+                {stats?.bankBalancesList?.length > 0 && (
+                  <div className="flex flex-col gap-0.5 mt-1.5 w-full items-center">
+                    {stats.bankBalancesList.map((b: any, idx: number) => (
+                      <span key={idx} className="text-xs font-bold text-zinc-600 leading-tight">
+                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.bank_balance")}
               </span>
             </div>
@@ -604,12 +620,73 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                 <Landmark className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
+                <div className="text-xl md:text-3xl font-extrabold text-primary">
                   ৳{Math.round(stats?.bankBalance || 0).toLocaleString()}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? 'Online/central bank flow' : 'Showroom net bank flow'}
-                </p>
+                {stats?.bankBalancesList?.length > 0 ? (
+                  <div className="flex flex-col gap-1 mt-2">
+                    {stats.bankBalancesList.map((b: any, idx: number) => (
+                      <span key={idx} className="text-xs font-semibold text-zinc-600">
+                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? 'Online/central bank flow' : 'Showroom net bank flow'}
+                  </p>
+                )}
+              </CardContent>
+            </div>
+          </Card>
+        </Link>
+
+        {/* MFS Balance */}
+        <Link href="/admin/ledger" className="block transition-transform hover:scale-[1.02] active:scale-95">
+          <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
+            {/* Mobile Layout */}
+            <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <span className="text-2xl font-black text-primary leading-none">
+                  ৳{Math.round(stats?.mfsBalanceTotal || 0).toLocaleString()}
+                </span>
+                {stats?.mfsBalancesList?.length > 0 && (
+                  <div className="flex flex-col gap-0.5 mt-1.5 w-full items-center">
+                    {stats.mfsBalancesList.map((b: any, idx: number) => (
+                      <span key={idx} className="text-xs font-bold text-zinc-600 leading-tight">
+                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                MFS Balance
+              </span>
+            </div>
+            {/* Desktop Layout */}
+            <div className="hidden sm:block">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
+                <CardTitle className="text-sm font-semibold leading-tight">MFS Balance</CardTitle>
+                <Wallet className="h-4 w-4 text-primary shrink-0" />
+              </CardHeader>
+              <CardContent className="p-6 pt-0">
+                <div className="text-xl md:text-3xl font-extrabold text-primary">
+                  ৳{Math.round(stats?.mfsBalanceTotal || 0).toLocaleString()}
+                </div>
+                {stats?.mfsBalancesList?.length > 0 ? (
+                  <div className="flex flex-col gap-1 mt-2">
+                    {stats.mfsBalancesList.map((b: any, idx: number) => (
+                      <span key={idx} className="text-xs font-semibold text-zinc-600">
+                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    Total MFS accounts balance
+                  </p>
+                )}
               </CardContent>
             </div>
           </Card>
@@ -621,14 +698,24 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex flex-col justify-center items-center gap-0.5">
-                <span className="text-sm font-black text-primary leading-none">
+                <span className="text-2xl font-black text-primary leading-none">
                   ৳{Math.round(stats?.accountReceivable || 0).toLocaleString()}
                 </span>
-                <div className="text-[9px] font-bold text-rose-600 leading-none">
-                  Matured: ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}
+                <div className="flex flex-col items-center gap-1 mt-1">
+                  <div className="text-xs font-bold text-zinc-600 leading-none">
+                    Wholesaler: ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()}
+                    <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span>
+                  </div>
+                  <div className="text-xs font-bold text-zinc-600 leading-none">
+                    General: ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()}
+                    <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span>
+                  </div>
+                  <div className="text-xs font-bold text-rose-600 leading-none mt-0.5">
+                    Total Matured: ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}
+                  </div>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.accounts_receivable")}
               </span>
             </div>
@@ -642,8 +729,10 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                 <div className="text-lg md:text-2xl font-extrabold text-primary">
                   ৳{Math.round(stats?.accountReceivable || 0).toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-rose-600 truncate">
-                  <span>{t("dashboard.matured")} ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}</span>
+                <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
+                  <span>Wholesaler Due: ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span></span>
+                  <span>General Due: ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span></span>
+                  <span className="text-rose-600 mt-1 font-bold">Total Matured: ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </div>
@@ -656,14 +745,14 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex flex-col justify-center items-center gap-0.5">
-                <span className="text-sm font-black text-primary leading-none">
+                <span className="text-2xl font-black text-primary leading-none">
                   ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
                 </span>
-                <div className="text-[9px] font-bold text-red-600 leading-none">
+                <div className="text-xs font-bold text-red-600 leading-none">
                   Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.accounts_payable")}
               </span>
             </div>
@@ -685,61 +774,64 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
           </Card>
         </Link>
 
-        {/* Permanent Salary Payable */}
-        <Link href="/admin/employees/salaries" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        {/* Total Suppliers */}
+        <Link href="/admin/suppliers" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
-                  ৳{Math.round(stats?.permanentSalaryPayable || 0).toLocaleString()}
+                <span className="text-2xl font-black text-primary leading-none">
+                  {stats?.totalSuppliersCount || 0}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
-                {t("dashboard.salary_payable")}
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                Total Suppliers
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.salary_payable")}</CardTitle>
-                <DollarSign className="h-4 w-4 text-primary shrink-0" />
+                <CardTitle className="text-sm font-semibold leading-tight">Total Suppliers</CardTitle>
+                <Users className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.permanentSalaryPayable || 0).toLocaleString()}
+                  {stats?.totalSuppliersCount || 0}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.monthly_staff_salaries")}</p>
+                <p className="text-xs text-muted-foreground mt-1 truncate">Total registered suppliers</p>
               </CardContent>
             </div>
           </Card>
         </Link>
 
-        {/* Temporary Wages Payable */}
-        <Link href="/admin/employees/tasks" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        {/* Total Customers Card */}
+        <Link href="/admin/users" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
-                  ৳{Math.round(stats?.temporaryWagesPayable || 0).toLocaleString()}
+              <div className="flex-1 flex flex-col items-center justify-center gap-0.5">
+                <span className="text-2xl font-black text-primary leading-none">
+                  {stats?.totalUsers || 0}
                 </span>
+                <div className="text-xs font-bold text-zinc-600 leading-none">
+                  Wholesaler: {stats?.wholesalersCount || 0} | General: {stats?.generalUsersCount || 0}
+                </div>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
-                {t("dashboard.wages_payable")}
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                {t("dashboard.total_customers")}
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.wages_payable")}</CardTitle>
-                <Receipt className="h-4 w-4 text-primary shrink-0" />
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.total_customers")}</CardTitle>
+                <Users className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.temporaryWagesPayable || 0).toLocaleString()}
+                <div className="text-lg md:text-2xl font-extrabold text-primary">{stats?.totalUsers || 0}</div>
+                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-muted-foreground truncate">
+                  <span>Wholesalers: {stats?.wholesalersCount || 0}, General: {stats?.generalUsersCount || 0}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.completed_tasks_unpaid")}</p>
               </CardContent>
             </div>
           </Card>
@@ -751,11 +843,11 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex items-center justify-center">
-                <span className="text-sm font-black text-primary leading-none">
+                <span className="text-2xl font-black text-primary leading-none">
                   {stats?.runningAssignedTasks || 0}
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-zinc-600 leading-tight mt-auto">
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.running_tasks")}
               </span>
             </div>
@@ -954,7 +1046,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground">{t("dashboard.top_spenders")}</p>
+                  <p className="text-sm font-bold text-zinc-800 uppercase text-muted-foreground">{t("dashboard.top_spenders")}</p>
                   {topCustomers && topCustomers.length > 0 ? (
                     topCustomers.map((customer: any, i: number) => (
                       <div key={i} className="flex items-center justify-between text-xs">
@@ -1058,7 +1150,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                     <p className="text-sm font-bold leading-none truncate max-w-[150px]">{product._id}</p>
                     <p className="text-xs text-muted-foreground">{product.quantity} {t("dashboard.units_sold")}</p>
                   </div>
-                  <div className="text-sm font-black">৳{Math.round(product.revenue).toLocaleString()}</div>
+                  <div className="text-2xl font-black">৳{Math.round(product.revenue).toLocaleString()}</div>
                 </div>
               ))}
               {(!topSellingProducts || topSellingProducts.length === 0) && (
@@ -1098,7 +1190,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <div className="text-sm font-black text-primary">৳{(order?.totalAmount || 0).toLocaleString()}</div>
+                      <div className="text-2xl font-black text-primary">৳{(order?.totalAmount || 0).toLocaleString()}</div>
                       <Badge
                         variant={order.status === 'Delivered' ? 'default' : 'secondary'}
                         className={`text-[10px] uppercase font-bold tracking-tighter ${order.status === 'Delivered' ? 'bg-emerald-500' : ''}`}
