@@ -270,6 +270,27 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
       return;
     }
 
+    // Pre-open tabs synchronously to bypass browser pop-up blockers
+    let whatsappTab: Window | null = null;
+    let printTab: Window | null = null;
+
+    if (!initialData) {
+      if (sendWhatsApp && clientPhone) {
+        whatsappTab = window.open('', '_blank');
+        if (whatsappTab) {
+          whatsappTab.document.write('<html><head><title>Loading WhatsApp...</title></head><body style="font-family: sans-serif; padding: 20px; text-align: center;"><h3>Loading WhatsApp link...</h3></body></html>');
+          whatsappTab.document.close();
+        }
+      }
+      if (printPOS) {
+        printTab = window.open('', '_blank');
+        if (printTab) {
+          printTab.document.write('<html><head><title>POS Receipt</title></head><body style="font-family: sans-serif; padding: 20px; text-align: center;"><h3>Generating POS Invoice Receipt...</h3></body></html>');
+          printTab.document.close();
+        }
+      }
+    }
+
     try {
       setFormLoading(true);
       const billData = {
@@ -310,7 +331,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
       toast.success(initialData ? 'Bill updated successfully!' : 'Bill generated successfully!');
 
-      if (!initialData && sendWhatsApp && clientPhone) {
+      if (!initialData && sendWhatsApp && clientPhone && whatsappTab) {
         // Send WhatsApp link
         const digits = clientPhone.replace(/[^0-9]/g, '');
         let formattedPhone = digits;
@@ -319,13 +340,17 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
         }
         const message = `Hello ${clientName},\nHere is your invoice link for CDI Door Ind: ${window.location.origin}/bills/${savedBill.invoiceNo}`;
         const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
+        whatsappTab.location.href = whatsappUrl;
+      } else if (whatsappTab) {
+        whatsappTab.close();
       }
 
-      if (!initialData && printPOS) {
+      if (!initialData && printPOS && printTab) {
         // Print POS invoice
         const { printBillPOS } = await import('@/lib/bill-pos-generator');
-        await printBillPOS(savedBill, settings);
+        await printBillPOS(savedBill, settings, printTab);
+      } else if (printTab) {
+        printTab.close();
       }
 
       // Close the tab and maybe refresh parent if possible, but simplest is just redirect
@@ -336,9 +361,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
       }, 1500);
 
     } catch (error: any) {
-          toast.error(error.message || 'Error saving bill');
+      if (whatsappTab) whatsappTab.close();
+      if (printTab) printTab.close();
+      toast.error(error.message || 'Error saving bill');
     } finally {
-          setFormLoading(false);
+      setFormLoading(false);
     }
   };
 

@@ -1,6 +1,6 @@
 import { format, isValid } from 'date-fns';
 
-export async function printBillPOS(bill: any, settings: any): Promise<void> {
+export async function printBillPOS(bill: any, settings: any, targetWindow?: Window | null): Promise<void> {
   const brandName = settings?.brandName || "CDI Door Ind";
   const brandEmail = settings?.contact?.email || "";
   const brandPhone = settings?.contact?.phone || "";
@@ -278,7 +278,7 @@ export async function printBillPOS(bill: any, settings: any): Promise<void> {
     </html>
   `;
 
-  const printWindow = window.open('', '_blank');
+  const printWindow = targetWindow || window.open('', '_blank');
   if (printWindow) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
@@ -287,6 +287,10 @@ export async function printBillPOS(bill: any, settings: any): Promise<void> {
       printWindow.print();
       printWindow.close();
     };
-    printWindow.onload = triggerPrint;
+    if (printWindow.document.readyState === 'complete') {
+      triggerPrint();
+    } else {
+      printWindow.onload = triggerPrint;
+    }
   }
 }

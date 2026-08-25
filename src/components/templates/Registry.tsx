@@ -68,14 +68,17 @@ import CategoryV5 from './categories/CategoryV5';
 import CategoryAarong from './categories/CategoryAarong';
 
 export const CategorySelector = ({ style, categories }: { style: string, categories: any[] }) => {
+  // Only show main categories (where parentCategory is null, undefined or empty)
+  const mainCategories = (categories || []).filter((cat) => !cat.parentCategory);
+
   switch (style) {
-    case 'v1': return <CategoryV1 categories={categories} />;
-    case 'v2': return <CategoryV2 categories={categories} />;
-    case 'v3': return <CategoryV3 categories={categories} />;
-    case 'v4': return <CategoryV4 categories={categories} />;
-    case 'v5': return <CategoryV5 categories={categories} />;
-    case 'aarong': return <CategoryAarong categories={categories} />;
-    default: return <CategoryV1 categories={categories} />;
+    case 'v1': return <CategoryV1 categories={mainCategories} />;
+    case 'v2': return <CategoryV2 categories={mainCategories} />;
+    case 'v3': return <CategoryV3 categories={mainCategories} />;
+    case 'v4': return <CategoryV4 categories={mainCategories} />;
+    case 'v5': return <CategoryV5 categories={mainCategories} />;
+    case 'aarong': return <CategoryAarong categories={mainCategories} />;
+    default: return <CategoryV1 categories={mainCategories} />;
   }
 };
 
