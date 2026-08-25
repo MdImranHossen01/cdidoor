@@ -25,8 +25,8 @@ export default function Loading() {
           <div className="space-y-2 pt-2">
             <Skeleton className="w-32 h-8" />
             <div className="flex gap-2 mt-2">
-              <Skeleton className="w-20 h-5" />
-              <Skeleton className="w-20 h-5" />
+               <Skeleton className="w-20 h-5" />
+               <Skeleton className="w-20 h-5" />
             </div>
           </div>
 
@@ -41,12 +41,12 @@ export default function Loading() {
           </div>
 
           <div className="pt-6 space-y-4">
-            <Skeleton className="w-1/4 h-6" />
-            <div className="flex gap-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="w-12 h-12 rounded-full" />
-              ))}
-            </div>
+             <Skeleton className="w-1/4 h-6" />
+             <div className="flex gap-3">
+               {[1, 2, 3].map((i) => (
+                 <Skeleton key={i} className="w-12 h-12 rounded-full" />
+               ))}
+             </div>
           </div>
 
           <div className="pt-8 flex gap-4">

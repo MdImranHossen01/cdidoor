@@ -1,4 +1,4 @@
-﻿import Navbar from '@/components/layout/Navbar';
+import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Marquee } from '@/components/layout/Marquee';
 import { getCachedSettings } from '@/lib/data-fetching';
@@ -27,7 +27,7 @@ export default async function PublicLayout({ children }: { children: React.React
   // Only show blocker if expired and NOT a super admin
   const showBlocker = isExpired && !isSuperAdmin;
 
-  const marqueeText = settings?.marqueeText || 'Welcome to CDI Door Ind! Free shipping on orders over $500.';
+  const marqueeText = settings?.marqueeText || 'Welcome to Omor Auto Corner! Free shipping on orders over $500.';
   const ui = {
     layout: settings?.uiTemplates?.layout || 'v1',
     navbar: settings?.uiTemplates?.navbar || 'v1',
@@ -36,11 +36,13 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <>
-      {showBlocker && <SubscriptionBlocker brandName={settings?.brandName || 'CDI Door Ind'} />}
-      {ui.layout !== 'v2' && <Marquee marqueeText={marqueeText} />}
+      {showBlocker && <SubscriptionBlocker brandName={settings?.brandName || 'Omor Auto Corner'} />}
+      {ui.layout !== 'v2' && ui.layout !== 'aarong' && ui.navbar !== 'aarong' && <Marquee marqueeText={marqueeText} />}
       <Navbar style={ui.navbar} />
-      <main className="flex-1 pb-16 md:pb-0">{children}</main>
-      <Footer style={ui.footer} />
+      <main className="flex-1">{children}</main>
+      <div className="md:pb-0">
+        <Footer style={ui.footer} />
+      </div>
       <ScrollToTop />
       <MobileBottomNavbar />
     </>

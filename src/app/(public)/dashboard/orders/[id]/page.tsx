@@ -23,10 +23,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { generateInvoicePDF } from '@/lib/invoice-generator';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-    const { t } = useLanguage();
     const { id } = use(params);
     const { data: session } = useSession();
     const router = useRouter();
@@ -82,8 +80,8 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         return (
             <div className="text-center p-20 space-y-4">
                 <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto opacity-20" />
-                <h2 className="text-2xl font-bold">{t('store.dashboard.order_not_found') || 'Order Not Found'}</h2>
-                <Button onClick={() => router.push('/dashboard')}>{t('store.dashboard.back_to_orders') || 'Back to Orders'}</Button>
+                <h2 className="text-2xl font-bold">Order Not Found</h2>
+                <Button onClick={() => router.push('/dashboard')}>Back to Orders</Button>
             </div>
         );
     }
@@ -105,8 +103,8 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tighter">{t('store.dashboard.order_details') || 'Order Details'}</h1>
-                        <p className="text-sm text-muted-foreground">{t('store.dashboard.order_id') || 'Order ID'}: #{order._id.slice(-8).toUpperCase()}</p>
+                        <h1 className="text-3xl font-black tracking-tighter">Order Details</h1>
+                        <p className="text-sm text-muted-foreground">Order ID: #{order._id.slice(-8).toUpperCase()}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -123,7 +121,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 }
                             }}
                         >
-                            <FileText className="h-4 w-4" /> {t('store.dashboard.invoice') || 'Invoice'}
+                            <FileText className="h-4 w-4" /> Invoice
                         </Button>
                     )}
                     <Badge className="text-lg px-6 py-2 rounded-full font-black">
@@ -139,7 +137,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     <Card className="border-none shadow-xl shadow-primary/5 rounded-3xl overflow-hidden">
                         <CardHeader className="bg-primary/5 border-b p-6">
                             <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                <Truck className="h-5 w-5 text-primary" /> {t('store.dashboard.tracking_progress') || 'Tracking Progress'}
+                                <Truck className="h-5 w-5 text-primary" /> Tracking Progress
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-10">
@@ -179,7 +177,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     <Card className="border-none shadow-xl shadow-primary/5 rounded-3xl overflow-hidden">
                         <CardHeader className="bg-primary/5 border-b p-6">
                             <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                <Package className="h-5 w-5 text-primary" /> {t('store.dashboard.order_items') || 'Order Items'}
+                                <Package className="h-5 w-5 text-primary" /> Order Items
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
@@ -198,9 +196,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                         <div className="flex-1 min-w-0">
                                             <h4 className="font-bold text-lg truncate">{item.name}</h4>
                                             <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                                <span>{t('store.dashboard.qty') || 'Qty'}: {item.quantity}</span>
-                                                {item.size && <span>{t('store.dashboard.size') || 'Size'}: {item.size}</span>}
-                                                {item.color && <span>{t('store.dashboard.color') || 'Color'}: {item.color}</span>}
+                                                <span>Qty: {item.quantity}</span>
+                                                {item.size && <span>Size: {item.size}</span>}
+                                                {item.color && <span>Color: {item.color}</span>}
                                             </div>
                                             <p className="font-black text-primary mt-1">৳{item.price}</p>
                                         </div>
@@ -218,7 +216,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                                 </Button>
                                             ) : (
                                                 <Badge variant="outline" className="text-[10px] uppercase font-bold opacity-50">
-                                                    {t('store.dashboard.review_later') || 'Review later'}
+                                                    Review later
                                                 </Badge>
                                             )}
                                         </div>
@@ -234,16 +232,16 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     {/* Summary */}
                     <Card className="border-none shadow-xl shadow-primary/5 rounded-3xl overflow-hidden">
                         <CardHeader className="bg-primary/5 border-b p-6">
-                            <CardTitle className="text-lg font-bold">{t('store.dashboard.order_summary') || 'Order Summary'}</CardTitle>
+                            <CardTitle className="text-lg font-bold">Order Summary</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">{t('store.dashboard.subtotal') || 'Subtotal'}</span>
+                                    <span className="text-muted-foreground">Subtotal</span>
                                     <span className="font-bold">৳{order.totalAmount - order.deliveryCharge + (order.couponDiscountAmount || 0)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">{t('store.dashboard.delivery_charge') || 'Delivery Charge'}</span>
+                                    <span className="text-muted-foreground">Delivery Charge</span>
                                     <span className="font-bold">৳{order.deliveryCharge}</span>
                                 </div>
                                 {order.couponDiscountAmount > 0 && (
@@ -254,12 +252,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                 )}
                                 <Separator className="my-2" />
                                 <div className="flex justify-between text-lg">
-                                    <span className="font-black tracking-tight">{t('store.dashboard.total') || 'Total'}</span>
+                                    <span className="font-black tracking-tight">Total</span>
                                     <span className="font-black text-primary">৳{order.totalAmount}</span>
                                 </div>
                             </div>
                             <Badge variant="secondary" className="w-full justify-center h-10 rounded-xl font-bold uppercase tracking-widest text-[10px]">
-                                {t('store.dashboard.paid_via') || 'Paid via'} {order.paymentMethod}
+                                Paid via {order.paymentMethod}
                             </Badge>
                         </CardContent>
                     </Card>
@@ -267,16 +265,16 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     {/* Shipping */}
                     <Card className="border-none shadow-xl shadow-primary/5 rounded-3xl overflow-hidden">
                         <CardHeader className="bg-primary/5 border-b p-6">
-                            <CardTitle className="text-lg font-bold">{t('store.dashboard.shipping_details') || 'Shipping Details'}</CardTitle>
+                            <CardTitle className="text-lg font-bold">Shipping Details</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-6">
                             <div className="space-y-1">
-                                <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('store.dashboard.recipient') || 'Recipient'}</p>
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground">Recipient</p>
                                 <p className="font-bold text-lg">{order.shippingAddress.fullName}</p>
                                 <p className="text-sm font-medium">{order.shippingAddress.phone}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('store.dashboard.address') || 'Address'}</p>
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground">Address</p>
                                 <p className="text-sm leading-relaxed">
                                     {order.shippingAddress.street}, {order.shippingAddress.city}<br />
                                     {order.shippingAddress.state}, {order.shippingAddress.zipCode}
@@ -284,7 +282,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             </div>
                             {order.shippingDetails?.courierName && (
                                 <div className="pt-4 border-t space-y-2">
-                                    <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('store.dashboard.courier_service') || 'Courier Service'}</p>
+                                    <p className="text-[10px] uppercase font-bold text-muted-foreground">Courier Service</p>
                                     <div className="flex items-center justify-between">
                                         <span className="font-bold text-primary">{order.shippingDetails.courierName}</span>
                                         {order.shippingDetails.trackingUrl && (
@@ -294,7 +292,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                                 rel="noopener noreferrer"
                                                 className="text-xs font-bold underline text-primary"
                                             >
-                                                {t('store.dashboard.track_external') || 'Track External'}
+                                                Track External
                                             </a>
                                         )}
                                     </div>

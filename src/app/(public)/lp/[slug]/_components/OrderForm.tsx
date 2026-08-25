@@ -49,7 +49,7 @@ import { ttEvent } from '@/lib/tiktok';
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, 'নাম আবশ্যক'),
-  phone: z.string().trim().regex(/^(?:01)[3-9]\d{8}$/, 'সঠিক মোবাইল নম্বর দিন'),
+  phone: z.string().trim().regex(/^(?:\+88|88|\+৮৮|৮৮|0088|০০৮৮)?(?:01|০১)[3-9৩-৯][\d০-৯]{8}$/, 'সঠিক মোবাইল নম্বর দিন'),
   street: z.string().trim().min(5, 'ঠিকানা আবশ্যক'),
   deliveryArea: z.enum(['inside', 'outside'], {
     message: 'ডেলিভারি এলাকা নির্বাচন করুন',
@@ -481,6 +481,15 @@ export default function OrderForm({ content, settings }: { content: any; setting
 
     setLoading(true);
     try {
+      // Normalize Bangla digits to English digits and sanitize phone
+      const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      let normalizedPhone = values.phone || '';
+      for (let i = 0; i < 10; i++) {
+        normalizedPhone = normalizedPhone.replace(new RegExp(banglaDigits[i], 'g'), englishDigits[i]);
+      }
+      let cleanedPhone = normalizedPhone.replace(/[^0-9]/g, '');
+
       const orderData = {
         items: [{
           product: selectedProduct.productId,
@@ -491,8 +500,8 @@ export default function OrderForm({ content, settings }: { content: any; setting
         }],
         shippingAddress: {
           fullName: values.fullName,
-          phone: values.phone,
-          email: `${values.phone}@store.com`,
+          phone: cleanedPhone || values.phone,
+          email: `${cleanedPhone || values.phone}@store.com`,
           street: values.street,
           city: values.deliveryArea === 'inside' ? 'Dhaka' : 'Outside Dhaka',
           state: values.deliveryArea === 'inside' ? 'Dhaka' : 'Outside Dhaka',
@@ -607,7 +616,7 @@ export default function OrderForm({ content, settings }: { content: any; setting
     );
   }
 
-  const isPhoneValid = /^(?:01)[3-9]\d{8}$/.test((watchedPhone || '').trim());
+  const isPhoneValid = /^(?:\+88|88|\+৮৮|৮৮|0088|০০৮৮)?(?:01|০১)[3-9৩-৯][\d০-৯]{8}$/.test((watchedPhone || '').trim());
   const isAddressValid = (watchedStreet || '').trim().length >= 5;
   const isNameValid = (watchedFullName || '').trim().length >= 2;
   const isFormValid = !!(
@@ -699,7 +708,17 @@ export default function OrderForm({ content, settings }: { content: any; setting
                       <FormItem>
                         <FormLabel className="font-bold">মোবাইল নম্বর</FormLabel>
                         <FormControl>
-                          <Input placeholder="যেমন: ০১৭XXXXXXXX" {...field} className="h-12 rounded-xl border-2 focus-visible:ring-primary/20" />
+                          <Input 
+                            placeholder="যেমন: ০১৭XXXXXXXX" 
+                            {...field} 
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              // Keep only English/Bangla digits and plus sign
+                              let sanitized = value.replace(/[^\d০-৯+]/g, '');
+                              field.onChange(sanitized);
+                            }}
+                            className="h-12 rounded-xl border-2 focus-visible:ring-primary/20" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

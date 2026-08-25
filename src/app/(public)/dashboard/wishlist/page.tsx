@@ -7,10 +7,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Heart, Loader2, ShoppingBag } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function WishlistPage() {
-  const { t } = useLanguage();
   const { status } = useSession();
   const wishlistIds = useAppSelector((state) => state.wishlist.items);
   const isHydrated = useAppSelector((state) => state.wishlist.isHydrated);
@@ -67,7 +65,7 @@ export default function WishlistPage() {
     return (
       <div className="flex h-[40vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">{t('store.wishlist.loading') || 'Loading your wishlist...'}</p>
+        <p className="text-muted-foreground animate-pulse">Loading your wishlist...</p>
       </div>
     );
   }
@@ -78,16 +76,16 @@ export default function WishlistPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-1 flex items-center gap-3">
             <Heart className="h-8 w-8 text-destructive fill-destructive" />
-            {t('store.wishlist.title') || 'My Wishlist'}
+            My Wishlist
           </h1>
           <p className="text-muted-foreground text-sm">
             {products.length === 0
-              ? t('store.wishlist.empty') || "Your wishlist is empty."
-              : `${t('store.wishlist.you_have') || 'You have'} ${products.length} ${t('store.wishlist.items_in_wishlist') || `item${products.length === 1 ? '' : 's'} in your wishlist.`}`}
+              ? "Your wishlist is empty."
+              : `You have ${products.length} item${products.length === 1 ? '' : 's'} in your wishlist.`}
           </p>
         </div>
         <Button asChild variant="outline">
-          <Link href="/shop">{t('store.cart.start_shopping') || 'Continue Shopping'}</Link>
+          <Link href="/shop">Continue Shopping</Link>
         </Button>
       </div>
 
@@ -96,16 +94,17 @@ export default function WishlistPage() {
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-6">
             <ShoppingBag className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="text-xl font-bold mb-2">{t('store.blog.no_posts_found') || 'No items found'}</h2>
+          <h2 className="text-xl font-bold mb-2">No items found</h2>
           <p className="text-muted-foreground mb-8 text-center max-w-sm text-sm">
-            {t('store.wishlist.empty_desc') || "Looks like you haven't added anything to your wishlist yet. Start exploring our shop to find something you'll love!"}
+            Looks like you haven't added anything to your wishlist yet.
+            Start exploring our shop to find something you'll love!
           </p>
           <Button
             asChild
             size="lg"
             className="rounded-full px-8 font-bold"
           >
-            <Link href="/shop">{t('store.nav.shop') || 'Go to Shop'}</Link>
+            <Link href="/shop">Go to Shop</Link>
           </Button>
         </div>
       ) : (

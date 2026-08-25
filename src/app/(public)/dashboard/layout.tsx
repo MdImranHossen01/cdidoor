@@ -10,10 +10,7 @@ import {
     Settings, 
     LogOut,
     Loader2,
-    Heart,
-    Clock,
-    Calendar,
-    DollarSign
+    Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,10 +19,8 @@ import { signOut } from 'next-auth/react';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { t } = useLanguage();
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -81,63 +76,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </CardHeader>
             <CardContent className="p-0">
               <nav className="flex flex-col">
-                {((session?.user as any)?.role === 'employee') ? (
-                  <>
-                    <Link 
-                      href="/dashboard" 
-                      className={cn(
-                        buttonVariants({ variant: 'ghost' }),
-                        "justify-start px-6 h-12 rounded-none border-l-4 w-full",
-                        pathname === '/dashboard' ? 'border-primary bg-muted/50' : 'border-transparent'
-                      )}
-                    >
-                      <Clock className="mr-3 h-4 w-4" /> {t('store.dashboard.my_attendance') || 'My Attendance'}
-                    </Link>
-                    <Link 
-                      href="/dashboard/leaves" 
-                      className={cn(
-                        buttonVariants({ variant: 'ghost' }),
-                        "justify-start px-6 h-12 rounded-none border-l-4 w-full",
-                        pathname === '/dashboard/leaves' ? 'border-primary bg-muted/50' : 'border-transparent'
-                      )}
-                    >
-                      <Calendar className="mr-3 h-4 w-4" /> {t('store.dashboard.leave_requests') || 'Leave Requests'}
-                    </Link>
-                    <Link 
-                      href="/dashboard/payments" 
-                      className={cn(
-                        buttonVariants({ variant: 'ghost' }),
-                        "justify-start px-6 h-12 rounded-none border-l-4 w-full",
-                        pathname === '/dashboard/payments' ? 'border-primary bg-muted/50' : 'border-transparent'
-                      )}
-                    >
-                      <DollarSign className="mr-3 h-4 w-4" /> {t('store.dashboard.salary_history') || 'Salary History'}
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link 
-                      href="/dashboard" 
-                      className={cn(
-                        buttonVariants({ variant: 'ghost' }),
-                        "justify-start px-6 h-12 rounded-none border-l-4 w-full",
-                        pathname === '/dashboard' ? 'border-primary bg-muted/50' : 'border-transparent'
-                      )}
-                    >
-                      <ShoppingBag className="mr-3 h-4 w-4" /> {t('store.dashboard.my_orders') || 'My Orders'}
-                    </Link>
-                    <Link 
-                      href="/dashboard/wishlist" 
-                      className={cn(
-                        buttonVariants({ variant: 'ghost' }),
-                        "justify-start px-6 h-12 rounded-none border-l-4 w-full",
-                        pathname === '/dashboard/wishlist' ? 'border-primary bg-muted/50' : 'border-transparent'
-                      )}
-                    >
-                      <Heart className="mr-3 h-4 w-4" /> {t('store.dashboard.wishlist') || 'Wishlist'}
-                    </Link>
-                  </>
-                )}
+                <Link 
+                  href="/dashboard" 
+                  className={cn(
+                    buttonVariants({ variant: 'ghost' }),
+                    "justify-start px-6 h-12 rounded-none border-l-4 w-full",
+                    pathname === '/dashboard' ? 'border-primary bg-muted/50' : 'border-transparent'
+                  )}
+                >
+                  <ShoppingBag className="mr-3 h-4 w-4" /> My Orders
+                </Link>
+                <Link 
+                  href="/dashboard/wishlist" 
+                  className={cn(
+                    buttonVariants({ variant: 'ghost' }),
+                    "justify-start px-6 h-12 rounded-none border-l-4 w-full",
+                    pathname === '/dashboard/wishlist' ? 'border-primary bg-muted/50' : 'border-transparent'
+                  )}
+                >
+                  <Heart className="mr-3 h-4 w-4" /> Wishlist
+                </Link>
                 <Link 
                   href="/dashboard/profile" 
                   className={cn(
@@ -146,7 +104,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     pathname === '/dashboard/profile' ? 'border-primary bg-muted/50' : 'border-transparent'
                   )}
                 >
-                  <UserIcon className="mr-3 h-4 w-4" /> {t('store.dashboard.profile_info') || 'Profile Info'}
+                  <UserIcon className="mr-3 h-4 w-4" /> Profile Info
                 </Link>
                 <Link 
                   href="/dashboard/settings" 
@@ -156,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     pathname === '/dashboard/settings' ? 'border-primary bg-muted/50' : 'border-transparent'
                   )}
                 >
-                  <Settings className="mr-3 h-4 w-4" /> {t('store.dashboard.account_settings') || 'Account Settings'}
+                  <Settings className="mr-3 h-4 w-4" /> Account Settings
                 </Link>
                 <Separator />
                 <Button 
@@ -164,7 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="justify-start px-6 h-12 rounded-none border-l-4 border-transparent text-destructive hover:bg-destructive/10"
                     onClick={() => signOut({ callbackUrl: window.location.origin })}
                 >
-                  <LogOut className="mr-3 h-4 w-4" /> {t('store.dashboard.sign_out') || 'Sign Out'}
+                  <LogOut className="mr-3 h-4 w-4" /> Sign Out
                 </Button>
               </nav>
             </CardContent>

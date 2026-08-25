@@ -1,15 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Metadata } from 'next';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
-import connectToDatabase from '@/lib/db';
-import Banner from '@/models/Banner';
-import Category from '@/models/Category';
-import Product from '@/models/Product';
-import Blog from '@/models/Blog';
-import FAQ from '@/models/FAQ';
-import GlobalSettings from '@/models/GlobalSettings';
-import Coupon from '@/models/Coupon';
+
 import dynamic from 'next/dynamic';
 import { HeroSlider } from '@/components/storefront/HeroSlider';
 import { FreeDeliveryBanner } from '@/components/storefront/FreeDeliveryBanner';
@@ -22,7 +15,6 @@ import {
   FAQSectionSkeleton,
   TestimonialsSkeleton
 } from '@/components/storefront/Skeletons';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 import { headers } from 'next/headers';
@@ -49,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getCachedBanners()
   ]);
 
-  const brandName = settings?.brandName || 'CDI Door Ind';
+  const brandName = settings?.brandName || 'Omor Auto Corner';
   const metaTitle = settings?.metaTitle || brandName;
   const description = settings?.metaDescription || settings?.siteDescription || 'Your ultimate destination for quality products.';
   const ogImage = banners?.[0]?.image || settings?.logoUrl || '';
@@ -108,7 +100,15 @@ const FeaturesSection = dynamic(() => import('@/components/storefront/FeaturesSe
   loading: () => <FeaturesSectionSkeleton />
 });
 
+const LoyaltyBanner = dynamic(() => import('@/components/storefront/LoyaltyBanner').then(mod => mod.LoyaltyBanner), {
+  loading: () => <BannerSkeleton />
+});
+
 const ComboOfferBanner = dynamic(() => import('@/components/storefront/ComboOfferBanner').then(mod => mod.ComboOfferBanner), {
+  loading: () => <BannerSkeleton />
+});
+
+const NewsletterV2 = dynamic(() => import('@/components/storefront/NewsletterV2').then(mod => mod.NewsletterV2), {
   loading: () => <BannerSkeleton />
 });
 
@@ -203,8 +203,8 @@ export default async function Home() {
                   <div className="flex items-center gap-3">
                     {category.image ? (
                       <div className="relative w-6 h-6 flex-shrink-0">
-                        <Image 
-                          src={category.image} 
+                        <Image
+                          src={category.image}
                           alt={category.name}
                           fill
                           sizes="24px"
@@ -232,7 +232,20 @@ export default async function Home() {
             {/* 4. Categories Showcase */}
             <CategoryShowcase categories={data.categories} style={ui.categories} />
 
-            {/* 8. Featured Products */}
+            {/* 5. New Arrivals */}
+            {data.newArrivals.length > 0 && (
+              <ProductCarouselSection
+                title="New Arrivals"
+                description="Discover the latest additions to our collection. Stay ahead of the curve."
+                products={data.newArrivals}
+                viewAllLink="/shop?filter=new"
+                bgColor="bg-background"
+                cardStyle={ui.productCard}
+                layout={ui.layout}
+              />
+            )}
+
+            {/* 8. Featured Collections */}
             {data.featuredProducts.length > 0 && (
               <ProductCarouselSection
                 title="Featured Collections"
@@ -244,6 +257,9 @@ export default async function Home() {
                 layout={ui.layout}
               />
             )}
+
+            {/* 8. Loyalty Promotion */}
+            {ui.layout !== 'aarong' && <LoyaltyBanner settings={data.settings} layout={ui.layout} />}
 
             {/* 3. Flash Sale (Timed) */}
             {data.flashSale.length > 0 && (
@@ -277,27 +293,17 @@ export default async function Home() {
             {/* 9. Recent Blogs section */}
             <BlogRecent blogs={data.blogs} />
 
-            {/* 5. New Arrivals */}
-            {data.newArrivals.length > 0 && (
-              <ProductCarouselSection
-                title="New Arrivals"
-                description="Discover the latest additions to our collection. Stay ahead of the curve."
-                products={data.newArrivals}
-                viewAllLink="/shop?filter=new"
-                bgColor="bg-background"
-                cardStyle={ui.productCard}
-                layout={ui.layout}
-              />
-            )}
-
             {/* 2. Our Features (Trust Badges) */}
-            <FeaturesSection />
+            {ui.layout !== 'aarong' && <FeaturesSection />}
 
             {/* 8. Testimonials Section */}
-            <Testimonials />
+            {ui.layout !== 'aarong' && <Testimonials />}
+
+            {/* 11. Newsletter V2 Integration */}
+            <NewsletterV2 layout={ui.layout} />
 
             {/* 10. FAQ Accordion Section */}
-            <FAQSection faqs={data.faqs} />
+            {ui.layout !== 'aarong' && <FAQSection faqs={data.faqs} />}
           </div>
         </div>
       ) : (
@@ -308,7 +314,20 @@ export default async function Home() {
           {/* 4. Categories Showcase */}
           <CategoryShowcase categories={data.categories} style={ui.categories} />
 
-          {/* 8. Featured Products */}
+          {/* 5. New Arrivals */}
+          {data.newArrivals.length > 0 && (
+            <ProductCarouselSection
+              title="New Arrivals"
+              description="Discover the latest additions to our collection. Stay ahead of the curve."
+              products={data.newArrivals}
+              viewAllLink="/shop?filter=new"
+              bgColor="bg-background"
+              cardStyle={ui.productCard}
+              layout={ui.layout}
+            />
+          )}
+
+          {/* 8. Featured Collections */}
           {data.featuredProducts.length > 0 && (
             <ProductCarouselSection
               title="Featured Collections"
@@ -320,6 +339,9 @@ export default async function Home() {
               layout={ui.layout}
             />
           )}
+
+          {/* 8. Loyalty Promotion */}
+          {ui.layout !== 'aarong' && <LoyaltyBanner settings={data.settings} layout={ui.layout} />}
 
           {/* 3. Flash Sale (Timed) */}
           {data.flashSale.length > 0 && (
@@ -353,27 +375,17 @@ export default async function Home() {
           {/* 9. Recent Blogs section */}
           <BlogRecent blogs={data.blogs} />
 
-          {/* 5. New Arrivals */}
-          {data.newArrivals.length > 0 && (
-            <ProductCarouselSection
-              title="New Arrivals"
-              description="Discover the latest additions to our collection. Stay ahead of the curve."
-              products={data.newArrivals}
-              viewAllLink="/shop?filter=new"
-              bgColor="bg-background"
-              cardStyle={ui.productCard}
-              layout={ui.layout}
-            />
-          )}
-
           {/* 2. Our Features (Trust Badges) */}
-          <FeaturesSection />
+          {ui.layout !== 'aarong' && <FeaturesSection />}
 
           {/* 8. Testimonials Section */}
-          <Testimonials />
+          {ui.layout !== 'aarong' && <Testimonials />}
+
+          {/* 11. Newsletter V2 Integration */}
+          <NewsletterV2 layout={ui.layout} />
 
           {/* 10. FAQ Accordion Section */}
-          <FAQSection faqs={data.faqs} />
+          {ui.layout !== 'aarong' && <FAQSection faqs={data.faqs} />}
         </>
       )}
     </div>
