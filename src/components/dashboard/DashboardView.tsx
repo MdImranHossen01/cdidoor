@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Plus } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { CartesianGrid, Area, AreaChart, XAxis, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
 import {
@@ -34,6 +36,8 @@ import {
   Briefcase,
   Store
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
@@ -166,7 +170,93 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
   const [showroomsList, setShowroomsList] = useState<{ _id: string; name: string }[]>([]);
 
   // Date filter state
-  const [dateRange, setDateRange] = useState({
+  
+  // Add Balance State
+  const [isAddBalanceOpen, setIsAddBalanceOpen] = useState(false);
+  const [addBalanceTargetType, setAddBalanceTargetType] = useState<'Cash' | 'Bank' | 'MFS'>('Cash');
+  const [targetAccountId, setTargetAccountId] = useState('');
+  const [fundSourceType, setFundSourceType] = useState('Income');
+  const [sourceAccountId, setSourceAccountId] = useState('');
+  // Loan Specific
+  const [lenderName, setLenderName] = useState('');
+  const [loanAmount, setLoanAmount] = useState<number | ''>('');
+  const [repaymentType, setRepaymentType] = useState<'One-time' | 'Installment'>('One-time');
+  const [expectedRepaymentDate, setExpectedRepaymentDate] = useState('');
+  const [totalRepaymentAmount, setTotalRepaymentAmount] = useState<number | ''>('');
+  const [installmentCount, setInstallmentCount] = useState<number | ''>('');
+  const [installmentAmount, setInstallmentAmount] = useState<number | ''>('');
+  const [installmentDayOfMonth, setInstallmentDayOfMonth] = useState<number | ''>('');
+  const [submittingBalance, setSubmittingBalance] = useState(false);
+
+  const openAddBalance = (e: React.MouseEvent, type: 'Cash' | 'Bank' | 'MFS') => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAddBalanceTargetType(type);
+    
+    // Auto select target if Cash
+    if (type === 'Cash') {
+      const cashAcc = stats?.ledgerAccounts?.find((a: any) => a.code === 'CASH');
+      if (cashAcc) setTargetAccountId(cashAcc._id);
+      else setTargetAccountId('');
+    } else {
+      setTargetAccountId('');
+    }
+    
+    setFundSourceType('Income');
+    setSourceAccountId('');
+    setLenderName('');
+    setLoanAmount('');
+    setRepaymentType('One-time');
+    setExpectedRepaymentDate('');
+    setTotalRepaymentAmount('');
+    setInstallmentCount('');
+    setInstallmentAmount('');
+    setInstallmentDayOfMonth('');
+    setIsAddBalanceOpen(true);
+  };
+
+  const handleAddBalanceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetAccountId) {
+      toast.error('Please select a target account');
+      return;
+    }
+    
+    setSubmittingBalance(true);
+    try {
+      const res = await fetch('/api/admin/dashboard/add-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetAccountId,
+          sourceType: fundSourceType,
+          sourceAccountId,
+          lenderName,
+          amount: loanAmount || 0,
+          repaymentType,
+          expectedRepaymentDate,
+          totalRepaymentAmount: totalRepaymentAmount || 0,
+          installmentCount: installmentCount || 0,
+          installmentAmount: installmentAmount || 0,
+          installmentDayOfMonth: installmentDayOfMonth || 1
+        })
+      });
+      
+      if (res.ok) {
+        toast.success('Balance added successfully');
+        setIsAddBalanceOpen(false);
+        fetchStats();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || 'Failed to add balance');
+      }
+    } catch (error) {
+      toast.error('An error occurred');
+    } finally {
+      setSubmittingBalance(false);
+    }
+  };
+const [dateRange, setDateRange] = useState({
     from: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
   });
@@ -571,6 +661,10 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.cash_balance")}
               </span>
+            
+              <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
+                <Plus className="h-3 w-3 mr-1" /> Add Balance
+              </Button>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
@@ -585,6 +679,9 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                 <p className="text-xs text-muted-foreground mt-1 truncate">
                   {selectedShowroom === 'all' ? t("dashboard.physical_cash_on_hand") : selectedShowroom === 'online' ? 'Online/central cash flow' : 'Showroom net cash flow'}
                 </p>
+                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
+                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                </Button>
               </CardContent>
             </div>
           </Card>
@@ -612,6 +709,10 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 {t("dashboard.bank_balance")}
               </span>
+            
+              <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
+                <Plus className="h-3 w-3 mr-1" /> Add Balance
+              </Button>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
@@ -636,6 +737,9 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                     {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? 'Online/central bank flow' : 'Showroom net bank flow'}
                   </p>
                 )}
+                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
+                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                </Button>
               </CardContent>
             </div>
           </Card>
@@ -663,6 +767,10 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
                 MFS Balance
               </span>
+            
+              <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
+                <Plus className="h-3 w-3 mr-1" /> Add Balance
+              </Button>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
@@ -687,6 +795,9 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
                     Total MFS accounts balance
                   </p>
                 )}
+                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
+                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                </Button>
               </CardContent>
             </div>
           </Card>
@@ -1216,8 +1327,160 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             </CardContent>
           </Card>
         </div>
-      </div>
+  
+      {/* Add Balance Modal */}
+      <Dialog open={isAddBalanceOpen} onOpenChange={setIsAddBalanceOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Balance</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAddBalanceSubmit} className="space-y-4 pt-2">
+            <div>
+              <Label>Target Account</Label>
+              {addBalanceTargetType === 'Cash' ? (
+                <div className="p-2 bg-slate-50 border rounded text-sm text-slate-600">Cash Account</div>
+              ) : (
+                <select
+                  value={targetAccountId}
+                  onChange={e => setTargetAccountId(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="">-- Select {addBalanceTargetType} Account --</option>
+                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === addBalanceTargetType || (addBalanceTargetType === 'Bank' && a.code === 'BANK')).map((a: any) => (
+                    <option key={a._id} value={a._id}>{a.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div>
+              <Label>Source of Fund</Label>
+              <select
+                value={fundSourceType}
+                onChange={e => setFundSourceType(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              >
+                <option value="Income">Direct Income / Owner Equity</option>
+                <option value="Bank">Transfer from Bank</option>
+                <option value="MFS">Transfer from MFS</option>
+                <option value="Cash">Transfer from Cash</option>
+                <option value="Loan">Business Loan</option>
+              </select>
+            </div>
+
+            {(fundSourceType === 'Bank' || fundSourceType === 'MFS' || fundSourceType === 'Cash') && (
+              <div>
+                <Label>Source {fundSourceType} Account</Label>
+                <select
+                  value={sourceAccountId}
+                  onChange={e => setSourceAccountId(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                >
+                  <option value="">-- Select Source Account --</option>
+                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === fundSourceType || (fundSourceType === 'Bank' && a.code === 'BANK') || (fundSourceType === 'Cash' && a.code === 'CASH')).map((a: any) => (
+                    <option key={a._id} value={a._id}>{a.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {fundSourceType !== 'Loan' && (
+              <div>
+                <Label>Amount (৳)</Label>
+                <Input type="number" required min="1" value={loanAmount || ''} onChange={e => setLoanAmount(Number(e.target.value))} />
+              </div>
+            )}
+
+            {fundSourceType === 'Loan' && (
+              <div className="space-y-4 border-t pt-4">
+                <div className="font-semibold text-primary">Loan Details</div>
+                
+                <div>
+                  <Label>Lender Name</Label>
+                  <Input required value={lenderName} onChange={e => setLenderName(e.target.value)} />
+                </div>
+                
+                <div>
+                  <Label>Amount Received (৳)</Label>
+                  <Input type="number" required min="1" value={loanAmount || ''} onChange={e => setLoanAmount(Number(e.target.value))} />
+                </div>
+
+                <div>
+                  <Label>Repayment Type</Label>
+                  <select
+                    value={repaymentType}
+                    onChange={(e: any) => setRepaymentType(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="One-time">One-time</option>
+                    <option value="Installment">Installment</option>
+                  </select>
+                </div>
+
+                {repaymentType === 'One-time' && (
+                  <>
+                    <div>
+                      <Label>Expected Repayment Date</Label>
+                      <Input type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label>Total Repayment Amount (৳)</Label>
+                      <Input type="number" required min={loanAmount ? Number(loanAmount) : 1} value={totalRepaymentAmount || ''} onChange={e => setTotalRepaymentAmount(Number(e.target.value))} />
+                      {Number(totalRepaymentAmount) > Number(loanAmount) && (
+                        <p className="text-xs text-rose-500 mt-1">Interest: ৳{(Number(totalRepaymentAmount) - Number(loanAmount)).toLocaleString()}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {repaymentType === 'Installment' && (
+                  <div className="space-y-3 bg-slate-50 p-3 rounded-md">
+                    <div>
+                      <Label>Number of Installments</Label>
+                      <Input type="number" required min="1" value={installmentCount || ''} onChange={e => {
+                        setInstallmentCount(Number(e.target.value));
+                        if (e.target.value && installmentAmount) {
+                          setTotalRepaymentAmount(Number(e.target.value) * Number(installmentAmount));
+                        }
+                      }} />
+                    </div>
+                    <div>
+                      <Label>Installment Amount (৳)</Label>
+                      <Input type="number" required min="1" value={installmentAmount || ''} onChange={e => {
+                        setInstallmentAmount(Number(e.target.value));
+                        if (e.target.value && installmentCount) {
+                          setTotalRepaymentAmount(Number(e.target.value) * Number(installmentCount));
+                        }
+                      }} />
+                    </div>
+                    <div>
+                      <Label>Monthly Installment Date (1-31)</Label>
+                      <Input type="number" required min="1" max="31" value={installmentDayOfMonth || ''} onChange={e => setInstallmentDayOfMonth(Number(e.target.value))} />
+                    </div>
+                    {Number(totalRepaymentAmount) > 0 && (
+                      <div className="pt-2 border-t font-medium">
+                        Total Repayment: ৳{Number(totalRepaymentAmount).toLocaleString()}
+                        {Number(totalRepaymentAmount) > Number(loanAmount) && (
+                          <span className="text-rose-500 ml-2">(Interest: ৳{(Number(totalRepaymentAmount) - Number(loanAmount)).toLocaleString()})</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddBalanceOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={submittingBalance}>{submittingBalance ? 'Processing...' : 'Confirm'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
     </div>
   );
 }
-

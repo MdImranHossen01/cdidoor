@@ -8,11 +8,12 @@ import LedgerTransaction from '@/models/LedgerTransaction';
 export async function seedLedgerAccounts() {
   await connectToDatabase();
 
-  const accounts: { name: string; code: 'CASH' | 'BANK' | 'AR' | 'AP'; type: 'asset' | 'liability' }[] = [
+  const accounts: { name: string; code: 'CASH' | 'BANK' | 'AR' | 'AP' | 'INTEREST_EXP'; type: 'asset' | 'liability' | 'expense' | 'equity' | 'revenue' }[] = [
     { name: 'Cash', code: 'CASH', type: 'asset' },
     { name: 'Bank', code: 'BANK', type: 'asset' },
     { name: 'Accounts Receivable', code: 'AR', type: 'asset' },
     { name: 'Accounts Payable', code: 'AP', type: 'liability' },
+    { name: 'Interest Expense', code: 'INTEREST_EXP', type: 'expense' },
   ];
 
   for (const acc of accounts) {

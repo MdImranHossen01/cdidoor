@@ -5,8 +5,9 @@ import BusinessLoan from '@/models/BusinessLoan';
 import LedgerAccount from '@/models/LedgerAccount';
 import { logLedgerTransaction } from '@/lib/ledgerHelper';
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
     const sessionAuth = await auth();
     if (!sessionAuth || !(['admin', 'super_admin'].includes((sessionAuth?.user as any)?.role))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     
     // Deleting a business loan can be complex if we need to reverse ledger transactions.
     // For simplicity, we just delete the record here. In a real accounting system, we'd reverse it.
-    await BusinessLoan.findByIdAndDelete(params.id);
+    await BusinessLoan.findByIdAndDelete(resolvedParams.id);
 
     return NextResponse.json({ message: 'Loan deleted successfully' });
   } catch (error: any) {
@@ -25,8 +26,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
     const sessionAuth = await auth();
     if (!sessionAuth || !(['admin', 'super_admin', 'manager'].includes((sessionAuth?.user as any)?.role))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -50,7 +52,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       
       try {
         await dbSession.withTransaction(async () => {
-          const loan = await BusinessLoan.findById(params.id).session(dbSession);
+          const loan = await BusinessLoan.findById(resolvedParams.id).session(dbSession);
           if (!loan) throw new Error('Loan not found');
           
           if (paymentAmount > loan.dueAmount) {

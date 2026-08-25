@@ -474,10 +474,32 @@ export async function GET(req: NextRequest) {
     const activeBusinessLoans = await BusinessLoan.find({ status: 'Active' }).lean() as any[];
     const businessLoanPayable = activeBusinessLoans.reduce((sum: number, l: any) => sum + (l.dueAmount || 0), 0);
     const maturedBusinessLoanRaw = activeBusinessLoans.reduce((sum: number, l: any) => {
-      if (l.expectedRepaymentDate && new Date(l.expectedRepaymentDate) < todayDate) {
-        return sum + (l.dueAmount || 0);
+      let maturedAmount = 0;
+      if (l.repaymentType === 'Installment') {
+        if (l.installmentDayOfMonth && l.installmentAmount && l.date) {
+          const loanStartDate = new Date(l.date);
+          const currentYear = todayDate.getFullYear();
+          const currentMonth = todayDate.getMonth();
+          
+          let passedInstallments = 0;
+          
+          // Count passed installments (months since start date where current date is >= installmentDayOfMonth)
+          // A simple approximation: diff in months
+          let diffMonths = (currentYear - loanStartDate.getFullYear()) * 12 + (currentMonth - loanStartDate.getMonth());
+          if (todayDate.getDate() < l.installmentDayOfMonth) {
+            diffMonths--;
+          }
+          passedInstallments = Math.max(0, diffMonths);
+
+          const expectedPaid = passedInstallments * l.installmentAmount;
+          maturedAmount = Math.max(0, expectedPaid - (l.paidAmount || 0));
+        }
+      } else {
+        if (l.expectedRepaymentDate && new Date(l.expectedRepaymentDate) < todayDate) {
+          maturedAmount = l.dueAmount || 0;
+        }
       }
-      return sum;
+      return sum + maturedAmount;
     }, 0);
 
     const maturedPayable = maturedSupplierPayableRaw + maturedBusinessLoanRaw;

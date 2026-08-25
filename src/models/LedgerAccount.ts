@@ -12,7 +12,7 @@ export interface ILedgerAccount extends Document {
   note?: string;
   openingBalance: number;
   currentBalance: number;
-  type: 'asset' | 'liability';
+  type: 'asset' | 'liability' | 'expense' | 'revenue' | 'equity';
   createdBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -31,7 +31,7 @@ const LedgerAccountSchema: Schema<ILedgerAccount> = new Schema(
     note: { type: String },
     openingBalance: { type: Number, default: 0 },
     currentBalance: { type: Number, default: 0 },
-    type: { type: String, default: 'asset', enum: ['asset', 'liability'] },
+    type: { type: String, enum: ['asset', 'liability', 'expense', 'revenue', 'equity'], required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true }

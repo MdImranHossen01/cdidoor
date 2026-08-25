@@ -16,7 +16,8 @@ import {
   Store,
   Mail,
   CreditCard,
-  RotateCcw
+  RotateCcw,
+  Truck
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 
@@ -171,6 +172,14 @@ const data = {
           tKey: "sidebar.create_invoice",
           url: "/admin/bills/create",
         },
+      ],
+    },
+    {
+      title: "Suppliers & Purchases",
+      tKey: "sidebar.suppliers",
+      url: "#",
+      icon: Truck,
+      items: [
         {
           title: "Suppliers / Vendors",
           tKey: "sidebar.suppliers_vendors",
