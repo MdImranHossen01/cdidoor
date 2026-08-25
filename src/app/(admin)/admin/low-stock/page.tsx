@@ -57,7 +57,7 @@ export default function LowStockPage() {
         </h1>
       </div>
 
-      <div className="rounded-md border bg-card text-card-foreground shadow">
+      <div className="hidden md:block rounded-md border bg-card text-card-foreground shadow">
         <Table>
           <TableHeader>
             <TableRow>
@@ -123,6 +123,74 @@ export default function LowStockPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <Skeleton className="h-4 w-3/4 rounded" />
+                <Skeleton className="h-3.5 w-1/2 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">No low stock products found! All stock levels are healthy.</p>
+          </div>
+        ) : (
+          items.map((item) => {
+            const isCriticallyLow = item.stock <= 2;
+
+            return (
+              <div key={item.id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                {/* Header: Product Name & Alert Icon */}
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="font-bold text-base text-foreground leading-snug">{item.name}</h4>
+                  {isCriticallyLow && (
+                    <Badge variant="destructive" className="flex items-center gap-1 text-[10px] uppercase font-bold shrink-0 animate-pulse px-2 py-0.5">
+                      <AlertTriangle className="h-3 w-3" /> Critical
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Variant & Location details */}
+                <div className="border-t border-border/30 pt-2 mt-1 space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-0.5">
+                    <span className="text-muted-foreground">Location:</span>
+                    <Badge variant="outline" className="font-mono text-xs py-0 px-1.5 bg-muted/50">{item.location}</Badge>
+                  </div>
+                  <div className="flex justify-between items-start py-0.5 border-t border-border/30 pt-2">
+                    <span className="text-muted-foreground">Variant:</span>
+                    <span className="font-semibold text-foreground">
+                      {item.color || item.size ? (
+                        <span className="flex flex-col gap-0.5 text-xs text-right">
+                          {item.color && <span>Color: {item.color}</span>}
+                          {item.size && <span>Size: {item.size}</span>}
+                        </span>
+                      ) : (
+                        <span className="text-xs italic text-muted-foreground">Base Product</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Footer details: Remaining Stock */}
+                <div className="flex items-center justify-between border-t pt-2.5 mt-1 bg-muted/20 p-2.5 rounded-lg border border-border/30">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Remaining Stock</span>
+                  <div className="flex items-center gap-1.5">
+                    {isCriticallyLow && <AlertTriangle className="h-4 w-4 text-red-500 animate-pulse" />}
+                    <span className={`font-extrabold text-base ${isCriticallyLow ? 'text-red-600' : 'text-orange-600'}`}>
+                      {item.stock} Pcs
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

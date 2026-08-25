@@ -68,7 +68,7 @@ export default function UpcomingExpiryPage() {
         </h1>
       </div>
 
-      <div className="rounded-md border bg-card text-card-foreground shadow">
+      <div className="hidden md:block rounded-md border bg-card text-card-foreground shadow">
         <Table>
           <TableHeader>
             <TableRow>
@@ -147,6 +147,89 @@ export default function UpcomingExpiryPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <Skeleton className="h-4 w-3/4 rounded" />
+                <Skeleton className="h-3.5 w-1/2 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : batches.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">No products expiring in the next 30 days.</p>
+          </div>
+        ) : (
+          batches.map((batch) => {
+            const daysRemaining = getDaysRemaining(batch.expiryDate);
+            const isVerySoon = daysRemaining <= 7;
+
+            return (
+              <div key={batch.id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                {/* Header: Product Name & Expiry Badges */}
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="font-bold text-base text-foreground leading-snug">{batch.name}</h4>
+                  {isVerySoon ? (
+                    <Badge variant="destructive" className="flex items-center gap-1 text-[10px] uppercase font-bold shrink-0 animate-pulse px-2 py-0.5">
+                      <AlertTriangle className="h-3 w-3" /> Urgent
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-[10px] uppercase font-bold bg-orange-100 text-orange-850 dark:bg-orange-950/40 dark:text-orange-400 px-2 py-0.5 shrink-0">
+                      Warning
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Details list */}
+                <div className="border-t border-border/30 pt-2 mt-1 space-y-2 text-sm">
+                  <div className="flex justify-between items-center py-0.5">
+                    <span className="text-muted-foreground">Batch Number:</span>
+                    <Badge variant="outline" className="font-mono text-xs py-0 px-1.5 bg-muted/50">{batch.batchNumber}</Badge>
+                  </div>
+                  <div className="flex justify-between items-start py-0.5 border-t border-border/30 pt-2">
+                    <span className="text-muted-foreground">Variant:</span>
+                    <span className="font-semibold text-foreground">
+                      {batch.color || batch.size ? (
+                        <span className="flex flex-col gap-0.5 text-xs text-right">
+                          {batch.color && <span>Color: {batch.color}</span>}
+                          {batch.size && <span>Size: {batch.size}</span>}
+                        </span>
+                      ) : (
+                        <span className="text-xs italic text-muted-foreground">Base Product</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-t border-border/30 pt-2">
+                    <span className="text-muted-foreground">Expiry Date:</span>
+                    <span className="font-semibold text-foreground text-xs">{format(new Date(batch.expiryDate), 'PPP')}</span>
+                  </div>
+                </div>
+
+                {/* Footer details: Days Remaining & Remaining Stock */}
+                <div className="flex items-center justify-between border-t pt-2.5 mt-1 bg-muted/20 p-2.5 rounded-lg border border-border/30 text-xs">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Days Left</span>
+                    <span className={`font-bold text-sm ${isVerySoon ? 'text-red-600' : 'text-orange-600'}`}>
+                      {daysRemaining} Days
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Remaining Stock</span>
+                    <span className="font-extrabold text-sm text-foreground">
+                      {batch.stock} Pcs
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
