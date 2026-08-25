@@ -618,98 +618,102 @@ function ExpensesIncomesContent() {
                 </Table>
               </div>
 
-              {/* Mobile View (TallyPay recent transactions style) */}
-              <div className="block md:hidden divide-y divide-border">
+              {/* Mobile View (Rounded individual cards matching products page) */}
+              <div className="block md:hidden space-y-3">
                 {paginatedTransactions.map((tx) => {
                   const isExpense = (tx.type || 'expense') === 'expense';
                   return (
-                    <div key={tx._id} className="py-4.5 flex items-center justify-between gap-3 border-b">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {/* Details */}
-                        <div className="min-w-0">
-                          <p className="font-bold text-base text-foreground truncate">{tx.title}</p>
-                          <div className="flex flex-wrap gap-2 items-center pt-1">
-                            {tx.showroom?.name ? (
-                              <span className="text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
-                                {tx.showroom.name}
-                              </span>
-                            ) : (
-                              <span className="text-xs italic text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                {t("expenses.head_office")}
-                              </span>
-                            )}
-                             {tx.status && (
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${tx.status === 'Approved'
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
-                                  : tx.status === 'Pending'
-                                    ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
-                                    : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/20 dark:text-rose-400'
-                                }`}>
-                                {tx.status === 'Approved' ? t("expenses.approved") : tx.status === 'Pending' ? t("expenses.pending") : t("expenses.rejected")}
-                              </span>
-                            )}
-                          </div>
-                          {tx.description && (
-                            <p className="text-xs text-muted-foreground mt-1.5 truncate max-w-[240px]">
-                              {tx.description}
-                            </p>
-                          )}
+                    <div key={tx._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                      {/* Top Row: Title & Actions */}
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-bold text-base text-foreground leading-snug">{tx.title}</p>
+                        
+                        {/* Action Menu */}
+                        <div className="shrink-0 -mr-1 -mt-1">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground shrink-0">
+                                <MoreHorizontal className="h-4.5 w-4.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {isAdmin && tx.status === 'Pending' && (
+                                <>
+                                  <DropdownMenuItem
+                                    className="text-emerald-600 focus:text-emerald-600 font-bold"
+                                    onClick={() => handleUpdateStatus(tx._id, 'Approved')}
+                                  >
+                                    <Check className="mr-2 h-4 w-4" /> {t("expenses.approve_action")}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-rose-600 focus:text-rose-600 font-bold"
+                                    onClick={() => handleUpdateStatus(tx._id, 'Rejected')}
+                                  >
+                                    <X className="mr-2 h-4 w-4" /> {t("expenses.reject_action")}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {(isAdmin || tx.status === 'Pending') && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setEditingTransaction(tx);
+                                      setIsDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" /> {t("expenses.edit_action")}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => handleDelete(tx._id)}
+                                  >
+                                    <Trash className="mr-2 h-4 w-4" /> {t("expenses.delete_action")}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
 
-                      {/* Right side Amount, Date & Action Menu */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="text-right shrink-0">
-                          <p className={`font-extrabold text-base ${isExpense ? 'text-rose-600' : 'text-emerald-600'}`}>
-                            {isExpense ? '-' : '+'}৳{tx.amount.toLocaleString()}
-                          </p>
-                          <p className="text-xs text-muted-foreground font-medium pt-0.5">
-                            {format(new Date(tx.date), 'dd MMM yyyy')}
-                          </p>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
-                              <MoreHorizontal className="h-4.5 w-4.5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {isAdmin && tx.status === 'Pending' && (
-                              <>
-                                <DropdownMenuItem
-                                  className="text-emerald-600 focus:text-emerald-600 font-bold"
-                                  onClick={() => handleUpdateStatus(tx._id, 'Approved')}
-                                >
-                                  <Check className="mr-2 h-4 w-4" /> {t("expenses.approve_action")}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="text-rose-600 focus:text-rose-600 font-bold"
-                                  onClick={() => handleUpdateStatus(tx._id, 'Rejected')}
-                                >
-                                  <X className="mr-2 h-4 w-4" /> {t("expenses.reject_action")}
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                            {(isAdmin || tx.status === 'Pending') && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setEditingTransaction(tx);
-                                    setIsDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit className="mr-2 h-4 w-4" /> {t("expenses.edit_action")}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
-                                  onClick={() => handleDelete(tx._id)}
-                                >
-                                  <Trash className="mr-2 h-4 w-4" /> {t("expenses.delete_action")}
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      {/* Middle Row: Badges */}
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {tx.showroom?.name ? (
+                          <span className="text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
+                            {tx.showroom.name}
+                          </span>
+                        ) : (
+                          <span className="text-xs italic text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                            {t("expenses.head_office")}
+                          </span>
+                        )}
+                        {tx.status && (
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${tx.status === 'Approved'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
+                              : tx.status === 'Pending'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
+                                : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/20 dark:text-rose-400'
+                            }`}>
+                            {tx.status === 'Approved' ? t("expenses.approved") : tx.status === 'Pending' ? t("expenses.pending") : t("expenses.rejected")}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description (optional) */}
+                      {tx.description && (
+                        <p className="text-xs text-muted-foreground bg-muted/40 p-2 rounded border border-border/30 whitespace-pre-line leading-relaxed">
+                          {tx.description}
+                        </p>
+                      )}
+
+                      {/* Bottom Row: Date & Amount */}
+                      <div className="flex items-center justify-between border-t pt-2 mt-1">
+                        <span className="text-xs text-muted-foreground font-medium">
+                          {format(new Date(tx.date), 'dd MMM yyyy')}
+                        </span>
+                        <span className={`font-extrabold text-base ${isExpense ? 'text-rose-600' : 'text-emerald-600'}`}>
+                          {isExpense ? '-' : '+'}৳{tx.amount.toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   );

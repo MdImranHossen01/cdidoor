@@ -612,12 +612,13 @@ function AccountsLedgerContent() {
                 </Table>
               </div>
 
-              {/* Mobile View */}
-              <div className="block md:hidden divide-y divide-border">
+              {/* Mobile View (Individual rounded cards matching products page) */}
+              <div className="block md:hidden space-y-3">
                 {paginatedTransactions.map((tx) => {
                   const isDebit = tx.type === 'debit';
                   return (
-                    <div key={tx._id} className="py-4.5 flex flex-col gap-2.5 border-b">
+                    <div key={tx._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                      {/* Top Row: Date & Status Badge */}
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground font-semibold">
                           {format(new Date(tx.date), 'dd MMM yyyy')}
@@ -630,34 +631,38 @@ function AccountsLedgerContent() {
                         </Badge>
                       </div>
 
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="space-y-1">
-                          <p className="font-bold text-base leading-snug">{tx.description}</p>
-                          <div className="flex flex-wrap gap-2 items-center pt-1">
-                            <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground">
-                              {tx.account?.name}
-                            </span>
-                            {tx.reference && (
-                              <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground uppercase">
-                                {t("ledger.ref")}: {tx.reference}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                      {/* Description */}
+                      <p className="font-bold text-base leading-snug text-foreground">{tx.description}</p>
 
-                        <div className="text-right shrink-0">
-                          <p className={`font-extrabold text-base ${isDebit ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {isDebit ? '+' : '-'}৳{Math.round(tx.amount)}
-                          </p>
-                          <p className="text-xs text-muted-foreground font-medium pt-0.5">
-                            {t("ledger.balance")}: ৳{Math.round(tx.balanceAfter)}
-                          </p>
+                      {/* Middle Row: Meta info */}
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground">
+                          {tx.account?.name}
+                        </span>
+                        {tx.reference && (
+                          <span className="text-xs bg-muted px-2 py-0.5 rounded font-semibold text-muted-foreground uppercase">
+                            {t("ledger.ref")}: {tx.reference}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Bottom Row: Amount & Balance details */}
+                      <div className="flex items-center justify-between border-t pt-2 mt-1">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{t("ledger.balance")}</span>
+                          <span className="text-xs font-bold text-foreground">৳{Math.round(tx.balanceAfter).toLocaleString()}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider block">{isDebit ? t("ledger.received") : t("ledger.spent")}</span>
+                          <span className={`font-extrabold text-base ${isDebit ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {isDebit ? '+' : '-'}৳{Math.round(tx.amount).toLocaleString()}
+                          </span>
                         </div>
                       </div>
 
                       {/* Manual entries quick actions menu on mobile */}
                       {tx.reference && ['manual-deposit', 'manual-withdrawal', 'manual-transfer'].includes(tx.reference) && (
-                        <div className="flex justify-end gap-2 pt-2 mt-1">
+                        <div className="flex justify-end gap-2 pt-2 border-t border-dashed">
                           <Button variant="outline" size="xs" onClick={() => handleEditClick(tx)} className="h-8 px-3 text-xs font-bold text-indigo-600">
                             <Edit2 className="h-3.5 w-3.5 mr-1" /> {t("ledger.edit")}
                           </Button>
