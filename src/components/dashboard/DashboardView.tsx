@@ -488,29 +488,31 @@ const [dateRange, setDateRange] = useState({
           </div>
 
           {/* Date Range */}
-          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
-            <div className="flex items-center gap-1 px-2 shrink-0">
-              <Filter className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Range</span>
+          {activeTab !== 'cards' && (
+            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
+              <div className="flex items-center gap-1 px-2 shrink-0">
+                <Filter className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Range</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="date"
+                  className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
+                  value={dateRange.from}
+                  onChange={(e) => handleDateChange('from', e.target.value)}
+                  max={format(new Date(), 'yyyy-MM-dd')}
+                />
+                <span className="text-muted-foreground text-[10px] shrink-0">to</span>
+                <Input
+                  type="date"
+                  className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
+                  value={dateRange.to}
+                  onChange={(e) => handleDateChange('to', e.target.value)}
+                  max={format(new Date(), 'yyyy-MM-dd')}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Input
-                type="date"
-                className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
-                value={dateRange.from}
-                onChange={(e) => handleDateChange('from', e.target.value)}
-                max={format(new Date(), 'yyyy-MM-dd')}
-              />
-              <span className="text-muted-foreground text-[10px] shrink-0">to</span>
-              <Input
-                type="date"
-                className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
-                value={dateRange.to}
-                onChange={(e) => handleDateChange('to', e.target.value)}
-                max={format(new Date(), 'yyyy-MM-dd')}
-              />
-            </div>
-          </div>
+          )}
 
           {/* Refresh */}
           <Button variant="outline" size="sm" onClick={fetchStats} className="h-10 px-4 font-bold">
@@ -554,31 +556,35 @@ const [dateRange, setDateRange] = useState({
                 ))}
               </select>
             </div>
-            <div className="flex items-center justify-between text-xs font-bold text-muted-foreground border-b pb-1">
-              <span>DATE FILTER</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <span className="text-[10px] text-muted-foreground font-semibold">From</span>
-                <Input
-                  type="date"
-                  className="h-9 w-full bg-background text-xs"
-                  value={dateRange.from}
-                  onChange={(e) => handleDateChange('from', e.target.value)}
-                  max={format(new Date(), 'yyyy-MM-dd')}
-                />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[10px] text-muted-foreground font-semibold">To</span>
-                <Input
-                  type="date"
-                  className="h-9 w-full bg-background text-xs"
-                  value={dateRange.to}
-                  onChange={(e) => handleDateChange('to', e.target.value)}
-                  max={format(new Date(), 'yyyy-MM-dd')}
-                />
-              </div>
-            </div>
+            {activeTab !== 'cards' && (
+              <>
+                <div className="flex items-center justify-between text-xs font-bold text-muted-foreground border-b pb-1">
+                  <span>DATE FILTER</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground font-semibold">From</span>
+                    <Input
+                      type="date"
+                      className="h-9 w-full bg-background text-xs"
+                      value={dateRange.from}
+                      onChange={(e) => handleDateChange('from', e.target.value)}
+                      max={format(new Date(), 'yyyy-MM-dd')}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground font-semibold">To</span>
+                    <Input
+                      type="date"
+                      className="h-9 w-full bg-background text-xs"
+                      value={dateRange.to}
+                      onChange={(e) => handleDateChange('to', e.target.value)}
+                      max={format(new Date(), 'yyyy-MM-dd')}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
