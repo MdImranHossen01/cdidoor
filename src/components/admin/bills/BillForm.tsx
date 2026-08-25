@@ -52,6 +52,9 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [selectedProductVariants, setSelectedProductVariants] = useState<Record<string, string | null>>({});
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState('');
+  const [sendWhatsApp, setSendWhatsApp] = useState(true);
+  const [printPOS, setPrintPOS] = useState(true);
+  const [settings, setSettings] = useState<any>(null);
 
   // Customer auto-suggestion state
   const [pastCustomers, setPastCustomers] = useState<{clientName: string; clientPhone: string; clientAddress: string}[]>([]);
@@ -62,9 +65,22 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const nameRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLDivElement>(null);
 
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        setSettings(data);
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchPastCustomers();
+    fetchSettings();
   }, []);
 
   // Close dropdowns on outside click
@@ -285,19 +301,39 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
         body: JSON.stringify(billData)
       });
 
-        if (!res.ok) {
+      if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || `Failed to ${initialData ? 'update' : 'create'} bill`);
       }
 
-        toast.success(initialData ? 'Bill updated successfully!' : 'Bill generated successfully!');
+      const savedBill = await res.json();
+
+      toast.success(initialData ? 'Bill updated successfully!' : 'Bill generated successfully!');
+
+      if (!initialData && sendWhatsApp && clientPhone) {
+        // Send WhatsApp link
+        const digits = clientPhone.replace(/[^0-9]/g, '');
+        let formattedPhone = digits;
+        if (digits.startsWith('01') && digits.length === 11) {
+          formattedPhone = `88${digits}`;
+        }
+        const message = `Hello ${clientName},\nHere is your invoice link for CDI Door Ind: ${window.location.origin}/bills/${savedBill.invoiceNo}`;
+        const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+      }
+
+      if (!initialData && printPOS) {
+        // Print POS invoice
+        const { printBillPOS } = await import('@/lib/bill-pos-generator');
+        await printBillPOS(savedBill, settings);
+      }
 
       // Close the tab and maybe refresh parent if possible, but simplest is just redirect
       setTimeout(() => {
-          // Fallback if window.close() is blocked, redirect instead
-          router.push('/admin/bills');
+        // Fallback if window.close() is blocked, redirect instead
+        router.push('/admin/bills');
         window.close();
-      }, 500);
+      }, 1500);
 
     } catch (error: any) {
           toast.error(error.message || 'Error saving bill');
@@ -509,11 +545,35 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t">
-          <Button type="button" variant="outline" className="min-w-24" onClick={() => { window.close(); setTimeout(() => router.push('/admin/bills'), 500); }}>{t("bills.cancel")}</Button>
-          <Button type="submit" disabled={formLoading} className="font-bold min-w-32">
-            {formLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (initialData ? t("bills.update_bill_button") : t("bills.generate_bill_button"))}
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t">
+          {!initialData && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={sendWhatsApp}
+                  onChange={(e) => setSendWhatsApp(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
+                />
+                Send invoice link via WhatsApp
+              </label>
+              <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={printPOS}
+                  onChange={(e) => setPrintPOS(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
+                />
+                Print POS Invoice
+              </label>
+            </div>
+          )}
+          <div className="flex gap-3 sm:ml-auto">
+            <Button type="button" variant="outline" className="min-w-24" onClick={() => { window.close(); setTimeout(() => router.push('/admin/bills'), 500); }}>{t("bills.cancel")}</Button>
+            <Button type="submit" disabled={formLoading} className="font-bold min-w-32">
+              {formLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (initialData ? t("bills.update_bill_button") : t("bills.generate_bill_button"))}
+            </Button>
+          </div>
         </div>
       </form>
 
