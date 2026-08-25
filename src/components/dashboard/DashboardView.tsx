@@ -989,6 +989,36 @@ const [dateRange, setDateRange] = useState({
             </div>
           </Card>
         </Link>
+
+        {/* Expire Alert Card */}
+        <Link href="/admin/products" className="block transition-transform hover:scale-[1.02] active:scale-95">
+          <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
+            {/* Mobile Layout */}
+            <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-2xl font-black text-primary leading-none">
+                  {stats?.expiringProductsCount || 0}
+                </span>
+              </div>
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                {t("dashboard.expire_alert")}
+              </span>
+            </div>
+            {/* Desktop Layout */}
+            <div className="hidden sm:block">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.expire_alert")}</CardTitle>
+                <CalendarClock className="h-4 w-4 text-primary shrink-0" />
+              </CardHeader>
+              <CardContent className="p-6 pt-0">
+                <div className="text-lg md:text-2xl font-extrabold text-primary">
+                  {stats?.expiringProductsCount || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.expiring_products")}</p>
+              </CardContent>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       <div className={(activeTab === 'report' || activeTab === 'insight') ? 'space-y-6 block' : 'hidden'}>

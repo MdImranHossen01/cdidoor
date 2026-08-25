@@ -54,7 +54,7 @@ export async function PUT(
       'name', 'slug', 'description', 'price', 'salePrice', 'discountRate',
       'sku', 'stock', 'categories', 'tags', 'images',
       'attributes', 'variants', 'isFeatured', 'isNewArrival', 'isPublished', 'deliveryCharge',
-      'wholesalePrice', 'wholesaleSalePrice', 'purchasePrice', 'showroomStocks', 'brand', 'showroomPrice'
+      'wholesalePrice', 'wholesaleSalePrice', 'purchasePrice', 'showroomStocks', 'brand', 'showroomPrice', 'batches'
     ];
     const safeUpdate: any = {};
 
@@ -87,6 +87,15 @@ export async function PUT(
             showroomPrice: Number.isFinite(parseFloat(v.showroomPrice)) ? parseFloat(v.showroomPrice) : undefined,
             stock: Number.isFinite(parseInt(v.stock, 10)) ? parseInt(v.stock, 10) : 0,
             discountRate: Number.isFinite(parseFloat(v.discountRate)) ? parseFloat(v.discountRate) : undefined,
+          }));
+        }
+
+        // Deep coercion for batches
+        if (key === 'batches' && Array.isArray(value)) {
+          value = value.map((b: any) => ({
+            batchNumber: b.batchNumber,
+            expiryDate: b.expiryDate ? new Date(b.expiryDate) : undefined,
+            stock: Number.isFinite(parseInt(b.stock, 10)) ? parseInt(b.stock, 10) : 0,
           }));
         }
 

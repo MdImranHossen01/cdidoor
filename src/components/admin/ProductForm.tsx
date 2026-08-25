@@ -60,6 +60,10 @@ const productSchema = z.object({
   isNewArrival: z.boolean(),
   isFlashSale: z.boolean().optional(),
   isPublished: z.boolean(),
+  brand: z.string().optional(),
+  batchNumber: z.string().optional(),
+  expiryDate: z.string().optional(),
+  showroomPrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
   attributes: z.array(z.object({
     key: z.string(),
     value: z.string()
@@ -90,6 +94,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
   const { t } = useLanguage();
   const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const { data: session } = useSession();
@@ -120,6 +125,17 @@ export function ProductForm({ initialData }: ProductFormProps) {
     isFeatured: initialData?.isFeatured ?? false,
     isNewArrival: initialData?.isNewArrival ?? false,
     isFlashSale: initialData?.isFlashSale ?? false,
+    brand: initialData?.brand?._id || initialData?.brand || '',
+    showroomPrice: initialData?.showroomPrice ?? '',
+    batchNumber: initialData?.batches?.[0]?.batchNumber || '',
+    expiryDate: (() => {
+      if (!initialData?.batches?.[0]?.expiryDate) return '';
+      try {
+        return new Date(initialData.batches[0].expiryDate).toISOString().split('T')[0];
+      } catch (e) {
+        return '';
+      }
+    })(),
     attributes: initialData?.attributes || [],
     variants: (() => {
       if (!initialData?.variants) return [];
@@ -194,7 +210,18 @@ export function ProductForm({ initialData }: ProductFormProps) {
         toast.error('Failed to load categories');
       }
     }
+    async function fetchBrands() {
+      try {
+        const res = await fetch('/api/brands');
+        if (!res.ok) throw new Error('Failed to fetch brands');
+        const data = await res.json();
+        setBrands(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching brands:', error);
+      }
+    }
     fetchCategories();
+    fetchBrands();
   }, []);
 
   const nameValue = form.watch('name');
@@ -224,12 +251,24 @@ export function ProductForm({ initialData }: ProductFormProps) {
         });
       });
     });
+
+    const batches = values.batchNumber
+      ? [{
+          batchNumber: values.batchNumber,
+          expiryDate: values.expiryDate ? new Date(values.expiryDate) : undefined,
+          stock: values.stock === '' ? 0 : Number(values.stock),
+        }]
+      : [];
+
     const cleanValues = {
       ...values,
+      brand: values.brand || undefined,
+      batches,
       price: values.price === '' ? 0 : Number(values.price),
       purchasePrice: values.purchasePrice === '' ? undefined : Number(values.purchasePrice),
       salePrice: values.salePrice === '' ? undefined : Number(values.salePrice),
       wholesaleSalePrice: values.wholesaleSalePrice === '' ? undefined : Number(values.wholesaleSalePrice),
+      showroomPrice: values.showroomPrice === '' ? undefined : Number(values.showroomPrice),
       discountRate: values.discountRate === '' || isNaN(Number(values.discountRate)) ? undefined : Number(values.discountRate),
       stock: values.stock === '' ? 0 : Number(values.stock),
       variants: flatVariants,
@@ -357,7 +396,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="slug"
@@ -385,6 +424,29 @@ export function ProductForm({ initialData }: ProductFormProps) {
                       <FormLabel>{t("products.form.sku")}</FormLabel>
                       <FormControl>
                         <Input placeholder="STK-001" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="brand"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Brand</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <option value="">No Brand / Generic</option>
+                          {brands.map((b) => (
+                            <option key={b._id} value={b._id}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -881,8 +943,30 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="showroomPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Showroom Price (Tk)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
                   control={form.control}
                   name="stock"
@@ -903,8 +987,34 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     </FormItem>
                   )}
                 />
-
-
+                <FormField
+                  control={form.control}
+                  name="batchNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Batch Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. BATCH-001" {...field} />
+                      </FormControl>
+                      <FormDescription>Identify the inventory batch</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="expiryDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expiry Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormDescription>Product batch expiration date</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>

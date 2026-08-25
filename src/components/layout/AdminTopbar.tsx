@@ -4,8 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import {
   User,
   LogOut,
-  Plus,
-  Home,
+  Menu,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { LanguageToggle } from '@/components/layout/LanguageToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,12 +23,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { getPageTitle } from '@/lib/page-title';
+
 export default function AdminTopbar() {
   const { data: session } = useSession();
   const { t } = useLanguage();
   const pathname = usePathname();
+  const { open, toggleSidebar } = useSidebar();
 
   return (
     <header className="relative flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
@@ -38,9 +39,27 @@ export default function AdminTopbar() {
         <LanguageToggle />
       </div>
 
-      {/* Page Title */}
-      <div className="absolute inset-0 flex items-center justify-center md:justify-start md:static md:inset-auto md:flex-1 pointer-events-none z-0">
-        <div className="font-bold text-lg truncate px-12 md:px-0">
+      {/* Desktop Left - Hamburger (only when sidebar is closed) + Page Title */}
+      <div className="hidden md:flex items-center gap-3 flex-1 min-w-0">
+        {!open && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="shrink-0 h-8 w-8"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="font-bold text-lg truncate">
+          {getPageTitle(pathname)}
+        </div>
+      </div>
+
+      {/* Mobile Center - Page Title */}
+      <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none z-0">
+        <div className="font-bold text-lg truncate px-12">
           {getPageTitle(pathname)}
         </div>
       </div>
@@ -49,9 +68,7 @@ export default function AdminTopbar() {
       <div className="flex items-center md:hidden z-10 -mr-2">
         <ModeToggle />
       </div>
-      
 
-      
       <div className="hidden md:flex items-center gap-4">
         <LanguageToggle />
         <ModeToggle />

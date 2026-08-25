@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Invalid JSON request body' }, { status: 400 });
     }
 
-    const { name, slug, description, sku, categories, tags, images, attributes, variants, isFeatured, isNewArrival, isPublished, discountRate, wholesalePrice, wholesaleSalePrice, purchasePrice, showroomStocks, brand, showroomPrice } = body;
+    const { name, slug, description, sku, categories, tags, images, attributes, variants, isFeatured, isNewArrival, isPublished, discountRate, wholesalePrice, wholesaleSalePrice, purchasePrice, showroomStocks, brand, showroomPrice, batches } = body;
     let { price, salePrice, stock } = body;
 
     // Numeric validation and coercion
@@ -126,6 +126,13 @@ export async function POST(req: NextRequest) {
       discountRate: Number.isFinite(parseFloat(v.discountRate)) ? parseFloat(v.discountRate) : undefined,
     }));
 
+    // Coerce batch fields
+    const coercedBatches = (batches || []).map((b: any) => ({
+      batchNumber: b.batchNumber,
+      expiryDate: b.expiryDate ? new Date(b.expiryDate) : undefined,
+      stock: Number.isFinite(parseInt(b.stock, 10)) ? parseInt(b.stock, 10) : 0,
+    }));
+
     await connectToDatabase();
 
     const maxRetries = 3;
@@ -157,6 +164,7 @@ export async function POST(req: NextRequest) {
           images: images || [],
           attributes: attributes || [],
           variants: coercedVariants,
+          batches: coercedBatches,
           showroomStocks: showroomStocks || [],
           isFeatured: isFeatured !== undefined ? isFeatured : false,
           isNewArrival: isNewArrival !== undefined ? isNewArrival : false,

@@ -53,6 +53,8 @@ const translations = {
     "sidebar.all_loans": "All Loans",
     "sidebar.upcoming_payable": "Upcoming Payable",
     "sidebar.profile": "Profile",
+    "sidebar.employee_management": "Employee Management",
+    "sidebar.customer_management": "Customer Management",
 
     "dashboard.pending_orders": "Pending Orders",
     "dashboard.total_customers": "Total Customers",
@@ -72,6 +74,8 @@ const translations = {
     "dashboard.monthly_staff_salaries": "Monthly staff salaries",
     "dashboard.completed_tasks_unpaid": "Completed tasks unpaid",
     "dashboard.active_pending_tasks": "Active pending tasks",
+    "dashboard.expire_alert": "Expire Alert",
+    "dashboard.expiring_products": "Expiring in 30 days",
     "dashboard.filter": "Filter",
     "dashboard.refresh": "Refresh",
     
@@ -1401,6 +1405,8 @@ const translations = {
     "sidebar.all_loans": "সকল লোন / ঋণ",
     "sidebar.upcoming_payable": "আসন্ন প্রদেয়",
     "sidebar.profile": "প্রোফাইল",
+    "sidebar.employee_management": "কর্মী ব্যবস্থাপনা",
+    "sidebar.customer_management": "কাস্টমার ব্যবস্থাপনা",
     "dashboard.pending_orders": "পেন্ডিং অর্ডার",
     "dashboard.total_customers": "মোট কাস্টমার",
     "dashboard.cash_balance": "ক্যাশ ব্যালেন্স",
@@ -1419,6 +1425,8 @@ const translations = {
     "dashboard.monthly_staff_salaries": "মাসিক স্টাফ বেতন",
     "dashboard.completed_tasks_unpaid": "সম্পন্ন কাজের বকেয়া",
     "dashboard.active_pending_tasks": "চলমান কাজের তালিকা",
+    "dashboard.expire_alert": "মেয়াদোত্তীর্ণ অ্যালার্ট",
+    "dashboard.expiring_products": "৩০ দিনের মধ্যে মেয়াদ শেষ হবে",
     "dashboard.filter": "ফিল্টার",
     "dashboard.refresh": "রিফ্রেশ",
 

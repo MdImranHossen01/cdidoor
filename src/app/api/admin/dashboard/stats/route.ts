@@ -520,6 +520,28 @@ export async function GET(req: NextRequest) {
     const Supplier = (await import('@/models/Supplier')).default;
     const totalSuppliersCount = await Supplier.countDocuments();
 
+    // Fetch expiring products in the next 30 days
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    const expiringProductsCount = await Product.countDocuments({
+      $or: [
+        {
+          batches: {
+            $elemMatch: {
+              expiryDate: { $gte: new Date(), $lte: thirtyDaysFromNow }
+            }
+          }
+        },
+        {
+          'variants.batches': {
+            $elemMatch: {
+              expiryDate: { $gte: new Date(), $lte: thirtyDaysFromNow }
+            }
+          }
+        }
+      ]
+    });
+
     const wholesalerDuesMap: Record<string, any> = {};
     for (const order of creditOrders) {
       if (!order.user) continue;
@@ -574,6 +596,7 @@ export async function GET(req: NextRequest) {
         pendingExpenseCount,
         pendingExpenseTotal,
         totalSuppliersCount,
+        expiringProductsCount,
         isShowroomFiltered: !!isShowroomFiltered
       },
       recentOrders,

@@ -18,8 +18,11 @@ import {
   CreditCard,
   RotateCcw,
   Truck,
-  Landmark
+  Landmark,
+  X,
+  Briefcase,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/ui/logo"
 
 import {
@@ -272,8 +275,8 @@ const data = {
       ],
     },
     {
-      title: "User Management",
-      tKey: "sidebar.user_management",
+      title: "Customer Management",
+      tKey: "sidebar.customer_management",
       url: "#",
       icon: Users,
       items: [
@@ -283,6 +286,19 @@ const data = {
           url: "/admin/users",
           superOnly: true
         },
+        {
+          title: "Wholesalers",
+          tKey: "sidebar.wholesalers",
+          url: "/admin/wholesalers",
+        },
+      ],
+    },
+    {
+      title: "Employee Management",
+      tKey: "sidebar.employee_management",
+      url: "#",
+      icon: Briefcase,
+      items: [
         {
           title: "Employees",
           tKey: "sidebar.employees",
@@ -297,11 +313,6 @@ const data = {
           title: "Showroom Managers",
           tKey: "sidebar.showroom_managers",
           url: "/admin/showroom-managers",
-        },
-        {
-          title: "Wholesalers",
-          tKey: "sidebar.wholesalers",
-          url: "/admin/wholesalers",
         },
       ],
     },
@@ -424,7 +435,6 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Menu</SidebarGroupLabel>
       <SidebarMenu>
         {filteredItems.map((item) => {
           const isParentActive =
@@ -487,10 +497,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
   const role = (session?.user as any)?.role
 
+  const { toggleSidebar } = useSidebar()
+
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="border-b h-14 lg:h-[60px] px-4 flex items-center">
+      <SidebarHeader className="border-b h-14 lg:h-[60px] px-4 flex items-center relative">
         <Logo textClassName="text-sm md:text-base font-black tracking-wide whitespace-nowrap" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="hidden md:flex absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl-md"
+          aria-label="Close sidebar"
+        >
+          <X className="h-3.5 w-3.5" />
+        </Button>
       </SidebarHeader>
       <SidebarContent className="gap-0">
         <NavMain items={data.navMain} pathname={pathname} role={role} />
