@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, email, password, phone, image } = body;
+    const { name, email, password, phone, image, nidImage, tradeLicenseImage } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -82,6 +82,8 @@ export async function POST(req: NextRequest) {
       if (name) user.name = name;
       if (phone) user.phone = phone;
       if (image) user.image = image;
+      if (nidImage) user.nidImage = nidImage;
+      if (tradeLicenseImage) user.tradeLicenseImage = tradeLicenseImage;
       await user.save();
     } else {
       user = await User.create({
@@ -90,6 +92,8 @@ export async function POST(req: NextRequest) {
         password,
         phone,
         image,
+        nidImage,
+        tradeLicenseImage,
         role: 'wholesaler'
       });
     }
@@ -102,6 +106,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         phone: user.phone,
         image: user.image,
+        nidImage: user.nidImage,
+        tradeLicenseImage: user.tradeLicenseImage,
         role: user.role,
         createdAt: user.createdAt
       }

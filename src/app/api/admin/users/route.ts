@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import Order from '@/models/Order'; // Import to ensure model is registered
+import bcrypt from 'bcryptjs';
 
 export async function GET(req: NextRequest) {
   try {
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { email } = await req.json();
+    const { email, name, image, phone, password } = await req.json();
 
     if (!email || !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.[A-Za-z]{2,})+$/.test(email)) {
       return NextResponse.json({ message: 'Invalid email address' }, { status: 400 });
@@ -91,16 +92,24 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    // Find or Create user with this email and set role to admin
-    // If user already exists, update their role to admin
-    // If they don't exist, we create them with a placeholder name
+    const updateObj: any = { role: 'admin' };
+    if (name) updateObj.name = name;
+    if (image) updateObj.image = image;
+    if (phone) updateObj.phone = phone;
+    if (password) {
+      updateObj.password = await bcrypt.hash(password, 12);
+    }
+
+    const setOnInsertObj: any = {};
+    if (!name) {
+      setOnInsertObj.name = email.split('@')[0];
+    }
+
     const result = await User.findOneAndUpdate(
       { email: email.toLowerCase() },
       { 
-        $set: { role: 'admin' },
-        $setOnInsert: { 
-          name: email.split('@')[0], // Use email prefix as initial name
-        }
+        $set: updateObj,
+        $setOnInsert: setOnInsertObj
       },
       { upsert: true, new: true }
     );

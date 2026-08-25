@@ -33,7 +33,7 @@ export default function AdminTopbar() {
   const { open, toggleSidebar } = useSidebar();
 
   return (
-    <header className="relative flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6 justify-between">
       {/* Mobile Left - Language Toggle */}
       <div className="flex items-center md:hidden z-10 -ml-2">
         <LanguageToggle />

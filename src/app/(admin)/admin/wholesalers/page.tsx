@@ -16,6 +16,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +38,8 @@ interface Wholesaler {
   email: string;
   phone?: string;
   image?: string;
+  nidImage?: string;
+  tradeLicenseImage?: string;
   createdAt: string;
   totalDue?: number;
   orderCount?: number;
@@ -55,6 +58,8 @@ export default function AdminWholesalersPage() {
   const [formPassword, setFormPassword] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formImage, setFormImage] = useState('');
+  const [formNidImage, setFormNidImage] = useState('');
+  const [formTradeLicenseImage, setFormTradeLicenseImage] = useState('');
 
   // Edit Wholesaler Modal States
   const [showEditModal, setShowEditModal] = useState(false);
@@ -63,6 +68,8 @@ export default function AdminWholesalersPage() {
   const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editImage, setEditImage] = useState('');
+  const [editNidImage, setEditNidImage] = useState('');
+  const [editTradeLicenseImage, setEditTradeLicenseImage] = useState('');
 
   // Search & Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,7 +119,9 @@ export default function AdminWholesalersPage() {
           email: formEmail,
           password: formPassword,
           phone: formPhone,
-          image: formImage
+          image: formImage,
+          nidImage: formNidImage,
+          tradeLicenseImage: formTradeLicenseImage
         })
       });
 
@@ -129,6 +138,8 @@ export default function AdminWholesalersPage() {
         setFormPassword('');
         setFormPhone('');
         setFormImage('');
+        setFormNidImage('');
+        setFormTradeLicenseImage('');
         fetchData();
       } else {
         const data = await response.json();
@@ -180,7 +191,9 @@ export default function AdminWholesalersPage() {
           name: editName,
           email: editEmail,
           phone: editPhone,
-          image: editImage
+          image: editImage,
+          nidImage: editNidImage,
+          tradeLicenseImage: editTradeLicenseImage
         })
       });
 
@@ -194,6 +207,8 @@ export default function AdminWholesalersPage() {
         setShowEditModal(false);
         setEditingWholesaler(null);
         setEditImage('');
+        setEditNidImage('');
+        setEditTradeLicenseImage('');
         fetchData();
       } else {
         const data = await response.json();
@@ -380,7 +395,25 @@ export default function AdminWholesalersPage() {
                                   {w.name ? w.name.charAt(0).toUpperCase() : 'W'}
                                 </div>
                               )}
-                              <span>{w.name}</span>
+                              <div className="flex flex-col">
+                                <span className="text-zinc-950 font-bold">{w.name}</span>
+                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                  {w.nidImage && (
+                                    <a href={w.nidImage} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+                                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200 font-bold uppercase rounded-full">
+                                        NID
+                                      </Badge>
+                                    </a>
+                                  )}
+                                  {w.tradeLicenseImage && (
+                                    <a href={w.tradeLicenseImage} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+                                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 cursor-pointer bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-emerald-200 font-bold uppercase rounded-full">
+                                        License
+                                      </Badge>
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </td>
                           <td className="p-2 md:p-4 space-y-0.5 block md:table-cell text-left">
@@ -429,6 +462,8 @@ export default function AdminWholesalersPage() {
                                   setEditEmail(w.email);
                                   setEditPhone(w.phone || '');
                                   setEditImage(w.image || '');
+                                  setEditNidImage(w.nidImage || '');
+                                  setEditTradeLicenseImage(w.tradeLicenseImage || '');
                                   setShowEditModal(true);
                                 }}
                                 className="flex items-center gap-2 cursor-pointer text-zinc-700 hover:bg-zinc-50 p-2 text-xs rounded transition-colors"
@@ -530,6 +565,26 @@ export default function AdminWholesalersPage() {
                     placeholder="+880 1700..." 
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>NID Photo (Optional)</Label>
+                    <ImageUpload 
+                      aspect="video" 
+                      value={formNidImage} 
+                      onUpload={setFormNidImage} 
+                      label="Upload NID"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Trade License (Optional)</Label>
+                    <ImageUpload 
+                      aspect="video" 
+                      value={formTradeLicenseImage} 
+                      onUpload={setFormTradeLicenseImage} 
+                      label="Upload License"
+                    />
+                  </div>
+                </div>
               </CardContent>
               <div className="p-5 bg-zinc-50 border-t border-zinc-100 flex justify-end gap-2 shrink-0">
                 <Button type="button" variant="ghost" onClick={() => setShowAddModal(false)}>{t("wholesalers.cancel")}</Button>
@@ -594,6 +649,26 @@ export default function AdminWholesalersPage() {
                     onChange={(e) => setEditPhone(e.target.value)} 
                     placeholder="+880 1700..." 
                   />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>NID Photo (Optional)</Label>
+                    <ImageUpload 
+                      aspect="video" 
+                      value={editNidImage} 
+                      onUpload={setEditNidImage} 
+                      label="Upload NID"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Trade License (Optional)</Label>
+                    <ImageUpload 
+                      aspect="video" 
+                      value={editTradeLicenseImage} 
+                      onUpload={setEditTradeLicenseImage} 
+                      label="Upload License"
+                    />
+                  </div>
                 </div>
               </CardContent>
               <div className="p-5 bg-zinc-50 border-t border-zinc-100 flex justify-end gap-2 shrink-0">

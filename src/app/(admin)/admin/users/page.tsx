@@ -34,6 +34,7 @@ import {
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { ImageUpload } from '@/components/ui/image-upload';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -105,6 +106,10 @@ function UsersContent() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isAssignAdminOpen, setIsAssignAdminOpen] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
+  const [adminName, setAdminName] = useState('');
+  const [adminImage, setAdminImage] = useState('');
+  const [adminPhone, setAdminPhone] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
 
   const { data: session, status } = useSession();
@@ -215,12 +220,22 @@ function UsersContent() {
       const response = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: adminEmail }),
+        body: JSON.stringify({ 
+          email: adminEmail,
+          name: adminName,
+          image: adminImage,
+          phone: adminPhone,
+          password: adminPassword
+        }),
       });
 
       if (response.ok) {
         toast.success(`Successfully assigned Admin role to ${adminEmail}`);
         setAdminEmail('');
+        setAdminName('');
+        setAdminImage('');
+        setAdminPhone('');
+        setAdminPassword('');
         setIsAssignAdminOpen(false);
         fetchUsers();
       } else {
@@ -756,8 +771,8 @@ function UsersContent() {
 
       {/* Assign Admin Modal */}
       <Dialog open={isAssignAdminOpen} onOpenChange={setIsAssignAdminOpen}>
-        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
-          <div className="bg-blue-600 p-8 text-white relative overflow-hidden">
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden rounded-3xl border-none shadow-2xl max-h-[90vh] flex flex-col">
+          <div className="bg-blue-600 p-8 text-white relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full -ml-12 -mb-12 blur-xl" />
 
@@ -770,19 +785,68 @@ function UsersContent() {
             </DialogHeader>
           </div>
 
-          <form onSubmit={handleAssignAdmin} className="p-8 space-y-6 bg-white">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.email_address")}</label>
-              <div className="relative group">
+          <form onSubmit={handleAssignAdmin} className="flex flex-col flex-1 overflow-hidden">
+            <div className="p-8 space-y-5 bg-white overflow-y-auto flex-1">
+              {/* Profile Image */}
+              <div className="flex flex-col items-center justify-center">
+                <ImageUpload 
+                  aspect="circle" 
+                  value={adminImage} 
+                  onUpload={setAdminImage} 
+                  label={t("users.profile_photo") || "Profile Photo"}
+                />
+              </div>
+
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.full_name") || "Full Name"}</label>
+                <input
+                  type="text"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  placeholder="e.g. John Doe"
+                  className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
+                />
+              </div>
+
+              {/* Email Address */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.email_address")}</label>
                 <input
                   type="email"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   placeholder="name@example.com"
                   required
-                  className="w-full h-14 px-5 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none font-bold text-slate-700"
+                  className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
                 />
               </div>
+
+              {/* Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.password") || "Password"}</label>
+                <input
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.phone_number") || "Phone Number"}</label>
+                <input
+                  type="text"
+                  value={adminPhone}
+                  onChange={(e) => setAdminPhone(e.target.value)}
+                  placeholder="+880 1700..."
+                  className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
+                />
+              </div>
+
+              {/* Warning Note */}
               <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100 mt-2">
                 <div className="h-4 w-4 rounded-full bg-amber-500 flex-shrink-0 mt-0.5" />
                 <p className="text-[10px] text-amber-700 font-bold leading-normal">
@@ -791,19 +855,19 @@ function UsersContent() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex gap-3 shrink-0">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsAssignAdminOpen(false)}
-                className="flex-1 h-14 rounded-2xl font-bold border-2 hover:bg-slate-50"
+                className="flex-1 h-12 rounded-xl font-bold border-2 hover:bg-slate-50 text-sm"
               >
                 {t("users.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isAssigning}
-                className="flex-[2] h-14 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200 border-none group"
+                className="flex-[2] h-12 rounded-xl font-black bg-blue-600 hover:bg-blue-700 text-sm text-white shadow-xl shadow-blue-200 border-none group"
               >
                 {isAssigning ? (
                   <>
