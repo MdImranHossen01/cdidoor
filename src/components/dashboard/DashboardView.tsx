@@ -441,16 +441,16 @@ const [dateRange, setDateRange] = useState({
   const { stats, recentOrders, lowStockProducts, topSellingProducts, topCustomers, chartData } = data || {};
 
   return (
-    <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
+    <div className="flex-1 space-y-3 md:space-y-6 px-0 pt-0 pb-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1 md:gap-3 mt-[-15px] md:mt-0">
         {/* Title Row */}
         <div className="flex flex-row items-center justify-between gap-2">
-          <h2 className="text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">
+          <h2 className="hidden md:block text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">
             {activeTab === 'report' ? 'Report' : activeTab === 'insight' ? 'Insight' : t("dashboard.overview")}
           </h2>
           {/* Mobile buttons */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 w-full md:hidden">
             <Button variant="outline" size="sm" onClick={fetchStats} className="h-9 px-3">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </Button>
@@ -458,7 +458,7 @@ const [dateRange, setDateRange] = useState({
               variant="outline"
               size="sm"
               onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className={`h-9 px-3 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
+              className={`h-9 px-3 flex-1 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
             >
               <Filter className="mr-1.5 h-4 w-4" />
               <span className="text-xs font-bold">Filter</span>
@@ -531,8 +531,8 @@ const [dateRange, setDateRange] = useState({
 
       {/* Collapsible Mobile Filters Wrapper */}
       <div className={`grid transition-all duration-300 ease-in-out md:hidden w-full ${showMobileFilters
-          ? 'grid-rows-[1fr] opacity-100 mt-2 visible'
-          : 'grid-rows-[0fr] opacity-0 invisible h-0'
+          ? 'grid-rows-[1fr] opacity-100 !mt-[1px] visible'
+          : 'grid-rows-[0fr] opacity-0 invisible h-0 !mt-0 hidden'
         }`}>
         <div className="overflow-hidden w-full">
           <div className="bg-muted/30 p-3 rounded-lg border flex flex-col gap-3">
@@ -584,7 +584,7 @@ const [dateRange, setDateRange] = useState({
       </div>
 
       {/* Mobile tabs removed */}
-      <div className={`grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-3 ${activeTab === 'cards' ? 'grid' : 'hidden'}`}>
+      <div className={`grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-3 ${activeTab === 'cards' ? 'grid' : 'hidden'} ${showMobileFilters ? '!mt-3 md:!mt-6' : '!mt-[1px] md:!mt-6'}`}>
         {/* Pending Orders Card */}
         <Link href="/admin/orders" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
