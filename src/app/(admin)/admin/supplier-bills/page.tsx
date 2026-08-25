@@ -116,7 +116,10 @@ function SupplierBillsContent() {
   ]);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Bank'>('Cash');
+  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Bank' | 'MFS' | 'Credit'>('Cash');
+  const [paymentAccountId, setPaymentAccountId] = useState('');
+  const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
+  const [ledgerAccounts, setLedgerAccounts] = useState<any[]>([]);
 
   // Detail View State
   const [selectedBill, setSelectedBill] = useState<any>(null);
@@ -163,6 +166,18 @@ function SupplierBillsContent() {
     }
   };
 
+  const fetchLedgerAccounts = async () => {
+    try {
+      const res = await fetch('/api/admin/ledger/accounts');
+      if (res.ok) {
+        const data = await res.json();
+        setLedgerAccounts(data.accounts || []);
+      }
+    } catch (error) {
+      console.error('Error fetching ledger accounts:', error);
+    }
+  };
+
   useEffect(() => {
     if (searchParams.get('action') === 'add') {
       setEditingBill(null);
@@ -184,7 +199,8 @@ function SupplierBillsContent() {
       await Promise.all([
         fetchBills(),
         fetchSuppliers(),
-        fetchSettings()
+        fetchSettings(),
+        fetchLedgerAccounts()
       ]);
     };
     loadData();
@@ -225,6 +241,8 @@ function SupplierBillsContent() {
     setDiscountValue(0);
     setPaidAmount(0);
     setPaymentMethod('Cash');
+    setPaymentAccountId('');
+    setExpectedPaymentDate('');
     setEditingBill(null);
     setIsCreateOpen(true);
   };
@@ -283,7 +301,9 @@ function SupplierBillsContent() {
           discount: discountValue,
           total,
           paidAmount,
-          paymentMethod
+          paymentMethod,
+          paymentAccountId,
+          expectedPaymentDate
         })
       });
 
@@ -704,6 +724,8 @@ function SupplierBillsContent() {
                             setDiscountValue(bill.discount || 0);
                             setPaidAmount(bill.paidAmount || 0);
                             setPaymentMethod(bill.paymentMethod || 'Cash');
+                            setPaymentAccountId(bill.paymentAccountId || '');
+                            setExpectedPaymentDate(bill.expectedPaymentDate ? format(new Date(bill.expectedPaymentDate), 'yyyy-MM-dd') : '');
                             setIsCreateOpen(true);
                           }}
                         >
@@ -841,13 +863,70 @@ function SupplierBillsContent() {
                   <select
                     id="paymentMethod"
                     value={paymentMethod}
-                    onChange={(e: any) => setPaymentMethod(e.target.value)}
+                    onChange={(e: any) => {
+                      setPaymentMethod(e.target.value);
+                      if (e.target.value !== 'Bank' && e.target.value !== 'MFS') {
+                        setPaymentAccountId('');
+                      }
+                    }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="Cash">{t("supplier_bills.cash")}</option>
                     <option value="Bank">{t("supplier_bills.bank")}</option>
+                    <option value="MFS">MFS</option>
+                    <option value="Credit">Credit</option>
                   </select>
                 </div>
+
+                {paymentMethod === 'Bank' && (
+                  <div>
+                    <Label htmlFor="bankAccount">Select Bank Account</Label>
+                    <select
+                      id="bankAccount"
+                      value={paymentAccountId}
+                      onChange={(e) => setPaymentAccountId(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      required
+                    >
+                      <option value="">-- Select Bank --</option>
+                      {ledgerAccounts.filter(a => a.accountCategory === 'Bank' || a.code === 'BANK').map(a => (
+                        <option key={a._id} value={a._id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {paymentMethod === 'MFS' && (
+                  <div>
+                    <Label htmlFor="mfsAccount">Select MFS Account</Label>
+                    <select
+                      id="mfsAccount"
+                      value={paymentAccountId}
+                      onChange={(e) => setPaymentAccountId(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      required
+                    >
+                      <option value="">-- Select MFS --</option>
+                      {ledgerAccounts.filter(a => a.accountCategory === 'MFS').map(a => (
+                        <option key={a._id} value={a._id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {paymentMethod === 'Credit' && (
+                  <div>
+                    <Label htmlFor="expectedPaymentDate">Expected Payment Date</Label>
+                    <Input
+                      id="expectedPaymentDate"
+                      type="date"
+                      value={expectedPaymentDate}
+                      onChange={(e) => setExpectedPaymentDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="paidAmount">{t("supplier_bills.upfront_payment")}</Label>
                   <Input

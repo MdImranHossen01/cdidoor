@@ -746,10 +746,20 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
               <div className="flex-1 flex flex-col justify-center items-center gap-0.5">
                 <span className="text-2xl font-black text-primary leading-none">
-                  ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
+                  ৳{Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toLocaleString()}
                 </span>
-                <div className="text-xs font-bold text-red-600 leading-none">
-                  Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}
+                <div className="flex flex-col items-center gap-1 mt-1">
+                  <div className="text-[11px] font-bold text-zinc-600 leading-none">
+                    Supplier: ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
+                    <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span>
+                  </div>
+                  <div className="text-[11px] font-bold text-zinc-600 leading-none">
+                    Loan: ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()}
+                    <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span>
+                  </div>
+                  <div className="text-[11px] font-bold text-red-600 leading-none mt-0.5">
+                    Total Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}
+                  </div>
                 </div>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
@@ -764,10 +774,12 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
+                  ৳{Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-red-600 truncate">
-                  <span>{t("dashboard.matured")} ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}</span>
+                <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
+                  <span>Supplier Due: ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span></span>
+                  <span>Business Loan: ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span></span>
+                  <span className="text-red-600 mt-1 font-bold">Total Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </div>

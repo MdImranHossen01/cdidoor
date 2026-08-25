@@ -455,9 +455,32 @@ export async function GET(req: NextRequest) {
     const bankBalance = bankBalancesList.reduce((sum, b) => sum + b.balance, 0);
     const mfsBalanceTotal = mfsBalancesList.reduce((sum, m) => sum + m.balance, 0);
 
+    // Calculate account payable correctly from SupplierBill instead of just AP ledger balance, and calculate Matured Supplier Bills
     const accountReceivable = totalWholesalerDue + totalBillDue;
     const maturedReceivable = Math.min(maturedReceivableRaw + maturedBillDueRaw, accountReceivable);
-    const maturedPayable = null; // Set to null as supplier due-date data is unavailable
+    
+    const SupplierBill = (await import('@/models/SupplierBill')).default;
+    const dueSupplierBills = await SupplierBill.find({ status: 'Due', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) }).lean() as any[];
+    supplierPayable = dueSupplierBills.reduce((sum: number, b: any) => sum + (b.dueAmount || 0), 0);
+    const maturedSupplierPayableRaw = dueSupplierBills.reduce((sum: number, b: any) => {
+      if (b.expectedPaymentDate && new Date(b.expectedPaymentDate) < todayDate) {
+        return sum + (b.dueAmount || 0);
+      }
+      return sum;
+    }, 0);
+
+    // Fetch Business Loans
+    const BusinessLoan = (await import('@/models/BusinessLoan')).default;
+    const activeBusinessLoans = await BusinessLoan.find({ status: 'Active' }).lean() as any[];
+    const businessLoanPayable = activeBusinessLoans.reduce((sum: number, l: any) => sum + (l.dueAmount || 0), 0);
+    const maturedBusinessLoanRaw = activeBusinessLoans.reduce((sum: number, l: any) => {
+      if (l.expectedRepaymentDate && new Date(l.expectedRepaymentDate) < todayDate) {
+        return sum + (l.dueAmount || 0);
+      }
+      return sum;
+    }, 0);
+
+    const maturedPayable = maturedSupplierPayableRaw + maturedBusinessLoanRaw;
 
     // Fetch employee dashboard stats
     const Task = (await import('@/models/Task')).default;
@@ -517,6 +540,9 @@ export async function GET(req: NextRequest) {
         mfsBalancesList,
         accountReceivable,
         supplierPayable,
+        maturedSupplierPayable: maturedSupplierPayableRaw,
+        businessLoanPayable,
+        maturedBusinessLoan: maturedBusinessLoanRaw,
         maturedReceivable,
         maturedWholesalerDue: maturedReceivableRaw,
         maturedGeneralDue: maturedBillDueRaw,

@@ -181,6 +181,11 @@ const data = {
           tKey: "sidebar.supplier_bills",
           url: "/admin/supplier-bills",
         },
+        {
+          title: "Business Loans",
+          tKey: "sidebar.business_loans",
+          url: "/admin/business-loans",
+        },
       ],
     },
     {
