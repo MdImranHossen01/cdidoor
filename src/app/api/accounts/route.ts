@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     // Ensure primary accounts exist
     await seedLedgerAccounts();
 
-    const accounts = await LedgerAccount.find()
+    const accounts = await LedgerAccount.find({ code: /^AC/ })
       .populate('createdBy', 'name')
       .sort({ createdAt: -1 })
       .lean();

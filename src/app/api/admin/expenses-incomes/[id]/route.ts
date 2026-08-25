@@ -85,11 +85,15 @@ export async function PUT(
       // Log the updated expense/income if Approved
       if (expense.status === 'Approved') {
         if (expense.type === 'expense') {
+          let ledgerDescription = `Expense Paid: ${expense.title}`;
+          if (expense.category === 'Loan Paid' || expense.category === 'Profit/Interest') {
+            ledgerDescription = expense.title;
+          }
           await logLedgerTransaction(
             'CASH',
             'credit',
             expense.amount,
-            `Expense Paid: ${expense.title}`,
+            ledgerDescription,
             expense._id.toString(),
             expense.date ? new Date(expense.date) : new Date()
           );

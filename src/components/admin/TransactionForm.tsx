@@ -55,6 +55,9 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const [showrooms, setShowrooms] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [loanProviders, setLoanProviders] = useState<any[]>([]);
+  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
+  const loanProviderRef = useRef<HTMLButtonElement>(null);
 
   const userRole = (session?.user as any)?.role;
   const isAdmin = ['admin', 'super_admin'].includes(userRole);
@@ -101,7 +104,21 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         if (Array.isArray(data)) setCategories(data);
       })
       .catch((err) => console.error('Error fetching categories:', err));
-  }, [isAdmin]);
+
+    fetch('/api/admin/loans/providers')
+      .then((res) => res.json())
+      .then((data) => {
+        const providers = data || [];
+        setLoanProviders(providers);
+        if (initialData && ['Loan Paid', 'Profit/Interest'].includes(initialData.category)) {
+          const match = providers.find((p: any) => initialData.title.endsWith(p.name));
+          if (match) {
+            setSelectedProviderId(match._id);
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching loan providers:', err));
+  }, [isAdmin, initialData]);
 
   const selectedType = form.watch('type');
   const selectedCategory = form.watch('category');
@@ -116,11 +133,17 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
           const prefix = selectedCategory === 'Staff Salary' ? 'Staff salary' : 'Wages';
           form.setValue('title', `${prefix} paid to ${emp.name}`, { shouldValidate: true });
         }
+      } else if (['Loan Paid', 'Profit/Interest'].includes(selectedCategory) && selectedProviderId) {
+        const provider = loanProviders.find(p => p._id === selectedProviderId);
+        if (provider) {
+          const prefix = selectedCategory === 'Loan Paid' ? 'Loan paid to' : 'Interest/profit paid to';
+          form.setValue('title', `${prefix} ${provider.name}`, { shouldValidate: true });
+        }
       } else if (selectedCategory) {
         form.setValue('title', selectedCategory, { shouldValidate: true });
       }
     }
-  }, [selectedCategory, selectedEmployeeId, employees, form, initialData]);
+  }, [selectedCategory, selectedEmployeeId, selectedProviderId, employees, loanProviders, form, initialData]);
 
   const onSubmit = async (values: TransactionFormValues) => {
     setLoading(true);
@@ -184,9 +207,18 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
       e.preventDefault();
       if (['Staff Salary', 'Wages'].includes(selectedCategory)) {
         employeeRef.current?.focus();
+      } else if (['Loan Paid', 'Profit/Interest'].includes(selectedCategory)) {
+        loanProviderRef.current?.focus();
       } else {
         titleRef.current?.focus();
       }
+    }
+  };
+
+  const handleLoanProviderKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleRef.current?.focus();
     }
   };
 
@@ -342,6 +374,37 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
               </FormItem>
             )}
           />
+        )}
+        {['Loan Paid', 'Profit/Interest'].includes(selectedCategory) && (
+          <FormItem className="space-y-1">
+            <FormLabel className="text-xs md:text-sm">Loan Provider</FormLabel>
+            <Select value={selectedProviderId} onValueChange={(val) => setSelectedProviderId(val || '')}>
+              <FormControl>
+                <SelectTrigger 
+                  className="h-8 md:h-10 text-xs md:text-sm"
+                  ref={loanProviderRef}
+                  onKeyDown={handleLoanProviderKeyDown}
+                >
+                  <SelectValue placeholder="Select Loan Provider">
+                    {selectedProviderId ? loanProviders.find(p => p._id === selectedProviderId)?.name : "Select Loan Provider"}
+                  </SelectValue>
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {loanProviders.length === 0 ? (
+                  <SelectItem value="none" disabled className="text-xs md:text-sm">
+                    No loan providers found
+                  </SelectItem>
+                ) : (
+                  loanProviders.map((provider) => (
+                    <SelectItem key={provider._id} value={provider._id} className="text-xs md:text-sm">
+                      {provider.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </FormItem>
         )}
         <FormField
           control={form.control}

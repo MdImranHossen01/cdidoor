@@ -16,6 +16,18 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const type = url.searchParams.get('type');
     
+    // Ensure standard loan-related categories exist
+    const defaultCategories: { name: string; type: 'expense' | 'income' }[] = [
+      { name: 'Profit/Interest', type: 'expense' },
+      { name: 'Loan Paid', type: 'expense' }
+    ];
+    for (const cat of defaultCategories) {
+      const exists = await TransactionCategory.findOne({ name: cat.name, type: cat.type });
+      if (!exists) {
+        await TransactionCategory.create(cat);
+      }
+    }
+
     const query = type ? { type: type as 'expense' | 'income' } : {};
     const categories = await TransactionCategory.find(query).sort({ name: 1 }).lean();
     

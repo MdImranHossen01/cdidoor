@@ -843,15 +843,15 @@ function ProductsContent() {
                         <Link 
                           href={`/product/${product.slug}`} 
                           target="_blank"
-                          className="font-bold text-sm text-foreground hover:text-primary transition-colors line-clamp-2 leading-tight"
+                          className="font-bold text-base md:text-sm text-foreground hover:text-primary transition-colors line-clamp-2 leading-tight"
                         >
                           {product.name}
                         </Link>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Badge variant={product.isPublished ? 'default' : 'secondary'} className="text-[8px] px-1.5 py-0 font-bold tracking-tighter">
+                          <Badge variant={product.isPublished ? 'default' : 'secondary'} className="text-[10px] px-2 py-0.5 font-bold tracking-tighter">
                             {product.isPublished ? t("products.live") : t("products.draft")}
                           </Badge>
-                          <span className="text-[10px] text-muted-foreground font-medium">SKU: {product.sku || 'N/A'}</span>
+                          <span className="text-xs text-muted-foreground font-medium">SKU: {product.sku || 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -918,7 +918,7 @@ function ProductsContent() {
                   </div>
 
                   {/* Detailed Information List */}
-                  <div className="flex flex-col text-[11px] md:text-xs">
+                  <div className="flex flex-col text-sm md:text-xs">
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.brand")}</span>
                       <span className="font-semibold text-foreground">
@@ -929,7 +929,7 @@ function ProductsContent() {
                       <span className="text-muted-foreground font-medium mt-0.5">{t("products.stock")}</span>
                       <div className="flex flex-col items-end">
                         {product.variants && product.variants.length > 0 && (
-                          <div className="flex flex-col items-end text-[10px] text-muted-foreground mb-1">
+                          <div className="flex flex-col items-end text-xs text-muted-foreground mb-1">
                             {product.variants.map((v: any, i: number) => (
                               <span key={i}>
                                 {v.color || 'N/A'} - {v.size || 'N/A'}: <strong className="text-foreground">{v.stock || 0}</strong>
@@ -944,31 +944,31 @@ function ProductsContent() {
                     </div>
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.purchase_cost_price")}</span>
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-foreground text-base md:text-sm">
                         ৳{Math.round(product.purchasePrice || 0)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.regular_price")}</span>
-                      <span className="font-semibold text-muted-foreground line-through decoration-destructive/50">
+                      <span className="font-semibold text-muted-foreground line-through decoration-destructive/50 text-sm md:text-xs">
                         ৳{Math.round(product.price || 0)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.sale_retail_price")}</span>
-                      <span className="font-bold text-primary">
+                      <span className="font-bold text-primary text-base md:text-sm">
                         ৳{Math.round(product.salePrice || product.price || 0)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.showroom_price")}</span>
-                      <span className="font-bold text-violet-600">
+                      <span className="font-bold text-violet-600 text-base md:text-sm">
                         ৳{Math.round(product.showroomPrice || 0)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-1.5 border-t border-border/50">
                       <span className="text-muted-foreground font-medium">{t("products.wholesale_price")}</span>
-                      <span className="font-bold text-amber-600">
+                      <span className="font-bold text-amber-600 text-base md:text-sm">
                         ৳{Math.round(product.wholesaleSalePrice || product.wholesalePrice || 0)}
                       </span>
                     </div>

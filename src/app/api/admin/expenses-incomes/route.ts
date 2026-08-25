@@ -123,12 +123,15 @@ export async function POST(req: NextRequest) {
       try {
         const { logLedgerTransaction } = await import('@/lib/ledgerHelper');
         if (type === 'expense') {
-          // Credit Cash (decreases cash asset)
+          let ledgerDescription = `Expense Paid: ${title}`;
+          if (category === 'Loan Paid' || category === 'Profit/Interest') {
+            ledgerDescription = title;
+          }
           await logLedgerTransaction(
             'CASH',
             'credit',
             amount,
-            `Expense Paid: ${title}`,
+            ledgerDescription,
             expense._id.toString()
           );
         } else {
