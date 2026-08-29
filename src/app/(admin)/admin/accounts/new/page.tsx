@@ -64,12 +64,12 @@ export default function AddAccountPage() {
     <div className="flex flex-col items-center pt-6 pb-20 px-4">
       <div className="w-full max-w-md bg-card border rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-emerald-600 px-4 py-3 flex justify-between items-center text-white">
+        <div className="bg-primary px-4 py-3 flex justify-between items-center text-primary-foreground">
           <h2 className="text-lg font-semibold">
             {t("sidebar.add_account") || "অ্যাড অ্যাকাউন্ট (Add Account)"}
           </h2>
           <Link href="/admin/accounts">
-            <button className="text-white hover:bg-emerald-700 p-1 rounded-md transition-colors">
+            <button className="text-primary-foreground hover:bg-primary/10 p-1 rounded-md transition-colors">
               <X className="w-5 h-5" />
             </button>
           </Link>
@@ -85,7 +85,7 @@ export default function AddAccountPage() {
               placeholder="অ্যাকাউন্টের নাম (e.g. Bkash, Dutch Bangla)"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="h-12 border-gray-300 focus-visible:ring-emerald-600 text-lg"
+              className="h-12 border-gray-300 text-lg"
               autoFocus
             />
           </div>
@@ -93,7 +93,7 @@ export default function AddAccountPage() {
           <div className="space-y-2">
             <Label className="text-base font-semibold">অ্যাকাউন্টের ধরন (Account Type)</Label>
             <Select value={formData.accountCategory} onValueChange={(val) => setFormData({ ...formData, accountCategory: val || '' })}>
-              <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg">
+              <SelectTrigger className="h-12 border-gray-300 text-lg">
                 <SelectValue placeholder="সিলেক্ট করুন" />
               </SelectTrigger>
               <SelectContent>
@@ -109,7 +109,7 @@ export default function AddAccountPage() {
               <div className="space-y-2">
                 <Label className="text-base font-semibold">MFS Provider (bKash/Nagad etc.)</Label>
                 <Select value={formData.mfsProvider} onValueChange={(val) => setFormData({ ...formData, mfsProvider: val || '' })}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg bg-white dark:bg-black">
+                  <SelectTrigger className="h-12 border-gray-300 text-lg bg-white dark:bg-black">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -125,7 +125,7 @@ export default function AddAccountPage() {
               <div className="space-y-2">
                 <Label className="text-base font-semibold">MFS Type</Label>
                 <Select value={formData.mfsType} onValueChange={(val) => setFormData({ ...formData, mfsType: val || '' })}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg bg-white dark:bg-black">
+                  <SelectTrigger className="h-12 border-gray-300 text-lg bg-white dark:bg-black">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -146,13 +146,13 @@ export default function AddAccountPage() {
                   placeholder="e.g. Gulshan Branch"
                   value={formData.branchName || ""}
                   onChange={(e) => setFormData({ ...formData, branchName: e.target.value })}
-                  className="h-12 border-gray-300 focus-visible:ring-emerald-600 text-lg"
+                  className="h-12 border-gray-300 text-lg"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-base font-semibold">ব্যাংক অ্যাকাউন্টের ধরন</Label>
                 <Select value={formData.bankAccountType} onValueChange={(val) => setFormData({ ...formData, bankAccountType: val || '' })}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:ring-emerald-600 text-lg">
+                  <SelectTrigger className="h-12 border-gray-300 text-lg">
                     <SelectValue placeholder="সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -171,7 +171,7 @@ export default function AddAccountPage() {
                 placeholder="অ্যাকাউন্ট নং"
                 value={formData.accountNo}
                 onChange={(e) => setFormData({ ...formData, accountNo: e.target.value })}
-                className="h-12 border-gray-300 focus-visible:ring-emerald-600 text-lg"
+                className="h-12 border-gray-300 text-lg"
               />
             </div>
           )}
@@ -184,7 +184,7 @@ export default function AddAccountPage() {
               placeholder="ওপেনিং ব্যালান্স"
               value={formData.openingBalance}
               onChange={(e) => setFormData({ ...formData, openingBalance: e.target.value })}
-              className="h-12 border-gray-300 focus-visible:ring-emerald-600 text-lg"
+              className="h-12 border-gray-300 text-lg"
             />
           </div>
 
@@ -194,14 +194,14 @@ export default function AddAccountPage() {
               placeholder="নোট"
               value={formData.note}
               onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-              className="min-h-[100px] border-gray-300 focus-visible:ring-emerald-600 text-lg resize-y"
+              className="min-h-[100px] border-gray-300 text-lg resize-y"
             />
           </div>
 
           <div className="pt-2 flex justify-center">
             <Button 
               type="submit" 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto px-8 h-12 text-lg rounded-full"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto px-8 h-12 text-lg rounded-full"
               disabled={submitting}
             >
               <Save className="w-5 h-5 mr-2" />

@@ -42,7 +42,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { title, amount, category, date, description, type, status, showroom, employee } = body;
+    const { title, amount, category, date, description, type, status, showroom, employee, accountCode } = body;
 
     // Sanitize update data (whitelist)
     const updateData: any = {};
@@ -53,6 +53,7 @@ export async function PUT(
     if (description !== undefined) updateData.description = description;
     if (type !== undefined) updateData.type = type;
     if (employee !== undefined) updateData.employee = employee;
+    if (accountCode !== undefined) updateData.accountCode = accountCode;
 
     if (['admin', 'super_admin'].includes(userRole)) {
       if (status !== undefined) updateData.status = status;
@@ -84,13 +85,14 @@ export async function PUT(
 
       // Log the updated expense/income if Approved
       if (expense.status === 'Approved') {
+        const targetAccount = expense.accountCode || 'CASH';
         if (expense.type === 'expense') {
           let ledgerDescription = `Expense Paid: ${expense.title}`;
           if (expense.category === 'Loan Paid' || expense.category === 'Profit/Interest') {
             ledgerDescription = expense.title;
           }
           await logLedgerTransaction(
-            'CASH',
+            targetAccount,
             'credit',
             expense.amount,
             ledgerDescription,
@@ -99,7 +101,7 @@ export async function PUT(
           );
         } else {
           await logLedgerTransaction(
-            'CASH',
+            targetAccount,
             'debit',
             expense.amount,
             `Income Received: ${expense.title}`,
@@ -108,8 +110,11 @@ export async function PUT(
           );
         }
       }
-      // Recalculate Cash balance
-      await recalculateLedgerBalance('CASH');
+      // Recalculate Cash/Bank balances
+      await recalculateLedgerBalance(existingExpense.accountCode || 'CASH');
+      if (expense.accountCode && expense.accountCode !== existingExpense.accountCode) {
+        await recalculateLedgerBalance(expense.accountCode);
+      }
 
       await dbSession.commitTransaction();
       dbSession.endSession();
@@ -173,8 +178,8 @@ export async function DELETE(
       // Delete ledger entries
       await LedgerTransaction.deleteMany({ reference: id }).session(dbSession);
 
-      // Recalculate Cash balance
-      await recalculateLedgerBalance('CASH');
+      // Recalculate Cash/Bank balance
+      await recalculateLedgerBalance(existingExpense.accountCode || 'CASH');
 
       await dbSession.commitTransaction();
       dbSession.endSession();

@@ -41,6 +41,7 @@ const transactionSchema = z.object({
   description: z.string().optional(),
   showroom: z.string().optional(),
   employee: z.string().optional(),
+  accountCode: z.enum(['CASH', 'BANK']).default('CASH'),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -145,6 +146,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
       description: initialData?.description || '',
       showroom: initialData?.showroom || undefined,
       employee: initialData?.employee?._id || initialData?.employee || undefined,
+      accountCode: initialData?.accountCode || 'CASH',
     },
   });
 
@@ -234,6 +236,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
             description: '',
             showroom: undefined,
             employee: undefined,
+            accountCode: 'CASH',
           });
           onSuccess(false);
           setTimeout(() => {
@@ -576,6 +579,27 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
             )}
           />
         )}
+        <FormField
+          control={form.control}
+          name="accountCode"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel className="text-xs md:text-sm">Adjust Account</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger className="h-8 md:h-10 text-xs md:text-sm">
+                    <SelectValue placeholder="Select Account" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="CASH" className="text-xs md:text-sm">{t("ledger.cash_account") || "Cash Account"}</SelectItem>
+                  <SelectItem value="BANK" className="text-xs md:text-sm">{t("ledger.bank_account") || "Bank Account"}</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-[10px] md:text-xs" />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="description"

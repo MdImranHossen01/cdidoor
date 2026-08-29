@@ -25,6 +25,8 @@ export default function NewReturnPage() {
   const [invoiceNo, setInvoiceNo] = useState('');
   const [searching, setSearching] = useState(false);
   const [bill, setBill] = useState<any>(null);
+  const [order, setOrder] = useState<any>(null);
+  const [refundAccount, setRefundAccount] = useState<'CASH' | 'BANK'>('CASH');
   
   // State for tracking return quantities and refund
   const [returnItems, setReturnItems] = useState<any[]>([]);
@@ -34,30 +36,58 @@ export default function NewReturnPage() {
 
   const searchBill = async () => {
     if (!invoiceNo.trim()) {
-      toast.error('Please enter an Invoice Number');
+      toast.error('Please enter an Invoice or Order number');
       return;
     }
     setSearching(true);
+    setBill(null);
+    setOrder(null);
     try {
-      const res = await fetch(`/api/admin/bills?invoiceNo=${invoiceNo.trim()}`);
-      if (!res.ok) throw new Error('Failed to fetch bill');
-      const data = await res.json();
-      
-      if (data && data.length > 0) {
-        setBill(data[0]);
-        // Initialize return items tracking
-        const initialReturnItems = data[0].items.map((item: any) => ({
-          ...item,
-          returnQty: 0
-        }));
-        setReturnItems(initialReturnItems);
-        toast.success('Bill found');
-      } else {
-        toast.error('No bill found with this Invoice Number');
-        setBill(null);
+      // 1. Try to search client bills
+      const billRes = await fetch(`/api/admin/bills?invoiceNo=${invoiceNo.trim()}`);
+      if (billRes.ok) {
+        const billData = await billRes.json();
+        if (billData && billData.length > 0) {
+          const foundBill = billData[0];
+          setBill(foundBill);
+          const initialReturnItems = foundBill.items.map((item: any) => ({
+            ...item,
+            returnQty: 0
+          }));
+          setReturnItems(initialReturnItems);
+          toast.success('Client bill found');
+          setSearching(false);
+          return;
+        }
       }
+
+      // 2. Try online orders
+      const orderRes = await fetch(`/api/orders?all=true&search=${invoiceNo.trim()}`);
+      if (orderRes.ok) {
+        const orderData = await orderRes.json();
+        const ordersList = orderData.orders || orderData;
+        if (ordersList && ordersList.length > 0) {
+          const foundOrder = ordersList[0];
+          setOrder(foundOrder);
+          const mappedItems = foundOrder.items.map((item: any) => ({
+            ...item,
+            productId: item.product,
+            price: item.price,
+            quantity: item.quantity,
+            returnQty: 0,
+            color: item.color,
+            size: item.size
+          }));
+          setReturnItems(mappedItems);
+          toast.success('Online order found');
+          setSearching(false);
+          return;
+        }
+      }
+
+      toast.error('No bill or order found with this number');
     } catch (error) {
-      toast.error('Error finding bill');
+      toast.error('Error finding invoice');
     } finally {
       setSearching(false);
     }
@@ -95,12 +125,12 @@ export default function NewReturnPage() {
     setSubmitting(true);
     try {
       const payload = {
-        billId: bill._id,
+        billId: bill ? bill._id : undefined,
+        orderId: order ? order._id : undefined,
         reason,
         refundAmount: customRefund !== '' ? Number(customRefund) : suggestedRefund,
+        refundAccount,
         items: itemsToReturn.map(i => {
-          // If the bill tracked batches used, try to return to the first batch used. 
-          // For multi-batch items, a more complex UI would be needed, but this is a solid default.
           const batchNumber = (i.batchesUsed && i.batchesUsed.length > 0) 
             ? i.batchesUsed[0].batchNumber 
             : undefined;
@@ -108,6 +138,8 @@ export default function NewReturnPage() {
           return {
             productId: i.productId?._id || i.productId,
             variantId: i.variantId,
+            color: i.color,
+            size: i.size,
             batchNumber: batchNumber,
             quantity: i.returnQty,
             price: i.price
@@ -145,10 +177,10 @@ export default function NewReturnPage() {
       </div>
 
       <div className="flex flex-col gap-4 p-6 border rounded-xl bg-card shadow-sm">
-        <Label className="text-lg">Search Client Bill</Label>
+        <Label className="text-lg">Search Invoice (Bill or Online Order)</Label>
         <div className="flex gap-2 max-w-md">
           <Input 
-            placeholder="Enter Invoice No (e.g., INV-12345)" 
+            placeholder="Enter Invoice No or Order ID (e.g., INV-12345, 63C8A2)" 
             value={invoiceNo}
             onChange={(e) => setInvoiceNo(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && searchBill()}
@@ -159,28 +191,28 @@ export default function NewReturnPage() {
         </div>
         <p className="text-sm text-muted-foreground flex items-center gap-1">
           <AlertTriangle className="w-4 h-4 text-orange-500" />
-          Note: Only products sold through a Client Bill can be returned.
+          Note: Products sold through a Client Bill or Online Order can be returned.
         </p>
       </div>
 
-      {bill && (
+      {(bill || order) && (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4">
           <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-slate-50 dark:bg-slate-900/50">
             <div>
               <p className="text-sm text-muted-foreground">Customer Name</p>
-              <p className="font-semibold">{bill.clientName}</p>
+              <p className="font-semibold">{bill ? bill.clientName : order.shippingAddress?.fullName}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-semibold">{bill.clientPhone}</p>
+              <p className="font-semibold">{bill ? bill.clientPhone : order.shippingAddress?.phone}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Invoice Date</p>
-              <p className="font-semibold">{new Date(bill.createdAt).toLocaleDateString()}</p>
+              <p className="text-sm text-muted-foreground">Invoice / Order Date</p>
+              <p className="font-semibold">{new Date(bill ? bill.createdAt : order.createdAt).toLocaleDateString()}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Bill Amount</p>
-              <p className="font-semibold text-primary">৳ {bill.gTotal.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Amount</p>
+              <p className="font-semibold text-primary">৳ {(bill ? bill.gTotal : order.totalAmount).toLocaleString()}</p>
             </div>
           </div>
 
@@ -200,6 +232,11 @@ export default function NewReturnPage() {
                   <TableRow key={index}>
                     <TableCell className="font-medium">
                       {item.name}
+                      {(item.color || item.size) && (
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          Variant: {[item.color, item.size].filter(Boolean).join(' / ')}
+                        </div>
+                      )}
                       {item.batchesUsed && item.batchesUsed.length > 0 && (
                         <div className="text-xs text-muted-foreground mt-1">
                           Batches: {item.batchesUsed.map((b:any)=>b.batchNumber).join(', ')}
@@ -260,8 +297,20 @@ export default function NewReturnPage() {
                 />
               </div>
 
+              <div className="flex justify-between items-center gap-4 pt-2">
+                <Label className="whitespace-nowrap font-semibold text-sm">Deduct Account:</Label>
+                <select
+                  value={refundAccount}
+                  onChange={(e: any) => setRefundAccount(e.target.value)}
+                  className="h-9 w-32 bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-semibold text-right"
+                >
+                  <option value="CASH">Cash Account</option>
+                  <option value="BANK">Bank Account</option>
+                </select>
+              </div>
+
               <p className="text-xs text-muted-foreground">
-                This amount will be recorded as a Cash Deduction in the Accounts Ledger.
+                This amount will be recorded as a Credit Deduction in the selected Account Ledger.
               </p>
 
               <Button 

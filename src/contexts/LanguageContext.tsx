@@ -39,7 +39,7 @@ const translations = {
     "store.categories.browse_by_category": "Browse by Category",
     "dashboard.overview": "Dashboard Overview",
     "sidebar.add_showroom": "Add Showroom",
-    "sidebar.add_expense_income": "Add Expense-Income",
+    "sidebar.add_expense_income": "Add New Entry",
     "sidebar.add_category": "Add Category",
     "sidebar.purchase_supplier": "Purchase & Supplier",
     "sidebar.supplier_list": "Supplier List",
@@ -1424,7 +1424,7 @@ const translations = {
 
     "store.categories.browse_by_category": "ক্যাটাগরি অনুযায়ী দেখুন",
     "dashboard.overview": "ড্যাশবোর্ড ওভারভিউ",
-    "sidebar.add_expense_income": "নতুন আয়-ব্যয়",
+    "sidebar.add_expense_income": "নতুন এন্ট্রি",
     "sidebar.add_category": "ক্যাটাগরি যোগ করুন",
     "sidebar.add_showroom": "শোরুম যোগ করুন",
     "sidebar.suppliers": "সরবরাহকারী এবং ক্রয়",

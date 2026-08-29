@@ -10,7 +10,8 @@ export interface IReturnItem {
 
 export interface IProductReturn extends Document {
   returnId: string;
-  bill: mongoose.Types.ObjectId;
+  bill?: mongoose.Types.ObjectId;
+  order?: mongoose.Types.ObjectId;
   customerName?: string;
   phone?: string;
   showroom?: mongoose.Types.ObjectId;
@@ -34,7 +35,8 @@ const ReturnItemSchema: Schema<IReturnItem> = new Schema({
 const ProductReturnSchema: Schema<IProductReturn> = new Schema(
   {
     returnId: { type: String, required: true, unique: true },
-    bill: { type: Schema.Types.ObjectId, ref: 'Bill', required: true },
+    bill: { type: Schema.Types.ObjectId, ref: 'Bill', required: false },
+    order: { type: Schema.Types.ObjectId, ref: 'Order', required: false },
     customerName: { type: String },
     phone: { type: String },
     showroom: { type: Schema.Types.ObjectId, ref: 'Showroom' },
@@ -47,7 +49,9 @@ const ProductReturnSchema: Schema<IProductReturn> = new Schema(
   { timestamps: true }
 );
 
-const ProductReturn: Model<IProductReturn> =
-  mongoose.models.ProductReturn || mongoose.model<IProductReturn>('ProductReturn', ProductReturnSchema);
+if (mongoose.models.ProductReturn) {
+  delete mongoose.models.ProductReturn;
+}
+const ProductReturn: Model<IProductReturn> = mongoose.model<IProductReturn>('ProductReturn', ProductReturnSchema);
 
 export default ProductReturn;

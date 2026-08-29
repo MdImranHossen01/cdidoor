@@ -90,7 +90,7 @@ export default function ReturnsListPage() {
                     {ret.returnId}
                   </TableCell>
                   <TableCell>
-                    {ret.bill?.invoiceNo || 'N/A'}
+                    {ret.bill?.invoiceNo || ret.order?.shortId || 'N/A'}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
@@ -155,8 +155,8 @@ export default function ReturnsListPage() {
                   </div>
                 )}
                 <div className="flex justify-between items-center border-t border-border/30 pt-2">
-                  <span className="text-muted-foreground">Invoice No:</span>
-                  <span className="font-semibold text-foreground font-mono">{ret.bill?.invoiceNo || 'N/A'}</span>
+                  <span className="text-muted-foreground">Invoice / Order No:</span>
+                  <span className="font-semibold text-foreground font-mono">{ret.bill?.invoiceNo || ret.order?.shortId || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between items-center border-t border-border/30 pt-2">
                   <span className="text-muted-foreground">Returned Quantity:</span>

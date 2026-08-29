@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, amount, category, date, description, type, employee } = body;
+    const { title, amount, category, date, description, type, employee, accountCode } = body;
 
     // Validate required fields (basic)
     if (!title || amount === undefined || !category || !type) {
@@ -109,7 +109,8 @@ export async function POST(req: NextRequest) {
       date: date ? new Date(date) : new Date(),
       description,
       status: expenseStatus,
-      employee
+      employee,
+      accountCode: accountCode || 'CASH'
     };
 
     if (showroomId) {
@@ -122,22 +123,24 @@ export async function POST(req: NextRequest) {
     if (expenseStatus === 'Approved') {
       try {
         const { logLedgerTransaction } = await import('@/lib/ledgerHelper');
+        const targetAccount = expense.accountCode || 'CASH';
+
         if (type === 'expense') {
           let ledgerDescription = `Expense Paid: ${title}`;
           if (category === 'Loan Paid' || category === 'Profit/Interest') {
             ledgerDescription = title;
           }
           await logLedgerTransaction(
-            'CASH',
+            targetAccount,
             'credit',
             amount,
             ledgerDescription,
             expense._id.toString()
           );
         } else {
-          // Debit Cash (increases cash asset)
+          // Debit selected account (increases asset)
           await logLedgerTransaction(
-            'CASH',
+            targetAccount,
             'debit',
             amount,
             `Income Received: ${title}`,

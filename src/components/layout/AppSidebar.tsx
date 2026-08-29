@@ -7,12 +7,11 @@ import {
   ChevronRight,
   LayoutDashboard,
   ShoppingBag,
-  Tag,
+
   FileText,
   Users,
   Image as ImageIcon,
   Settings,
-  Megaphone,
   Store,
   Mail,
   CreditCard,
@@ -34,8 +33,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -251,7 +249,7 @@ const data = {
           url: "/admin/expenses-incomes",
         },
         {
-          title: "Add Expense-Income",
+          title: "Add New Entry",
           tKey: "sidebar.add_expense_income",
           url: "/admin/expenses-incomes?action=new",
         },
