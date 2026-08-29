@@ -33,10 +33,7 @@ import {
   ArrowUpCircle,
   DollarSign,
   Wallet,
-  Landmark,
-  Edit2,
-  Trash2,
-  MoreHorizontal
+  Landmark
 } from 'lucide-react';
 import { AdminLedgerSkeleton } from '@/components/admin/AdminSkeletons';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -76,23 +73,6 @@ function AccountsLedgerContent() {
   const [newOpeningBalance, setNewOpeningBalance] = useState<number>(0);
   const [updatingOpening, setUpdatingOpening] = useState(false);
 
-  // Manual Transaction Dialog state
-  const [isTxOpen, setIsTxOpen] = useState(false);
-  
-  const initialTab = (searchParams.get('tab') as 'journal' | 'transfer') || 'journal';
-  const [activeTab, setActiveTab] = useState<'journal' | 'transfer'>(initialTab);
-
-  const [accountCode, setAccountCode] = useState<'CASH' | 'BANK'>('CASH');
-  const [fromAccountCode, setFromAccountCode] = useState<'CASH' | 'BANK'>('CASH');
-  const [toAccountCode, setToAccountCode] = useState<'CASH' | 'BANK'>('BANK');
-  const [journalType, setJournalType] = useState<'in' | 'out'>('out');
-  const [journalAmount, setJournalAmount] = useState<string>('');
-  const [transferAmount, setTransferAmount] = useState<string>('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [creatingTx, setCreatingTx] = useState(false);
-  const [editingTx, setEditingTx] = useState<any>(null);
-  const titleRef = useRef<HTMLInputElement>(null);
   const isMounted = useRef(false);
 
   // Sync state to URL search params
@@ -103,13 +83,8 @@ function AccountsLedgerContent() {
     } else {
       params.delete('page');
     }
-    if (activeTab !== 'journal') {
-      params.set('tab', activeTab);
-    } else {
-      params.delete('tab');
-    }
     router.push(`/admin/ledger?${params.toString()}`);
-  }, [currentPage, activeTab]);
+  }, [currentPage]);
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -204,155 +179,11 @@ function AccountsLedgerContent() {
     }
   };
 
-  const handleCreateTransaction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!description.trim()) {
-      toast.error('Title is required');
-      return;
-    }
 
-    let finalEntryType: 'deposit' | 'withdrawal' | 'transfer' = 'deposit';
-    let finalAmount = 0;
 
-    if (activeTab === 'journal') {
-      const amtVal = parseFloat(journalAmount) || 0;
-      if (amtVal <= 0) {
-        toast.error('Please enter a positive amount.');
-        return;
-      }
 
-      if (journalType === 'in') {
-        finalEntryType = 'deposit';
-        finalAmount = amtVal;
-      } else {
-        finalEntryType = 'withdrawal';
-        finalAmount = amtVal;
-      }
-    } else {
-      const transVal = parseFloat(transferAmount) || 0;
-      if (transVal <= 0) {
-        toast.error('Please enter a positive transfer amount.');
-        return;
-      }
-      finalEntryType = 'transfer';
-      finalAmount = transVal;
-    }
 
-    try {
-      setCreatingTx(true);
-      const payload = {
-        entryType: finalEntryType,
-        amount: finalAmount,
-        description,
-        date,
-        accountCode: finalEntryType !== 'transfer' ? accountCode : undefined,
-        fromAccountCode: finalEntryType === 'transfer' ? fromAccountCode : undefined,
-        toAccountCode: finalEntryType === 'transfer' ? toAccountCode : undefined,
-      };
 
-      const url = editingTx ? `/api/admin/ledger/transactions/${editingTx._id}` : '/api/admin/ledger/transactions';
-      const method = editingTx ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || 'Transaction saving failed');
-      }
-
-      toast.success(editingTx ? 'Ledger entry updated successfully!' : 'Ledger entry recorded successfully!');
-      
-      if (editingTx) {
-        setIsTxOpen(false);
-        setEditingTx(null);
-        resetTxForm();
-      } else {
-        setJournalAmount('');
-        setTransferAmount('');
-        setDescription('');
-        setTimeout(() => {
-          titleRef.current?.focus();
-        }, 50);
-      }
-      
-      fetchAccounts();
-      fetchTransactions();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to save transaction');
-    } finally {
-      setCreatingTx(false);
-    }
-  };
-
-  const handleEditClick = (tx: any) => {
-    setEditingTx(tx);
-    const tab = tx.reference === 'manual-transfer' ? 'transfer' : 'journal';
-    setActiveTab(tab);
-    
-    setAccountCode(tx.account?.code || 'CASH');
-    setJournalType(tx.type === 'debit' ? 'in' : 'out');
-    
-    const cleanDesc = tx.description.replace(/^(Transfer to |Transfer from |Manual Deposit: |Manual Withdrawal: |Transfer to CASH: |Transfer to BANK: |Transfer from CASH: |Transfer from BANK: )/g, '');
-    setDescription(cleanDesc);
-    setDate(format(new Date(tx.date), 'yyyy-MM-dd'));
-
-    if (tab === 'journal') {
-      setJournalAmount(tx.amount.toString());
-    } else {
-      setTransferAmount(tx.amount.toString());
-      if (tx.type === 'debit') {
-        setToAccountCode(tx.account?.code || 'BANK');
-        setFromAccountCode(tx.account?.code === 'CASH' ? 'BANK' : 'CASH');
-      } else {
-        setFromAccountCode(tx.account?.code || 'CASH');
-        setToAccountCode(tx.account?.code === 'CASH' ? 'BANK' : 'CASH');
-      }
-    }
-    setIsTxOpen(true);
-  };
-
-  const handleDeleteTx = async (id: string) => {
-    const result = await Swal.fire({
-      title: 'Delete Ledger Entry?',
-      text: 'Are you sure you want to delete this manual transaction? This will update the running balances of the ledger.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      confirmButtonText: 'Yes, delete it!'
-    });
-
-    if (!result.isConfirmed) return;
-    try {
-      const res = await fetch(`/api/admin/ledger/transactions/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Transaction deleted successfully');
-        fetchAccounts();
-        fetchTransactions();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.message || 'Failed to delete transaction');
-      }
-    } catch (error) {
-      toast.error('Failed to delete transaction');
-    }
-  };
-
-  const resetTxForm = () => {
-    setActiveTab('journal');
-    setAccountCode('CASH');
-    setFromAccountCode('CASH');
-    setToAccountCode('BANK');
-    setJournalType('out');
-    setJournalAmount('');
-    setTransferAmount('');
-    setDescription('');
-    setDate(format(new Date(), 'yyyy-MM-dd'));
-    setEditingTx(null);
-  };
 
   const filteredTransactions = transactions.filter((tx) => {
     const term = journalSearchTerm.toLowerCase();
@@ -394,9 +225,6 @@ function AccountsLedgerContent() {
             {t("ledger.subtitle")}
           </p>
         </div>
-        <Button onClick={() => setIsTxOpen(true)} className="w-full md:w-auto bg-primary text-primary-foreground">
-          <Plus className="mr-2 h-4 w-4" /> {t("ledger.new_journal_entry")}
-        </Button>
       </div>
 
       {/* Account Balance Card (TallyPay Inspired) */}
@@ -550,7 +378,6 @@ function AccountsLedgerContent() {
                       <TableHead>{t("ledger.type")}</TableHead>
                       <TableHead className="text-right">{t("ledger.amount")}</TableHead>
                       <TableHead className="text-right">{t("ledger.running_balance")}</TableHead>
-                      <TableHead className="text-right">{t("ledger.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -580,32 +407,7 @@ function AccountsLedgerContent() {
                         </TableCell>
                         <TableCell className="text-right font-medium">৳{Math.round(tx.amount)}</TableCell>
                         <TableCell className="text-right font-semibold">৳{Math.round(tx.balanceAfter)}</TableCell>
-                        <TableCell className="text-right">
-                          {tx.reference && ['manual-deposit', 'manual-withdrawal', 'manual-transfer'].includes(tx.reference) ? (
-                            <div className="flex items-center justify-end gap-1.5">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleEditClick(tx)}>
-                                    <Edit2 className="mr-2 h-4 w-4 text-indigo-600" /> {t("ledger.edit")}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => handleDeleteTx(tx._id)}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" /> {t("ledger.delete")}
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
+
                       </TableRow>
                     ))}
                   </TableBody>
@@ -660,17 +462,7 @@ function AccountsLedgerContent() {
                         </div>
                       </div>
 
-                      {/* Manual entries quick actions menu on mobile */}
-                      {tx.reference && ['manual-deposit', 'manual-withdrawal', 'manual-transfer'].includes(tx.reference) && (
-                        <div className="flex justify-end gap-2 pt-2 border-t border-dashed">
-                          <Button variant="outline" size="xs" onClick={() => handleEditClick(tx)} className="h-8 px-3 text-xs font-bold text-indigo-600">
-                            <Edit2 className="h-3.5 w-3.5 mr-1" /> {t("ledger.edit")}
-                          </Button>
-                          <Button variant="outline" size="xs" onClick={() => handleDeleteTx(tx._id)} className="h-8 px-3 text-xs font-bold text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("ledger.delete")}
-                          </Button>
-                        </div>
-                      )}
+
                     </div>
                   );
                 })}
@@ -722,219 +514,7 @@ function AccountsLedgerContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Manual Entry Transaction Dialog */}
-      <Dialog open={isTxOpen} onOpenChange={(open) => { setIsTxOpen(open); if(!open) resetTxForm(); }}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editingTx ? t("ledger.edit_journal_entry") : t("ledger.new_journal_entry_title")}</DialogTitle>
-          </DialogHeader>
 
-          {/* Custom Tabs */}
-          {!editingTx && (
-            <div className="flex border-b border-muted">
-              <button
-                type="button"
-                className={`flex-1 py-2 text-sm font-semibold border-b-2 transition-all ${
-                  activeTab === 'journal'
-                    ? 'border-primary text-primary font-bold animate-pulse-subtle'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => setActiveTab('journal')}
-              >
-                {t("ledger.cash_in_out")}
-              </button>
-              <button
-                type="button"
-                className={`flex-1 py-2 text-sm font-semibold border-b-2 transition-all ${
-                  activeTab === 'transfer'
-                    ? 'border-primary text-primary font-bold animate-pulse-subtle'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => setActiveTab('transfer')}
-              >
-                {t("ledger.account_transfer")}
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleCreateTransaction} className="space-y-4 pt-2">
-            {activeTab === 'journal' ? (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="txDate">{t("ledger.transaction_date")}</Label>
-                    <Input
-                      id="txDate"
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="accCode">{t("ledger.target_account")}</Label>
-                    <Select
-                      value={accountCode}
-                      onValueChange={(val: any) => setAccountCode(val)}
-                    >
-                      <SelectTrigger id="accCode">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="CASH">{t("ledger.cash_account")}</SelectItem>
-                        <SelectItem value="BANK">{t("ledger.bank_account")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>{t("ledger.type_label")}</Label>
-                  <div className="flex items-center gap-6 pt-1">
-                    <label className="flex items-center space-x-2 cursor-pointer select-none">
-                      <input
-                        type="radio"
-                        name="journalType"
-                        value="in"
-                        checked={journalType === 'in'}
-                        onChange={() => setJournalType('in')}
-                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
-                      />
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
-                        {t("ledger.debit_cash_in")}
-                      </span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer select-none">
-                      <input
-                        type="radio"
-                        name="journalType"
-                        value="out"
-                        checked={journalType === 'out'}
-                        onChange={() => setJournalType('out')}
-                        className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300"
-                      />
-                      <span className="text-rose-600 dark:text-rose-400 font-semibold text-sm">
-                        {t("ledger.credit_cash_out")}
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="txDate">{t("ledger.transaction_date")}</Label>
-                  <Input
-                    id="txDate"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fromAcc">{t("ledger.from_account")}</Label>
-                    <Select
-                      value={fromAccountCode}
-                      onValueChange={(val: any) => {
-                        setFromAccountCode(val);
-                        if (val === toAccountCode) {
-                          setToAccountCode(val === 'CASH' ? 'BANK' : 'CASH');
-                        }
-                      }}
-                    >
-                      <SelectTrigger id="fromAcc">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="CASH">{t("ledger.cash_account")}</SelectItem>
-                        <SelectItem value="BANK">{t("ledger.bank_account")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="toAcc">{t("ledger.to_account")}</Label>
-                    <Select
-                      value={toAccountCode}
-                      onValueChange={(val: any) => {
-                        setToAccountCode(val);
-                        if (val === fromAccountCode) {
-                          setFromAccountCode(val === 'CASH' ? 'BANK' : 'CASH');
-                        }
-                      }}
-                    >
-                      <SelectTrigger id="toAcc">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="CASH">{t("ledger.cash_account")}</SelectItem>
-                        <SelectItem value="BANK">{t("ledger.bank_account")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="txDesc">{t("ledger.title_description")}</Label>
-              <Input
-                id="txDesc"
-                ref={titleRef}
-                autoFocus
-                placeholder={
-                  activeTab === 'journal'
-                    ? "e.g. Sales Income or Facebook Ads Cost"
-                    : "e.g. Account Transfer"
-                }
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-            </div>
-
-            {activeTab === 'journal' ? (
-              <div className="space-y-2">
-                <Label htmlFor="journalAmt">{t("ledger.amount_label")}</Label>
-                <Input
-                  id="journalAmt"
-                  type="number"
-                  min="1"
-                  placeholder="Enter amount"
-                  value={journalAmount}
-                  onChange={(e) => setJournalAmount(e.target.value)}
-                  required
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="transferAmt">{t("ledger.transfer_amount")}</Label>
-                <Input
-                  id="transferAmt"
-                  type="number"
-                  min="1"
-                  placeholder="0.00"
-                  value={transferAmount}
-                  onChange={(e) => setTransferAmount(e.target.value)}
-                  required
-                />
-              </div>
-            )}
-
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsTxOpen(false)}>
-                {t("ledger.cancel")}
-              </Button>
-              <Button type="submit" disabled={creatingTx} className="bg-primary text-primary-foreground">
-                {creatingTx && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {t("ledger.log_transaction")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

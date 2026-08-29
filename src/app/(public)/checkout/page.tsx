@@ -47,9 +47,10 @@ const checkoutSchema = z.object({
   deliveryArea: z.enum(['inside', 'outside'], {
     message: 'ডেলিভারি এলাকা নির্বাচন করুন',
   }),
-  paymentMethod: z.enum(['COD', 'Online', 'Manual'], {
+  paymentMethod: z.enum(['COD', 'Online', 'Manual', 'Credit'], {
     message: 'Select a payment method'
   }),
+  expectedPaymentDate: z.string().optional(),
 });
 
 type CheckoutValues = z.infer<typeof checkoutSchema>;
@@ -394,6 +395,8 @@ function CheckoutContent() {
           country: 'Bangladesh'
         },
         paymentMethod: values.paymentMethod,
+        isCreditOrder: values.paymentMethod === 'Credit',
+        expectedPaymentDate: values.paymentMethod === 'Credit' ? values.expectedPaymentDate : undefined,
         deliveryCharge: deliveryCharge,
         useWallet: useWallet,
         couponCode: appliedCoupon || undefined,
@@ -972,12 +975,41 @@ function CheckoutContent() {
                                   </FormLabel>
                                 </FormItem>
                               )}
+                            {profile?.role === 'wholesaler' && (
+                              <FormItem className="flex items-center space-x-3 space-y-0 border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                                <FormControl>
+                                  <RadioGroupItem value="Credit" />
+                                </FormControl>
+                                <FormLabel className="font-bold flex-1 cursor-pointer">
+                                  Credit Order (বকেয়া অর্ডার)
+                                  <p className="text-xs font-normal text-muted-foreground mt-1">Place order on credit. Payment can be settled later.</p>
+                                </FormLabel>
+                              </FormItem>
+                            )}
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {form.watch('paymentMethod') === 'Credit' && (
+                    <div className="mt-4 p-4 border border-dashed rounded-xl space-y-2 bg-muted/30 animate-in fade-in duration-300">
+                      <Label htmlFor="expectedPaymentDate" className="font-bold text-xs text-foreground">
+                        Expected Payment Date (সম্ভাব্য পেমেন্টের তারিখ)
+                      </Label>
+                      <Input
+                        type="date"
+                        id="expectedPaymentDate"
+                        min={new Date().toISOString().split('T')[0]}
+                        {...form.register('expectedPaymentDate')}
+                        className="h-11 text-sm focus-visible:ring-primary/20 bg-background"
+                      />
+                      <p className="text-[10px] text-muted-foreground">
+                        কবে নাগাদ এই অর্ডারের পেমেন্ট পরিশোধ করবেন অনুগ্রহ করে সেই তারিখটি সিলেক্ট করুন।
+                      </p>
+                    </div>
+                  )}
 
                   {/* Manual Payment Option Selection (Cards) */}
                   {form.watch('paymentMethod') === 'Manual' && settings?.manualPaymentConfig && (

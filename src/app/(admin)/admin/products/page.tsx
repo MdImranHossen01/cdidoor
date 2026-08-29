@@ -516,23 +516,25 @@ function ProductsContent() {
           />
         </div>
         {/* Showroom Filter Dropdown */}
-        <div className="flex items-center justify-between md:justify-start gap-1.5 bg-muted/50 p-1 rounded-lg border h-9 w-full md:w-auto">
-          <div className="flex items-center gap-1 px-2 shrink-0">
-            <Store className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{t("products.stock_view")}</span>
+        {showroomsList.length > 0 && (
+          <div className="flex items-center justify-between md:justify-start gap-1.5 bg-muted/50 p-1 rounded-lg border h-9 w-full md:w-auto">
+            <div className="flex items-center gap-1 px-2 shrink-0">
+              <Store className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{t("products.stock_view")}</span>
+            </div>
+            <select
+              value={selectedShowroom}
+              onChange={(e) => setSelectedShowroom(e.target.value)}
+              className="h-7 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium flex-1 md:flex-none"
+            >
+              <option value="all">{t("products.total_all")}</option>
+              <option value="central">{t("products.central_only")}</option>
+              {showroomsList.map(s => (
+                <option key={s._id} value={s._id}>{s.name}</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={selectedShowroom}
-            onChange={(e) => setSelectedShowroom(e.target.value)}
-            className="h-7 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium flex-1 md:flex-none"
-          >
-            <option value="all">{t("products.total_all")}</option>
-            <option value="central">{t("products.central_only")}</option>
-            {showroomsList.map(s => (
-              <option key={s._id} value={s._id}>{s.name}</option>
-            ))}
-          </select>
-        </div>
+        )}
       </div>
 
       <div className="rounded-md border-none md:border bg-transparent md:bg-background overflow-hidden relative">

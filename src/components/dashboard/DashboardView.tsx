@@ -454,38 +454,42 @@ const [dateRange, setDateRange] = useState({
             <Button variant="outline" size="sm" onClick={fetchStats} className="h-9 px-3">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className={`h-9 px-3 flex-1 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
-            >
-              <Filter className="mr-1.5 h-4 w-4" />
-              <span className="text-xs font-bold">Filter</span>
-            </Button>
+            {(activeTab !== 'cards' || showroomsList.length > 0) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                className={`h-9 px-3 flex-1 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
+              >
+                <Filter className="mr-1.5 h-4 w-4" />
+                <span className="text-xs font-bold">Filter</span>
+              </Button>
+            )}
           </div>
         </div>
 
         {/* Desktop Filter Row (below title) */}
         <div className="hidden md:flex flex-wrap items-center gap-2">
           {/* Showroom Dropdown */}
-          <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-lg border">
-            <div className="flex items-center gap-1 px-2 shrink-0">
-              <Store className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Showroom</span>
+          {showroomsList.length > 0 && (
+            <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-lg border">
+              <div className="flex items-center gap-1 px-2 shrink-0">
+                <Store className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Showroom</span>
+              </div>
+              <select
+                value={selectedShowroom}
+                onChange={(e) => setSelectedShowroom(e.target.value)}
+                className="h-8 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium"
+              >
+                <option value="all">All Showrooms</option>
+                <option value="online">🌐 Online / Central</option>
+                {showroomsList.map(s => (
+                  <option key={s._id} value={s._id}>{s.name}</option>
+                ))}
+              </select>
             </div>
-            <select
-              value={selectedShowroom}
-              onChange={(e) => setSelectedShowroom(e.target.value)}
-              className="h-8 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium"
-            >
-              <option value="all">All Showrooms</option>
-              <option value="online">🌐 Online / Central</option>
-              {showroomsList.map(s => (
-                <option key={s._id} value={s._id}>{s.name}</option>
-              ))}
-            </select>
-          </div>
+          )}
 
           {/* Date Range */}
           {activeTab !== 'cards' && (
@@ -539,23 +543,25 @@ const [dateRange, setDateRange] = useState({
         <div className="overflow-hidden w-full">
           <div className="bg-muted/30 p-3 rounded-lg border flex flex-col gap-3">
             {/* Showroom filter */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground border-b pb-1">
-                <Store className="h-3 w-3" />
-                <span>SHOWROOM FILTER</span>
+            {showroomsList.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground border-b pb-1">
+                  <Store className="h-3 w-3" />
+                  <span>SHOWROOM FILTER</span>
+                </div>
+                <select
+                  value={selectedShowroom}
+                  onChange={(e) => setSelectedShowroom(e.target.value)}
+                  className="h-9 w-full bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-medium"
+                >
+                  <option value="all">All Showrooms</option>
+                  <option value="online">🌐 Online / Central</option>
+                  {showroomsList.map(s => (
+                    <option key={s._id} value={s._id}>{s.name}</option>
+                  ))}
+                </select>
               </div>
-              <select
-                value={selectedShowroom}
-                onChange={(e) => setSelectedShowroom(e.target.value)}
-                className="h-9 w-full bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-medium"
-              >
-                <option value="all">All Showrooms</option>
-                <option value="online">🌐 Online / Central</option>
-                {showroomsList.map(s => (
-                  <option key={s._id} value={s._id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
+            )}
             {activeTab !== 'cards' && (
               <>
                 <div className="flex items-center justify-between text-xs font-bold text-muted-foreground border-b pb-1">
@@ -1021,6 +1027,36 @@ const [dateRange, setDateRange] = useState({
                   {stats?.expiringProductsCount || 0}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.expiring_products")}</p>
+              </CardContent>
+            </div>
+          </Card>
+        </Link>
+
+        {/* Pending Leaves Card */}
+        <Link href="/admin/employees/leaves" className="block transition-transform hover:scale-[1.02] active:scale-95">
+          <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
+            {/* Mobile Layout */}
+            <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-2xl font-black text-primary leading-none">
+                  {stats?.pendingLeavesCount || 0}
+                </span>
+              </div>
+              <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
+                Leave Requests
+              </span>
+            </div>
+            {/* Desktop Layout */}
+            <div className="hidden sm:block">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
+                <CardTitle className="text-sm font-semibold leading-tight">Leave Requests</CardTitle>
+                <CalendarClock className="h-4 w-4 text-primary shrink-0" />
+              </CardHeader>
+              <CardContent className="p-6 pt-0">
+                <div className="text-lg md:text-2xl font-extrabold text-primary font-body">
+                  {stats?.pendingLeavesCount || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 truncate">Pending leave requests</p>
               </CardContent>
             </div>
           </Card>

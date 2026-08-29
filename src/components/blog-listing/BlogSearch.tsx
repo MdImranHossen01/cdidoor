@@ -13,17 +13,25 @@ export function BlogSearch({ defaultValue = '' }: { defaultValue?: string }) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (debouncedValue) {
-      params.set('q', debouncedValue);
-    } else {
-      params.delete('q');
-    }
-    params.set('page', '1'); // Reset to first page on search
+    const currentQ = searchParams.get('q') || '';
+    const currentPage = searchParams.get('page') || '1';
 
-    startTransition(() => {
-      router.push(`/blog?${params.toString()}`);
-    });
+    const hasSearchChanged = debouncedValue !== currentQ;
+    const needsPageReset = debouncedValue && currentPage !== '1';
+
+    if (hasSearchChanged || needsPageReset) {
+      const params = new URLSearchParams(searchParams.toString());
+      if (debouncedValue) {
+        params.set('q', debouncedValue);
+      } else {
+        params.delete('q');
+      }
+      params.set('page', '1'); // Reset to first page on search
+
+      startTransition(() => {
+        router.push(`/blog?${params.toString()}`);
+      });
+    }
   }, [debouncedValue, router, searchParams]);
 
   return (

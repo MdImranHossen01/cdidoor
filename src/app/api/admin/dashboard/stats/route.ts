@@ -7,6 +7,7 @@ import User from '@/models/User';
 import Product from '@/models/Product';
 import Expense from '@/models/Expense';
 import Showroom from '@/models/Showroom';
+import Leave from '@/models/Leave';
 import mongoose from 'mongoose';
 
 export async function GET(req: NextRequest) {
@@ -160,6 +161,10 @@ export async function GET(req: NextRequest) {
 
     // 6. Pending Orders (Total, not date filtered)
     const pendingOrdersCount = await Order.countDocuments({ status: 'Order Placed', deletedAt: null, ...orderShowroomFilter });
+
+    // Pending leaves
+    const pendingLeavesCount = await Leave.countDocuments({ status: 'Pending' });
+
 
     // 7. Recent Orders
     const recentOrders = await Order.find({ deletedAt: null })
@@ -597,6 +602,7 @@ export async function GET(req: NextRequest) {
         pendingExpenseTotal,
         totalSuppliersCount,
         expiringProductsCount,
+        pendingLeavesCount,
         isShowroomFiltered: !!isShowroomFiltered
       },
       recentOrders,

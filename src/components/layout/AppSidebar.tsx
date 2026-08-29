@@ -260,12 +260,7 @@ const data = {
           tKey: "sidebar.add_category",
           url: "/admin/expenses-incomes/categories",
         },
-        {
-          title: "New Journal Entry",
-          tKey: "ledger.new_journal_entry",
-          url: "/admin/ledger?action=new-journal",
-          superOnly: true
-        },
+
         {
           title: "Accounts Ledger",
           tKey: "sidebar.accounts_ledger",
