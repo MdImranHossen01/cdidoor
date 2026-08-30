@@ -9,9 +9,9 @@ import {
     User as UserIcon, 
     Settings, 
     LogOut,
-    Loader2,
     Heart
 } from 'lucide-react';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -37,11 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [status, session, router]);
 
   if (status === 'loading') {
-    return (
-      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminTableSkeleton />;
   }
 
   // Prevent rendering protected layout content if pushed back to login

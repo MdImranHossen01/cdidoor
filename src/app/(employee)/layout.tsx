@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { AdminDashboardSkeleton } from '@/components/admin/AdminSkeletons';
 import { EmployeeSidebar } from '@/components/layout/EmployeeSidebar';
 import EmployeeTopbar from '@/components/layout/EmployeeTopbar';
 import { ShowroomSidebar } from '@/components/layout/ShowroomSidebar';
@@ -33,14 +33,7 @@ export default function EmployeeLayout({ children }: { children: React.ReactNode
   }, [status, session, router]);
 
   if (status === 'loading') {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-xs text-muted-foreground font-bold">Loading...</p>
-        </div>
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   if (status === 'unauthenticated') return null;
