@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { divisions, bdDivisions, bdLocations } from '@/lib/bd-locations';
 
 interface BillItemInput {
   productId?: string;
@@ -34,6 +35,19 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [clientName, setClientName] = useState(initialData?.clientName || '');
   const [clientPhone, setClientPhone] = useState(initialData?.clientPhone || '');
   const [clientAddress, setClientAddress] = useState(initialData?.clientAddress || '');
+  const [clientEmail, setClientEmail] = useState(initialData?.clientEmail || '');
+  const [clientDivision, setClientDivision] = useState(initialData?.clientDivision || '');
+  const [clientDistrict, setClientDistrict] = useState(initialData?.clientDistrict || '');
+  const [clientThana, setClientThana] = useState(initialData?.clientThana || '');
+  const [clientArea, setClientArea] = useState(initialData?.clientArea || '');
+  const [areas, setAreas] = useState<any[]>([]);
+  const [showMoreFields, setShowMoreFields] = useState(() => {
+    if (initialData?.clientEmail || initialData?.clientDivision || initialData?.clientDistrict || initialData?.clientThana || initialData?.clientArea || initialData?.clientAddress) {
+      return true;
+    }
+    return false;
+  });
+
   const [billItems, setBillItems] = useState<BillItemInput[]>(
     initialData?.items || [{ name: '', quantity: 1, price: 0, batchNumber: 'auto' }]
   );
@@ -57,7 +71,16 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [settings, setSettings] = useState<any>(null);
 
   // Customer auto-suggestion state
-  const [pastCustomers, setPastCustomers] = useState<{clientName: string; clientPhone: string; clientAddress: string}[]>([]);
+  const [pastCustomers, setPastCustomers] = useState<{
+    clientName: string;
+    clientPhone: string;
+    clientAddress: string;
+    clientEmail: string;
+    clientDivision: string;
+    clientDistrict: string;
+    clientThana: string;
+    clientArea: string;
+  }[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<typeof pastCustomers>([]);
   const [phoneSuggestions, setPhoneSuggestions] = useState<typeof pastCustomers>([]);
   const [showNameDropdown, setShowNameDropdown] = useState(false);
@@ -77,10 +100,23 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
   };
 
+  const fetchAreas = async () => {
+    try {
+      const res = await fetch('/api/admin/areas');
+      if (res.ok) {
+        const data = await res.json();
+        setAreas(data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching areas:', err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchPastCustomers();
     fetchSettings();
+    fetchAreas();
   }, []);
 
   // Close dropdowns on outside click
@@ -112,12 +148,21 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
         const data = await res.json();
         const bills: any[] = data.bills || [];
         const seen = new Set<string>();
-        const unique: {clientName: string; clientPhone: string; clientAddress: string}[] = [];
+        const unique: any[] = [];
         for (const b of bills) {
           const key = `${b.clientName}__${b.clientPhone}`;
           if (b.clientName && b.clientPhone && !seen.has(key)) {
             seen.add(key);
-            unique.push({ clientName: b.clientName, clientPhone: b.clientPhone, clientAddress: b.clientAddress || '' });
+            unique.push({
+              clientName: b.clientName,
+              clientPhone: b.clientPhone,
+              clientAddress: b.clientAddress || '',
+              clientEmail: b.clientEmail || '',
+              clientDivision: b.clientDivision || '',
+              clientDistrict: b.clientDistrict || '',
+              clientThana: b.clientThana || '',
+              clientArea: b.clientArea || '',
+            });
           }
         }
         setPastCustomers(unique);
@@ -127,32 +172,56 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
   };
 
-  const handleCustomerSelect = (customer: {clientName: string; clientPhone: string; clientAddress: string}) => {
+  const handleCustomerSelect = (customer: any) => {
     setClientName(customer.clientName);
     setClientPhone(customer.clientPhone);
-    setClientAddress(customer.clientAddress);
+    setClientAddress(customer.clientAddress || '');
+    setClientEmail(customer.clientEmail || '');
+    setClientDivision(customer.clientDivision || '');
+    setClientDistrict(customer.clientDistrict || '');
+    setClientThana(customer.clientThana || '');
+    setClientArea(customer.clientArea || '');
     setShowNameDropdown(false);
     setShowPhoneDropdown(false);
+    if (customer.clientEmail || customer.clientDivision || customer.clientDistrict || customer.clientThana || customer.clientArea || customer.clientAddress) {
+      setShowMoreFields(true);
+    }
   };
 
-  const handleNameChange = (val: string) => {
+  const handleNameChange = async (val: string) => {
     setClientName(val);
-    if (val.trim().length > 0) {
-      const filtered = pastCustomers.filter(c => c.clientName.toLowerCase().includes(val.toLowerCase()));
-      setNameSuggestions(filtered);
-      setShowNameDropdown(filtered.length > 0);
+    if (val.trim().length >= 2) {
+      try {
+        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.customers || [];
+          setNameSuggestions(list);
+          setShowNameDropdown(list.length > 0);
+        }
+      } catch (err) {
+        console.error('Error fetching suggestions:', err);
+      }
     } else {
       setShowNameDropdown(false);
     }
   };
 
-  const handlePhoneChange = (val: string) => {
+  const handlePhoneChange = async (val: string) => {
     setClientPhone(val);
     if (phoneError) validatePhone(val);
-    if (val.trim().length > 0) {
-      const filtered = pastCustomers.filter(c => c.clientPhone.includes(val));
-      setPhoneSuggestions(filtered);
-      setShowPhoneDropdown(filtered.length > 0);
+    if (val.trim().length >= 2) {
+      try {
+        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.customers || [];
+          setPhoneSuggestions(list);
+          setShowPhoneDropdown(list.length > 0);
+        }
+      } catch (err) {
+        console.error('Error fetching suggestions:', err);
+      }
     } else {
       setShowPhoneDropdown(false);
     }
@@ -297,6 +366,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
         clientName,
         clientPhone,
         clientAddress,
+        clientEmail,
+        clientDivision,
+        clientDistrict,
+        clientThana,
+        clientArea,
         items: validItems,
         subtotal,
         deliveryCharge,
@@ -373,75 +447,203 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     <div className="container px-4">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Client Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Customer Name with auto-suggestion */}
-          <div className="space-y-2" ref={nameRef}>
-            <Label htmlFor="clientName" className="text-sm font-semibold">{t("bills.client_name")}</Label>
-            <div className="relative">
-              <Input
-                id="clientName"
-                value={clientName}
-                onChange={(e) => handleNameChange(e.target.value)}
-                onFocus={() => { if (clientName.trim() && nameSuggestions.length > 0) setShowNameDropdown(true); }}
-                placeholder="e.g. Rahim Khan"
-                className="h-11 text-base"
-                autoComplete="off"
-                required
-              />
-              {showNameDropdown && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
-                  {nameSuggestions.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors"
-                      onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
-                    >
-                      <span className="font-medium text-sm">{c.clientName}</span>
-                      <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
+        <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Customer Name with auto-suggestion */}
+            <div className="space-y-2" ref={nameRef}>
+              <Label htmlFor="clientName" className="text-sm font-semibold">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
+              <div className="relative">
+                <Input
+                  id="clientName"
+                  value={clientName}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  onFocus={() => { if (clientName.trim() && nameSuggestions.length > 0) setShowNameDropdown(true); }}
+                  placeholder="e.g. Rahim Khan"
+                  className="h-11 text-base"
+                  autoComplete="off"
+                  required
+                />
+                {showNameDropdown && nameSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                    {nameSuggestions.map((c, i) => (
+                      <div
+                        key={i}
+                        className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                        onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                      >
+                        <span className="font-medium text-sm text-foreground">{c.clientName}</span>
+                        <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Customer Phone with auto-suggestion and Add More button */}
+            <div className="space-y-2" ref={phoneRef}>
+              <Label htmlFor="clientPhone" className="text-sm font-semibold">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="clientPhone"
+                    value={clientPhone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    onFocus={() => { if (clientPhone.trim() && phoneSuggestions.length > 0) setShowPhoneDropdown(true); }}
+                    onBlur={(e) => validatePhone(e.target.value)}
+                    placeholder="e.g. 01712345678"
+                    className={`h-11 text-base ${phoneError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                    autoComplete="off"
+                    required
+                  />
+                  {showPhoneDropdown && phoneSuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                      {phoneSuggestions.map((c, i) => (
+                        <div
+                          key={i}
+                          className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                          onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                        >
+                          <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
+                          <span className="text-xs text-muted-foreground">{c.clientName}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+                {!showMoreFields && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 px-4 font-bold border-dashed border-primary text-primary hover:bg-primary/5 transition-all shrink-0"
+                    onClick={() => setShowMoreFields(true)}
+                  >
+                    + Add More
+                  </Button>
+                )}
+              </div>
+              {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
             </div>
           </div>
 
-          {/* Customer Phone with auto-suggestion */}
-          <div className="space-y-2" ref={phoneRef}>
-            <Label htmlFor="clientPhone" className="text-sm font-semibold">{t("bills.client_phone")}</Label>
-            <div className="relative">
-              <Input
-                id="clientPhone"
-                value={clientPhone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                onFocus={() => { if (clientPhone.trim() && phoneSuggestions.length > 0) setShowPhoneDropdown(true); }}
-                onBlur={(e) => validatePhone(e.target.value)}
-                placeholder="e.g. 01712345678"
-                className={`h-11 text-base ${phoneError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                autoComplete="off"
-                required
-              />
-              {showPhoneDropdown && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
-                  {phoneSuggestions.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors"
-                      onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
-                    >
-                      <span className="font-medium text-sm">{c.clientPhone}</span>
-                      <span className="text-xs text-muted-foreground">{c.clientName}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
-          </div>
+          {showMoreFields && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2 border-t border-dashed border-gray-200">
+              {/* Customer Email */}
+              <div className="space-y-2">
+                <Label htmlFor="clientEmail" className="text-sm font-semibold">Email</Label>
+                <Input
+                  id="clientEmail"
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="e.g. rahim@example.com"
+                  className="h-11 text-base"
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")}</Label>
-            <Input id="clientAddress" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="e.g. Nawabpur, Dhaka" className="h-11 text-base" required />
-          </div>
+              {/* Division */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">{t("settings.division")}</Label>
+                <Select
+                  value={clientDivision}
+                  onValueChange={(val) => {
+                    setClientDivision(val || '');
+                    setClientDistrict('');
+                    setClientThana('');
+                  }}
+                >
+                  <SelectTrigger className="h-11 text-base">
+                    <SelectValue placeholder={t("settings.select_division") as string} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((div) => (
+                      <SelectItem key={div} value={div}>
+                        {div}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* District */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">{t("settings.district")}</Label>
+                <Select
+                  disabled={!clientDivision}
+                  value={clientDistrict}
+                  onValueChange={(val) => {
+                    setClientDistrict(val || '');
+                    setClientThana('');
+                  }}
+                >
+                  <SelectTrigger className="h-11 text-base">
+                    <SelectValue placeholder={t("settings.select_district") as string} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(bdDivisions[clientDivision] || []).map((dist) => (
+                      <SelectItem key={dist} value={dist}>
+                        {dist}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Thana */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
+                <Select
+                  disabled={!clientDistrict}
+                  value={clientThana}
+                  onValueChange={(val) => setClientThana(val || '')}
+                >
+                  <SelectTrigger className="h-11 text-base">
+                    <SelectValue placeholder={t("settings.select_thana") as string} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(bdLocations[clientDistrict] || []).map((th) => (
+                      <SelectItem key={th} value={th}>
+                        {th}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Area */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Area</Label>
+                <Select
+                  value={clientArea}
+                  onValueChange={(val) => setClientArea(val || '')}
+                >
+                  <SelectTrigger className="h-11 text-base">
+                    <SelectValue placeholder="Select Area" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areas
+                      .filter((a) => {
+                        if (clientDivision && a.division !== clientDivision) return false;
+                        if (clientDistrict && a.district && a.district !== clientDistrict) return false;
+                        if (clientThana && a.thana && a.thana !== clientThana) return false;
+                        return true;
+                      })
+                      .map((area) => (
+                        <SelectItem key={area._id} value={area.name}>
+                          {area.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Customer Street Address */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")}</Label>
+                <Input id="clientAddress" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="e.g. Nawabpur, Dhaka" className="h-11 text-base" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bill Items header with Product Selection Button */}

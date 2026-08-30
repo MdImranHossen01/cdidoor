@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Table,
@@ -48,6 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Pagination } from '@/components/ui/pagination';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { divisions, bdDivisions, bdLocations } from '@/lib/bd-locations';
 
 interface BillItemInput {
   name: string;
@@ -112,6 +113,14 @@ function ClientOffersContent() {
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientAddress, setClientAddress] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientDivision, setClientDivision] = useState('');
+  const [clientDistrict, setClientDistrict] = useState('');
+  const [clientThana, setClientThana] = useState('');
+  const [clientArea, setClientArea] = useState('');
+  const [areas, setAreas] = useState<any[]>([]);
+  const [showMoreFields, setShowMoreFields] = useState(false);
+
   const [billItems, setBillItems] = useState<BillItemInput[]>([
     { name: '', quantity: 1, price: 0 }
   ]);
@@ -119,6 +128,79 @@ function ClientOffersContent() {
   const [serviceFee, setServiceFee] = useState<number>(0);
   const [discountType, setDiscountType] = useState<'fixed' | 'percentage'>('fixed');
   const [discountValue, setDiscountValue] = useState<number>(0);
+
+  // Customer auto-suggestion state
+  const [nameSuggestions, setNameSuggestions] = useState<any[]>([]);
+  const [phoneSuggestions, setPhoneSuggestions] = useState<any[]>([]);
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
+  const nameRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (nameRef.current && !nameRef.current.contains(e.target as Node)) setShowNameDropdown(false);
+      if (phoneRef.current && !phoneRef.current.contains(e.target as Node)) setShowPhoneDropdown(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleCustomerSelect = (customer: any) => {
+    setClientName(customer.clientName);
+    setClientPhone(customer.clientPhone);
+    setClientAddress(customer.clientAddress || '');
+    setClientEmail(customer.clientEmail || '');
+    setClientDivision(customer.clientDivision || '');
+    setClientDistrict(customer.clientDistrict || '');
+    setClientThana(customer.clientThana || '');
+    setClientArea(customer.clientArea || '');
+    setShowNameDropdown(false);
+    setShowPhoneDropdown(false);
+    if (customer.clientEmail || customer.clientDivision || customer.clientDistrict || customer.clientThana || customer.clientArea || customer.clientAddress) {
+      setShowMoreFields(true);
+    }
+  };
+
+  const handleNameChange = async (val: string) => {
+    setClientName(val);
+    if (val.trim().length >= 2) {
+      try {
+        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.customers || [];
+          setNameSuggestions(list);
+          setShowNameDropdown(list.length > 0);
+        }
+      } catch (err) {
+        console.error('Error fetching suggestions:', err);
+      }
+    } else {
+      setShowNameDropdown(false);
+    }
+  };
+
+  const handlePhoneChange = async (val: string) => {
+    setClientPhone(val);
+    if (phoneError) validatePhone(val);
+    if (val.trim().length >= 2) {
+      try {
+        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.customers || [];
+          setPhoneSuggestions(list);
+          setShowPhoneDropdown(list.length > 0);
+        }
+      } catch (err) {
+        console.error('Error fetching suggestions:', err);
+      }
+    } else {
+      setShowPhoneDropdown(false);
+    }
+  };
 
   // Product multi-select state
   const [productSearchTerm, setProductSearchTerm] = useState('');
@@ -128,10 +210,23 @@ function ClientOffersContent() {
   // Phone validation
   const [phoneError, setPhoneError] = useState('');
 
+  const fetchAreas = async () => {
+    try {
+      const res = await fetch('/api/admin/areas');
+      if (res.ok) {
+        const data = await res.json();
+        setAreas(data || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchOffers();
     fetchProducts();
     fetchSettings();
+    fetchAreas();
   }, []);
 
   const fetchOffers = async () => {
@@ -262,8 +357,8 @@ function ClientOffersContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientName.trim() || !clientAddress.trim()) {
-      toast.error('Client details are required');
+    if (!clientName.trim() || !clientPhone.trim()) {
+      toast.error('Client details (name and phone) are required');
       return;
     }
     if (!validatePhone(clientPhone)) {
@@ -283,6 +378,11 @@ function ClientOffersContent() {
         clientName,
         clientPhone,
         clientAddress,
+        clientEmail,
+        clientDivision,
+        clientDistrict,
+        clientThana,
+        clientArea,
         items: validItems,
         subtotal,
         deliveryCharge,
@@ -331,6 +431,12 @@ function ClientOffersContent() {
     setClientPhone('');
     setPhoneError('');
     setClientAddress('');
+    setClientEmail('');
+    setClientDivision('');
+    setClientDistrict('');
+    setClientThana('');
+    setClientArea('');
+    setShowMoreFields(false);
     setBillItems([{ name: '', quantity: 1, price: 0 }]);
     setDeliveryCharge(0);
     setServiceFee(0);
@@ -358,6 +464,11 @@ function ClientOffersContent() {
           clientName: offer.clientName,
           clientPhone: offer.clientPhone,
           clientAddress: offer.clientAddress,
+          clientEmail: offer.clientEmail,
+          clientDivision: offer.clientDivision,
+          clientDistrict: offer.clientDistrict,
+          clientThana: offer.clientThana,
+          clientArea: offer.clientArea,
           items: offer.items,
           subtotal: offer.subtotal,
           deliveryCharge: offer.deliveryCharge,
@@ -610,12 +721,19 @@ function ClientOffersContent() {
                                   setEditingOffer(offer);
                                   setClientName(offer.clientName);
                                   setClientPhone(offer.clientPhone);
-                                  setClientAddress(offer.clientAddress);
+                                  setClientAddress(offer.clientAddress || '');
+                                  setClientEmail(offer.clientEmail || '');
+                                  setClientDivision(offer.clientDivision || '');
+                                  setClientDistrict(offer.clientDistrict || '');
+                                  setClientThana(offer.clientThana || '');
+                                  setClientArea(offer.clientArea || '');
                                   setBillItems(offer.items);
                                   setDeliveryCharge(offer.deliveryCharge);
                                   setServiceFee(offer.serviceFee || 0);
                                   setDiscountType(offer.discountType || 'fixed');
                                   setDiscountValue(offer.discountValue || 0);
+                                  const hasMore = !!(offer.clientEmail || offer.clientDivision || offer.clientDistrict || offer.clientThana || offer.clientArea || offer.clientAddress);
+                                  setShowMoreFields(hasMore);
                                   setIsCreateOpen(true);
                                 }}
                               >
@@ -692,12 +810,19 @@ function ClientOffersContent() {
                               setEditingOffer(offer);
                               setClientName(offer.clientName);
                               setClientPhone(offer.clientPhone);
-                              setClientAddress(offer.clientAddress);
+                              setClientAddress(offer.clientAddress || '');
+                              setClientEmail(offer.clientEmail || '');
+                              setClientDivision(offer.clientDivision || '');
+                              setClientDistrict(offer.clientDistrict || '');
+                              setClientThana(offer.clientThana || '');
+                              setClientArea(offer.clientArea || '');
                               setBillItems(offer.items);
                               setDeliveryCharge(offer.deliveryCharge);
                               setServiceFee(offer.serviceFee || 0);
                               setDiscountType(offer.discountType || 'fixed');
                               setDiscountValue(offer.discountValue || 0);
+                              const hasMore = !!(offer.clientEmail || offer.clientDivision || offer.clientDistrict || offer.clientThana || offer.clientArea || offer.clientAddress);
+                              setShowMoreFields(hasMore);
                               setIsCreateOpen(true);
                             }}
                           >
@@ -746,41 +871,201 @@ function ClientOffersContent() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Client Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cName">{t("bills.client_name")}</Label>
-                <Input
-                  id="cName"
-                  placeholder="e.g. Rahim & Bros"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  required
-                />
+            <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 relative" ref={nameRef}>
+                  <Label htmlFor="cName">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="cName"
+                      placeholder="e.g. Rahim & Bros"
+                      value={clientName}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      onFocus={() => { if (clientName.trim() && nameSuggestions.length > 0) setShowNameDropdown(true); }}
+                      autoComplete="off"
+                      required
+                    />
+                    {showNameDropdown && nameSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                        {nameSuggestions.map((c, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                            onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                          >
+                            <span className="font-medium text-sm text-foreground">{c.clientName}</span>
+                            <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2 relative" ref={phoneRef}>
+                  <Label htmlFor="cPhone">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        id="cPhone"
+                        placeholder="e.g. 017XXXXXXXX"
+                        value={clientPhone}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        onFocus={() => { if (clientPhone.trim() && phoneSuggestions.length > 0) setShowPhoneDropdown(true); }}
+                        autoComplete="off"
+                        required
+                      />
+                      {showPhoneDropdown && phoneSuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                          {phoneSuggestions.map((c, i) => (
+                            <div
+                              key={i}
+                              className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                              onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                            >
+                              <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
+                              <span className="text-xs text-muted-foreground">{c.clientName}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {!showMoreFields && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10 px-4 font-bold border-dashed border-primary text-primary hover:bg-primary/5 transition-all shrink-0"
+                        onClick={() => setShowMoreFields(true)}
+                      >
+                        + Add More
+                      </Button>
+                    )}
+                  </div>
+                  {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="cPhone">{t("bills.client_phone")}</Label>
-                <Input
-                  id="cPhone"
-                  placeholder="e.g. 017XXXXXXXX"
-                  value={clientPhone}
-                  onChange={(e) => {
-                    setClientPhone(e.target.value);
-                    if (e.target.value) validatePhone(e.target.value);
-                  }}
-                  required
-                />
-                {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
-                <Input
-                  id="cAddr"
-                  placeholder="e.g. Banani, Dhaka"
-                  value={clientAddress}
-                  onChange={(e) => setClientAddress(e.target.value)}
-                  required
-                />
-              </div>
+
+              {showMoreFields && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-dashed border-gray-200">
+                  {/* Customer Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="cEmail">Email</Label>
+                    <Input
+                      id="cEmail"
+                      type="email"
+                      placeholder="e.g. client@example.com"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Division */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">{t("settings.division")}</Label>
+                    <Select
+                      value={clientDivision}
+                      onValueChange={(val) => {
+                        setClientDivision(val || '');
+                        setClientDistrict('');
+                        setClientThana('');
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("settings.select_division") as string} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {divisions.map((div) => (
+                          <SelectItem key={div} value={div}>
+                            {div}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* District */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">{t("settings.district")}</Label>
+                    <Select
+                      disabled={!clientDivision}
+                      value={clientDistrict}
+                      onValueChange={(val) => {
+                        setClientDistrict(val || '');
+                        setClientThana('');
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("settings.select_district") as string} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(bdDivisions[clientDivision] || []).map((dist) => (
+                          <SelectItem key={dist} value={dist}>
+                            {dist}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Thana */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
+                    <Select
+                      disabled={!clientDistrict}
+                      value={clientThana}
+                      onValueChange={(val) => setClientThana(val || '')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("settings.select_thana") as string} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(bdLocations[clientDistrict] || []).map((th) => (
+                          <SelectItem key={th} value={th}>
+                            {th}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Area */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Area</Label>
+                    <Select
+                      value={clientArea}
+                      onValueChange={(val) => setClientArea(val || '')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Area" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {areas
+                          .filter((a) => {
+                            if (clientDivision && a.division !== clientDivision) return false;
+                            if (clientDistrict && a.district && a.district !== clientDistrict) return false;
+                            if (clientThana && a.thana && a.thana !== clientThana) return false;
+                            return true;
+                          })
+                          .map((area) => (
+                            <SelectItem key={area._id} value={area.name}>
+                              {area.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Customer Street Address */}
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
+                    <Input
+                      id="cAddr"
+                      placeholder="e.g. Banani, Dhaka"
+                      value={clientAddress}
+                      onChange={(e) => setClientAddress(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Product Picker */}

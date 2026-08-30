@@ -49,6 +49,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       clientName,
       clientPhone,
       clientAddress,
+      clientEmail,
+      clientDivision,
+      clientDistrict,
+      clientThana,
+      clientArea,
       items,
       subtotal,
       deliveryCharge,
@@ -69,6 +74,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (clientName !== undefined) bill.clientName = clientName;
     if (clientPhone !== undefined) bill.clientPhone = clientPhone;
     if (clientAddress !== undefined) bill.clientAddress = clientAddress;
+    if (clientEmail !== undefined) bill.clientEmail = clientEmail;
+    if (clientDivision !== undefined) bill.clientDivision = clientDivision;
+    if (clientDistrict !== undefined) bill.clientDistrict = clientDistrict;
+    if (clientThana !== undefined) bill.clientThana = clientThana;
+    if (clientArea !== undefined) bill.clientArea = clientArea;
     if (items !== undefined) bill.items = items;
     if (subtotal !== undefined) bill.subtotal = subtotal;
     if (deliveryCharge !== undefined) bill.deliveryCharge = deliveryCharge;
@@ -93,6 +103,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     await bill.save();
+
+    // Upsert customer info to User database
+    try {
+      const { upsertCustomer } = await import('@/lib/customerHelper');
+      await upsertCustomer(bill.clientName, bill.clientPhone, bill.clientAddress);
+    } catch (custErr) {
+      console.error('Error upserting customer during update:', custErr);
+    }
 
     // Log payment updates to ledger
     const paymentReceived = (bill.cashIn || 0) - prevCashInValue;

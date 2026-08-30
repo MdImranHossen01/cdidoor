@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     const user = await User.findOne({ email: normalizedEmail });
 
-    if (!user) {
+    if (!user || !user.email) {
       // Timing parity delay
       const elapsed = Date.now() - startTime;
       const sleep = Math.max(0, 1000 - elapsed); // Aim for at least 1s

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   name: string;
-  email: string;
+  email?: string;
   password?: string;
   role: 'super_admin' | 'admin' | 'manager' | 'showroom_manager' | 'wholesaler' | 'employee' | 'user';
   image?: string;
@@ -19,6 +19,9 @@ export interface IUser extends Document {
   addresses: {
     street?: string;
     division?: string;
+    district?: string;
+    thana?: string;
+    area?: string;
     city?: string;
     state?: string;
     zipCode?: string;
@@ -44,8 +47,8 @@ const UserSchema: Schema<IUser> = new Schema(
     name: { type: String, required: true },
     email: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       lowercase: true,
       trim: true,
       match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.[A-Za-z]{2,})+$/, 'Please provide a valid email address']
@@ -53,7 +56,7 @@ const UserSchema: Schema<IUser> = new Schema(
     password: { type: String, select: false },
     role: { type: String, enum: ['super_admin', 'admin', 'manager', 'showroom_manager', 'wholesaler', 'employee', 'user'], default: 'user' },
     image: { type: String },
-    phone: { type: String },
+    phone: { type: String, unique: true, sparse: true },
     nidImage: { type: String },
     tradeLicenseImage: { type: String },
     googleId: { type: String },
@@ -66,6 +69,9 @@ const UserSchema: Schema<IUser> = new Schema(
       {
         street: { type: String },
         division: { type: String },
+        district: { type: String },
+        thana: { type: String },
+        area: { type: String },
         city: { type: String },
         state: { type: String },
         zipCode: { type: String },

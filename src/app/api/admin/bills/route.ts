@@ -57,6 +57,11 @@ export async function POST(req: NextRequest) {
       clientName,
       clientPhone,
       clientAddress,
+      clientEmail,
+      clientDivision,
+      clientDistrict,
+      clientThana,
+      clientArea,
       items,
       subtotal,
       deliveryCharge,
@@ -75,7 +80,7 @@ export async function POST(req: NextRequest) {
       convertedFrom
     } = body;
 
-    if (!clientName || !clientPhone || !clientAddress || !items || items.length === 0) {
+    if (!clientName || !clientPhone || !items || items.length === 0) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
@@ -114,6 +119,11 @@ export async function POST(req: NextRequest) {
         clientName,
         clientPhone,
         clientAddress,
+        clientEmail,
+        clientDivision,
+        clientDistrict,
+        clientThana,
+        clientArea,
         invoiceNo,
         items,
         subtotal,
@@ -269,6 +279,23 @@ export async function POST(req: NextRequest) {
 
       await dbSession.commitTransaction();
       dbSession.endSession();
+
+      // Upsert customer info to User database
+      try {
+        const { upsertCustomer } = await import('@/lib/customerHelper');
+        await upsertCustomer(
+          clientName,
+          clientPhone,
+          clientAddress,
+          clientEmail,
+          clientDivision,
+          clientDistrict,
+          clientThana,
+          clientArea
+        );
+      } catch (custErr) {
+        console.error('Error upserting customer:', custErr);
+      }
 
       return NextResponse.json(newBill, { status: 201 });
     } catch (transactionError: any) {

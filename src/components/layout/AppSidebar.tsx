@@ -284,6 +284,11 @@ const data = {
           tKey: "sidebar.wholesalers",
           url: "/admin/wholesalers",
         },
+        {
+          title: "Areas",
+          tKey: "sidebar.areas",
+          url: "/admin/areas",
+        },
       ],
     },
     {

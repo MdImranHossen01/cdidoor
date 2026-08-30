@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
   try {
     const { name, email, password, phone, address, division, district, thana } = await req.json();
 
-    if (!name || !email || !password || !phone) {
+    if (!name || !password || (!email && !phone)) {
       return NextResponse.json(
-        { message: 'Please provide all required fields.' },
+        { message: 'Name, password, and either email or phone are required.' },
         { status: 400 }
       );
     }
@@ -23,22 +23,28 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email ? email.toLowerCase().trim() : undefined;
+    const cleanPhone = phone ? phone.trim() : undefined;
 
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    const query: any[] = [];
+    if (normalizedEmail) query.push({ email: normalizedEmail });
+    if (cleanPhone) query.push({ phone: cleanPhone });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { message: 'User already exists with this email.' },
-        { status: 409 }
-      );
+    if (query.length > 0) {
+      const existingUser = await User.findOne({ $or: query });
+      if (existingUser) {
+        return NextResponse.json(
+          { message: 'User already exists with this email or phone number.' },
+          { status: 409 }
+        );
+      }
     }
 
     const user = await User.create({
       name,
       email: normalizedEmail,
       password,
-      phone,
+      phone: cleanPhone,
       addresses: [{
         street: address,
         division: division,

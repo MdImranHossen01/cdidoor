@@ -52,7 +52,7 @@ export async function PUT(req: NextRequest) {
     if (image !== undefined) user.image = image;
     if (phone !== undefined) user.phone = phone;
 
-    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+    if (email && email.toLowerCase() !== (user.email || '').toLowerCase()) {
       const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
         return NextResponse.json({ message: 'Email already in use' }, { status: 400 });

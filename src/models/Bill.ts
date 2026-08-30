@@ -14,6 +14,10 @@ export interface IBill extends Document {
   clientPhone: string;
   clientAddress: string;
   clientEmail?: string;
+  clientDivision?: string;
+  clientDistrict?: string;
+  clientThana?: string;
+  clientArea?: string;
   invoiceNo: string;
   date: Date;
   items: IBillItem[];
@@ -42,8 +46,12 @@ const BillSchema: Schema<IBill> = new Schema(
   {
     clientName: { type: String, required: true },
     clientPhone: { type: String, required: true },
-    clientAddress: { type: String, required: true },
+    clientAddress: { type: String },
     clientEmail: { type: String },
+    clientDivision: { type: String },
+    clientDistrict: { type: String },
+    clientThana: { type: String },
+    clientArea: { type: String },
     invoiceNo: { type: String, required: true, unique: true },
     date: { type: Date, default: Date.now },
     transactionId: { type: String },
