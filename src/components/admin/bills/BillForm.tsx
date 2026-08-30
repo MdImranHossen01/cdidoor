@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { divisions, bdDivisions, bdLocations } from '@/lib/bd-locations';
+import { generateBillPDF } from '@/lib/bill-invoice-generator';
 
 interface BillItemInput {
   productId?: string;
@@ -66,7 +67,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [selectedProductVariants, setSelectedProductVariants] = useState<Record<string, string | null>>({});
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState('');
-  const [sendWhatsApp, setSendWhatsApp] = useState(true);
+  const [printA4, setPrintA4] = useState(false);
   const [printPOS, setPrintPOS] = useState(true);
   const [settings, setSettings] = useState<any>(null);
 
@@ -340,17 +341,9 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
 
     // Pre-open tabs synchronously to bypass browser pop-up blockers
-    let whatsappTab: Window | null = null;
     let printTab: Window | null = null;
 
     if (!initialData) {
-      if (sendWhatsApp && clientPhone) {
-        whatsappTab = window.open('', '_blank');
-        if (whatsappTab) {
-          whatsappTab.document.write('<html><head><title>Loading WhatsApp...</title></head><body style="font-family: sans-serif; padding: 20px; text-align: center;"><h3>Loading WhatsApp link...</h3></body></html>');
-          whatsappTab.document.close();
-        }
-      }
       if (printPOS) {
         printTab = window.open('', '_blank');
         if (printTab) {
@@ -405,26 +398,17 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
       toast.success(initialData ? 'Bill updated successfully!' : 'Bill generated successfully!');
 
-      if (!initialData && sendWhatsApp && clientPhone && whatsappTab) {
-        // Send WhatsApp link
-        const digits = clientPhone.replace(/[^0-9]/g, '');
-        let formattedPhone = digits;
-        if (digits.startsWith('01') && digits.length === 11) {
-          formattedPhone = `88${digits}`;
-        }
-        const message = `Hello ${clientName},\nHere is your invoice link for CDI Door Ind: ${window.location.origin}/bills/${savedBill.invoiceNo}`;
-        const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-        whatsappTab.location.href = whatsappUrl;
-      } else if (whatsappTab) {
-        whatsappTab.close();
-      }
-
       if (!initialData && printPOS && printTab) {
         // Print POS invoice
         const { printBillPOS } = await import('@/lib/bill-pos-generator');
         await printBillPOS(savedBill, settings, printTab);
       } else if (printTab) {
         printTab.close();
+      }
+
+      if (!initialData && printA4) {
+        // Print A4 Invoice
+        await generateBillPDF(savedBill, settings, 'print');
       }
 
       // Close the tab and maybe refresh parent if possible, but simplest is just redirect
@@ -435,7 +419,6 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
       }, 1500);
 
     } catch (error: any) {
-      if (whatsappTab) whatsappTab.close();
       if (printTab) printTab.close();
       toast.error(error.message || 'Error saving bill');
     } finally {
@@ -483,7 +466,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
             {/* Customer Phone with auto-suggestion and Add More button */}
             <div className="space-y-2" ref={phoneRef}>
               <Label htmlFor="clientPhone" className="text-sm font-semibold">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <div className="relative flex-1">
                   <Input
                     id="clientPhone"
@@ -511,136 +494,150 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                     </div>
                   )}
                 </div>
-                {!showMoreFields && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 px-4 font-bold border-dashed border-primary text-primary hover:bg-primary/5 transition-all shrink-0"
-                    onClick={() => setShowMoreFields(true)}
-                  >
-                    + Add More
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  className={`h-8 px-3 text-xs font-bold rounded-lg shrink-0 transition-all ${
+                    showMoreFields 
+                      ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                  }`}
+                  onClick={() => setShowMoreFields(!showMoreFields)}
+                >
+                  {showMoreFields ? '- Close' : '+ Add More'}
+                </Button>
               </div>
               {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
             </div>
           </div>
 
           {showMoreFields && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2 border-t border-dashed border-gray-200">
-              {/* Customer Email */}
-              <div className="space-y-2">
-                <Label htmlFor="clientEmail" className="text-sm font-semibold">Email</Label>
-                <Input
-                  id="clientEmail"
-                  type="email"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="e.g. rahim@example.com"
-                  className="h-11 text-base"
-                />
+            <div className="space-y-4 pt-4 border-t border-dashed border-gray-200">
+              {/* Row 1: Email and Address */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Customer Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="clientEmail" className="text-sm font-semibold">Email</Label>
+                  <Input
+                    id="clientEmail"
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="e.g. rahim@example.com"
+                    className="h-11 text-base"
+                  />
+                </div>
+
+                {/* Customer Street Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")} <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="clientAddress"
+                    value={clientAddress}
+                    onChange={(e) => setClientAddress(e.target.value)}
+                    placeholder="e.g. Nawabpur, Dhaka"
+                    className="h-11 text-base"
+                    required
+                  />
+                </div>
               </div>
 
-              {/* Division */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">{t("settings.division")}</Label>
-                <Select
-                  value={clientDivision}
-                  onValueChange={(val) => {
-                    setClientDivision(val || '');
-                    setClientDistrict('');
-                    setClientThana('');
-                  }}
-                >
-                  <SelectTrigger className="h-11 text-base">
-                    <SelectValue placeholder={t("settings.select_division") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {divisions.map((div) => (
-                      <SelectItem key={div} value={div}>
-                        {div}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* District */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">{t("settings.district")}</Label>
-                <Select
-                  disabled={!clientDivision}
-                  value={clientDistrict}
-                  onValueChange={(val) => {
-                    setClientDistrict(val || '');
-                    setClientThana('');
-                  }}
-                >
-                  <SelectTrigger className="h-11 text-base">
-                    <SelectValue placeholder={t("settings.select_district") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(bdDivisions[clientDivision] || []).map((dist) => (
-                      <SelectItem key={dist} value={dist}>
-                        {dist}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Thana */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
-                <Select
-                  disabled={!clientDistrict}
-                  value={clientThana}
-                  onValueChange={(val) => setClientThana(val || '')}
-                >
-                  <SelectTrigger className="h-11 text-base">
-                    <SelectValue placeholder={t("settings.select_thana") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(bdLocations[clientDistrict] || []).map((th) => (
-                      <SelectItem key={th} value={th}>
-                        {th}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Area */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">Area</Label>
-                <Select
-                  value={clientArea}
-                  onValueChange={(val) => setClientArea(val || '')}
-                >
-                  <SelectTrigger className="h-11 text-base">
-                    <SelectValue placeholder="Select Area" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas
-                      .filter((a) => {
-                        if (clientDivision && a.division !== clientDivision) return false;
-                        if (clientDistrict && a.district && a.district !== clientDistrict) return false;
-                        if (clientThana && a.thana && a.thana !== clientThana) return false;
-                        return true;
-                      })
-                      .map((area) => (
-                        <SelectItem key={area._id} value={area.name}>
-                          {area.name}
+              {/* Row 2: Location Fields */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Division */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">{t("settings.division")}</Label>
+                  <Select
+                    value={clientDivision}
+                    onValueChange={(val) => {
+                      setClientDivision(val || '');
+                      setClientDistrict('');
+                      setClientThana('');
+                    }}
+                  >
+                    <SelectTrigger className="h-11 text-base">
+                      <SelectValue placeholder={t("settings.select_division") as string} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {divisions.map((div) => (
+                        <SelectItem key={div} value={div}>
+                          {div}
                         </SelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Customer Street Address */}
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")}</Label>
-                <Input id="clientAddress" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="e.g. Nawabpur, Dhaka" className="h-11 text-base" />
+                {/* District */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">{t("settings.district")}</Label>
+                  <Select
+                    disabled={!clientDivision}
+                    value={clientDistrict}
+                    onValueChange={(val) => {
+                      setClientDistrict(val || '');
+                      setClientThana('');
+                    }}
+                  >
+                    <SelectTrigger className="h-11 text-base">
+                      <SelectValue placeholder={t("settings.select_district") as string} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(bdDivisions[clientDivision] || []).map((dist) => (
+                        <SelectItem key={dist} value={dist}>
+                          {dist}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Thana */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
+                  <Select
+                    disabled={!clientDistrict}
+                    value={clientThana}
+                    onValueChange={(val) => setClientThana(val || '')}
+                  >
+                    <SelectTrigger className="h-11 text-base">
+                      <SelectValue placeholder={t("settings.select_thana") as string} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(bdLocations[clientDistrict] || []).map((th) => (
+                        <SelectItem key={th} value={th}>
+                          {th}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Area */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Area</Label>
+                  <Select
+                    value={clientArea}
+                    onValueChange={(val) => setClientArea(val || '')}
+                  >
+                    <SelectTrigger className="h-11 text-base">
+                      <SelectValue placeholder="Select Area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {areas
+                        .filter((a) => {
+                          if (clientDivision && a.division !== clientDivision) return false;
+                          if (clientDistrict && a.district && a.district !== clientDistrict) return false;
+                          if (clientThana && a.thana && a.thana !== clientThana) return false;
+                          return true;
+                        })
+                        .map((area) => (
+                          <SelectItem key={area._id} value={area.name}>
+                            {area.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           )}
@@ -780,11 +777,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
               <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={sendWhatsApp}
-                  onChange={(e) => setSendWhatsApp(e.target.checked)}
+                  checked={printA4}
+                  onChange={(e) => setPrintA4(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
                 />
-                Send invoice link via WhatsApp
+                Print A4 Invoice
               </label>
               <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
                 <input

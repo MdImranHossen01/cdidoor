@@ -48,7 +48,8 @@ function AccountsLedgerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const isSuperAdmin = (session?.user as any)?.role === 'super_admin';
+  const userRole = (session?.user as any)?.role;
+  const isAuthorized = userRole === 'super_admin' || userRole === 'admin';
 
   const [accounts, setAccounts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -98,10 +99,10 @@ function AccountsLedgerContent() {
   }, [journalSearchTerm, filterByDate, dateFilter.from, dateFilter.to]);
 
   useEffect(() => {
-    if (status === 'authenticated' && !isSuperAdmin) {
+    if (status === 'authenticated' && !isAuthorized) {
       router.push('/admin/dashboard');
     }
-  }, [status, isSuperAdmin, router]);
+  }, [status, isAuthorized, router]);
 
   const fetchAccounts = useCallback(async () => {
     try {
@@ -131,7 +132,7 @@ function AccountsLedgerContent() {
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
-      if (status === 'authenticated' && isSuperAdmin) {
+      if (status === 'authenticated' && isAuthorized) {
         await Promise.all([fetchAccounts(), fetchTransactions()]);
       }
     };
@@ -141,13 +142,13 @@ function AccountsLedgerContent() {
     return () => {
       isMounted = false;
     };
-  }, [status, isSuperAdmin, fetchAccounts, fetchTransactions]);
+  }, [status, isAuthorized, fetchAccounts, fetchTransactions]);
 
   if (status === 'loading') {
     return <AdminLedgerSkeleton />;
   }
 
-  if (status === 'authenticated' && !isSuperAdmin) {
+  if (status === 'authenticated' && !isAuthorized) {
     return null;
   }
 

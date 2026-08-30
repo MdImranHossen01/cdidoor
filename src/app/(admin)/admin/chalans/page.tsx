@@ -872,7 +872,7 @@ function ClientChalansContent() {
                 </div>
                 <div className="space-y-2 relative" ref={phoneRef}>
                   <Label htmlFor="cPhone">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <div className="relative flex-1">
                       <Input
                         id="cPhone"
@@ -898,140 +898,148 @@ function ClientChalansContent() {
                         </div>
                       )}
                     </div>
-                    {!showMoreFields && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-10 px-4 font-bold border-dashed border-primary text-primary hover:bg-primary/5 transition-all shrink-0"
-                        onClick={() => setShowMoreFields(true)}
-                      >
-                        + Add More
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      className={`h-8 px-3 text-xs font-bold rounded-lg shrink-0 transition-all ${
+                        showMoreFields 
+                          ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                          : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                      }`}
+                      onClick={() => setShowMoreFields(!showMoreFields)}
+                    >
+                      {showMoreFields ? '- Close' : '+ Add More'}
+                    </Button>
                   </div>
                   {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
                 </div>
               </div>
 
               {showMoreFields && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-dashed border-gray-200">
-                  {/* Customer Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="cEmail">Email</Label>
-                    <Input
-                      id="cEmail"
-                      type="email"
-                      placeholder="e.g. client@example.com"
-                      value={clientEmail}
-                      onChange={(e) => setClientEmail(e.target.value)}
-                    />
+                <div className="space-y-4 pt-4 border-t border-dashed border-gray-200">
+                  {/* Row 1: Email and Address */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Customer Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="cEmail">Email</Label>
+                      <Input
+                        id="cEmail"
+                        type="email"
+                        placeholder="e.g. client@example.com"
+                        value={clientEmail}
+                        onChange={(e) => setClientEmail(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Customer Street Address */}
+                    <div className="space-y-2">
+                      <Label htmlFor="cAddr">{t("bills.client_address")} <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="cAddr"
+                        placeholder="e.g. Banani, Dhaka"
+                        value={clientAddress}
+                        onChange={(e) => setClientAddress(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
 
-                  {/* Division */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">{t("settings.division")}</Label>
-                    <Select
-                      value={clientDivision}
-                      onValueChange={(val) => {
-                        setClientDivision(val || '');
-                        setClientDistrict('');
-                        setClientThana('');
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("settings.select_division") as string} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {divisions.map((div) => (
-                          <SelectItem key={div} value={div}>
-                            {div}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* District */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">{t("settings.district")}</Label>
-                    <Select
-                      disabled={!clientDivision}
-                      value={clientDistrict}
-                      onValueChange={(val) => {
-                        setClientDistrict(val || '');
-                        setClientThana('');
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("settings.select_district") as string} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(bdDivisions[clientDivision] || []).map((dist) => (
-                          <SelectItem key={dist} value={dist}>
-                            {dist}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Thana */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
-                    <Select
-                      disabled={!clientDistrict}
-                      value={clientThana}
-                      onValueChange={(val) => setClientThana(val || '')}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("settings.select_thana") as string} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(bdLocations[clientDistrict] || []).map((th) => (
-                          <SelectItem key={th} value={th}>
-                            {th}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Area */}
-                  <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Area</Label>
-                    <Select
-                      value={clientArea}
-                      onValueChange={(val) => setClientArea(val || '')}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Area" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {areas
-                          .filter((a) => {
-                            if (clientDivision && a.division !== clientDivision) return false;
-                            if (clientDistrict && a.district && a.district !== clientDistrict) return false;
-                            if (clientThana && a.thana && a.thana !== clientThana) return false;
-                            return true;
-                          })
-                          .map((area) => (
-                            <SelectItem key={area._id} value={area.name}>
-                              {area.name}
+                  {/* Row 2: Location Fields */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Division */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">{t("settings.division")}</Label>
+                      <Select
+                        value={clientDivision}
+                        onValueChange={(val) => {
+                          setClientDivision(val || '');
+                          setClientDistrict('');
+                          setClientThana('');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("settings.select_division") as string} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {divisions.map((div) => (
+                            <SelectItem key={div} value={div}>
+                              {div}
                             </SelectItem>
                           ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Customer Street Address */}
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
-                    <Input
-                      id="cAddr"
-                      placeholder="e.g. Banani, Dhaka"
-                      value={clientAddress}
-                      onChange={(e) => setClientAddress(e.target.value)}
-                    />
+                    {/* District */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">{t("settings.district")}</Label>
+                      <Select
+                        disabled={!clientDivision}
+                        value={clientDistrict}
+                        onValueChange={(val) => {
+                          setClientDistrict(val || '');
+                          setClientThana('');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("settings.select_district") as string} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(bdDivisions[clientDivision] || []).map((dist) => (
+                            <SelectItem key={dist} value={dist}>
+                              {dist}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Thana */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
+                      <Select
+                        disabled={!clientDistrict}
+                        value={clientThana}
+                        onValueChange={(val) => setClientThana(val || '')}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("settings.select_thana") as string} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(bdLocations[clientDistrict] || []).map((th) => (
+                            <SelectItem key={th} value={th}>
+                              {th}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Area */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Area</Label>
+                      <Select
+                        value={clientArea}
+                        onValueChange={(val) => setClientArea(val || '')}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {areas
+                            .filter((a) => {
+                              if (clientDivision && a.division !== clientDivision) return false;
+                              if (clientDistrict && a.district && a.district !== clientDistrict) return false;
+                              if (clientThana && a.thana && a.thana !== clientThana) return false;
+                              return true;
+                            })
+                            .map((area) => (
+                              <SelectItem key={area._id} value={area.name}>
+                                {area.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               )}

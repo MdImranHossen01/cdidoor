@@ -425,8 +425,8 @@ const translations = {
     "offers.update_offer": "Update Offer",
     "offers.generate_offer": "Generate Offer",
 
-    "users.title": "Users Management",
-    "users.subtitle": "Manage and view all registered customers and staff.",
+    "users.title": "Customers",
+    "users.subtitle": "General customers only. Wholesalers → /wholesalers · Staff/Admins → /employees",
     "users.assign_admin": "Assign Admin",
     "users.total_users": "Total Users",
     "users.search_placeholder": "Search name, email or phone...",
@@ -1937,8 +1937,8 @@ const translations = {
     "offers.update_offer": "অফার আপডেট করুন",
     "offers.generate_offer": "অফার জেনারেট করুন",
 
-    "users.title": "ইউজার ম্যানেজমেন্ট",
-    "users.subtitle": "সকল নিবন্ধিত গ্রাহক এবং কর্মীদের পরিচালনা করুন।",
+    "users.title": "কাস্টমার",
+    "users.subtitle": "শুধুমাত্র সাধারণ কাস্টমার। হোলসেলার → /wholesalers · কর্মী/অ্যাডমিন → /employees",
     "users.assign_admin": "অ্যাডমিন নিয়োগ",
     "users.total_users": "মোট ইউজার",
     "users.search_placeholder": "নাম, ইমেইল বা ফোন দিয়ে খুঁজুন...",

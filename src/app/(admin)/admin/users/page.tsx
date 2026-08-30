@@ -113,13 +113,15 @@ function UsersContent() {
   const [isAssigning, setIsAssigning] = useState(false);
 
   const { data: session, status } = useSession();
-  const isSuperAdmin = (session?.user as any)?.role === 'super_admin';
+  const userRole = (session?.user as any)?.role;
+  const isAuthorized = userRole === 'super_admin' || userRole === 'admin';
+  const isSuperAdmin = userRole === 'super_admin'; // kept for assign-admin button visibility
 
   useEffect(() => {
-    if (status === 'authenticated' && !isSuperAdmin) {
+    if (status === 'authenticated' && !isAuthorized) {
       router.push('/admin/dashboard');
     }
-  }, [status, isSuperAdmin, router]);
+  }, [status, isAuthorized, router]);
 
   const fetchUsers = async (page = currentPage) => {
     setLoading(true);
@@ -165,7 +167,7 @@ function UsersContent() {
     return <AdminTableSkeleton rowCount={7} columnCount={5} titleWidth="w-48" />;
   }
 
-  if (status === 'authenticated' && !isSuperAdmin) {
+  if (status === 'authenticated' && !isAuthorized) {
     return null;
   }
 
@@ -213,7 +215,10 @@ function UsersContent() {
 
   const handleAssignAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEmail) return;
+    if (!adminEmail && !adminPhone) {
+      toast.error('Email or phone number is required');
+      return;
+    }
 
     setIsAssigning(true);
     try {
@@ -221,16 +226,17 @@ function UsersContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email: adminEmail,
+          email: adminEmail || undefined,
           name: adminName,
           image: adminImage,
-          phone: adminPhone,
+          phone: adminPhone || undefined,
           password: adminPassword
         }),
       });
 
       if (response.ok) {
-        toast.success(`Successfully assigned Admin role to ${adminEmail}`);
+        const identifier = adminEmail || adminPhone;
+        toast.success(`Successfully assigned Admin role to ${identifier}`);
         setAdminEmail('');
         setAdminName('');
         setAdminImage('');
@@ -781,7 +787,7 @@ function UsersContent() {
                 <ShieldCheck className="h-6 w-6 text-white" />
               </div>
               <DialogTitle className="text-2xl font-black tracking-tight text-white">{t("users.assign_admin_access")}</DialogTitle>
-              <p className="text-blue-100 text-sm font-medium mt-1">{t("users.grant_admin_privileges")}</p>
+              <p className="text-blue-100 text-sm font-medium mt-1">Grant admin access using email or phone number.</p>
             </DialogHeader>
           </div>
 
@@ -811,13 +817,15 @@ function UsersContent() {
 
               {/* Email Address */}
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.email_address")}</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
+                  {t("users.email_address")}
+                  {!adminPhone && <span className="text-red-500 ml-1">*</span>}
+                </label>
                 <input
                   type="email"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   placeholder="name@example.com"
-                  required
                   className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
                 />
               </div>
@@ -836,7 +844,10 @@ function UsersContent() {
 
               {/* Phone Number */}
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{t("users.phone_number") || "Phone Number"}</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
+                  {t("users.phone_number") || "Phone Number"}
+                  {!adminEmail && <span className="text-red-500 ml-1">*</span>}
+                </label>
                 <input
                   type="text"
                   value={adminPhone}

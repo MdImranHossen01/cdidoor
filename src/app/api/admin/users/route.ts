@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
     
-    if (!session || userRole !== 'super_admin') {
+    if (!session || !(['admin', 'super_admin'].includes(userRole))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +21,9 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
 
-    const matchQuery: any = { role: { $ne: 'super_admin' as const } };
+    // Only show customers with role 'user'
+    // Wholesalers → /admin/wholesalers, Employees/Managers/Admins → /admin/employees
+    const matchQuery: any = { role: 'user' };
     if (search) {
       matchQuery.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -29,6 +31,7 @@ export async function GET(req: NextRequest) {
         { phone: { $regex: search, $options: 'i' } }
       ];
     }
+
     const totalCount = await User.countDocuments(matchQuery);
 
     // Aggregate users with their order stats (efficiently skip/limit before lookup)
@@ -79,14 +82,20 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     const currentUserRole = (session?.user as any)?.role;
     
-    // Both admin and super_admin can manually assign admins by email
+    // Both admin and super_admin can manually assign admins by email or phone
     if (!session || (currentUserRole !== 'super_admin' && currentUserRole !== 'admin')) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     const { email, name, image, phone, password } = await req.json();
 
-    if (!email || !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.[A-Za-z]{2,})+$/.test(email)) {
+    // Must have either email or phone
+    if (!email && !phone) {
+      return NextResponse.json({ message: 'Email or phone number is required' }, { status: 400 });
+    }
+
+    // Validate email format if provided
+    if (email && !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.[A-Za-z]{2,})+$/.test(email)) {
       return NextResponse.json({ message: 'Invalid email address' }, { status: 400 });
     }
 
@@ -95,6 +104,7 @@ export async function POST(req: NextRequest) {
     const updateObj: any = { role: 'admin' };
     if (name) updateObj.name = name;
     if (image) updateObj.image = image;
+    if (email) updateObj.email = email.toLowerCase();
     if (phone) updateObj.phone = phone;
     if (password) {
       updateObj.password = await bcrypt.hash(password, 12);
@@ -102,11 +112,16 @@ export async function POST(req: NextRequest) {
 
     const setOnInsertObj: any = {};
     if (!name) {
-      setOnInsertObj.name = email.split('@')[0];
+      setOnInsertObj.name = email ? email.split('@')[0] : phone;
     }
 
+    // Build query: find by email OR phone (whichever is provided)
+    const query: any = { $or: [] };
+    if (email) query.$or.push({ email: email.toLowerCase() });
+    if (phone) query.$or.push({ phone: phone });
+
     const result = await User.findOneAndUpdate(
-      { email: email.toLowerCase() },
+      query,
       { 
         $set: updateObj,
         $setOnInsert: setOnInsertObj
@@ -114,8 +129,9 @@ export async function POST(req: NextRequest) {
       { upsert: true, new: true }
     );
 
+    const identifier = email || phone;
     return NextResponse.json({ 
-      message: `Successfully assigned Admin role to ${email}`,
+      message: `Successfully assigned Admin role to ${identifier}`,
       user: result
     });
   } catch (error) {
