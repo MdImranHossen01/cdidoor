@@ -269,16 +269,16 @@ function ExpensesIncomesContent() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+    <div className="space-y-0 md:space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-0 md:gap-4 -mt-[15px] md:mt-0">
+        <div className="hidden md:block">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight font-heading">{t("expenses.title")}</h1>
           <p className="text-muted-foreground text-xs md:text-sm">{t("expenses.subtitle")}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger render={<Button onClick={() => setEditingTransaction(null)} className="h-9 w-9 p-0 md:h-10 md:w-auto md:px-4 shrink-0" />}>
-            <Plus className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">{t("expenses.add_record")}</span>
+          <DialogTrigger render={<Button onClick={() => setEditingTransaction(null)} className="w-full h-10 px-4 md:w-auto shrink-0 mb-[1px] md:mb-0" />}>
+            <Plus className="h-4 w-4 mr-2" />
+            <span>{t("expenses.add_record")}</span>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[480px] w-full animate-in fade-in duration-200 max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -298,7 +298,7 @@ function ExpensesIncomesContent() {
       </div>
 
       {/* Overview Card (TallyPay Inspired) */}
-      <Card className="relative overflow-hidden rounded-2xl border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm p-0 md:p-6">
+      <Card className="relative overflow-hidden rounded-2xl border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm p-0 md:p-6 mt-[1px] md:mt-0">
         {/* 3 Cards in 1 Row */}
         <div className="grid grid-cols-3 gap-2 md:gap-6">
           {/* Income Card */}
@@ -351,7 +351,7 @@ function ExpensesIncomesContent() {
         </div>
       </Card>
 
-      <Card className="border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm">
+      <Card className="border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm mt-4 md:mt-0">
         <CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 px-0 md:px-6">
           <div className="flex items-center justify-between w-full lg:w-auto">
             <CardTitle>{t("expenses.all_transactions")}</CardTitle>

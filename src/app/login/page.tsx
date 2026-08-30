@@ -40,7 +40,7 @@ const loginSchema = z.object({
     },
     { message: 'Please enter a valid email or phone number' }
   ),
-  password: z.string().min(1, { message: 'Password is required' }),
+  password: z.string().optional().or(z.literal('')),
 });
 
 export default function LoginPage() {  const { t } = useLanguage();

@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
   try {
     const { name, email, password, phone, address, division, district, thana } = await req.json();
 
-    if (!name || !password || (!email && !phone)) {
+    if (!password || (!email && !phone)) {
       return NextResponse.json(
-        { message: 'Name, password, and either email or phone are required.' },
+        { message: 'Password and either email or phone are required.' },
         { status: 400 }
       );
     }
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await User.create({
-      name,
+      name: name || cleanPhone || normalizedEmail || '',
       email: normalizedEmail,
       password,
       phone: cleanPhone,

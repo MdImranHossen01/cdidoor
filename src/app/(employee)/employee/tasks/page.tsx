@@ -79,7 +79,7 @@ export default function EmployeeTasksPage() {  const { t } = useLanguage();
     }
   };
 
-  const fmt = (n: number) => `à§³${Math.round(n || 0).toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `৳${Math.round(n || 0).toLocaleString('en-BD')}`;
 
   if (loading) {
     return (

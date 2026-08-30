@@ -159,41 +159,70 @@ function ClientChalansContent() {
     }
   };
 
-  const handleNameChange = async (val: string) => {
+  const handleNameChange = (val: string) => {
     setClientName(val);
-    if (val.trim().length >= 2) {
-      try {
-        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.customers || [];
-          setNameSuggestions(list);
-          setShowNameDropdown(list.length > 0);
+    
+    if (nameTimeoutRef.current) {
+      clearTimeout(nameTimeoutRef.current);
+    }
+    if (nameAbortControllerRef.current) {
+      nameAbortControllerRef.current.abort();
+    }
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      const controller = new AbortController();
+      nameAbortControllerRef.current = controller;
+
+      nameTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`, {
+            signal: controller.signal
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setNameSuggestions(list);
+            setShowNameDropdown(list.length > 0);
+          }
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.error('Error fetching suggestions:', err);
+          }
         }
-      } catch (err) {
-        console.error('Error fetching suggestions:', err);
-      }
+      }, 200);
     } else {
+      setNameSuggestions([]);
       setShowNameDropdown(false);
     }
   };
 
-  const handlePhoneChange = async (val: string) => {
+
+  const handlePhoneChange = (val: string) => {
     setClientPhone(val);
     if (phoneError) validatePhone(val);
-    if (val.trim().length >= 2) {
-      try {
-        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.customers || [];
-          setPhoneSuggestions(list);
-          setShowPhoneDropdown(list.length > 0);
+
+    if (phoneTimeoutRef.current) {
+      clearTimeout(phoneTimeoutRef.current);
+    }
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      phoneTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`);
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setPhoneSuggestions(list);
+            setShowPhoneDropdown(list.length > 0);
+          }
+        } catch (err) {
+          console.error('Error fetching suggestions:', err);
         }
-      } catch (err) {
-        console.error('Error fetching suggestions:', err);
-      }
+      }, 200);
     } else {
+      setPhoneSuggestions([]);
       setShowPhoneDropdown(false);
     }
   };
@@ -205,6 +234,18 @@ function ClientChalansContent() {
 
   // Phone validation
   const [phoneError, setPhoneError] = useState('');
+
+  const nameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const phoneTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nameAbortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (nameTimeoutRef.current) clearTimeout(nameTimeoutRef.current);
+      if (phoneTimeoutRef.current) clearTimeout(phoneTimeoutRef.current);
+      if (nameAbortControllerRef.current) nameAbortControllerRef.current.abort();
+    };
+  }, []);
 
   const fetchAreas = async () => {
     try {

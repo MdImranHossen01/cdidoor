@@ -18,8 +18,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const identifier = (credentials?.email as string || '').trim();
-        if (!identifier || !credentials?.password) {
-          throw new Error('Please provide both email/phone and password.');
+        if (!identifier) {
+          throw new Error('Please provide email or phone number.');
         }
 
         await connectToDatabase();
@@ -30,14 +30,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ]
         }).select('+password');
 
-        if (!user || !user.password) {
+        if (!user) {
           throw new Error('Invalid credentials.');
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
-
-        if (!isPasswordValid) {
-          throw new Error('Invalid credentials.');
+        if (user.password) {
+          if (!credentials?.password) {
+            throw new Error('Please enter your password.');
+          }
+          const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
+          if (!isPasswordValid) {
+            throw new Error('Invalid credentials.');
+          }
         }
 
         return {

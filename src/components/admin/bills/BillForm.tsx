@@ -72,6 +72,18 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [printPOS, setPrintPOS] = useState(true);
   const [settings, setSettings] = useState<any>(null);
 
+  const nameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const phoneTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nameAbortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (nameTimeoutRef.current) clearTimeout(nameTimeoutRef.current);
+      if (phoneTimeoutRef.current) clearTimeout(phoneTimeoutRef.current);
+      if (nameAbortControllerRef.current) nameAbortControllerRef.current.abort();
+    };
+  }, []);
+
   // Customer auto-suggestion state
   const [pastCustomers, setPastCustomers] = useState<{
     clientName: string;
@@ -90,47 +102,6 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
   const nameRef = useRef<HTMLDivElement>(null);
   const phoneRef = useRef<HTMLDivElement>(null);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-      }
-    } catch (err) {
-      console.error('Error fetching settings:', err);
-    }
-  };
-
-  const fetchAreas = async () => {
-    try {
-      const res = await fetch('/api/admin/areas');
-      if (res.ok) {
-        const data = await res.json();
-        setAreas(data || []);
-      }
-    } catch (err) {
-      console.error('Error fetching areas:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-    fetchPastCustomers();
-    fetchSettings();
-    fetchAreas();
-  }, []);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (nameRef.current && !nameRef.current.contains(e.target as Node)) setShowNameDropdown(false);
-      if (phoneRef.current && !phoneRef.current.contains(e.target as Node)) setShowPhoneDropdown(false);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -176,6 +147,47 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        setSettings(data);
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
+
+  const fetchAreas = async () => {
+    try {
+      const res = await fetch('/api/admin/areas');
+      if (res.ok) {
+        const data = await res.json();
+        setAreas(data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching areas:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    fetchPastCustomers();
+    fetchSettings();
+    fetchAreas();
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (nameRef.current && !nameRef.current.contains(e.target as Node)) setShowNameDropdown(false);
+      if (phoneRef.current && !phoneRef.current.contains(e.target as Node)) setShowPhoneDropdown(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const handleCustomerSelect = (customer: any) => {
     setClientName(customer.clientName);
     setClientPhone(customer.clientPhone);
@@ -193,43 +205,72 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
   };
 
-  const handleNameChange = async (val: string) => {
+  const handleNameChange = (val: string) => {
     setClientName(val);
     setClientTokens(0);
-    if (val.trim().length >= 2) {
-      try {
-        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.customers || [];
-          setNameSuggestions(list);
-          setShowNameDropdown(list.length > 0);
+    
+    if (nameTimeoutRef.current) {
+      clearTimeout(nameTimeoutRef.current);
+    }
+    if (nameAbortControllerRef.current) {
+      nameAbortControllerRef.current.abort();
+    }
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      const controller = new AbortController();
+      nameAbortControllerRef.current = controller;
+
+      nameTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`, {
+            signal: controller.signal
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setNameSuggestions(list);
+            setShowNameDropdown(list.length > 0);
+          }
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.error('Error fetching suggestions:', err);
+          }
         }
-      } catch (err) {
-        console.error('Error fetching suggestions:', err);
-      }
+      }, 200);
     } else {
+      setNameSuggestions([]);
       setShowNameDropdown(false);
     }
   };
 
-  const handlePhoneChange = async (val: string) => {
+
+  const handlePhoneChange = (val: string) => {
     setClientPhone(val);
     setClientTokens(0);
     if (phoneError) validatePhone(val);
-    if (val.trim().length >= 2) {
-      try {
-        const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.customers || [];
-          setPhoneSuggestions(list);
-          setShowPhoneDropdown(list.length > 0);
+
+    if (phoneTimeoutRef.current) {
+      clearTimeout(phoneTimeoutRef.current);
+    }
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      phoneTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`);
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setPhoneSuggestions(list);
+            setShowPhoneDropdown(list.length > 0);
+          }
+        } catch (err) {
+          console.error('Error fetching suggestions:', err);
         }
-      } catch (err) {
-        console.error('Error fetching suggestions:', err);
-      }
+      }, 200);
     } else {
+      setPhoneSuggestions([]);
       setShowPhoneDropdown(false);
     }
   };

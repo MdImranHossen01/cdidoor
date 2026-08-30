@@ -85,7 +85,7 @@ export default function EmployeeDashboard() {
     );
   }
 
-  const fmt = (n: number) => `à§³${n.toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `৳${n.toLocaleString('en-BD')}`;
   const isMonthly = data?.profile?.employeeType === 'monthly';
 
   return (

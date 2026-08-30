@@ -74,7 +74,7 @@ export default function EmployeeSalaryPage() {
     }
   }, [session]);
 
-  const fmt = (n: number) => `à§³${Math.round(n || 0).toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `৳${Math.round(n || 0).toLocaleString('en-BD')}`;
 
   const isMonthly = stats?.profile?.employeeType === 'monthly';
   const totalEarnedAllTime = disbursements.reduce((acc, curr) => acc + (curr.amount || 0), 0);

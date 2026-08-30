@@ -2,13 +2,13 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 
 import { useSession, signOut } from 'next-auth/react';
-import { User, LogOut, Store, Plus, Home } from 'lucide-react';
+import { User, LogOut, Store, Plus, Home, Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { LanguageToggle } from '@/components/layout/LanguageToggle';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,7 @@ export default function ShowroomTopbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [showroomName, setShowroomName] = useState<string | null>(null);
+  const { open, toggleSidebar } = useSidebar();
 
   useEffect(() => {
     fetch('/api/showroom/info')
@@ -41,8 +42,18 @@ export default function ShowroomTopbar() {
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 justify-between sticky top-0 z-30">
-      {/* Mobile Left - Language Toggle */}
-      <div className="flex items-center md:hidden z-10 -ml-2">
+      {/* Mobile Left - Menu Trigger & Language Toggle */}
+      <div className="flex items-center gap-1 md:hidden z-10 -ml-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="h-9 w-9 shrink-0"
+          aria-label={t("topbar.toggle_menu") || "Toggle Menu"}
+          aria-expanded={open}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
         <LanguageToggle />
       </div>
 
@@ -60,6 +71,18 @@ export default function ShowroomTopbar() {
 
       {/* Desktop View */}
       <div className="hidden md:flex items-center gap-2">
+        {!open && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="shrink-0 h-8 w-8 mr-1"
+            aria-label={t("topbar.open_sidebar") || "Open sidebar"}
+            aria-expanded={open}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
         <Store className="h-4 w-4 text-primary" />
         <span className="font-semibold text-sm">Showroom Panel</span>
         {showroomName && (

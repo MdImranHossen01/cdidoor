@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
     metricLabel = 'Revenue';
     metricColorClass = 'text-primary';
     getValue = (vals: any) => vals.revenue || 0;
-    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'orders') {
     metricLabel = 'Sales Count';
     metricColorClass = 'text-orange-600';
@@ -62,12 +62,12 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
     metricLabel = 'Expense';
     metricColorClass = 'text-red-600';
     getValue = (vals: any) => vals.expense || 0;
-    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'netIncome') {
     metricLabel = 'Net Income';
     metricColorClass = 'text-green-600';
     getValue = (vals: any) => (vals.revenue || 0) - (vals.expense || 0);
-    formatValue = (val: number) => `à§³${Math.round(val).toLocaleString()}`;
+    formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
   }
 
   return (
@@ -281,7 +281,7 @@ export default function ShowroomDashboard() {
     );
   }
 
-  const fmt = (n: number) => `à§³${Math.round(n).toLocaleString('en-BD')}`;
+  const fmt = (n: number) => `৳${Math.round(n).toLocaleString('en-BD')}`;
   const stats = data?.stats;
   return (
     <div className="flex-1 space-y-6 px-0 py-6 md:p-8">
@@ -502,7 +502,7 @@ export default function ShowroomDashboard() {
                     {chartConfig[key].label}
                   </span>
                   <span className="text-xs sm:text-base md:text-2xl leading-none font-bold">
-                    {key === 'orders' ? total[key].toLocaleString() : `à§³${total[key].toLocaleString()}`}
+                    {key === 'orders' ? total[key].toLocaleString() : `৳${total[key].toLocaleString()}`}
                   </span>
                 </button>
               ))}
