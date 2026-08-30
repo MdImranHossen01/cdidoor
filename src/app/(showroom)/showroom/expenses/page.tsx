@@ -192,17 +192,17 @@ function ShowroomExpensesContent() {
   return (
     <div className="flex-1 space-y-6 py-6 md:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-0 gap-4">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 md:px-0 py-[1px]">
+        <div className="hidden md:block">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">Showroom Expenses & Incomes</h2>
           <p className="text-muted-foreground text-xs md:text-sm">
             আপনার শো-রুমের দৈনন্দিন খরচ ও আয়ের তালিকা এন্ট্রি দিন।
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger render={<Button onClick={() => setEditingTransaction(null)} className="h-9 w-9 p-0 md:h-10 md:w-auto md:px-4 shrink-0" />}>
-            <Plus className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">{t('store.showroom.add_expense') || 'Add Expense'}/Income</span>
+          <DialogTrigger render={<Button onClick={() => setEditingTransaction(null)} className="w-full md:w-auto md:h-10 shrink-0" />}>
+            <Plus className="h-4 w-4 mr-2 shrink-0" />
+            <span>{t('store.showroom.add_expense') || 'Add Expense'}/Income</span>
           </DialogTrigger>
           <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
             <DialogHeader>

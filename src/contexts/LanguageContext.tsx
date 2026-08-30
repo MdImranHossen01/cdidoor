@@ -1474,6 +1474,10 @@ const translations = {
     "store.showroom.finance": "Finance",
     "store.showroom.expenses": "Expenses",
     "store.showroom.bills": "Bills",
+    "store.showroom.my_employment": "My Employment",
+    "store.employee.salary_history": "Salary History",
+    "store.employee.my_leaves": "Leave Application",
+    "store.employee.my_tasks": "My Tasks",
 
     "store.showroom.welcome": "Welcome,",
     "store.showroom.dashboard_desc": "Here is your showroom summary.",
@@ -3001,6 +3005,10 @@ const translations = {
     "store.showroom.finance": "ফাইন্যান্স",
     "store.showroom.expenses": "খরচসমূহ",
     "store.showroom.bills": "বিলসমূহ",
+    "store.showroom.my_employment": "আমার কর্মসংস্থান",
+    "store.employee.salary_history": "বেতন ইতিহাস",
+    "store.employee.my_leaves": "ছুটির আবেদন",
+    "store.employee.my_tasks": "আমার কাজসমূহ",
 
     "store.showroom.welcome": "স্বাগতম,",
     "store.showroom.dashboard_desc": "এখানে আপনার শো-রুমের সামারি দেখুন।",

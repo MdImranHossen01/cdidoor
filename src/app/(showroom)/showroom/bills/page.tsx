@@ -496,12 +496,12 @@ function ShowroomBillsContent() {
 
   return (
     <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 py-[1px]">
+        <div className="hidden md:block">
           <h2 className="text-3xl font-bold tracking-tight">Showroom Billing Manager</h2>
           <p className="text-muted-foreground text-xs sm:text-sm">Manage client bills, offer discounts and track collections for your showroom.</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto font-bold bg-primary text-primary-foreground">
+        <Button onClick={() => setIsCreateOpen(true)} className="w-full md:w-auto font-bold bg-primary text-primary-foreground">
           <Plus className="mr-2 h-4 w-4 shrink-0" /> Create Bill
         </Button>
       </div>

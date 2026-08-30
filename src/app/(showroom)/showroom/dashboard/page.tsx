@@ -280,20 +280,19 @@ export default function ShowroomDashboard() {
       </div>
     );
   }
-
   const fmt = (n: number) => `৳${Math.round(n).toLocaleString('en-BD')}`;
   const stats = data?.stats;
   return (
     <div className="flex-1 space-y-6 px-0 py-6 md:p-8">
       {/* Header */}
-      <div className="flex flex-row items-center justify-between gap-4 px-2 md:px-0">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 md:px-0">
+        <div className="hidden md:block">
           <div className="flex items-center gap-2">
             <Store className="h-5 w-5 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">{data?.showroom?.name || 'My Showroom'}</h2>
           </div>
           <p className="text-muted-foreground text-xs md:text-sm mt-1">
-            {t('store.showroom.welcome') || 'à¦¸à§à¦¬à¦¾à¦—à¦¤à¦®, '} {session?.user?.name}! {t('store.showroom.dashboard_desc') || 'à¦à¦–à¦¾à¦¨à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦¶à§‹-à¦°à§à¦®à§‡à¦° à¦¸à¦¾à¦®à¦¾à¦°à¦¿ à¦¦à§‡à¦–à§à¦¨à¥¤'}
+            {t('store.showroom.welcome') || 'à¦¸à§ à¦¬à¦¾à¦—à¦¤à¦®, '} {session?.user?.name}! {t('store.showroom.dashboard_desc') || 'à¦ à¦–à¦¾à¦¨à§‡ à¦†à¦ªà¦¨à¦¾à¦° à¦¶à§‹-à¦°à§ à¦®à§‡à¦° à¦¸à¦¾à¦®à¦¾à¦°à¦¿ à¦¦à§‡à¦–à§ à¦¨à¥¤'}
           </p>
           {data?.showroom?.address && (
             <p className="text-xs text-muted-foreground hidden md:block">{data.showroom.address}</p>
@@ -338,15 +337,15 @@ export default function ShowroomDashboard() {
         </div>
 
         {/* Mobile controls toggle */}
-        <div className="flex items-center gap-2 md:hidden">
-          <Button variant="outline" size="sm" onClick={fetchStats} className="h-9 px-3">
+        <div className="flex items-center gap-2 md:hidden w-full py-[1px]">
+          <Button variant="outline" size="sm" onClick={fetchStats} className="h-9 px-3 shrink-0">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className={`h-9 px-3 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
+            className={`flex-1 h-9 px-3 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
           >
             <Filter className="mr-1.5 h-4 w-4" />
             <span className="text-xs font-bold">Filter</span>

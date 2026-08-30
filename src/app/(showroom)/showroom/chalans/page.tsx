@@ -599,8 +599,8 @@ function ClientChalansContent() {
 
   return (
     <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 py-[1px]">
+        <div className="hidden md:block">
           <h2 className="text-3xl font-bold tracking-tight">{t("chalans.title")}</h2>
           <p className="text-muted-foreground text-sm">{t("chalans.subtitle")}</p>
         </div>
