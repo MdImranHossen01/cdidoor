@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   DollarSign,
   TrendingUp,
@@ -94,11 +95,7 @@ export default function EmployeeSalaryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-[75vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminTableSkeleton rowCount={6} columnCount={5} titleWidth="w-48" showStats={true} />;
   }
 
   return (

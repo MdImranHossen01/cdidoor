@@ -610,6 +610,10 @@ function ClientOffersContent() {
 
   const isFiltered = !!((filterByDate && (dateFilter.from || dateFilter.to)) || searchTerm);
 
+  if (loading && offers.length === 0) {
+    return <AdminTableSkeleton rowCount={7} columnCount={5} titleWidth="w-48" />;
+  }
+
   return (
     <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 py-[1px]">

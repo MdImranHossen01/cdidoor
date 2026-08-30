@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { AdminDashboardSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   ShoppingBag, DollarSign, Clock, TrendingUp,
   Loader2, AlertTriangle, ArrowRight, Package, ExternalLink
@@ -74,11 +75,7 @@ export default function WholesalerDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   if (error) {

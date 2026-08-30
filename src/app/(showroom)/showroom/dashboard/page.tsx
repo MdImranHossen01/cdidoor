@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AdminDashboardSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   ShoppingBag, DollarSign, TrendingUp, Package,
   Loader2, AlertTriangle, ArrowRight, Store,
@@ -261,11 +262,7 @@ export default function ShowroomDashboard() {
   }, [data, filterByDate, dateRange]);
 
   if (loading && !data) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   if (error) {

@@ -5,7 +5,8 @@ import { useAppSelector } from '@/store/hooks';
 import { ProductCard } from '@/components/storefront/ProductCard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Heart, Loader2, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { useSession } from 'next-auth/react';
 
 export default function WishlistPage() {
@@ -62,12 +63,7 @@ export default function WishlistPage() {
   }, [wishlistIds, isHydrated, status]);
 
   if (!isHydrated || (loading && products.length === 0)) {
-    return (
-      <div className="flex h-[40vh] flex-col items-center justify-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Loading your wishlist...</p>
-      </div>
-    );
+    return <AdminTableSkeleton />;
   }
 
   return (
@@ -96,8 +92,8 @@ export default function WishlistPage() {
           </div>
           <h2 className="text-xl font-bold mb-2">No items found</h2>
           <p className="text-muted-foreground mb-8 text-center max-w-sm text-sm">
-            Looks like you haven't added anything to your wishlist yet.
-            Start exploring our shop to find something you'll love!
+            Looks like you haven&apos;t added anything to your wishlist yet.
+            Start exploring our shop to find something you&apos;ll love!
           </p>
           <Button
             asChild

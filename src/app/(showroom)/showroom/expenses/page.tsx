@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Plus, Trash, Edit, Search, Loader2, Info, Clock, CheckCircle2, XCircle, ArrowDownCircle, ArrowUpCircle, Wallet, SlidersHorizontal, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -189,6 +190,10 @@ function ShowroomExpensesContent() {
     }
   };
 
+  if (loading && transactions.length === 0) {
+    return <AdminTableSkeleton rowCount={7} columnCount={5} titleWidth="w-48" showStats={true} />;
+  }
+
   return (
     <div className="flex-1 space-y-6 py-6 md:p-8">
       {/* Header */}
@@ -310,8 +315,8 @@ function ShowroomExpensesContent() {
 
           {/* Desktop & Collapsible Mobile Filters Wrapper */}
           <div className={`grid transition-all duration-300 ease-in-out lg:block w-full ${showMobileFilters
-              ? 'grid-rows-[1fr] opacity-100 mt-3 visible'
-              : 'grid-rows-[0fr] opacity-0 invisible lg:visible lg:opacity-100 lg:grid-rows-none'
+            ? 'grid-rows-[1fr] opacity-100 mt-3 visible'
+            : 'grid-rows-[0fr] opacity-0 invisible lg:visible lg:opacity-100 lg:grid-rows-none'
             }`}>
             <div className="overflow-hidden flex flex-col lg:flex-row items-stretch lg:items-center gap-2 w-full lg:w-auto">
               <div className="relative w-full lg:w-64">
@@ -503,10 +508,10 @@ function ShowroomExpensesContent() {
                             </span>
                             {tx.status && (
                               <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${tx.status === 'Approved'
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
-                                  : tx.status === 'Pending'
-                                    ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
-                                    : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/20 dark:text-rose-400'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
+                                : tx.status === 'Pending'
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
+                                  : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/20 dark:text-rose-400'
                                 }`}>
                                 {tx.status}
                               </span>

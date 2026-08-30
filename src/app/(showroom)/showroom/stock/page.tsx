@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect, Suspense } from 'react';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { ShoppingBag, Loader2, Search, Check, X, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -124,6 +125,10 @@ function ShowroomStockContent() {
     setCurrentPage(page);
     fetchStock(page);
   };
+
+  if (loading && products.length === 0) {
+    return <AdminTableSkeleton rowCount={7} columnCount={5} titleWidth="w-48" />;
+  }
 
   return (
     <div className="flex-1 space-y-6 py-6 md:p-8">

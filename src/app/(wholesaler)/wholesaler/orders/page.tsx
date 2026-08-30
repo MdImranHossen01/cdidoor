@@ -5,14 +5,12 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
-  Clock,
-  CheckCircle2,
   Truck,
   Package,
   ChevronRight,
-  Loader2,
   FileText,
 } from 'lucide-react';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -76,11 +74,7 @@ export default function WholesalerOrdersPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center p-10">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminTableSkeleton />;
   }
 
   return (

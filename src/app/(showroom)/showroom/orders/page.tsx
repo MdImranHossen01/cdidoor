@@ -2,6 +2,7 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect, Suspense } from 'react';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Search, Loader2, Calendar, FileText, CheckCircle2, XCircle, Clock, Truck, RefreshCw, Eye, Share2, Plus, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -156,6 +157,10 @@ function ShowroomOrdersContent() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  if (loading && orders.length === 0) {
+    return <AdminTableSkeleton rowCount={7} columnCount={7} titleWidth="w-48" />;
+  }
 
   return (
     <div className="flex-1 space-y-6 py-6 md:p-8">

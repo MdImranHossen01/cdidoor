@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   Table,
   TableBody,
@@ -493,6 +494,10 @@ function ShowroomBillsContent() {
   const totalBilled = bills.reduce((sum, b) => sum + (b.gTotal || 0), 0);
   const totalCollected = bills.reduce((sum, b) => sum + (b.cashIn || 0), 0);
   const accountsReceivable = bills.reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
+
+  if (loading && bills.length === 0) {
+    return <AdminTableSkeleton rowCount={7} columnCount={5} titleWidth="w-48" showStats={true} />;
+  }
 
   return (
     <div className="flex-1 space-y-6 px-0 py-4 md:p-8">

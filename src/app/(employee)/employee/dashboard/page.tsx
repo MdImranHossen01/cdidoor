@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AdminDashboardSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   DollarSign, CalendarOff, CheckSquare, Clock,
   Loader2, AlertTriangle, ArrowRight, Briefcase, CheckCircle2
@@ -69,11 +70,7 @@ export default function EmployeeDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   if (error) {
