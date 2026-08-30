@@ -33,9 +33,50 @@ export default function NewReturnPage() {
   const [reason, setReason] = useState('');
   const [customRefund, setCustomRefund] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  const searchBill = async () => {
-    if (!invoiceNo.trim()) {
+  const handleInputChange = async (val: string) => {
+    setInvoiceNo(val);
+    if (val.trim().length >= 2) {
+      setLoadingSuggestions(true);
+      try {
+        const cleanedVal = val.trim();
+        const billsPromise = fetch(`/api/admin/bills?search=${cleanedVal}`).then(res => res.ok ? res.json() : []);
+        const ordersPromise = fetch(`/api/orders?all=true&search=${cleanedVal}`).then(res => res.ok ? res.json() : {});
+
+        const [billsData, ordersData] = await Promise.all([billsPromise, ordersPromise]);
+
+        const formattedBills = (billsData || []).slice(0, 5).map((b: any) => ({
+          id: b.invoiceNo,
+          label: `${b.invoiceNo} (Bill - ${b.clientName})`,
+          type: 'bill'
+        }));
+
+        const ordersList = ordersData.orders || ordersData || [];
+        const formattedOrders = (Array.isArray(ordersList) ? ordersList : []).slice(0, 5).map((o: any) => ({
+          id: o.shortId || o._id,
+          label: `Order #${o.shortId || (o._id ? o._id.slice(-6) : '')} (${o.shippingAddress?.fullName || 'Online Order'})`,
+          type: 'order'
+        }));
+
+        setSuggestions([...formattedBills, ...formattedOrders]);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.error('Error fetching suggestions', err);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const searchBill = async (searchNo?: string) => {
+    const targetNo = searchNo || invoiceNo;
+    if (!targetNo.trim()) {
       toast.error('Please enter an Invoice or Order number');
       return;
     }
@@ -44,7 +85,7 @@ export default function NewReturnPage() {
     setOrder(null);
     try {
       // 1. Try to search client bills
-      const billRes = await fetch(`/api/admin/bills?invoiceNo=${invoiceNo.trim()}`);
+      const billRes = await fetch(`/api/admin/bills?invoiceNo=${targetNo.trim()}`);
       if (billRes.ok) {
         const billData = await billRes.json();
         if (billData && billData.length > 0) {
@@ -62,7 +103,7 @@ export default function NewReturnPage() {
       }
 
       // 2. Try online orders
-      const orderRes = await fetch(`/api/orders?all=true&search=${invoiceNo.trim()}`);
+      const orderRes = await fetch(`/api/orders?all=true&search=${targetNo.trim()}`);
       if (orderRes.ok) {
         const orderData = await orderRes.json();
         const ordersList = orderData.orders || orderData;
@@ -177,21 +218,50 @@ export default function NewReturnPage() {
       </div>
 
       <div className="flex flex-col gap-4 p-6 border rounded-xl bg-card shadow-sm">
-        <Label className="text-lg">Search Invoice (Bill or Online Order)</Label>
-        <div className="flex gap-2 max-w-md">
-          <Input 
-            placeholder="Enter Invoice No or Order ID (e.g., INV-12345, 63C8A2)" 
-            value={invoiceNo}
-            onChange={(e) => setInvoiceNo(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && searchBill()}
-          />
-          <Button onClick={searchBill} disabled={searching}>
-            {searching ? "Searching..." : <><Search className="w-4 h-4 mr-2" /> Search</>}
+        <Label className="text-lg">{t("returns.search_title")}</Label>
+        <div className="flex gap-2 max-w-md relative">
+          <div className="relative flex-1">
+            <Input 
+              placeholder={t("returns.search_placeholder")} 
+              value={invoiceNo}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && searchBill()}
+              onBlur={() => {
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true);
+              }}
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-50 left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => {
+                      setInvoiceNo(s.id);
+                      setShowSuggestions(false);
+                      searchBill(s.id);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-accent hover:text-accent-foreground border-b last:border-b-0 transition-colors flex items-center justify-between"
+                  >
+                    <span className="font-medium">{s.label}</span>
+                    <Badge variant={s.type === 'bill' ? 'default' : 'secondary'} className="text-xs">
+                      {s.type === 'bill' ? 'Bill' : 'Order'}
+                    </Badge>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <Button onClick={() => searchBill()} disabled={searching}>
+            {searching ? t("returns.searching") : <><Search className="w-4 h-4 mr-2" /> {t("returns.search_button")}</>}
           </Button>
         </div>
         <p className="text-sm text-muted-foreground flex items-center gap-1">
           <AlertTriangle className="w-4 h-4 text-orange-500" />
-          Note: Products sold through a Client Bill or Online Order can be returned.
+          {t("returns.note")}
         </p>
       </div>
 

@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     const filter = searchParams.get('filter'); // 'all', 'paid', 'due'
     const type = searchParams.get('type') || 'bill'; // 'offer', 'chalan', 'bill'
     const invoiceNo = searchParams.get('invoiceNo');
+    const search = searchParams.get('search');
     
     await connectToDatabase();
 
@@ -26,6 +27,8 @@ export async function GET(req: NextRequest) {
 
     if (invoiceNo) {
       query.invoiceNo = invoiceNo;
+    } else if (search) {
+      query.invoiceNo = { $regex: search, $options: 'i' };
     }
 
     if (filter === 'paid') {

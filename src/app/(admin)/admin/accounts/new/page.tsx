@@ -33,7 +33,7 @@ export default function AddAccountPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      toast.error('অ্যাকাউন্টের নাম আবশ্যক (Account Name is required)');
+      toast.error(t("accounts.error_name_required"));
       return;
     }
     
@@ -50,7 +50,7 @@ export default function AddAccountPage() {
         throw new Error(err.message || 'Failed to create account');
       }
       
-      toast.success('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! (Account created successfully!)');
+      toast.success(t("accounts.success_created"));
       router.push('/admin/accounts');
       router.refresh();
     } catch (error: any) {
@@ -66,7 +66,7 @@ export default function AddAccountPage() {
         {/* Header */}
         <div className="bg-primary px-4 py-3 flex justify-between items-center text-primary-foreground">
           <h2 className="text-lg font-semibold">
-            {t("sidebar.add_account") || "অ্যাড অ্যাকাউন্ট (Add Account)"}
+            {t("sidebar.add_account") || "Add Account"}
           </h2>
           <Link href="/admin/accounts">
             <button className="text-primary-foreground hover:bg-primary/10 p-1 rounded-md transition-colors">
@@ -79,10 +79,10 @@ export default function AddAccountPage() {
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
           <div className="space-y-2">
             <Label className="text-base font-semibold">
-              অ্যাকাউন্টের নাম <span className="text-red-500">*</span>
+              {t("accounts.account_name")} <span className="text-red-500">*</span>
             </Label>
             <Input 
-              placeholder="অ্যাকাউন্টের নাম (e.g. Bkash, Dutch Bangla)"
+              placeholder={t("accounts.account_name_placeholder")}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="h-12 border-gray-300 text-lg"
@@ -91,10 +91,10 @@ export default function AddAccountPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-base font-semibold">অ্যাকাউন্টের ধরন (Account Type)</Label>
+            <Label className="text-base font-semibold">{t("accounts.account_type")}</Label>
             <Select value={formData.accountCategory} onValueChange={(val) => setFormData({ ...formData, accountCategory: val || '' })}>
               <SelectTrigger className="h-12 border-gray-300 text-lg">
-                <SelectValue placeholder="সিলেক্ট করুন" />
+                <SelectValue placeholder={t("accounts.select_placeholder")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Cash">Cash</SelectItem>
@@ -107,10 +107,10 @@ export default function AddAccountPage() {
           {formData.accountCategory === 'MFS' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 border p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">MFS Provider (bKash/Nagad etc.)</Label>
+                <Label className="text-base font-semibold">{t("accounts.mfs_provider")}</Label>
                 <Select value={formData.mfsProvider} onValueChange={(val) => setFormData({ ...formData, mfsProvider: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 text-lg bg-white dark:bg-black">
-                    <SelectValue placeholder="সিলেক্ট করুন" />
+                    <SelectValue placeholder={t("accounts.select_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="bKash">bKash</SelectItem>
@@ -123,10 +123,10 @@ export default function AddAccountPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-base font-semibold">MFS Type</Label>
+                <Label className="text-base font-semibold">{t("accounts.mfs_type")}</Label>
                 <Select value={formData.mfsType} onValueChange={(val) => setFormData({ ...formData, mfsType: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 text-lg bg-white dark:bg-black">
-                    <SelectValue placeholder="সিলেক্ট করুন" />
+                    <SelectValue placeholder={t("accounts.select_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Merchant">Merchant</SelectItem>
@@ -141,19 +141,19 @@ export default function AddAccountPage() {
           {formData.accountCategory === 'Bank' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
               <div className="space-y-2">
-                <Label className="text-base font-semibold">ব্রাঞ্চের নাম (Branch Name)</Label>
+                <Label className="text-base font-semibold">{t("accounts.branch_name")}</Label>
                 <Input 
-                  placeholder="e.g. Gulshan Branch"
+                  placeholder={t("accounts.branch_name_placeholder")}
                   value={formData.branchName || ""}
                   onChange={(e) => setFormData({ ...formData, branchName: e.target.value })}
                   className="h-12 border-gray-300 text-lg"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-base font-semibold">ব্যাংক অ্যাকাউন্টের ধরন</Label>
+                <Label className="text-base font-semibold">{t("accounts.bank_account_type")}</Label>
                 <Select value={formData.bankAccountType} onValueChange={(val) => setFormData({ ...formData, bankAccountType: val || '' })}>
                   <SelectTrigger className="h-12 border-gray-300 text-lg">
-                    <SelectValue placeholder="সিলেক্ট করুন" />
+                    <SelectValue placeholder={t("accounts.select_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Savings">Savings</SelectItem>
@@ -166,9 +166,9 @@ export default function AddAccountPage() {
 
           {(formData.accountCategory === 'MFS' || formData.accountCategory === 'Bank') && (
             <div className="space-y-2 animate-in fade-in">
-              <Label className="text-base font-semibold">অ্যাকাউন্ট নং (Account Number)</Label>
+              <Label className="text-base font-semibold">{t("accounts.account_number")}</Label>
               <Input 
-                placeholder="অ্যাকাউন্ট নং"
+                placeholder={t("accounts.account_number_placeholder")}
                 value={formData.accountNo}
                 onChange={(e) => setFormData({ ...formData, accountNo: e.target.value })}
                 className="h-12 border-gray-300 text-lg"
@@ -177,11 +177,11 @@ export default function AddAccountPage() {
           )}
 
           <div className="space-y-2">
-            <Label className="text-base font-semibold">ওপেনিং ব্যালান্স</Label>
+            <Label className="text-base font-semibold">{t("accounts.opening_balance")}</Label>
             <Input 
               type="number"
               min="0"
-              placeholder="ওপেনিং ব্যালান্স"
+              placeholder={t("accounts.opening_balance_placeholder")}
               value={formData.openingBalance}
               onChange={(e) => setFormData({ ...formData, openingBalance: e.target.value })}
               className="h-12 border-gray-300 text-lg"
@@ -189,12 +189,28 @@ export default function AddAccountPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-base font-semibold">নোট</Label>
+            <Label className="text-base font-semibold">{t("accounts.note")}</Label>
             <Textarea 
-              placeholder="নোট"
+              placeholder={t("accounts.note_placeholder")}
               value={formData.note}
               onChange={(e) => setFormData({ ...formData, note: e.target.value })}
               className="min-h-[100px] border-gray-300 text-lg resize-y"
+            />
+          </div>
+
+          <div className="pt-2 flex justify-center">
+            <Button 
+              type="submit" 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto px-8 h-12 text-lg rounded-full"
+              disabled={submitting}
+            >
+              <Save className="w-5 h-5 mr-2" />
+              {t("accounts.submit")}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>-gray-300 text-lg resize-y"
             />
           </div>
 

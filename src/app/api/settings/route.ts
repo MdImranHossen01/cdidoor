@@ -115,7 +115,8 @@ export async function POST(req: NextRequest) {
       'facebookTestEventCode',
       'tiktokPixelId',
       'tiktokAccessToken',
-      'googleTagManagerId'
+      'googleTagManagerId',
+      'aiConfig'
     ];
 
     // Restricted fields - ONLY for super_admin
@@ -125,7 +126,6 @@ export async function POST(req: NextRequest) {
       'googleAnalyticsId',
       'googleAnalyticsPropertyId',
       'googleSearchConsoleId',
-      'aiConfig',
       'searchConsoleMeta',
       'saasSubscription',
       'superAdminNote'

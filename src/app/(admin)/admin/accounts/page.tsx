@@ -62,12 +62,12 @@ export default function AllAccountsPage() {
             <div key={acc._id} className="border rounded-xl shadow-sm bg-card overflow-hidden flex flex-col">
               <div className="p-4 flex-1">
                 <div className="flex justify-between items-center border-b pb-3 mb-3 text-sm">
-                  <span className="font-semibold text-muted-foreground">কোড (Code)</span>
+                  <span className="font-semibold text-muted-foreground">{t("accounts.code")}</span>
                   <span className="font-mono text-primary font-bold">{acc.code}</span>
                 </div>
                 
                 <div className="flex justify-between items-center border-b pb-3 mb-3 text-sm">
-                  <span className="font-semibold text-muted-foreground">অ্যাকাউন্টের নাম ও নং (Name & No.)</span>
+                  <span className="font-semibold text-muted-foreground">{t("accounts.name_and_no")}</span>
                   <div className="text-right">
                     <p className="font-bold text-base">
                       {acc.name} 
@@ -86,17 +86,17 @@ export default function AllAccountsPage() {
                 </div>
 
                 <div className="flex justify-between items-center border-b pb-3 mb-3 text-sm">
-                  <span className="font-semibold text-muted-foreground">বর্তমান ব্যালেন্স (Current Balance)</span>
+                  <span className="font-semibold text-muted-foreground">{t("accounts.current_balance")}</span>
                   <span className="font-bold text-lg">৳ {acc.currentBalance.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between items-start border-b pb-3 mb-3 text-sm">
-                  <span className="font-semibold text-muted-foreground shrink-0 mr-4">নোট (Note)</span>
+                  <span className="font-semibold text-muted-foreground shrink-0 mr-4">{t("accounts.note")}</span>
                   <span className="text-right italic">{acc.note || '...'}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-sm">
-                  <span className="font-semibold text-muted-foreground shrink-0 mr-4">তৈরী করেছে ও তারিখ (Created By & Date)</span>
+                  <span className="font-semibold text-muted-foreground shrink-0 mr-4">{t("accounts.created_by_date")}</span>
                   <div className="text-right">
                     <p>{format(new Date(acc.createdAt), 'dd-MMM-yyyy hh:mm a')}</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -109,25 +109,25 @@ export default function AllAccountsPage() {
               {/* Action Buttons */}
               <div className="bg-slate-50 dark:bg-slate-900/50 p-3 border-t flex flex-wrap justify-center gap-2">
                 <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                  ক্রেডিট +
+                  {t("accounts.credit")}
                 </Button>
                 <Button size="sm" variant="destructive">
-                  ডেবিট -
+                  {t("accounts.debit")}
                 </Button>
                 <Button size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <ArrowRightLeft className="w-4 h-4 mr-1" /> ট্রান্সফার
+                  <ArrowRightLeft className="w-4 h-4 mr-1" /> {t("accounts.transfer")}
                 </Button>
                 <Button size="sm" variant="default" className="bg-teal-600 hover:bg-teal-700 text-white">
-                  <FileText className="w-4 h-4 mr-1" /> লেজার
+                  <FileText className="w-4 h-4 mr-1" /> {t("accounts.ledger")}
                 </Button>
                 
                 {acc.code.startsWith('AC') && (
                   <>
                     <Button size="sm" variant="outline" className="ml-auto text-emerald-600 border-emerald-600 hover:bg-emerald-50">
-                      <Edit className="w-4 h-4 mr-1" /> এডিট
+                      <Edit className="w-4 h-4 mr-1" /> {t("accounts.edit")}
                     </Button>
                     <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4 mr-1" /> ডিলিট
+                      <Trash2 className="w-4 h-4 mr-1" /> {t("accounts.delete")}
                     </Button>
                   </>
                 )}

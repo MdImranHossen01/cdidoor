@@ -70,24 +70,6 @@ const data = {
       ],
     },
     {
-      title: "Showrooms",
-      tKey: "sidebar.showrooms",
-      url: "#",
-      icon: Store,
-      items: [
-        {
-          title: "Showrooms",
-          tKey: "sidebar.showrooms",
-          url: "/admin/showrooms",
-        },
-        {
-          title: "Add Showroom",
-          tKey: "sidebar.add_showroom",
-          url: "/admin/showrooms?action=add",
-        }
-      ],
-    },
-    {
       title: "Product Management",
       tKey: "sidebar.product_management",
       url: "#",
@@ -265,6 +247,24 @@ const data = {
           url: "/admin/ledger",
           superOnly: true
         },
+      ],
+    },
+    {
+      title: "Showrooms",
+      tKey: "sidebar.showrooms",
+      url: "#",
+      icon: Store,
+      items: [
+        {
+          title: "Showrooms",
+          tKey: "sidebar.showrooms",
+          url: "/admin/showrooms",
+        },
+        {
+          title: "Add Showroom",
+          tKey: "sidebar.add_showroom",
+          url: "/admin/showrooms?action=add",
+        }
       ],
     },
     {

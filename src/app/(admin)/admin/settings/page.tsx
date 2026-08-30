@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PasswordChangeForm } from '@/components/user/PasswordChangeForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 
@@ -148,6 +147,9 @@ const settingsSchema = z.object({
   metaPixelId: z.string().nullish().transform(val => val ?? ''),
   facebookAccessToken: z.string().nullish().transform(val => val ?? ''),
   facebookTestEventCode: z.string().nullish().transform(val => val ?? ''),
+  aiConfig: z.object({
+    geminiApiKey: z.string().nullish().transform(val => val ?? ''),
+  }).optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
@@ -214,6 +216,9 @@ export default function SettingsPage() {
       metaPixelId: '',
       facebookAccessToken: '',
       facebookTestEventCode: '',
+      aiConfig: {
+        geminiApiKey: '',
+      },
     },
   });
 
@@ -318,6 +323,9 @@ export default function SettingsPage() {
                 metaPixelId: result.data.metaPixelId || '',
                 facebookAccessToken: result.data.facebookAccessToken || '',
                 facebookTestEventCode: result.data.facebookTestEventCode || '',
+                aiConfig: {
+                  geminiApiKey: result.data.aiConfig?.geminiApiKey || '',
+                },
               };
               form.reset(sanitizedData);
             }
@@ -388,7 +396,7 @@ export default function SettingsPage() {
           <TabsTrigger value="contact">{t("settings.tab_contact")}</TabsTrigger>
           <TabsTrigger value="social">{t("settings.tab_social")}</TabsTrigger>
           <TabsTrigger value="appearance">{t("settings.tab_appearance")}</TabsTrigger>
-          <TabsTrigger value="security">{t("settings.tab_security")}</TabsTrigger>
+          <TabsTrigger value="ai">{t("settings.tab_ai_api")}</TabsTrigger>
         </TabsList>
 
         <Form {...form}>
@@ -782,20 +790,37 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="ai" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.ai_api_settings")}</CardTitle>
+                  <CardDescription>{t("settings.ai_api_settings_desc")}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 max-w-md">
+                  <FormField
+                    control={form.control}
+                    name="aiConfig.geminiApiKey"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold text-gray-700">Gemini API Key</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter Gemini API Key..." 
+                            type="text" 
+                            {...field} 
+                            className="h-12 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-primary transition-all" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
           </form>
         </Form>
-
-        <TabsContent value="security" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("settings.security_settings")}</CardTitle>
-              <CardDescription>{t("settings.security_settings_desc")}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 max-w-md">
-              <PasswordChangeForm hideHeader={true} />
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Loyalty promotion banner component for home page
 import { Trophy, Wallet, ArrowRight } from 'lucide-react';
@@ -11,8 +11,12 @@ interface LoyaltyBannerProps {
 }
 
 export function LoyaltyBanner({ settings, layout }: LoyaltyBannerProps) {
-  const threshold = settings?.subscriptionConfig?.activationThreshold || 5000;
-  const percentage = settings?.subscriptionConfig?.rewardPercentage || 5;
+  const threshold = settings?.subscriptionConfig?.activationThreshold ?? 5000;
+  const percentage = settings?.subscriptionConfig?.rewardPercentage ?? 5;
+
+  if (percentage <= 0) {
+    return null;
+  }
 
   return (
     <section className={`py-16 bg-zinc-950 border-y border-white/[0.05] text-white overflow-hidden relative ${layout === 'v3' ? 'lg:rounded-sm lg:py-10' : ''}`}>
