@@ -89,7 +89,6 @@ const navItems = [
       { titleKey: "store.dashboard.change_password", titleDefault: "Change Password", url: "/showroom/change-password" },
       { titleKey: "store.employee.salary_history", titleDefault: "Salary History", url: "/showroom/salary" },
       { titleKey: "store.employee.my_leaves", titleDefault: "Leave Application", url: "/showroom/leaves" },
-      { titleKey: "store.employee.my_tasks", titleDefault: "My Tasks", url: "/showroom/tasks" },
     ],
   }
 ]
