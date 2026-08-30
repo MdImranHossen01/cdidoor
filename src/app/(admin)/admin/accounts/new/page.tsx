@@ -210,22 +210,6 @@ export default function AddAccountPage() {
           </div>
         </form>
       </div>
-    </div>-gray-300 text-lg resize-y"
-            />
-          </div>
-
-          <div className="pt-2 flex justify-center">
-            <Button 
-              type="submit" 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto px-8 h-12 text-lg rounded-full"
-              disabled={submitting}
-            >
-              <Save className="w-5 h-5 mr-2" />
-              সাবমিট
-            </Button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }
