@@ -429,6 +429,18 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
     }
   }
 
+  const handleItemClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
+    if (url === '/admin/expenses-incomes?action=new') {
+      e.preventDefault();
+      window.dispatchEvent(new Event('open-transaction-dialog'));
+      if (isMobile) {
+        setOpenMobile(false);
+      }
+    } else {
+      handleLinkClick();
+    }
+  }
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -459,7 +471,7 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
                     {item.items.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton
-                          render={<Link href={subItem.url} onClick={handleLinkClick} />}
+                          render={<Link href={subItem.url} onClick={(e) => handleItemClick(e, subItem.url)} />}
                           isActive={
                             pathname === subItem.url ||
                             (subItem.url !== "#" &&

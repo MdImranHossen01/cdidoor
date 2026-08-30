@@ -28,11 +28,20 @@ export async function GET(req: NextRequest) {
     }
     const users = await User.find(userQuery).limit(20).lean() as any[];
 
-    const customers = users.map((u) => ({
-      clientName: u.name,
-      clientPhone: u.phone || '',
-      clientAddress: u.addresses?.find((a: any) => a.isDefault)?.street || u.addresses?.[0]?.street || ''
-    }));
+    const customers = users.map((u) => {
+      const defAddress = u.addresses?.find((a: any) => a.isDefault) || u.addresses?.[0] || {};
+      return {
+        clientName: u.name,
+        clientPhone: u.phone || '',
+        clientAddress: defAddress.street || '',
+        clientEmail: u.email || '',
+        clientDivision: defAddress.division || '',
+        clientDistrict: defAddress.district || '',
+        clientThana: defAddress.thana || '',
+        clientArea: defAddress.area || '',
+        walletBalance: u.walletBalance || 0
+      };
+    });
 
     // 2. Search in Bill database for walk-in client invoices
     const billQuery: any = {};
@@ -46,7 +55,17 @@ export async function GET(req: NextRequest) {
 
     // 3. Merge results uniquely by phone number
     const seenPhones = new Set<string>();
-    const merged: { clientName: string; clientPhone: string; clientAddress: string }[] = [];
+    const merged: {
+      clientName: string;
+      clientPhone: string;
+      clientAddress: string;
+      clientEmail?: string;
+      clientDivision?: string;
+      clientDistrict?: string;
+      clientThana?: string;
+      clientArea?: string;
+      walletBalance?: number;
+    }[] = [];
 
     customers.forEach((c) => {
       if (c.clientPhone) {
@@ -61,7 +80,13 @@ export async function GET(req: NextRequest) {
         merged.push({
           clientName: b.clientName,
           clientPhone: b.clientPhone,
-          clientAddress: b.clientAddress || ''
+          clientAddress: b.clientAddress || '',
+          clientEmail: b.clientEmail || '',
+          clientDivision: b.clientDivision || '',
+          clientDistrict: b.clientDistrict || '',
+          clientThana: b.clientThana || '',
+          clientArea: b.clientArea || '',
+          walletBalance: 0
         });
       }
     });

@@ -963,13 +963,12 @@ function ClientOffersContent() {
 
                     {/* Customer Street Address */}
                     <div className="space-y-2">
-                      <Label htmlFor="cAddr">{t("bills.client_address")} <span className="text-destructive">*</span></Label>
+                      <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
                       <Input
                         id="cAddr"
                         placeholder="e.g. Banani, Dhaka"
                         value={clientAddress}
                         onChange={(e) => setClientAddress(e.target.value)}
-                        required
                       />
                     </div>
                   </div>

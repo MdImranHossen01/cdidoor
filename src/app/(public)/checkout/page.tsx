@@ -626,7 +626,7 @@ function CheckoutContent() {
     <div className="container px-4 md:px-6 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         {/* Left Side: Order Summary */}
-        <div className="hidden lg:block sticky top-24 self-start space-y-6">
+        <div className="lg:sticky lg:top-24 self-start space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Your Items</CardTitle>

@@ -42,6 +42,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [clientThana, setClientThana] = useState(initialData?.clientThana || '');
   const [clientArea, setClientArea] = useState(initialData?.clientArea || '');
   const [areas, setAreas] = useState<any[]>([]);
+  const [clientTokens, setClientTokens] = useState<number>(0);
   const [showMoreFields, setShowMoreFields] = useState(() => {
     if (initialData?.clientEmail || initialData?.clientDivision || initialData?.clientDistrict || initialData?.clientThana || initialData?.clientArea || initialData?.clientAddress) {
       return true;
@@ -81,6 +82,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     clientDistrict: string;
     clientThana: string;
     clientArea: string;
+    walletBalance?: number;
   }[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<typeof pastCustomers>([]);
   const [phoneSuggestions, setPhoneSuggestions] = useState<typeof pastCustomers>([]);
@@ -163,6 +165,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
               clientDistrict: b.clientDistrict || '',
               clientThana: b.clientThana || '',
               clientArea: b.clientArea || '',
+              walletBalance: 0,
             });
           }
         }
@@ -182,6 +185,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     setClientDistrict(customer.clientDistrict || '');
     setClientThana(customer.clientThana || '');
     setClientArea(customer.clientArea || '');
+    setClientTokens(customer.walletBalance || 0);
     setShowNameDropdown(false);
     setShowPhoneDropdown(false);
     if (customer.clientEmail || customer.clientDivision || customer.clientDistrict || customer.clientThana || customer.clientArea || customer.clientAddress) {
@@ -191,6 +195,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
   const handleNameChange = async (val: string) => {
     setClientName(val);
+    setClientTokens(0);
     if (val.trim().length >= 2) {
       try {
         const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(val.trim())}`);
@@ -210,6 +215,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
   const handlePhoneChange = async (val: string) => {
     setClientPhone(val);
+    setClientTokens(0);
     if (phoneError) validatePhone(val);
     if (val.trim().length >= 2) {
       try {
@@ -320,8 +326,8 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientName.trim() || !clientAddress.trim()) {
-      toast.error('Client details are required');
+    if (!clientName.trim()) {
+      toast.error('Client name is required');
       return;
     }
     if (!validatePhone(clientPhone)) {
@@ -434,7 +440,14 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Customer Name with auto-suggestion */}
             <div className="space-y-2" ref={nameRef}>
-              <Label htmlFor="clientName" className="text-sm font-semibold">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="clientName" className="text-sm font-semibold">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
+                {clientTokens > 0 && (
+                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-bold text-xs py-0.5 px-2">
+                    Tokens: ৳{clientTokens}
+                  </Badge>
+                )}
+              </div>
               <div className="relative">
                 <Input
                   id="clientName"
@@ -454,7 +467,14 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                         className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
                         onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
                       >
-                        <span className="font-medium text-sm text-foreground">{c.clientName}</span>
+                        <div className="flex justify-between items-center w-full">
+                          <span className="font-medium text-sm text-foreground">{c.clientName}</span>
+                          {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                            <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                              ৳{c.walletBalance} Tokens
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
                       </div>
                     ))}
@@ -487,7 +507,14 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                           className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
                           onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
                         >
-                          <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
+                          <div className="flex justify-between items-center w-full">
+                            <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
+                            {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                              <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                                ৳{c.walletBalance} Tokens
+                              </span>
+                            )}
+                          </div>
                           <span className="text-xs text-muted-foreground">{c.clientName}</span>
                         </div>
                       ))}
@@ -529,14 +556,13 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
                 {/* Customer Street Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")} <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="clientAddress" className="text-sm font-semibold">{t("bills.client_address")}</Label>
                   <Input
                     id="clientAddress"
                     value={clientAddress}
                     onChange={(e) => setClientAddress(e.target.value)}
                     placeholder="e.g. Nawabpur, Dhaka"
                     className="h-11 text-base"
-                    required
                   />
                 </div>
               </div>

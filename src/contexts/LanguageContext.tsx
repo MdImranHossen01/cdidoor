@@ -1440,7 +1440,20 @@ const translations = {
     "contact.support.title": "Support Hours",
     "contact.support.sat_thu": "Sat - Thu:",
     "contact.support.friday": "Friday:",
-    "contact.support.off": "Off Day"
+    "contact.support.off": "Off Day",
+
+    "store.cart.title": "Your Cart",
+    "store.cart.items": "items",
+    "store.cart.removed_from_cart": "removed from cart",
+    "store.cart.empty": "Your cart is empty",
+    "store.cart.empty_desc": "Looks like you haven't added anything to your cart yet.",
+    "store.cart.start_shopping": "Start Shopping",
+    "store.product.color": "Color",
+    "store.product.size": "Size",
+    "store.cart.total": "Total Amount",
+    "store.cart.proceed_checkout": "Proceed to Checkout",
+    "store.cart.cleared": "Cart cleared",
+    "store.cart.clear_all": "Clear All Items"
   },
   bn: {
     "store.home.testimonials.title_start": "আমাদের",
@@ -2869,7 +2882,20 @@ const translations = {
     "contact.support.title": "সাপোর্ট আওয়ারস",
     "contact.support.sat_thu": "শনি - বৃহস্পতি:",
     "contact.support.friday": "শুক্রবার:",
-    "contact.support.off": "বন্ধ"
+    "contact.support.off": "বন্ধ",
+
+    "store.cart.title": "আপনার কার্ট",
+    "store.cart.items": "টি পণ্য",
+    "store.cart.removed_from_cart": "কার্ট থেকে সরানো হয়েছে",
+    "store.cart.empty": "আপনার কার্ট খালি",
+    "store.cart.empty_desc": "মনে হচ্ছে আপনি এখনও আপনার কার্টে কিছু যোগ করেননি।",
+    "store.cart.start_shopping": "শপিং শুরু করুন",
+    "store.product.color": "রং",
+    "store.product.size": "সাইজ",
+    "store.cart.total": "সর্বমোট পরিমাণ",
+    "store.cart.proceed_checkout": "চেকআউট করতে এগিয়ে যান",
+    "store.cart.cleared": "কার্ট খালি করা হয়েছে",
+    "store.cart.clear_all": "সব পণ্য মুছে ফেলুন"
   }
 };
 
