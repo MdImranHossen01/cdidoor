@@ -44,7 +44,7 @@ export default function NewReturnPage() {
       try {
         const cleanedVal = val.trim();
         const billsPromise = fetch(`/api/admin/bills?search=${cleanedVal}`).then(res => res.ok ? res.json() : []);
-        const ordersPromise = fetch(`/api/orders?all=true&search=${cleanedVal}`).then(res => res.ok ? res.json() : {});
+        const ordersPromise = fetch(`/api/orders?all=true&search=${cleanedVal}`).then(res => res.ok ? res.json() : ({} as any));
 
         const [billsData, ordersData] = await Promise.all([billsPromise, ordersPromise]);
 
@@ -54,7 +54,7 @@ export default function NewReturnPage() {
           type: 'bill'
         }));
 
-        const ordersList = ordersData.orders || ordersData || [];
+        const ordersList = (ordersData as any).orders || ordersData || [];
         const formattedOrders = (Array.isArray(ordersList) ? ordersList : []).slice(0, 5).map((o: any) => ({
           id: o.shortId || o._id,
           label: `Order #${o.shortId || (o._id ? o._id.slice(-6) : '')} (${o.shippingAddress?.fullName || 'Online Order'})`,
