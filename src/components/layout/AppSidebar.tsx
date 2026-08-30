@@ -244,8 +244,7 @@ const data = {
         {
           title: "Accounts Ledger",
           tKey: "sidebar.accounts_ledger",
-          url: "/admin/ledger",
-          superOnly: true
+          url: "/admin/ledger"
         },
       ],
     },
@@ -276,8 +275,7 @@ const data = {
         {
           title: "All Users",
           tKey: "sidebar.all_users",
-          url: "/admin/users",
-          superOnly: true
+          url: "/admin/users"
         },
         {
           title: "Wholesalers",
