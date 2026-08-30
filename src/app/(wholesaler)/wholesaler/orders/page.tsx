@@ -205,24 +205,24 @@ export default function WholesalerOrdersPage() {
               {/* Header: Order ID, Date & Status Badge */}
               <div className="flex items-center justify-between border-b pb-2.5">
                 <div className="flex flex-col">
-                  <span className="font-mono text-sm font-black text-primary">
+                  <span className="font-mono text-sm sm:text-base font-black text-primary">
                     #{order._id.slice(-8).toUpperCase()}
                   </span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                     {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                   </span>
                 </div>
-                <Badge variant={getStatusColor(order.status) as any} className="text-xs">
+                <Badge variant={getStatusColor(order.status) as any} className="text-xs sm:text-sm">
                   {order.status}
                 </Badge>
               </div>
 
               {/* Order Items */}
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Items ({Array.isArray(order.items) ? order.items.length : 0})</span>
+                <span className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">Items ({Array.isArray(order.items) ? order.items.length : 0})</span>
                 <div className="flex flex-wrap gap-1.5">
                   {order.items?.map((item: any, idx: number) => (
-                    <Badge key={idx} variant="outline" className="text-[10px] px-2 py-0.5 font-medium bg-muted/30">
+                    <Badge key={idx} variant="outline" className="text-xs sm:text-sm px-2 py-0.5 font-medium bg-muted/30">
                       {item.quantity}× {item.name}
                       {(item.color || item.size) && (
                         <span className="text-muted-foreground ml-1">
@@ -235,19 +235,19 @@ export default function WholesalerOrdersPage() {
               </div>
 
               {/* Total & Payment Info */}
-              <div className="flex items-center justify-between pt-2 border-t text-xs">
+              <div className="flex items-center justify-between pt-2 border-t text-xs sm:text-sm">
                 <div className="flex items-center gap-1.5">
                   <span className="text-muted-foreground">{t('store.wholesaler.payment') || 'Payment'}:</span>
-                  <Badge variant={order.paymentStatus === 'Paid' ? 'default' : 'secondary'} className="text-[10px] py-0 px-1.5">
+                  <Badge variant={order.paymentStatus === 'Paid' ? 'default' : 'secondary'} className="text-xs sm:text-sm py-0 px-1.5">
                     {order.paymentStatus || 'Pending'}
                   </Badge>
                   {order.paymentMethod && (
-                    <span className="text-[10px] font-medium text-muted-foreground">({order.paymentMethod})</span>
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">({order.paymentMethod})</span>
                   )}
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-muted-foreground mr-1">{t('store.dashboard.total') || 'Total'}:</span>
-                  <span className="font-black text-sm text-foreground">৳{typeof order?.totalAmount === 'number' ? Math.round(order.totalAmount).toLocaleString('en-BD') : '0'}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground mr-1">{t('store.dashboard.total') || 'Total'}:</span>
+                  <span className="font-black text-sm sm:text-base text-foreground">৳{typeof order?.totalAmount === 'number' ? Math.round(order.totalAmount).toLocaleString('en-BD') : '0'}</span>
                 </div>
               </div>
 

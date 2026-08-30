@@ -253,58 +253,59 @@ function ShowroomStockContent() {
         </div>
 
         {/* Mobile View */}
-        <div className="block md:hidden divide-y divide-border px-4">
+        <div className="block md:hidden space-y-2.5">
           {loading ? (
             <div className="py-12 text-center">
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
             </div>
           ) : products.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground text-sm">
+            <div className="py-12 text-center text-muted-foreground text-sm sm:text-base">
               No products found in this showroom.
             </div>
           ) : (
             products.map((product) => {
               const primaryImage = product.images?.[0];
               return (
-                <div key={product._id} className="py-3.5 flex items-center justify-between gap-3">
+                <div key={product._id} className="p-3 border rounded-xl bg-card shadow-xs flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Image */}
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border bg-muted">
                       {primaryImage ? (
                         <Image
                           src={primaryImage}
                           alt={product.name}
                           fill
                           className="object-cover"
+                          sizes="56px"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                          <ShoppingBag className="h-5 w-5 text-muted-foreground" />
                         </div>
                       )}
                     </div>
                     {/* Title & Info */}
-                    <div className="min-w-0">
+                    <div className="min-w-0 space-y-1">
                       <Link
                         href={`/product/${product.slug}`}
                         target="_blank"
-                        className="font-bold text-xs text-foreground truncate hover:underline block"
+                        className="font-bold text-sm sm:text-base text-foreground line-clamp-1 hover:underline hover:text-primary transition-colors"
                       >
                         {product.name}
                       </Link>
-                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-medium pt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                         <span>SKU: {product.sku || 'N/A'}</span>
                         <span>•</span>
-                        <span className={(product.stock ?? 0) <= 5 ? 'text-destructive font-semibold' : ''}>
+                        <span className={(product.stock ?? 0) <= 5 ? 'text-destructive font-extrabold' : 'font-semibold text-foreground'}>
                           Stock: {product.stock ?? 0}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 pt-0.5">
-                        <span className="text-[10px] font-bold text-primary">
+                        <span className="text-sm font-black text-primary">
                           ৳{Math.round(product.salePrice || product.price || 0)}
                         </span>
                         {product.salePrice && (
-                          <span className="text-[8px] line-through text-muted-foreground">
+                          <span className="text-xs line-through text-muted-foreground">
                             ৳{Math.round(product.price)}
                           </span>
                         )}
@@ -313,8 +314,8 @@ function ShowroomStockContent() {
                   </div>
 
                   {/* Right side Status Badge */}
-                  <div className="shrink-0">
-                    <Badge variant={product.isPublished ? 'default' : 'secondary'} className="text-[8px] px-1.5 py-0.5 font-bold tracking-tight">
+                  <div className="shrink-0 flex flex-col items-end gap-2">
+                    <Badge variant={product.isPublished ? 'default' : 'secondary'} className="text-xs px-2 py-0.5 font-bold tracking-tight">
                       {product.isPublished ? 'Live' : 'Draft'}
                     </Badge>
                   </div>

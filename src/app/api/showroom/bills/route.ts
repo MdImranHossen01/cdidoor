@@ -24,14 +24,36 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get('filter'); // 'all', 'paid', 'due'
     const type = searchParams.get('type') || 'bill'; // 'offer', 'chalan', 'bill'
+    const invoiceNo = searchParams.get('invoiceNo');
+    const search = searchParams.get('search');
     
     let query: any = { showroom: showroom._id };
     if (type === 'bill') {
       query.$or = [{ documentType: 'bill' }, { documentType: { $exists: false } }];
-      // Apply the showroom filter inside the OR conditions if they exist
       query.$and = [{ showroom: showroom._id }];
     } else {
       query.documentType = type;
+    }
+
+    if (invoiceNo) {
+      query.invoiceNo = invoiceNo;
+    } else if (search) {
+      const regexSearch = { $regex: search, $options: 'i' };
+      if (query.$and) {
+        query.$and.push({
+          $or: [
+            { invoiceNo: regexSearch },
+            { clientName: regexSearch },
+            { clientPhone: regexSearch }
+          ]
+        });
+      } else {
+        query.$or = [
+          { invoiceNo: regexSearch },
+          { clientName: regexSearch },
+          { clientPhone: regexSearch }
+        ];
+      }
     }
 
     if (filter === 'paid') {

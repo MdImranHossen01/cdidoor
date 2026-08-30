@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="container px-4 md:px-6 py-10">
+    <div className="container px-[1px] md:px-6 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Profile Sidebar */}

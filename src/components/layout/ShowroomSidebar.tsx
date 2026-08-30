@@ -48,7 +48,28 @@ const navItems = [
     icon: ShoppingBag,
     items: [
       { titleKey: "store.showroom.orders", titleDefault: "Orders", url: "/showroom/orders" },
+      { titleKey: "sidebar.offers_quotations", titleDefault: "Offers / Quotations", url: "/showroom/offers" },
+      { titleKey: "sidebar.delivery_challans", titleDefault: "Delivery Challans", url: "/showroom/chalans" },
+      { titleKey: "store.showroom.bills", titleDefault: "Client Bills", url: "/showroom/bills" },
+    ],
+  },
+  {
+    titleKey: "sidebar.product_management",
+    titleDefault: "Product Management",
+    icon: Package,
+    items: [
       { titleKey: "store.showroom.stock", titleDefault: "Stock", url: "/showroom/stock" },
+      { titleKey: "sidebar.low_stock", titleDefault: "Low Stock", url: "/showroom/low-stock" },
+      { titleKey: "sidebar.upcoming_expiry", titleDefault: "Upcoming Expire", url: "/showroom/upcoming-expiry" },
+    ],
+  },
+  {
+    titleKey: "sidebar.product_return",
+    titleDefault: "Product Return",
+    icon: Store,
+    items: [
+      { titleKey: "sidebar.new_return", titleDefault: "New Return", url: "/showroom/returns/new" },
+      { titleKey: "sidebar.return_list", titleDefault: "Return List", url: "/showroom/returns" },
     ],
   },
   {
@@ -57,7 +78,18 @@ const navItems = [
     icon: DollarSign,
     items: [
       { titleKey: "store.showroom.expenses", titleDefault: "Expenses", url: "/showroom/expenses" },
-      { titleKey: "store.showroom.bills", titleDefault: "Bills", url: "/showroom/bills" },
+    ],
+  },
+  {
+    titleKey: "store.showroom.my_employment",
+    titleDefault: "My Employment",
+    icon: User,
+    items: [
+      { titleKey: "store.dashboard.profile", titleDefault: "Profile Info", url: "/showroom/profile" },
+      { titleKey: "store.dashboard.change_password", titleDefault: "Change Password", url: "/showroom/change-password" },
+      { titleKey: "store.employee.salary_history", titleDefault: "Salary History", url: "/showroom/salary" },
+      { titleKey: "store.employee.my_leaves", titleDefault: "Leave Application", url: "/showroom/leaves" },
+      { titleKey: "store.employee.my_tasks", titleDefault: "My Tasks", url: "/showroom/tasks" },
     ],
   }
 ]

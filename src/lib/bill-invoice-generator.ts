@@ -1,4 +1,4 @@
-﻿import { format, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 export function numberToWords(num: number): string {
   if (num === 0) return 'Zero';
@@ -383,7 +383,7 @@ export async function generateBillPDF(bill: any, settings: any, mode: 'download'
             </tbody>
           </table>
 
-          ${docType !== 'chalan' ? `
+          ${(docType !== 'chalan' || (bill.serviceFee && bill.serviceFee > 0)) ? `
             <div class="totals-container">
               <div class="totals-box">
                 <div class="total-row">

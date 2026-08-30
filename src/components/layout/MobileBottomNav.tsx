@@ -9,6 +9,8 @@ import {
   Plus,
   Receipt,
   Menu,
+  ShoppingBag,
+  FilePlus,
 } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import {
@@ -38,9 +40,21 @@ export function MobileBottomNav() {
       icon: BookOpen,
       href: '/admin/ledger',
     },
+    {
+      label: 'অর্ডারসমূহ',
+      enLabel: 'Orders',
+      icon: ShoppingBag,
+      href: '/admin/orders',
+    },
   ];
 
   const rightNavItems = [
+    {
+      label: 'ইনভয়েস',
+      enLabel: 'Invoices',
+      icon: FilePlus,
+      href: '/admin/bills/create',
+    },
     {
       label: 'ক্যাশবক্স',
       enLabel: 'Cashbook',
@@ -61,6 +75,7 @@ export function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.enLabel}
                 className={`flex flex-col items-center justify-center w-12 transition-all ${
                   isActive
                     ? 'text-primary scale-105 font-bold'
@@ -93,6 +108,7 @@ export function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.enLabel}
                 className={`flex flex-col items-center justify-center w-12 transition-all ${
                   isActive
                     ? 'text-primary scale-105 font-bold'
@@ -107,6 +123,7 @@ export function MobileBottomNav() {
           {/* Sidebar Menu Toggle */}
           <button
             onClick={() => setOpenMobile(!openMobile)}
+            aria-label="Toggle Navigation Menu"
             className={`flex flex-col items-center justify-center w-12 transition-all ${
               openMobile ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             }`}

@@ -1155,7 +1155,7 @@ function ClientChalansContent() {
 
       {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>{t("chalans.select_products_title")}</DialogTitle>
           </DialogHeader>
@@ -1169,8 +1169,8 @@ function ClientChalansContent() {
                 onChange={(e) => setProductSearchTerm(e.target.value)}
               />
             </div>
-            <div className="border rounded-md overflow-hidden max-h-[50vh] overflow-y-auto">
-              <Table>
+            <div className="border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
+              <Table className="min-w-[600px] sm:min-w-0">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">Select</TableHead>
@@ -1224,11 +1224,11 @@ function ClientChalansContent() {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex items-center justify-between border-t pt-4">
-              <span className="text-sm text-muted-foreground">{selectedCount} {t("chalans.items_selected")}</span>
-              <div className="space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setProductPickerOpen(false)}>{t("bills.cancel")}</Button>
-                <Button size="sm" onClick={handleAddSelectedProducts} className="bg-primary text-primary-foreground">{t("chalans.add_selected")}</Button>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t mt-2">
+              <span className="text-sm text-muted-foreground font-medium">{selectedCount} {t("chalans.items_selected")}</span>
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={() => setProductPickerOpen(false)}>{t("bills.cancel")}</Button>
+                <Button type="button" className="flex-1 sm:flex-none bg-primary text-primary-foreground" onClick={handleAddSelectedProducts}>{t("chalans.add_selected")}</Button>
               </div>
             </div>
           </div>

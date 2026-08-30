@@ -7,8 +7,18 @@ import Bill from '@/models/Bill';
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || !(['admin', 'super_admin', 'manager'].includes((session?.user as any)?.role))) {
+    const userRole = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
+    if (!session || !(['admin', 'super_admin', 'manager', 'showroom_manager'].includes(userRole))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    let showroomId = undefined;
+    if (userRole === 'showroom_manager') {
+      const Showroom = (await import('@/models/Showroom')).default;
+      const showroom = await Showroom.findOne({ manager: userId }).lean();
+      if (showroom) {
+        showroomId = showroom._id;
+      }
     }
 
     const { searchParams } = new URL(req.url);
@@ -30,21 +40,27 @@ export async function GET(req: NextRequest) {
 
     const customers = users.map((u) => {
       const defAddress = u.addresses?.find((a: any) => a.isDefault) || u.addresses?.[0] || {};
-      return {
+      const item: any = {
         clientName: u.name,
         clientPhone: u.phone || '',
         clientAddress: defAddress.street || '',
-        clientEmail: u.email || '',
         clientDivision: defAddress.division || '',
         clientDistrict: defAddress.district || '',
         clientThana: defAddress.thana || '',
         clientArea: defAddress.area || '',
-        walletBalance: u.walletBalance || 0
       };
+      if (userRole !== 'showroom_manager') {
+        item.clientEmail = u.email || '';
+        item.walletBalance = u.walletBalance || 0;
+      }
+      return item;
     });
 
     // 2. Search in Bill database for walk-in client invoices
     const billQuery: any = {};
+    if (userRole === 'showroom_manager' && showroomId) {
+      billQuery.showroom = showroomId;
+    }
     if (search) {
       billQuery.$or = [
         { clientName: { $regex: search, $options: 'i' } },
@@ -55,17 +71,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Merge results uniquely by phone number
     const seenPhones = new Set<string>();
-    const merged: {
-      clientName: string;
-      clientPhone: string;
-      clientAddress: string;
-      clientEmail?: string;
-      clientDivision?: string;
-      clientDistrict?: string;
-      clientThana?: string;
-      clientArea?: string;
-      walletBalance?: number;
-    }[] = [];
+    const merged: any[] = [];
 
     customers.forEach((c) => {
       if (c.clientPhone) {
@@ -77,17 +83,20 @@ export async function GET(req: NextRequest) {
     bills.forEach((b) => {
       if (b.clientPhone && !seenPhones.has(b.clientPhone)) {
         seenPhones.add(b.clientPhone);
-        merged.push({
+        const item: any = {
           clientName: b.clientName,
           clientPhone: b.clientPhone,
           clientAddress: b.clientAddress || '',
-          clientEmail: b.clientEmail || '',
           clientDivision: b.clientDivision || '',
           clientDistrict: b.clientDistrict || '',
           clientThana: b.clientThana || '',
           clientArea: b.clientArea || '',
-          walletBalance: 0
-        });
+        };
+        if (userRole !== 'showroom_manager') {
+          item.clientEmail = b.clientEmail || '';
+          item.walletBalance = 0;
+        }
+        merged.push(item);
       }
     });
 

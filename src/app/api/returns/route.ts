@@ -10,11 +10,25 @@ import mongoose from 'mongoose';
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || !session.user || !(['admin', 'super_admin'].includes((session.user as any)?.role))) {
+    const userRole = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
+
+    if (!session || !session.user || !(['admin', 'super_admin', 'showroom_manager'].includes(userRole))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
     await connectToDatabase();
-    const returns = await ProductReturn.find()
+
+    let query: any = {};
+    if (userRole === 'showroom_manager') {
+      const Showroom = (await import('@/models/Showroom')).default;
+      const showroom = await Showroom.findOne({ manager: userId }).lean();
+      if (!showroom) {
+        return NextResponse.json({ message: 'No showroom assigned' }, { status: 404 });
+      }
+      query.showroom = showroom._id;
+    }
+
+    const returns = await ProductReturn.find(query)
       .populate('bill', 'invoiceNo')
       .populate('order', 'shortId')
       .populate('processedBy', 'name')
@@ -30,7 +44,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || !session.user || !(['admin', 'super_admin'].includes((session.user as any)?.role))) {
+    const userRole = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
+
+    if (!session || !session.user || !(['admin', 'super_admin', 'showroom_manager'].includes(userRole))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -72,6 +89,17 @@ export async function POST(req: NextRequest) {
         phone = order.shippingAddress?.phone;
         showroom = order.showroom;
         sourceNameForLedger = `Order: ${order.shortId}`;
+      }
+
+      if (userRole === 'showroom_manager') {
+        const Showroom = (await import('@/models/Showroom')).default;
+        const managerShowroom = await Showroom.findOne({ manager: userId }).lean();
+        if (!managerShowroom) {
+          throw new Error('No showroom assigned to this manager');
+        }
+        if (!showroom || showroom.toString() !== managerShowroom._id.toString()) {
+          throw new Error('Unauthorized: Cannot process returns for other showrooms');
+        }
       }
 
       const returnId = `RET-${Date.now()}`;

@@ -56,12 +56,12 @@ interface BillItemInput {
   price: number;
 }
 
-function ClientOffersContent() {
+function ClientChalansContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguage();
 
-  const [offers, setOffers] = useState<any[]>([]);
+  const [chalans, setChalans] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,7 +77,8 @@ function ClientOffersContent() {
   });
   const [filterByDate, setFilterByDate] = useState(true);
 
-  const initialPage = Math.max(1, parseInt(searchParams.get('page') || '1'));
+  const parsedPage = parseInt(searchParams.get('page') || '1');
+  const initialPage = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
   const [currentPage, setCurrentPage] = useState(initialPage);
   
   const [settings, setSettings] = useState<any>(null);
@@ -90,20 +91,26 @@ function ClientOffersContent() {
     } else {
       params.delete('page');
     }
-    router.push(`/admin/offers?${params.toString()}`);
+    router.push(`/showroom/chalans?${params.toString()}`);
   }, [currentPage]);
+
+  const isFirstMount = useRef(true);
 
   // Reset page when search term or dates change
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     setCurrentPage(1);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('page');
-    router.push(`/admin/offers?${params.toString()}`);
+    router.replace(`/showroom/chalans?${params.toString()}`);
   }, [searchTerm, filterByDate, dateFilter.from, dateFilter.to]);
 
-  // Offer detail view state
-  const [selectedOffer, setSelectedOffer] = useState<any>(null);
-  const [editingOffer, setEditingOffer] = useState<any>(null);
+  // Chalan detail view state
+  const [selectedChalan, setSelectedChalan] = useState<any>(null);
+  const [editingChalan, setEditingChalan] = useState<any>(null);
 
   // Dialog state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -124,10 +131,6 @@ function ClientOffersContent() {
   const [billItems, setBillItems] = useState<BillItemInput[]>([
     { name: '', quantity: 1, price: 0 }
   ]);
-  const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
-  const [serviceFee, setServiceFee] = useState<number>(0);
-  const [discountType, setDiscountType] = useState<'fixed' | 'percentage'>('fixed');
-  const [discountValue, setDiscountValue] = useState<number>(0);
 
   // Customer auto-suggestion state
   const [nameSuggestions, setNameSuggestions] = useState<any[]>([]);
@@ -201,7 +204,6 @@ function ClientOffersContent() {
     }
   };
 
-
   const handlePhoneChange = (val: string) => {
     setClientPhone(val);
     if (phoneError) validatePhone(val);
@@ -264,21 +266,21 @@ function ClientOffersContent() {
   };
 
   useEffect(() => {
-    fetchOffers();
+    fetchChalans();
     fetchProducts();
     fetchSettings();
     fetchAreas();
   }, []);
 
-  const fetchOffers = async () => {
+  const fetchChalans = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/bills?type=offer');
-      if (!res.ok) throw new Error('Failed to fetch offers');
+      const res = await fetch('/api/showroom/bills?type=chalan');
+      if (!res.ok) throw new Error('Failed to fetch challans');
       const data = await res.json();
-      setOffers(data);
+      setChalans(data);
     } catch (error) {
-      toast.error('Failed to load offers');
+      toast.error('Failed to load challans');
     } finally {
       setLoading(false);
     }
@@ -307,13 +309,6 @@ function ClientOffersContent() {
       console.error('Error fetching settings:', err);
     }
   };
-
-  // Calculations
-  const subtotal = billItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discount = discountType === 'percentage'
-    ? Math.round((subtotal * discountValue) / 100)
-    : discountValue;
-  const total = Math.max(0, subtotal + deliveryCharge + serviceFee - discount);
 
   const validatePhone = (phone: string) => {
     const bdPhoneRegex = /^(?:\+?88)?01[3-9]\d{8}$/;
@@ -386,6 +381,7 @@ function ClientOffersContent() {
 
   const handleItemChange = (index: number, field: keyof BillItemInput, value: any) => {
     const updated = [...billItems];
+    updated[index] = { ...updated[index] };
     if (field === 'quantity') {
       updated[index].quantity = Math.max(1, parseInt(value) || 1);
     } else if (field === 'price') {
@@ -415,7 +411,9 @@ function ClientOffersContent() {
 
     try {
       setFormLoading(true);
-      const offerData = {
+      const subtotalVal = validItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+      const chalanData = {
         clientName,
         clientPhone,
         clientAddress,
@@ -425,43 +423,41 @@ function ClientOffersContent() {
         clientThana,
         clientArea,
         items: validItems,
-        subtotal,
-        deliveryCharge,
-        serviceFee,
-        discountType,
-        discountValue,
-        discount,
-        total,
+        subtotal: subtotalVal,
+        deliveryCharge: 0,
+        discountType: 'fixed',
+        discountValue: 0,
+        discount: 0,
+        total: subtotalVal,
         prevDue: 0,
-        gTotal: total,
+        gTotal: subtotalVal,
         cashIn: 0,
-        currentBillDue: total,
+        currentBillDue: subtotalVal,
         status: 'Due',
-        documentType: 'offer'
+        documentType: 'chalan'
       };
 
-      const url = editingOffer ? `/api/admin/bills/${editingOffer._id}` : '/api/admin/bills';
-      const method = editingOffer ? 'PUT' : 'POST';
+      const url = editingChalan ? `/api/showroom/bills/${editingChalan._id}` : '/api/showroom/bills';
+      const method = editingChalan ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(offerData)
+        body: JSON.stringify(chalanData)
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || `Failed to ${editingOffer ? 'update' : 'create'} quotation`);
+        throw new Error(errorData.message || `Failed to ${editingChalan ? 'update' : 'create'} challan`);
       }
 
-      const createdOffer = await res.json();
-      toast.success(editingOffer ? 'Quotation updated successfully!' : 'Quotation generated successfully!');
+      toast.success(editingChalan ? 'Delivery Challan updated successfully!' : 'Delivery Challan generated successfully!');
 
       setIsCreateOpen(false);
       resetForm();
-      fetchOffers();
+      fetchChalans();
     } catch (error: any) {
-      toast.error(error.message || 'Error creating quotation');
+      toast.error(error.message || 'Error saving challan');
     } finally {
       setFormLoading(false);
     }
@@ -479,20 +475,16 @@ function ClientOffersContent() {
     setClientArea('');
     setShowMoreFields(false);
     setBillItems([{ name: '', quantity: 1, price: 0 }]);
-    setDeliveryCharge(0);
-    setServiceFee(0);
-    setDiscountType('fixed');
-    setDiscountValue(0);
     setSelectedProductVariants({});
     setProductSearchTerm('');
     setProductPickerOpen(false);
-    setEditingOffer(null);
+    setEditingChalan(null);
   };
 
-  const handleConvertToChalan = async (offer: any) => {
+  const handleConvertToBill = async (chalan: any) => {
     const result = await Swal.fire({
-      title: 'Convert to Delivery Challan?',
-      text: `Do you want to create a Delivery Challan from Quotation ${offer.invoiceNo}?`,
+      title: 'Convert to Bill Invoice?',
+      text: `Do you want to create a Final Bill Invoice from Delivery Challan ${chalan.invoiceNo}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Yes, Convert',
@@ -501,60 +493,59 @@ function ClientOffersContent() {
 
     if (result.isConfirmed) {
       try {
-        const challanData = {
-          clientName: offer.clientName,
-          clientPhone: offer.clientPhone,
-          clientAddress: offer.clientAddress,
-          clientEmail: offer.clientEmail,
-          clientDivision: offer.clientDivision,
-          clientDistrict: offer.clientDistrict,
-          clientThana: offer.clientThana,
-          clientArea: offer.clientArea,
-          items: offer.items,
-          subtotal: offer.subtotal,
-          deliveryCharge: offer.deliveryCharge,
-          serviceFee: offer.serviceFee || 0,
-          discountType: offer.discountType,
-          discountValue: offer.discountValue,
-          discount: offer.discount,
-          total: offer.total,
+        const billData = {
+          clientName: chalan.clientName,
+          clientPhone: chalan.clientPhone,
+          clientAddress: chalan.clientAddress,
+          clientEmail: chalan.clientEmail,
+          clientDivision: chalan.clientDivision,
+          clientDistrict: chalan.clientDistrict,
+          clientThana: chalan.clientThana,
+          clientArea: chalan.clientArea,
+          items: chalan.items,
+          subtotal: chalan.subtotal,
+          deliveryCharge: chalan.deliveryCharge || 0,
+          discountType: chalan.discountType || 'fixed',
+          discountValue: chalan.discountValue || 0,
+          discount: chalan.discount || 0,
+          total: chalan.total,
           prevDue: 0,
-          gTotal: offer.total,
+          gTotal: chalan.total,
           cashIn: 0,
-          currentBillDue: offer.total,
+          currentBillDue: chalan.total,
           status: 'Due',
-          documentType: 'chalan',
-          convertedFrom: offer._id
+          documentType: 'bill',
+          convertedFrom: chalan._id
         };
 
-        const res = await fetch('/api/admin/bills', {
+        const res = await fetch('/api/showroom/bills', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(challanData)
+          body: JSON.stringify(billData)
         });
 
         if (!res.ok) throw new Error('Conversion failed');
-        const createdChallan = await res.json();
+        const createdBill = await res.json();
 
         await Swal.fire({
           title: 'Success!',
-          text: `Delivery Challan ${createdChallan.invoiceNo} has been generated.`,
+          text: `Final Bill Invoice ${createdBill.invoiceNo} has been generated.`,
           icon: 'success',
           showCancelButton: true,
-          confirmButtonText: 'Print Challan Now',
+          confirmButtonText: 'Print Bill Now',
           cancelButtonText: 'Close'
         }).then((printRes) => {
           if (printRes.isConfirmed) {
-            generateBillPDF(createdChallan, settings, 'print');
+            generateBillPDF(createdBill, settings, 'print');
           }
         });
       } catch (error) {
-        toast.error('Failed to convert to challan');
+        toast.error('Failed to convert to bill');
       }
     }
   };
 
-  const handleDeleteOffer = async (offerId: string) => {
+  const handleDeleteChalan = async (chalanId: string) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -567,19 +558,19 @@ function ClientOffersContent() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`/api/admin/bills/${offerId}`, {
+        const res = await fetch(`/api/showroom/bills/${chalanId}`, {
           method: 'DELETE'
         });
-        if (!res.ok) throw new Error('Failed to delete quotation');
-        toast.success('Quotation deleted successfully');
-        fetchOffers();
+        if (!res.ok) throw new Error('Failed to delete challan');
+        toast.success('Delivery Challan deleted successfully');
+        fetchChalans();
       } catch (error) {
-        toast.error('Failed to delete quotation');
+        toast.error('Failed to delete challan');
       }
     }
   };
 
-  const filteredOffers = offers.filter(b => {
+  const filteredChalans = chalans.filter(b => {
     const matchesSearch = b.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.clientPhone.includes(searchTerm) ||
       b.invoiceNo.includes(searchTerm);
@@ -598,8 +589,8 @@ function ClientOffersContent() {
   });
 
   const ITEMS_PER_PAGE = 20;
-  const totalPages = Math.ceil(filteredOffers.length / ITEMS_PER_PAGE);
-  const paginatedOffers = filteredOffers.slice(
+  const totalPages = Math.ceil(filteredChalans.length / ITEMS_PER_PAGE);
+  const paginatedChalans = filteredChalans.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -610,31 +601,29 @@ function ClientOffersContent() {
     <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">{t("offers.title")}</h2>
-          <p className="text-muted-foreground text-sm">{t("offers.subtitle")}</p>
+          <h2 className="text-3xl font-bold tracking-tight">{t("chalans.title")}</h2>
+          <p className="text-muted-foreground text-sm">{t("chalans.subtitle")}</p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)} className="w-full md:w-auto bg-primary text-primary-foreground">
-          <Plus className="mr-2 h-4 w-4" /> {t("offers.create_offer")}
+          <Plus className="mr-2 h-4 w-4" /> {t("chalans.create_chalan")}
         </Button>
       </div>
 
-      {/* Offers Table */}
       <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <CardTitle>{t("offers.list_title")}</CardTitle>
+            <CardTitle>{t("chalans.list_title")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-56">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={t("offers.search_placeholder") as string}
+                  placeholder={t("chalans.search_placeholder") as string}
                   className="pl-8 text-xs h-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
 
-              {/* Date Filter Checkbox & Date Inputs */}
               <div className="flex items-center gap-1.5 text-xs">
                 <label className="flex items-center gap-1 cursor-pointer font-bold text-foreground shrink-0 select-none">
                   <input
@@ -693,14 +682,11 @@ function ClientOffersContent() {
             <div className="space-y-3 py-2">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between p-3 border rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-4 w-4 rounded" />
-                    <div className="space-y-1.5">
-                      <Skeleton className="h-4 w-32 rounded" />
-                      <Skeleton className="h-3 w-20 rounded" />
-                    </div>
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-32 rounded" />
+                    <Skeleton className="h-3 w-24 rounded" />
                   </div>
-                  <Skeleton className="h-4 w-20 rounded" />
+                  <Skeleton className="h-4 w-28 rounded" />
                   <Skeleton className="h-4 w-24 rounded" />
                   <div className="flex gap-2">
                     <Skeleton className="h-8 w-8 rounded-lg" />
@@ -709,42 +695,39 @@ function ClientOffersContent() {
                 </div>
               ))}
             </div>
-          ) : filteredOffers.length === 0 ? (
+          ) : filteredChalans.length === 0 ? (
             <div className="flex h-32 flex-col items-center justify-center text-muted-foreground">
               <FileText className="h-10 w-10 mb-2 stroke-1" />
-              <p>{t("offers.no_offers_found")}</p>
+              <p>{t("chalans.no_chalans_found")}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              {/* Desktop View */}
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t("offers.offer_no")}</TableHead>
+                      <TableHead>{t("chalans.chalan_no")}</TableHead>
                       <TableHead>{t("bills.client_name")}</TableHead>
                       <TableHead>{t("bills.phone")}</TableHead>
                       <TableHead>{t("bills.date")}</TableHead>
-                      <TableHead className="text-right">{t("offers.total_offer")} (৳)</TableHead>
                       <TableHead className="text-right">{t("bills.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedOffers.map((offer) => (
-                      <TableRow key={offer._id}>
-                        <TableCell className="font-semibold">{offer.invoiceNo}</TableCell>
-                        <TableCell>{offer.clientName}</TableCell>
-                        <TableCell>{offer.clientPhone}</TableCell>
-                        <TableCell>{format(new Date(offer.date), 'dd MMM yyyy')}</TableCell>
-                        <TableCell className="text-right font-medium">৳{Math.round(offer.total)}</TableCell>
+                    {paginatedChalans.map((chalan) => (
+                      <TableRow key={chalan._id}>
+                        <TableCell className="font-semibold">{chalan.invoiceNo}</TableCell>
+                        <TableCell>{chalan.clientName}</TableCell>
+                        <TableCell>{chalan.clientPhone}</TableCell>
+                        <TableCell>{format(new Date(chalan.date), 'dd MMM yyyy')}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
-                              onClick={() => generateBillPDF(offer, settings, 'print')}
-                              title="Print Quotation"
+                              onClick={() => generateBillPDF(chalan, settings, 'print')}
+                              title="Print Challan"
                             >
                               <Printer className="h-4 w-4" />
                             </Button>
@@ -754,78 +737,69 @@ function ClientOffersContent() {
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setSelectedOffer(offer)}>
-                                <Eye className="mr-2 h-4 w-4" /> {t("bills.view_details")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setEditingOffer(offer);
-                                  setClientName(offer.clientName);
-                                  setClientPhone(offer.clientPhone);
-                                  setClientAddress(offer.clientAddress || '');
-                                  setClientEmail(offer.clientEmail || '');
-                                  setClientDivision(offer.clientDivision || '');
-                                  setClientDistrict(offer.clientDistrict || '');
-                                  setClientThana(offer.clientThana || '');
-                                  setClientArea(offer.clientArea || '');
-                                  setBillItems(offer.items);
-                                  setDeliveryCharge(offer.deliveryCharge);
-                                  setServiceFee(offer.serviceFee || 0);
-                                  setDiscountType(offer.discountType || 'fixed');
-                                  setDiscountValue(offer.discountValue || 0);
-                                  const hasMore = !!(offer.clientEmail || offer.clientDivision || offer.clientDistrict || offer.clientThana || offer.clientArea || offer.clientAddress);
-                                  setShowMoreFields(hasMore);
-                                  setIsCreateOpen(true);
-                                }}
-                              >
-                                <Edit className="mr-2 h-4 w-4" /> {t("offers.edit_offer")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => generateBillPDF(offer, settings, 'download')}>
-                                <Download className="mr-2 h-4 w-4" /> {t("bills.download_pdf")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => generateBillPDF(offer, settings, 'print')}>
-                                <Printer className="mr-2 h-4 w-4" /> {t("bills.print_bill")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleConvertToChalan(offer)}>
-                                <ArrowRight className="mr-2 h-4 w-4" /> {t("offers.convert_to_chalan")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => handleDeleteOffer(offer._id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" /> {t("bills.delete")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setSelectedChalan(chalan)}>
+                                  <Eye className="mr-2 h-4 w-4" /> {t("bills.view_details")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setEditingChalan(chalan);
+                                    setClientName(chalan.clientName);
+                                    setClientPhone(chalan.clientPhone);
+                                    setClientAddress(chalan.clientAddress || '');
+                                    setClientEmail(chalan.clientEmail || '');
+                                    setClientDivision(chalan.clientDivision || '');
+                                    setClientDistrict(chalan.clientDistrict || '');
+                                    setClientThana(chalan.clientThana || '');
+                                    setClientArea(chalan.clientArea || '');
+                                    setBillItems(chalan.items.map((item: any) => ({ ...item })));
+                                    const hasMore = !!(chalan.clientEmail || chalan.clientDivision || chalan.clientDistrict || chalan.clientThana || chalan.clientArea || chalan.clientAddress);
+                                    setShowMoreFields(hasMore);
+                                    setIsCreateOpen(true);
+                                  }}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" /> {t("chalans.edit_chalan")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => generateBillPDF(chalan, settings, 'download')}>
+                                  <Download className="mr-2 h-4 w-4" /> {t("bills.download_pdf")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => generateBillPDF(chalan, settings, 'print')}>
+                                  <Printer className="mr-2 h-4 w-4" /> {t("bills.print_bill")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleConvertToBill(chalan)}>
+                                  <ArrowRight className="mr-2 h-4 w-4" /> {t("chalans.convert_to_bill")}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => handleDeleteChalan(chalan._id)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" /> {t("bills.delete")}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
 
-              {/* Mobile View */}
               <div className="block md:hidden space-y-3">
-                {paginatedOffers.map((offer) => (
-                  <div key={offer._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                {paginatedChalans.map((chalan) => (
+                  <div key={chalan._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-base text-primary">{offer.invoiceNo}</span>
-                      <span className="text-xs text-muted-foreground">{format(new Date(offer.date), 'dd MMM yyyy')}</span>
+                      <span className="font-bold text-base text-primary">{chalan.invoiceNo}</span>
+                      <span className="text-xs text-muted-foreground">{format(new Date(chalan.date), 'dd MMM yyyy')}</span>
                     </div>
                     <div className="space-y-2 text-sm md:text-xs">
                       <div className="flex justify-between items-center py-0.5">
                         <span className="text-muted-foreground">{t("bills.client")}:</span>
-                        <span className="font-semibold text-foreground">{offer.clientName}</span>
+                        <span className="font-semibold text-foreground">{chalan.clientName}</span>
                       </div>
                       <div className="flex justify-between items-center py-0.5 border-t border-border/30">
                         <span className="text-muted-foreground">{t("bills.phone")}:</span>
-                        <span className="text-foreground font-medium">{offer.clientPhone}</span>
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t mt-1">
-                        <span className="text-muted-foreground font-bold">{t("bills.total")}:</span>
-                        <span className="font-bold text-foreground text-base md:text-sm">৳{Math.round(offer.total)}</span>
+                        <span className="text-foreground font-medium">{chalan.clientPhone}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-end gap-2 pt-2.5 border-t mt-1">
@@ -833,7 +807,7 @@ function ClientOffersContent() {
                         variant="outline"
                         size="sm"
                         className="h-9 text-teal-600 hover:text-teal-700 text-xs px-3 py-1 flex items-center gap-1"
-                        onClick={() => generateBillPDF(offer, settings, 'print')}
+                        onClick={() => generateBillPDF(chalan, settings, 'print')}
                       >
                         <Printer className="h-3.5 w-3.5 mr-1" /> {t("bills.print")}
                       </Button>
@@ -844,44 +818,40 @@ function ClientOffersContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setSelectedOffer(offer)}>
+                          <DropdownMenuItem onClick={() => setSelectedChalan(chalan)}>
                             <Eye className="mr-2 h-4 w-4" /> {t("bills.view_details")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
-                              setEditingOffer(offer);
-                              setClientName(offer.clientName);
-                              setClientPhone(offer.clientPhone);
-                              setClientAddress(offer.clientAddress || '');
-                              setClientEmail(offer.clientEmail || '');
-                              setClientDivision(offer.clientDivision || '');
-                              setClientDistrict(offer.clientDistrict || '');
-                              setClientThana(offer.clientThana || '');
-                              setClientArea(offer.clientArea || '');
-                              setBillItems(offer.items);
-                              setDeliveryCharge(offer.deliveryCharge);
-                              setServiceFee(offer.serviceFee || 0);
-                              setDiscountType(offer.discountType || 'fixed');
-                              setDiscountValue(offer.discountValue || 0);
-                              const hasMore = !!(offer.clientEmail || offer.clientDivision || offer.clientDistrict || offer.clientThana || offer.clientArea || offer.clientAddress);
+                              setEditingChalan(chalan);
+                              setClientName(chalan.clientName);
+                              setClientPhone(chalan.clientPhone);
+                              setClientAddress(chalan.clientAddress || '');
+                              setClientEmail(chalan.clientEmail || '');
+                              setClientDivision(chalan.clientDivision || '');
+                              setClientDistrict(chalan.clientDistrict || '');
+                              setClientThana(chalan.clientThana || '');
+                              setClientArea(chalan.clientArea || '');
+                              setBillItems(chalan.items.map((item: any) => ({ ...item })));
+                              const hasMore = !!(chalan.clientEmail || chalan.clientDivision || chalan.clientDistrict || chalan.clientThana || chalan.clientArea || chalan.clientAddress);
                               setShowMoreFields(hasMore);
                               setIsCreateOpen(true);
                             }}
                           >
-                            <Edit className="mr-2 h-4 w-4" /> {t("offers.edit_offer")}
+                            <Edit className="mr-2 h-4 w-4" /> {t("chalans.edit_chalan")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => generateBillPDF(offer, settings, 'download')}>
+                          <DropdownMenuItem onClick={() => generateBillPDF(chalan, settings, 'download')}>
                             <Download className="mr-2 h-4 w-4" /> {t("bills.download_pdf")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => generateBillPDF(offer, settings, 'print')}>
+                          <DropdownMenuItem onClick={() => generateBillPDF(chalan, settings, 'print')}>
                             <Printer className="mr-2 h-4 w-4" /> {t("bills.print_bill")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleConvertToChalan(offer)}>
-                            <ArrowRight className="mr-2 h-4 w-4" /> {t("offers.convert_to_chalan")}
+                          <DropdownMenuItem onClick={() => handleConvertToBill(chalan)}>
+                            <ArrowRight className="mr-2 h-4 w-4" /> {t("chalans.convert_to_bill")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={() => handleDeleteOffer(offer._id)}
+                            onClick={() => handleDeleteChalan(chalan._id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" /> {t("bills.delete")}
                           </DropdownMenuItem>
@@ -909,10 +879,9 @@ function ClientOffersContent() {
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if(!open) resetForm(); }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingOffer ? t("offers.edit_offer") : t("offers.create_new")}</DialogTitle>
+            <DialogTitle>{editingChalan ? t("chalans.edit_chalan") : t("chalans.create_new")}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Client Info */}
             <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2 relative" ref={nameRef}>
@@ -989,9 +958,7 @@ function ClientOffersContent() {
 
               {showMoreFields && (
                 <div className="space-y-4 pt-4 border-t border-dashed border-gray-200">
-                  {/* Row 1: Email and Address */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Customer Email */}
                     <div className="space-y-2">
                       <Label htmlFor="cEmail">Email</Label>
                       <Input
@@ -1003,7 +970,6 @@ function ClientOffersContent() {
                       />
                     </div>
 
-                    {/* Customer Street Address */}
                     <div className="space-y-2">
                       <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
                       <Input
@@ -1015,9 +981,7 @@ function ClientOffersContent() {
                     </div>
                   </div>
 
-                  {/* Row 2: Location Fields */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {/* Division */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.division")}</Label>
                       <Select
@@ -1041,7 +1005,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* District */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.district")}</Label>
                       <Select
@@ -1065,7 +1028,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* Thana */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
                       <Select
@@ -1086,7 +1048,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* Area */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">Area</Label>
                       <Select
@@ -1117,7 +1078,6 @@ function ClientOffersContent() {
               )}
             </div>
 
-            {/* Product Picker */}
             <div className="flex items-center justify-between">
               <Label className="text-lg font-semibold">{t("chalans.items_list")}</Label>
               <div className="flex items-center gap-2">
@@ -1135,7 +1095,6 @@ function ClientOffersContent() {
               </div>
             </div>
 
-            {/* Manual item entries */}
             <div className="space-y-3">
               {billItems.map((item, index) => (
                 <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border p-2 sm:p-0 sm:border-none rounded-md">
@@ -1148,23 +1107,13 @@ function ClientOffersContent() {
                     />
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="flex-1 sm:w-24">
+                    <div className="flex-1 sm:w-32">
                       <Input
                         type="number"
                         placeholder={t("bills.qty") as string}
                         min="1"
                         value={item.quantity}
                         onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="flex-1 sm:w-28">
-                      <Input
-                        type="number"
-                        placeholder={t("offers.price") as string}
-                        min="0"
-                        value={item.price}
-                        onChange={(e) => handleItemChange(index, 'price', e.target.value)}
                         required
                       />
                     </div>
@@ -1182,106 +1131,19 @@ function ClientOffersContent() {
               ))}
             </div>
 
-            <hr />
-
-            {/* Calculations & Discounts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 space-y-2">
-                    <Label htmlFor="discType">{t("offers.discount_type")}</Label>
-                    <Select
-                      value={discountType}
-                      onValueChange={(val: any) => { setDiscountType(val); setDiscountValue(0); }}
-                    >
-                      <SelectTrigger id="discType">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fixed">{t("offers.fixed_amount")}</SelectItem>
-                        <SelectItem value="percentage">{t("offers.percentage")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <Label htmlFor="discVal">{t("bills.discount_value")}</Label>
-                    <Input
-                      id="discVal"
-                      type="number"
-                      min="0"
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(Math.max(0, parseFloat(e.target.value) || 0))}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="delCharge">{t("bills.delivery_charge")}</Label>
-                  <Input
-                    id="delCharge"
-                    type="number"
-                    min="0"
-                    value={deliveryCharge}
-                    onChange={(e) => setDeliveryCharge(Math.max(0, parseFloat(e.target.value) || 0))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="serviceFeeOffer">{t("bills.service_fee")} <span className="text-muted-foreground font-normal text-xs">— {t("bills.optional")}</span></Label>
-                  <Input
-                    id="serviceFeeOffer"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={serviceFee || ''}
-                    onChange={(e) => setServiceFee(Math.max(0, parseFloat(e.target.value) || 0))}
-                  />
-                </div>
-              </div>
-
-              <div className="bg-muted p-4 rounded-lg space-y-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span>{t("bills.subtotal")}:</span>
-                  <span className="font-medium">৳{subtotal}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-success">
-                    <span>{t("bills.discount")}:</span>
-                    <span>- ৳{discount}</span>
-                  </div>
-                )}
-                {deliveryCharge > 0 && (
-                  <div className="flex justify-between">
-                    <span>{t("bills.delivery_charge")}:</span>
-                    <span>৳{deliveryCharge}</span>
-                  </div>
-                )}
-                {serviceFee > 0 && (
-                  <div className="flex justify-between">
-                    <span>{t("bills.service_fee")}:</span>
-                    <span>৳{serviceFee}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-lg font-bold border-t pt-2">
-                  <span>{t("offers.total_offer")}:</span>
-                  <span>৳{total}</span>
-                </div>
-              </div>
-            </div>
-
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                 {t("bills.cancel")}
               </Button>
               <Button type="submit" disabled={formLoading} className="bg-primary text-primary-foreground">
                 {formLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {editingOffer ? t("offers.update_offer") : t("offers.generate_offer")}
+                {editingChalan ? t("chalans.update_chalan") : t("chalans.generate_chalan")}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
         <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
@@ -1304,7 +1166,6 @@ function ClientOffersContent() {
                     <TableHead className="w-12">Select</TableHead>
                     <TableHead>{t("chalans.product")}</TableHead>
                     <TableHead>{t("chalans.options_variants")}</TableHead>
-                    <TableHead className="text-right">{t("offers.price")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1338,17 +1199,14 @@ function ClientOffersContent() {
                                       onClick={() => toggleProductVariant(prod._id, v._id)}
                                       className="text-xs py-0.5 px-2 h-7"
                                     >
-                                      {label} (৳{v.salePrice || v.price})
+                                      {label}
                                     </Button>
                                   );
                                 })}
                               </div>
-                              ) : (
-                                <span className="text-xs text-muted-foreground">{t("chalans.standard_item")}</span>
-                              )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {!hasVariants && `৳${prod.salePrice || prod.price}`}
+                            ) : (
+                              <span className="text-xs text-muted-foreground">{t("chalans.standard_item")}</span>
+                            )}
                           </TableCell>
                         </TableRow>
                       );
@@ -1367,25 +1225,24 @@ function ClientOffersContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Offer Detail View Dialog */}
-      <Dialog open={!!selectedOffer} onOpenChange={(open) => { if (!open) setSelectedOffer(null); }}>
+      <Dialog open={!!selectedChalan} onOpenChange={(open) => { if (!open) setSelectedChalan(null); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t("offers.offer_details")} — {selectedOffer?.invoiceNo}</DialogTitle>
+            <DialogTitle>{t("chalans.chalan_details")} — {selectedChalan?.invoiceNo}</DialogTitle>
           </DialogHeader>
-          {selectedOffer && (
+          {selectedChalan && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <h4 className="font-semibold text-muted-foreground mb-1 uppercase tracking-wider text-xs">{t("offers.quotation_to")}</h4>
-                  <p className="font-medium text-base">{selectedOffer.clientName}</p>
-                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {selectedOffer.clientPhone}</p>
-                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {selectedOffer.clientAddress}</p>
+                  <h4 className="font-semibold text-muted-foreground mb-1 uppercase tracking-wider text-xs">{t("chalans.deliver_to")}</h4>
+                  <p className="font-medium text-base">{selectedChalan.clientName}</p>
+                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {selectedChalan.clientPhone}</p>
+                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {selectedChalan.clientAddress}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-muted-foreground mb-1 uppercase tracking-wider text-xs">{t("chalans.document_info")}</h4>
-                  <p className="flex items-center gap-1.5 font-medium"><Hash className="h-3.5 w-3.5 text-primary" /> {selectedOffer.invoiceNo}</p>
-                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><CalendarDays className="h-3.5 w-3.5" /> {format(new Date(selectedOffer.date), 'dd MMM yyyy')}</p>
+                  <p className="flex items-center gap-1.5 font-medium"><Hash className="h-3.5 w-3.5 text-primary" /> {selectedChalan.invoiceNo}</p>
+                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><CalendarDays className="h-3.5 w-3.5" /> {format(new Date(selectedChalan.date), 'dd MMM yyyy')}</p>
                 </div>
               </div>
 
@@ -1394,71 +1251,36 @@ function ClientOffersContent() {
                   <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
                       <TableHead>{t("chalans.description")}</TableHead>
-                      <TableHead className="text-center w-16">{t("bills.qty")}</TableHead>
-                      <TableHead className="text-right w-24">Rate</TableHead>
-                      <TableHead className="text-right w-28">{t("bills.amount")}</TableHead>
+                      <TableHead className="text-center w-24">{t("chalans.quantity_delivered")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {selectedOffer.items.map((item: any, i: number) => (
+                    {selectedChalan.items.map((item: any, i: number) => (
                       <TableRow key={i}>
                         <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell className="text-center">{item.quantity}</TableCell>
-                        <TableCell className="text-right">৳{Math.round(item.price)}</TableCell>
-                        <TableCell className="text-right font-medium">৳{Math.round(item.price * item.quantity)}</TableCell>
+                        <TableCell className="text-center font-medium">{item.quantity}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
 
-              <div className="flex justify-end">
-                <div className="w-64 space-y-2 text-sm border-t pt-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("bills.subtotal")}:</span>
-                    <span className="font-medium">৳{Math.round(selectedOffer.subtotal)}</span>
-                  </div>
-                  {selectedOffer.discount > 0 && (
-                    <div className="flex justify-between text-success">
-                      <span>{t("bills.discount")} ({selectedOffer.discountType === 'percentage' ? `${selectedOffer.discountValue}%` : 'Fixed'}):</span>
-                      <span>- ৳{Math.round(selectedOffer.discount)}</span>
-                    </div>
-                  )}
-                  {selectedOffer.deliveryCharge > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t("bills.delivery_charge")}:</span>
-                      <span>৳{Math.round(selectedOffer.deliveryCharge)}</span>
-                    </div>
-                  )}
-                  {selectedOffer.serviceFee > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t("bills.service_fee")}:</span>
-                      <span>৳{Math.round(selectedOffer.serviceFee)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-base font-bold border-t pt-2">
-                    <span>{t("offers.total_offer")}:</span>
-                    <span className="text-primary">৳{Math.round(selectedOffer.total)}</span>
-                  </div>
-                </div>
-              </div>
-
               <DialogFooter className="gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => generateBillPDF(selectedOffer, settings, 'print')}
+                  onClick={() => generateBillPDF(selectedChalan, settings, 'print')}
                 >
-                  <Printer className="mr-2 h-4 w-4" /> {t("offers.print_offer")}
+                  <Printer className="mr-2 h-4 w-4" /> {t("chalans.print_chalan")}
                 </Button>
                 <Button
                   className="bg-primary text-primary-foreground"
                   onClick={() => {
-                    const off = selectedOffer;
-                    setSelectedOffer(null);
-                    handleConvertToChalan(off);
+                    const ch = selectedChalan;
+                    setSelectedChalan(null);
+                    handleConvertToBill(ch);
                   }}
                 >
-                  <ArrowRight className="mr-2 h-4 w-4" /> {t("offers.convert_to_chalan")}
+                  <ArrowRight className="mr-2 h-4 w-4" /> {t("chalans.convert_final_bill")}
                 </Button>
               </DialogFooter>
             </div>
@@ -1469,10 +1291,10 @@ function ClientOffersContent() {
   );
 }
 
-export default function ClientOffersPage() {
+export default function ShowroomChalansPage() {
   return (
     <Suspense fallback={<AdminTableSkeleton rowCount={6} columnCount={5} titleWidth="w-48" />}>
-      <ClientOffersContent />
+      <ClientChalansContent />
     </Suspense>
   );
 }

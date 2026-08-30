@@ -288,7 +288,7 @@ export default function EmployeeSalaryPage() {
           </div>
 
           {/* Mobile Card List */}
-          <div className="block md:hidden divide-y">
+          <div className="block md:hidden space-y-3 p-2 bg-muted/10">
             {disbursements.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground text-xs space-y-2">
                 <FileText className="h-8 w-8 mx-auto opacity-20" />
@@ -298,18 +298,18 @@ export default function EmployeeSalaryPage() {
               disbursements.map((item) => {
                 const badgeInfo = getDisbursementTypeLabel(item.category);
                 return (
-                  <div key={item._id} className="p-4 space-y-3">
+                  <div key={item._id} className="p-4 bg-background border rounded-xl shadow-xs space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <Badge variant={badgeInfo.badge as any} className="text-[11px]">
+                      <Badge variant={badgeInfo.badge as any} className="text-xs">
                         {badgeInfo.label}
                       </Badge>
-                      <span className="text-base font-black text-foreground">
+                      <span className="text-base sm:text-lg font-black text-primary">
                         {fmt(item.amount)}
                       </span>
                     </div>
 
-                    <div className="flex flex-col text-[11px] text-muted-foreground gap-1">
-                      <span className="font-medium text-foreground/80">
+                    <div className="flex flex-col text-xs sm:text-sm text-muted-foreground gap-1">
+                      <span className="font-semibold text-foreground text-sm sm:text-base">
                         {item.title}
                       </span>
                       <span>
@@ -318,8 +318,8 @@ export default function EmployeeSalaryPage() {
                     </div>
 
                     {item.description && (
-                      <div className="text-[11px] bg-muted/40 p-2 rounded-md text-foreground/90">
-                        <span className="text-muted-foreground font-semibold">Note:</span> {item.description}
+                      <div className="text-xs sm:text-sm bg-muted/30 p-2.5 rounded-lg border text-foreground/90">
+                        <span className="text-muted-foreground font-bold">Note:</span> {item.description}
                       </div>
                     )}
 
@@ -327,9 +327,9 @@ export default function EmployeeSalaryPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedDisbursement(item)}
-                      className="w-full text-xs h-8 font-semibold flex items-center justify-center gap-1"
+                      className="w-full text-xs sm:text-sm h-9 font-semibold flex items-center justify-center gap-1.5"
                     >
-                      <Eye className="h-3.5 w-3.5" /> Details
+                      <Eye className="h-4 w-4" /> Details
                     </Button>
                   </div>
                 );

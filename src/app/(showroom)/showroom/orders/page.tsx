@@ -301,7 +301,7 @@ function ShowroomOrdersContent() {
                         >
                           <Share2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }} aria-label="View order details">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
@@ -314,55 +314,54 @@ function ShowroomOrdersContent() {
         </div>
 
         {/* Mobile View */}
-        <div className="block md:hidden divide-y divide-border px-4">
+        <div className="block md:hidden space-y-2.5">
           {loading ? (
             <div className="py-12 text-center">
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
             </div>
           ) : orders.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground text-sm">
+            <div className="py-12 text-center text-muted-foreground text-sm sm:text-base">
               {t('store.showroom.no_orders_found') || 'No orders found.'}
             </div>
           ) : (
             orders.map((order) => (
-              <div key={order._id} className="py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-xs text-foreground">#{order.shortId}</span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy') : '-'}
-                    </span>
-                  </div>
-                  <div className="font-semibold text-xs text-foreground pt-0.5 truncate max-w-[200px]">
-                    {order.shippingAddress?.fullName}
-                  </div>
-                  <div className="text-[9px] text-muted-foreground font-medium pt-0.5">
-                    {order.shippingAddress?.phone} • {order.paymentMethod}
-                  </div>
+              <div key={order._id} className="p-3 border rounded-xl bg-card shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-sm sm:text-base text-foreground">#{order.shortId}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    {order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy') : '-'}
+                  </span>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <div className="text-right shrink-0">
-                    <div className="font-extrabold text-xs text-primary">
-                      ৳{Math.round(order.totalAmount)}
-                    </div>
-                    <div className="scale-75 -mr-2.5 pt-0.5">
-                      {getStatusBadge(order.status)}
-                    </div>
+                <div className="space-y-1.5 text-xs sm:text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Customer:</span>
+                    <span className="font-semibold text-foreground">{order.shippingAddress?.fullName}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 shrink-0"
-                      onClick={() => handleCopyLink(order._id)}
-                      title={t('store.showroom.copy_link_title_mobile') || 'Copy Shareable Link'}
-                    >
-                      <Share2 className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="text-foreground">{order.shippingAddress?.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Method:</span>
+                    <span className="text-foreground">{order.paymentMethod} • {order.paymentStatus}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <span className="text-sm sm:text-base font-extrabold text-primary">৳{Math.round(order.totalAmount)}</span>
+                    <div className="flex items-center gap-1.5">
+                      {getStatusBadge(order.status)}
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        onClick={() => handleCopyLink(order._id)}
+                        title={t('store.showroom.copy_link_title_mobile') || 'Copy Shareable Link'}
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }} aria-label="View order details">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

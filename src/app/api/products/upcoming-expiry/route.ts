@@ -6,12 +6,24 @@ import { auth } from '@/auth';
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
 
-    if (!session || !session.user || !(['admin', 'super_admin'].includes((session.user as any)?.role))) {
+    if (!session || !session.user || !(['admin', 'super_admin', 'showroom_manager'].includes(userRole))) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     await connectToDatabase();
+
+    let showroomId: string | null = null;
+    if (userRole === 'showroom_manager') {
+      const Showroom = (await import('@/models/Showroom')).default;
+      const showroom = await Showroom.findOne({ manager: userId }).lean();
+      if (!showroom) {
+        return NextResponse.json({ message: 'No showroom assigned' }, { status: 404 });
+      }
+      showroomId = showroom._id.toString();
+    }
 
     // Calculate the date 30 days from now
     const today = new Date();
@@ -31,8 +43,16 @@ export async function GET(req: NextRequest) {
 
     const expiringBatches: any[] = [];
 
+    const hasShowroomStock = (prod: any) => {
+      if (!showroomId) return true;
+      const srStock = (prod.showroomStocks || []).find((s: any) => s.showroom?.toString() === showroomId);
+      return srStock && srStock.stock > 0;
+    };
+
     // Process products to flatten the batches
     for (const product of products) {
+      if (!hasShowroomStock(product)) continue;
+
       // Top level batches
       if (product.batches && Array.isArray(product.batches)) {
         for (const batch of product.batches) {

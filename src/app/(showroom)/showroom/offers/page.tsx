@@ -90,15 +90,21 @@ function ClientOffersContent() {
     } else {
       params.delete('page');
     }
-    router.push(`/admin/offers?${params.toString()}`);
+    router.push(`/showroom/offers?${params.toString()}`);
   }, [currentPage]);
+
+  const isFirstMount = useRef(true);
 
   // Reset page when search term or dates change
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     setCurrentPage(1);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('page');
-    router.push(`/admin/offers?${params.toString()}`);
+    router.replace(`/showroom/offers?${params.toString()}`);
   }, [searchTerm, filterByDate, dateFilter.from, dateFilter.to]);
 
   // Offer detail view state
@@ -201,7 +207,6 @@ function ClientOffersContent() {
     }
   };
 
-
   const handlePhoneChange = (val: string) => {
     setClientPhone(val);
     if (phoneError) validatePhone(val);
@@ -273,7 +278,7 @@ function ClientOffersContent() {
   const fetchOffers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/bills?type=offer');
+      const res = await fetch('/api/showroom/bills?type=offer');
       if (!res.ok) throw new Error('Failed to fetch offers');
       const data = await res.json();
       setOffers(data);
@@ -440,7 +445,7 @@ function ClientOffersContent() {
         documentType: 'offer'
       };
 
-      const url = editingOffer ? `/api/admin/bills/${editingOffer._id}` : '/api/admin/bills';
+      const url = editingOffer ? `/api/showroom/bills/${editingOffer._id}` : '/api/showroom/bills';
       const method = editingOffer ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -454,7 +459,6 @@ function ClientOffersContent() {
         throw new Error(errorData.message || `Failed to ${editingOffer ? 'update' : 'create'} quotation`);
       }
 
-      const createdOffer = await res.json();
       toast.success(editingOffer ? 'Quotation updated successfully!' : 'Quotation generated successfully!');
 
       setIsCreateOpen(false);
@@ -527,7 +531,7 @@ function ClientOffersContent() {
           convertedFrom: offer._id
         };
 
-        const res = await fetch('/api/admin/bills', {
+        const res = await fetch('/api/showroom/bills', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(challanData)
@@ -567,7 +571,7 @@ function ClientOffersContent() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`/api/admin/bills/${offerId}`, {
+        const res = await fetch(`/api/showroom/bills/${offerId}`, {
           method: 'DELETE'
         });
         if (!res.ok) throw new Error('Failed to delete quotation');
@@ -613,12 +617,11 @@ function ClientOffersContent() {
           <h2 className="text-3xl font-bold tracking-tight">{t("offers.title")}</h2>
           <p className="text-muted-foreground text-sm">{t("offers.subtitle")}</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="w-full md:w-auto bg-primary text-primary-foreground">
+        <Button onClick={() => { resetForm(); setIsCreateOpen(true); }} className="w-full md:w-auto bg-primary text-primary-foreground">
           <Plus className="mr-2 h-4 w-4" /> {t("offers.create_offer")}
         </Button>
       </div>
 
-      {/* Offers Table */}
       <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -634,7 +637,6 @@ function ClientOffersContent() {
                 />
               </div>
 
-              {/* Date Filter Checkbox & Date Inputs */}
               <div className="flex items-center gap-1.5 text-xs">
                 <label className="flex items-center gap-1 cursor-pointer font-bold text-foreground shrink-0 select-none">
                   <input
@@ -716,7 +718,6 @@ function ClientOffersContent() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              {/* Desktop View */}
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
@@ -740,11 +741,11 @@ function ClientOffersContent() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
-                              onClick={() => generateBillPDF(offer, settings, 'print')}
-                              title="Print Quotation"
+                               variant="ghost"
+                               size="icon"
+                               className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+                               onClick={() => generateBillPDF(offer, settings, 'print')}
+                               title="Print Quotation"
                             >
                               <Printer className="h-4 w-4" />
                             </Button>
@@ -806,7 +807,6 @@ function ClientOffersContent() {
                 </Table>
               </div>
 
-              {/* Mobile View */}
               <div className="block md:hidden space-y-3">
                 {paginatedOffers.map((offer) => (
                   <div key={offer._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
@@ -905,14 +905,12 @@ function ClientOffersContent() {
         </CardContent>
       </Card>
 
-      {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if(!open) resetForm(); }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingOffer ? t("offers.edit_offer") : t("offers.create_new")}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Client Info */}
             <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2 relative" ref={nameRef}>
@@ -989,9 +987,7 @@ function ClientOffersContent() {
 
               {showMoreFields && (
                 <div className="space-y-4 pt-4 border-t border-dashed border-gray-200">
-                  {/* Row 1: Email and Address */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Customer Email */}
                     <div className="space-y-2">
                       <Label htmlFor="cEmail">Email</Label>
                       <Input
@@ -1003,7 +999,6 @@ function ClientOffersContent() {
                       />
                     </div>
 
-                    {/* Customer Street Address */}
                     <div className="space-y-2">
                       <Label htmlFor="cAddr">{t("bills.client_address")}</Label>
                       <Input
@@ -1015,9 +1010,7 @@ function ClientOffersContent() {
                     </div>
                   </div>
 
-                  {/* Row 2: Location Fields */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {/* Division */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.division")}</Label>
                       <Select
@@ -1041,7 +1034,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* District */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.district")}</Label>
                       <Select
@@ -1065,7 +1057,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* Thana */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">{t("settings.thana")}</Label>
                       <Select
@@ -1086,7 +1077,6 @@ function ClientOffersContent() {
                       </Select>
                     </div>
 
-                    {/* Area */}
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">Area</Label>
                       <Select
@@ -1117,7 +1107,6 @@ function ClientOffersContent() {
               )}
             </div>
 
-            {/* Product Picker */}
             <div className="flex items-center justify-between">
               <Label className="text-lg font-semibold">{t("chalans.items_list")}</Label>
               <div className="flex items-center gap-2">
@@ -1135,7 +1124,6 @@ function ClientOffersContent() {
               </div>
             </div>
 
-            {/* Manual item entries */}
             <div className="space-y-3">
               {billItems.map((item, index) => (
                 <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border p-2 sm:p-0 sm:border-none rounded-md">
@@ -1184,7 +1172,6 @@ function ClientOffersContent() {
 
             <hr />
 
-            {/* Calculations & Discounts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -1269,7 +1256,7 @@ function ClientOffersContent() {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => { resetForm(); setIsCreateOpen(false); }}>
                 {t("bills.cancel")}
               </Button>
               <Button type="submit" disabled={formLoading} className="bg-primary text-primary-foreground">
@@ -1281,7 +1268,6 @@ function ClientOffersContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
         <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
@@ -1367,7 +1353,6 @@ function ClientOffersContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Offer Detail View Dialog */}
       <Dialog open={!!selectedOffer} onOpenChange={(open) => { if (!open) setSelectedOffer(null); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -1469,7 +1454,7 @@ function ClientOffersContent() {
   );
 }
 
-export default function ClientOffersPage() {
+export default function ShowroomOffersPage() {
   return (
     <Suspense fallback={<AdminTableSkeleton rowCount={6} columnCount={5} titleWidth="w-48" />}>
       <ClientOffersContent />

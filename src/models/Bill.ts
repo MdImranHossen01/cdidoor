@@ -18,6 +18,7 @@ export interface IBill extends Document {
   clientDistrict?: string;
   clientThana?: string;
   clientArea?: string;
+  clientImage?: string;
   invoiceNo: string;
   date: Date;
   items: IBillItem[];
@@ -52,6 +53,7 @@ const BillSchema: Schema<IBill> = new Schema(
     clientDistrict: { type: String },
     clientThana: { type: String },
     clientArea: { type: String },
+    clientImage: { type: String },
     invoiceNo: { type: String, required: true, unique: true },
     date: { type: Date, default: Date.now },
     transactionId: { type: String },

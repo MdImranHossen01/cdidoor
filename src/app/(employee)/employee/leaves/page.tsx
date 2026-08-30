@@ -445,7 +445,7 @@ export default function EmployeeLeavesPage() {
           </div>
 
           {/* Mobile Card List */}
-          <div className="block md:hidden divide-y">
+          <div className="block md:hidden space-y-3 p-2 bg-muted/10">
             {leaves.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground text-xs space-y-2">
                 <CalendarOff className="h-8 w-8 mx-auto opacity-20" />
@@ -453,19 +453,20 @@ export default function EmployeeLeavesPage() {
               </div>
             ) : (
               leaves.map((leave) => (
-                <div key={leave._id} className="p-4 space-y-2">
+                <div key={leave._id} className="p-4 bg-background border rounded-xl shadow-xs space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] text-muted-foreground">
+                    <span className="font-mono text-xs sm:text-sm text-muted-foreground">
                       {t('store.employee.applied') || 'Applied: '} {leave.createdAt ? format(new Date(leave.createdAt), 'dd MMM yyyy') : 'N/A'}
                     </span>
                     {getStatusBadge(leave.status)}
                   </div>
 
-                  <div className="text-xs font-bold text-foreground">
-                    {format(new Date(leave.startDate), 'dd MMM')} â€” {format(new Date(leave.endDate), 'dd MMM yyyy')}
+                  <div className="text-sm sm:text-base font-extrabold text-foreground">
+                    {format(new Date(leave.startDate), 'dd MMM yyyy')} — {format(new Date(leave.endDate), 'dd MMM yyyy')}
                   </div>
 
-                  <div className="text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-md">
+                  <div className="text-xs sm:text-sm text-muted-foreground bg-muted/30 p-2.5 rounded-lg border">
+                    <p className="font-semibold text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Reason</p>
                     {leave.reason}
                   </div>
                 </div>

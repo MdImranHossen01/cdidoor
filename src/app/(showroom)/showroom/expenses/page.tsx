@@ -489,21 +489,20 @@ function ShowroomExpensesContent() {
               </div>
 
               {/* Mobile View */}
-              <div className="block md:hidden divide-y divide-border">
+              <div className="block md:hidden space-y-2.5">
                 {filteredTransactions.map((tx) => {
                   const isExpense = (tx.type || 'expense') === 'expense';
                   return (
-                    <div key={tx._id} className="py-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        {/* Details */}
+                    <div key={tx._id} className="p-4 bg-background border rounded-xl shadow-xs space-y-3">
+                      <div className="flex items-center justify-between">
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-foreground truncate">{tx.title}</p>
-                          <div className="flex flex-wrap gap-1.5 items-center pt-0.5">
-                            <span className="text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
+                          <p className="font-bold text-sm sm:text-base text-foreground truncate">{tx.title}</p>
+                          <div className="flex flex-wrap gap-1.5 items-center pt-1">
+                            <span className="text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
                               {tx.category || 'General'}
                             </span>
                             {tx.status && (
-                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${tx.status === 'Approved'
+                              <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${tx.status === 'Approved'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400'
                                   : tx.status === 'Pending'
                                     ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400'
@@ -513,52 +512,47 @@ function ShowroomExpensesContent() {
                               </span>
                             )}
                           </div>
-                          {tx.description && (
-                            <p className="text-[10px] text-muted-foreground mt-1 truncate max-w-[200px]">
-                              {tx.description}
-                            </p>
-                          )}
                         </div>
-                      </div>
 
-                      {/* Right side Amount, Date & Action Menu */}
-                      <div className="flex items-center gap-1.5 shrink-0">
                         <div className="text-right shrink-0">
-                          <p className={`font-extrabold text-sm ${!isExpense ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          <p className={`font-extrabold text-sm sm:text-base ${!isExpense ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {!isExpense ? '+' : '-'}{fmt(tx.amount || 0)}
                           </p>
-                          <p className="text-[10px] text-muted-foreground font-medium pt-0.5">
+                          <p className="text-xs text-muted-foreground font-medium pt-1">
                             {tx.date ? format(new Date(tx.date), 'dd MMM yyyy') : '-'}
                           </p>
                         </div>
-                        {tx.status === 'Pending' ? (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setEditingTransaction(tx);
-                                  setIsDialogOpen(true);
-                                }}
-                              >
-                                <Edit className="mr-2 h-4 w-4" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => handleDelete(tx._id)}
-                              >
-                                <Trash className="mr-2 h-4 w-4" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        ) : (
-                          <span className="text-[10px] text-muted-foreground font-medium shrink-0 pl-1">Locked</span>
-                        )}
                       </div>
+
+                      {tx.description && (
+                        <div className="text-xs sm:text-sm text-muted-foreground bg-muted/30 p-2 rounded-lg border">
+                          {tx.description}
+                        </div>
+                      )}
+
+                      {tx.status === 'Pending' && (
+                        <div className="flex items-center gap-2 pt-2 border-t">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-xs sm:text-sm h-9"
+                            onClick={() => {
+                              setEditingTransaction(tx);
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="flex-1 text-xs sm:text-sm h-9"
+                            onClick={() => handleDelete(tx._id)}
+                          >
+                            <Trash className="mr-1.5 h-3.5 w-3.5" /> Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

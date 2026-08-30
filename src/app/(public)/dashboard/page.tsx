@@ -100,7 +100,8 @@ export default function OrdersPage() {
         <p className="text-sm text-muted-foreground">{orders.length} total orders found</p>
       </div>
 
-      <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-xl border bg-background shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
@@ -174,6 +175,83 @@ export default function OrdersPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card List View */}
+      <div className="block md:hidden space-y-3">
+        {orders.length === 0 ? (
+          <div className="rounded-xl border bg-background p-8 text-center text-muted-foreground text-sm space-y-2">
+            <Package className="h-8 w-8 mx-auto opacity-20" />
+            <p>You haven't placed any orders yet.</p>
+          </div>
+        ) : (
+          orders.map((order) => (
+            <div key={order._id} className="p-4 bg-background border rounded-xl shadow-xs space-y-3">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-mono text-sm sm:text-base font-black text-primary">
+                  #{order?._id?.slice(-8).toUpperCase() || 'N/A'}
+                </span>
+                <Badge variant={getStatusColor(order.status) as any} className="text-xs sm:text-sm">
+                  {order.status}
+                </Badge>
+              </div>
+
+              <div className="space-y-1.5 text-xs sm:text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="text-foreground font-medium">
+                    {order?.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Items:</span>
+                  <span className="text-foreground font-semibold">
+                    {Array.isArray(order?.items) ? order.items.length : 0} items
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-black text-foreground">
+                    ৳{typeof order?.totalAmount === 'number' ? Math.round(order.totalAmount).toLocaleString('en-BD') : '0'}
+                  </span>
+                </div>
+              </div>
+
+              {order.shippingDetails?.trackingUrl && (
+                <div className="pt-1">
+                  <a 
+                    href={order.shippingDetails.trackingUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1 bg-primary/5 p-2 rounded-lg"
+                  >
+                    <Truck className="h-4 w-4" /> Track Parcel
+                  </a>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-2 border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 text-xs sm:text-sm h-9"
+                  disabled={!settings}
+                  onClick={() => settings && generateInvoicePDF(order, settings)}
+                >
+                  <FileText className="h-3.5 w-3.5 mr-1.5" /> Invoice
+                </Button>
+                <Button 
+                  size="sm"
+                  className="flex-1 text-xs sm:text-sm h-9 text-white font-bold"
+                  onClick={() => router.push(`/dashboard/orders/${order._id}`)}
+                >
+                  Details
+                  <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Quick Stats */}

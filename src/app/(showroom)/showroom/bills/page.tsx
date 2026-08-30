@@ -1239,7 +1239,7 @@ function ShowroomBillsContent() {
 
       {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Select Products</DialogTitle>
           </DialogHeader>
@@ -1253,24 +1253,24 @@ function ShowroomBillsContent() {
                 onChange={(e) => setProductSearchTerm(e.target.value)}
               />
             </div>
-            <div className="border rounded-md overflow-hidden max-h-[50vh] overflow-y-auto">
-              <Table className="block md:table">
-                <TableHeader className="hidden md:table-header-group">
-                  <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
+            <div className="border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
+              <Table className="min-w-[600px] sm:min-w-0">
+                <TableHeader>
+                  <TableRow>
                     <TableHead className="w-12">Select</TableHead>
                     <TableHead>Product</TableHead>
                     <TableHead>Options / Variants</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
+                <TableBody>
                   {products
                     .filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
                     .map((prod) => {
                       const hasVariants = prod.variants && prod.variants.length > 0;
                       return (
-                        <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0" key={prod._id}>
-                          <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                        <TableRow key={prod._id}>
+                          <TableCell>
                             {!hasVariants && (
                               <Checkbox
                                 checked={selectedProductVariants[prod._id] === null}
@@ -1278,8 +1278,8 @@ function ShowroomBillsContent() {
                               />
                             )}
                           </TableCell>
-                          <TableCell className="block md:table-cell py-1.5 md:py-4 text-left font-medium">{prod.name}</TableCell>
-                          <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                          <TableCell className="font-medium">{prod.name}</TableCell>
+                          <TableCell>
                             {hasVariants ? (
                               <div className="flex flex-wrap gap-2 py-1">
                                 {prod.variants.map((v: any) => {
@@ -1303,7 +1303,7 @@ function ShowroomBillsContent() {
                               <span className="text-xs text-muted-foreground">Standard Item</span>
                             )}
                           </TableCell>
-                          <TableCell className="block md:table-cell py-1.5 md:py-4 text-left text-right">
+                          <TableCell className="text-right">
                             {!hasVariants && `৳${prod.salePrice || prod.price}`}
                           </TableCell>
                         </TableRow>
@@ -1312,11 +1312,11 @@ function ShowroomBillsContent() {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t pt-4">
-              <span className="text-sm text-muted-foreground">{selectedCount} items selected</span>
-              <div className="space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setProductPickerOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleAddSelectedProducts} className="bg-primary text-primary-foreground">Add Selected</Button>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t mt-2">
+              <span className="text-sm text-muted-foreground font-medium">{selectedCount} items selected</span>
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={() => setProductPickerOpen(false)}>Cancel</Button>
+                <Button type="button" className="flex-1 sm:flex-none bg-primary text-primary-foreground" onClick={handleAddSelectedProducts}>Add Selected</Button>
               </div>
             </div>
           </div>

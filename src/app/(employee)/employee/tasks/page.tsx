@@ -210,7 +210,7 @@ export default function EmployeeTasksPage() {  const { t } = useLanguage();
                           variant={task.status === 'Completed' ? 'default' : 'secondary'}
                           className="text-xs"
                         >
-                          {task.status === 'Completed' ? t('store.employee.completed_badge') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨' : t('store.employee.pending_badge') || 'à¦šà¦²à¦®à¦¾à¦¨ (Pending)'}
+                          {task.status === 'Completed' ? t('store.employee.completed_badge') || 'সম্পন্ন' : t('store.employee.pending_badge') || 'চলমান (Pending)'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -238,34 +238,34 @@ export default function EmployeeTasksPage() {  const { t } = useLanguage();
           </div>
 
           {/* Mobile Card List */}
-          <div className="block md:hidden divide-y">
+          <div className="block md:hidden space-y-3 p-2 bg-muted/10">
             {tasks.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs space-y-2">
+              <div className="p-8 text-center text-muted-foreground text-sm space-y-2">
                 <CheckSquare className="h-8 w-8 mx-auto opacity-20" />
-                <p>{t('store.employee.no_assigned_task') || 'à¦•à§‹à¦¨à§‹ à¦•à¦¾à¦œ à¦…à§à¦¯à¦¾à¦¸à¦¾à¦‡à¦¨ à¦•à¦°à¦¾ à¦¨à§‡à¦‡à¥¤'}</p>
+                <p>{t('store.employee.no_assigned_task') || 'কোনো কাজ অ্যাসাইন করা নেই।'}</p>
               </div>
             ) : (
               tasks.map((task) => (
-                <div key={task._id} className="p-4 space-y-3">
+                <div key={task._id} className="p-4 bg-background border rounded-xl shadow-xs space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-black text-foreground">
+                    <span className="font-mono text-base sm:text-lg font-black text-primary">
                       {fmt(task.payout)}
                     </span>
-                    <Badge variant={task.status === 'Completed' ? 'default' : 'secondary'} className="text-xs">
-                      {task.status === 'Completed' ? t('store.employee.completed_badge') || 'à¦¸à¦®à§à¦ªà¦¨à§à¦¨' : t('store.employee.ongoing_badge') || 'à¦šà¦²à¦®à¦¾à¦¨'}
+                    <Badge variant={task.status === 'Completed' ? 'default' : 'secondary'} className="text-xs sm:text-sm">
+                      {task.status === 'Completed' ? t('store.employee.completed_badge') || 'সম্পন্ন' : t('store.employee.ongoing_badge') || 'চলমান'}
                     </Badge>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-sm text-foreground">{task.title}</h4>
+                    <h4 className="font-bold text-sm sm:text-base text-foreground">{task.title}</h4>
                     {task.description && (
-                      <p className="text-xs text-muted-foreground mt-1 bg-muted/30 p-2 rounded-md">{task.description}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 bg-muted/30 p-2.5 rounded-lg border">{task.description}</p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                    <span>Assigned: {task.assignedDate ? format(new Date(task.assignedDate), 'dd MMM') : 'N/A'}</span>
-                    {task.dueDate && <span>Due: {format(new Date(task.dueDate), 'dd MMM yyyy')}</span>}
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground pt-1.5 border-t">
+                    <span>Assigned: {task.assignedDate ? format(new Date(task.assignedDate), 'dd MMM yyyy') : 'N/A'}</span>
+                    {task.dueDate && <span className="font-semibold text-foreground">Due: {format(new Date(task.dueDate), 'dd MMM yyyy')}</span>}
                   </div>
 
                   {task.status === 'Pending' && (
