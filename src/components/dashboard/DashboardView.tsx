@@ -1407,7 +1407,7 @@ const [dateRange, setDateRange] = useState({
             <DialogTitle>Add Balance</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleAddBalanceSubmit} className="space-y-4 pt-2">
-            <div>
+            <div className="space-y-1.5">
               <Label>Target Account</Label>
               {addBalanceTargetType === 'Cash' ? (
                 <div className="p-2 bg-slate-50 border rounded text-sm text-slate-600">Cash Account</div>
@@ -1426,7 +1426,7 @@ const [dateRange, setDateRange] = useState({
               )}
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <Label>Source of Fund</Label>
               <select
                 value={fundSourceType}
@@ -1443,7 +1443,7 @@ const [dateRange, setDateRange] = useState({
             </div>
 
             {(fundSourceType === 'Bank' || fundSourceType === 'MFS' || fundSourceType === 'Cash') && (
-              <div>
+              <div className="space-y-1.5">
                 <Label>Source {fundSourceType} Account</Label>
                 <select
                   value={sourceAccountId}
@@ -1460,7 +1460,7 @@ const [dateRange, setDateRange] = useState({
             )}
 
             {fundSourceType !== 'Loan' && (
-              <div>
+              <div className="space-y-1.5">
                 <Label>Amount (৳)</Label>
                 <Input type="number" required min="1" value={loanAmount || ''} onChange={e => setLoanAmount(Number(e.target.value))} />
               </div>
@@ -1470,17 +1470,17 @@ const [dateRange, setDateRange] = useState({
               <div className="space-y-4 border-t pt-4">
                 <div className="font-semibold text-primary">Loan Details</div>
                 
-                <div>
+                <div className="space-y-1.5">
                   <Label>Lender Name</Label>
                   <Input required value={lenderName} onChange={e => setLenderName(e.target.value)} />
                 </div>
                 
-                <div>
+                <div className="space-y-1.5">
                   <Label>Amount Received (৳)</Label>
                   <Input type="number" required min="1" value={loanAmount || ''} onChange={e => setLoanAmount(Number(e.target.value))} />
                 </div>
 
-                <div>
+                <div className="space-y-1.5">
                   <Label>Repayment Type</Label>
                   <select
                     value={repaymentType}
@@ -1494,11 +1494,11 @@ const [dateRange, setDateRange] = useState({
 
                 {repaymentType === 'One-time' && (
                   <>
-                    <div>
+                    <div className="space-y-1.5">
                       <Label>Expected Repayment Date</Label>
                       <Input type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
                     </div>
-                    <div>
+                    <div className="space-y-1.5">
                       <Label>Total Repayment Amount (৳)</Label>
                       <Input type="number" required min={loanAmount ? Number(loanAmount) : 1} value={totalRepaymentAmount || ''} onChange={e => setTotalRepaymentAmount(Number(e.target.value))} />
                       {Number(totalRepaymentAmount) > Number(loanAmount) && (
@@ -1510,7 +1510,7 @@ const [dateRange, setDateRange] = useState({
 
                 {repaymentType === 'Installment' && (
                   <div className="space-y-3 bg-slate-50 p-3 rounded-md">
-                    <div>
+                    <div className="space-y-1.5">
                       <Label>Number of Installments</Label>
                       <Input type="number" required min="1" value={installmentCount || ''} onChange={e => {
                         setInstallmentCount(Number(e.target.value));
@@ -1519,7 +1519,7 @@ const [dateRange, setDateRange] = useState({
                         }
                       }} />
                     </div>
-                    <div>
+                    <div className="space-y-1.5">
                       <Label>Installment Amount (৳)</Label>
                       <Input type="number" required min="1" value={installmentAmount || ''} onChange={e => {
                         setInstallmentAmount(Number(e.target.value));
@@ -1528,7 +1528,7 @@ const [dateRange, setDateRange] = useState({
                         }
                       }} />
                     </div>
-                    <div>
+                    <div className="space-y-1.5">
                       <Label>Monthly Installment Date (1-31)</Label>
                       <Input type="number" required min="1" max="31" value={installmentDayOfMonth || ''} onChange={e => setInstallmentDayOfMonth(Number(e.target.value))} />
                     </div>

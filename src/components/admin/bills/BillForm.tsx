@@ -477,8 +477,8 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     }
   };
 
-      return (
-    <div className="container px-4">
+  return (
+    <div className="px-[1px] md:px-0">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Client Info */}
         <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
@@ -752,36 +752,50 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
           </div>
           <div className="space-y-2">
             {billItems.map((item, index) => (
-              <div key={index} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center border p-3 sm:p-1 rounded-md bg-muted/20 sm:bg-transparent">
-                <div className="flex flex-col sm:flex-row gap-2 w-full">
-                  <Input placeholder={t("bills.item_description") as string} value={item.name} onChange={(e) => handleItemChange(index, 'name', e.target.value)} className="flex-1" required />
-                  {item.productId && (
-                    <Select value={item.batchNumber || 'auto'} onValueChange={(val) => handleItemChange(index, 'batchNumber', val)}>
-                      <SelectTrigger className="w-full sm:w-[120px] h-10"><SelectValue placeholder="Batch" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="auto">FIFO (Auto)</SelectItem>
-                        {(() => {
-                          const prod = products.find(p => p._id === item.productId);
-                          if (!prod) return null;
-                          let availableBatches = prod.batches || [];
-                          if (item.variantId) {
-                            const v = prod.variants?.find((va: any) => va._id === item.variantId);
-                            if (v && v.batches && v.batches.length > 0) availableBatches = v.batches;
-                          }
-                          return availableBatches.map((b: any, bIdx: number) => (
-                            <SelectItem key={bIdx} value={b.batchNumber}>{b.batchNumber} (Qty: {b.stock})</SelectItem>
-                          ));
-                        })()}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                    <Input type="number" placeholder={t("bills.qty") as string} value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} className="flex-1 sm:w-20" min="1" required />
-                    <Input type="number" placeholder={t("bills.rate") as string} value={item.price || ''} onChange={(e) => handleItemChange(index, 'price', e.target.value)} className="flex-1 sm:w-28" min="0" required />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItemRow(index)} className="text-destructive hover:bg-destructive/10 shrink-0 h-10 w-10">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+              <div key={index} className="relative flex flex-col md:flex-row gap-3 items-stretch md:items-center border p-4 md:p-2 rounded-xl bg-card hover:shadow-xs transition-all">
+                <div className="flex flex-col md:flex-row gap-2.5 w-full pr-8 md:pr-0">
+                  <div className="flex-1 space-y-1">
+                    <Label className="text-xs font-semibold text-muted-foreground md:hidden">Item Description</Label>
+                    <Input placeholder={t("bills.item_description") as string} value={item.name} onChange={(e) => handleItemChange(index, 'name', e.target.value)} className="h-10 text-sm" required />
                   </div>
+                  {item.productId && (
+                    <div className="w-full md:w-[130px] space-y-1">
+                      <Label className="text-xs font-semibold text-muted-foreground md:hidden">Batch</Label>
+                      <Select value={item.batchNumber || 'auto'} onValueChange={(val) => handleItemChange(index, 'batchNumber', val)}>
+                        <SelectTrigger className="w-full h-10"><SelectValue placeholder="Batch" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">FIFO (Auto)</SelectItem>
+                          {(() => {
+                            const prod = products.find(p => p._id === item.productId);
+                            if (!prod) return null;
+                            let availableBatches = prod.batches || [];
+                            if (item.variantId) {
+                              const v = prod.variants?.find((va: any) => va._id === item.variantId);
+                              if (v && v.batches && v.batches.length > 0) availableBatches = v.batches;
+                            }
+                            return availableBatches.map((b: any, bIdx: number) => (
+                              <SelectItem key={bIdx} value={b.batchNumber}>{b.batchNumber} (Qty: {b.stock})</SelectItem>
+                            ));
+                          })()}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-2.5 items-end md:flex md:items-center md:gap-2 w-full md:w-auto mt-1 md:mt-0">
+                    <div className="space-y-1 w-full md:w-20">
+                      <Label className="text-xs font-semibold text-muted-foreground md:hidden">Qty</Label>
+                      <Input type="number" placeholder={t("bills.qty") as string} value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} className="h-10 text-sm" min="1" required />
+                    </div>
+                    <div className="space-y-1 w-full md:w-28">
+                      <Label className="text-xs font-semibold text-muted-foreground md:hidden">Rate</Label>
+                      <Input type="number" placeholder={t("bills.rate") as string} value={item.price || ''} onChange={(e) => handleItemChange(index, 'price', e.target.value)} className="h-10 text-sm" min="0" required />
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-2 md:relative md:top-auto md:right-auto md:mt-0 flex items-center justify-end">
+                  <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItemRow(index)} className="text-destructive hover:bg-destructive/10 shrink-0 h-8 w-8 rounded-lg md:h-10 md:w-10">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}

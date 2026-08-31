@@ -31,7 +31,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Swal from 'sweetalert2';
-import { divisions, bdDivisions, bdLocations } from '@/lib/bd-locations';
+
 
 
 const FONT_OPTIONS = [
@@ -162,99 +162,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Area state and management
-  const [areas, setAreas] = useState<any[]>([]);
-  const [loadingAreas, setLoadingAreas] = useState(false);
-  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
-  const [newAreaName, setNewAreaName] = useState('');
-  const [selectedDivision, setSelectedDivision] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedThana, setSelectedThana] = useState('');
-  const [isSavingArea, setIsSavingArea] = useState(false);
 
-  const fetchAreas = async () => {
-    try {
-      setLoadingAreas(true);
-      const res = await fetch('/api/admin/areas');
-      if (res.ok) {
-        const data = await res.json();
-        setAreas(data);
-      }
-    } catch (err) {
-      console.error('Error fetching areas:', err);
-    } finally {
-      setLoadingAreas(false);
-    }
-  };
-
-  const handleCreateArea = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAreaName.trim() || !selectedDivision) {
-      toast.error('Area name and division are required');
-      return;
-    }
-
-    setIsSavingArea(true);
-    try {
-      const res = await fetch('/api/admin/areas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newAreaName.trim(),
-          division: selectedDivision,
-          district: selectedDistrict || undefined,
-          thana: selectedThana || undefined
-        })
-      });
-
-      if (res.ok) {
-        toast.success('Area created successfully');
-        setNewAreaName('');
-        setSelectedDivision('');
-        setSelectedDistrict('');
-        setSelectedThana('');
-        setIsAreaModalOpen(false);
-        fetchAreas();
-      } else {
-        const errData = await res.json();
-        toast.error(errData.message || 'Failed to create area');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Error saving area');
-    } finally {
-      setIsSavingArea(false);
-    }
-  };
-
-  const handleDeleteArea = async (id: string) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You won\'t be able to revert this!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await fetch(`/api/admin/areas/${id}`, {
-            method: 'DELETE'
-          });
-          if (res.ok) {
-            Swal.fire('Deleted!', 'Area has been deleted.', 'success');
-            fetchAreas();
-          } else {
-            toast.error('Failed to delete area');
-          }
-        } catch (err) {
-          console.error(err);
-          toast.error('Error deleting area');
-        }
-      }
-    });
-  };
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema) as any,
@@ -449,7 +357,6 @@ export default function SettingsPage() {
     }
 
     fetchSettings();
-    fetchAreas();
     return () => controller.abort();
   }, [form]);
 
@@ -489,13 +396,12 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 lg:w-[720px]">
+        <TabsList className="grid w-full grid-cols-5 lg:w-[600px]">
           <TabsTrigger value="general">{t("settings.tab_general")}</TabsTrigger>
           <TabsTrigger value="contact">{t("settings.tab_contact")}</TabsTrigger>
           <TabsTrigger value="social">{t("settings.tab_social")}</TabsTrigger>
           <TabsTrigger value="appearance">{t("settings.tab_appearance")}</TabsTrigger>
           <TabsTrigger value="ai">{t("settings.tab_ai_api")}</TabsTrigger>
-          <TabsTrigger value="areas">{t("settings.tab_area")}</TabsTrigger>
         </TabsList>
 
         <Form {...form}>
@@ -921,159 +827,7 @@ export default function SettingsPage() {
           </form>
         </Form>
 
-        <TabsContent value="areas" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <CardTitle>{t("settings.areas_title")}</CardTitle>
-                <CardDescription>{t("settings.areas_desc")}</CardDescription>
-              </div>
-              <Button onClick={() => setIsAreaModalOpen(true)} className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                {t("settings.add_area")}
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {loadingAreas ? (
-                <div className="flex items-center justify-center p-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : areas.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-                  {t("settings.no_areas")}
-                </div>
-              ) : (
-                <div className="border rounded-lg overflow-x-auto">
-                  <table className="w-full text-sm min-w-[600px]">
-                    <thead>
-                      <tr className="bg-muted/50 border-b">
-                        <th className="px-4 py-3 text-left font-semibold">{t("settings.area_name")}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{t("settings.division")}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{t("settings.district")}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{t("settings.thana")}</th>
-                        <th className="px-4 py-3 text-right font-semibold">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {areas.map((area) => (
-                        <tr key={area._id} className="hover:bg-muted/20">
-                          <td className="px-4 py-3 font-medium">{area.name}</td>
-                          <td className="px-4 py-3">{area.division}</td>
-                          <td className="px-4 py-3">{area.district || '-'}</td>
-                          <td className="px-4 py-3">{area.thana || '-'}</td>
-                          <td className="px-4 py-3 text-right">
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleDeleteArea(area._id)}
-                            >
-                              Delete
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <Dialog open={isAreaModalOpen} onOpenChange={setIsAreaModalOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{t("settings.add_area")}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateArea} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">{t("settings.area_name")} <span className="text-destructive">*</span></label>
-                <Input
-                  placeholder="e.g. Dhanmondi 27"
-                  value={newAreaName}
-                  onChange={(e) => setNewAreaName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">{t("settings.division")} <span className="text-destructive">*</span></label>
-                <Select
-                  value={selectedDivision}
-                  onValueChange={(val) => {
-                    setSelectedDivision(val || '');
-                    setSelectedDistrict('');
-                    setSelectedThana('');
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("settings.select_division") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {divisions.map((div) => (
-                      <SelectItem key={div} value={div}>
-                        {div}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">{t("settings.district")}</label>
-                <Select
-                  disabled={!selectedDivision}
-                  value={selectedDistrict}
-                  onValueChange={(val) => {
-                    setSelectedDistrict(val || '');
-                    setSelectedThana('');
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("settings.select_district") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(bdDivisions[selectedDivision] || []).map((dist) => (
-                      <SelectItem key={dist} value={dist}>
-                        {dist}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">{t("settings.thana")}</label>
-                <Select
-                  disabled={!selectedDistrict}
-                  value={selectedThana}
-                  onValueChange={(val) => setSelectedThana(val || '')}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("settings.select_thana") as string} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(bdLocations[selectedDistrict] || []).map((th) => (
-                      <SelectItem key={th} value={th}>
-                        {th}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsAreaModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSavingArea} className="bg-primary text-primary-foreground">
-                  {isSavingArea && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
       </Tabs>
     </div>
   );
