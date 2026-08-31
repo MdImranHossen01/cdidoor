@@ -12,11 +12,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { productId, batchNumber, expiryDate, variantStocks, topLevelStock } = await req.json();
+    const { productId, batchNumber: rawBatchNumber, expiryDate, variantStocks, topLevelStock } = await req.json();
 
-    if (!productId || !batchNumber) {
-      return NextResponse.json({ message: 'Product ID and Batch Number are required' }, { status: 400 });
+    if (!productId) {
+      return NextResponse.json({ message: 'Product ID is required' }, { status: 400 });
     }
+
+    const batchNumber = rawBatchNumber?.trim() || 'DEFAULT';
 
     const product = await Product.findById(productId);
     if (!product) {
