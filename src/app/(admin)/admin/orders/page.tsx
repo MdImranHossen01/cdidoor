@@ -249,7 +249,7 @@ function OrdersContent() {
     const currentQuery = searchParams.toString();
     const newQuery = params.toString();
     if (currentQuery !== newQuery) {
-      router.push(`/admin/orders?${newQuery}`);
+      router.replace(`/admin/orders?${newQuery}`);
     }
   }, [currentPage, statusFilter, debouncedSearchTerm, filterByDate, dateFilter.from, dateFilter.to]);
 
@@ -338,30 +338,29 @@ function OrdersContent() {
   }, [currentPage, debouncedSearchTerm, statusFilter, filterByDate, dateFilter.from, dateFilter.to]);
 
   // Synchronize state when search parameters change (to support browser back/forward navigation)
+  // IMPORTANT: Only depend on searchParams — do NOT add state values here or it causes circular updates
   useEffect(() => {
     const timer = setTimeout(() => {
       const pageFromParams = Math.max(1, parseInt(searchParams.get('page') || '1'));
-      if (pageFromParams !== currentPage) {
-        setCurrentPage(pageFromParams);
-      }
+      setCurrentPage(pageFromParams);
+
       const statusFromParams = searchParams.get('status') || 'All';
-      if (statusFromParams !== statusFilter) {
-        setStatusFilter(statusFromParams);
-      }
+      setStatusFilter(statusFromParams);
+
       const searchFromParams = searchParams.get('search') || '';
-      if (searchFromParams !== searchTerm) {
-        setSearchTerm(searchFromParams);
-        setDebouncedSearchTerm(searchFromParams);
-        prevSearchRef.current = searchFromParams;
-      }
+      setSearchTerm(searchFromParams);
+      setDebouncedSearchTerm(searchFromParams);
+      prevSearchRef.current = searchFromParams;
+
       const fromFromParams = searchParams.get('from') || '';
       const toFromParams = searchParams.get('to') || '';
-      if (fromFromParams !== dateFilter.from || toFromParams !== dateFilter.to) {
+      if (fromFromParams || toFromParams) {
         setDateFilter({ from: fromFromParams, to: toFromParams });
+        setFilterByDate(true);
       }
     }, 0);
     return () => clearTimeout(timer);
-  }, [searchParams, currentPage, statusFilter, searchTerm, dateFilter.from, dateFilter.to]);
+  }, [searchParams]); // ONLY searchParams — intentional
 
   const filteredOrders = orders;
 
