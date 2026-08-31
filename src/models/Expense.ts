@@ -12,7 +12,7 @@ export interface IExpense extends Document {
   employee?: mongoose.Types.ObjectId;
   supplier?: mongoose.Types.ObjectId;
   customerPhone?: string;
-  accountCode: 'CASH' | 'BANK';
+  accountCode: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,7 +46,6 @@ const ExpenseSchema: Schema<IExpense> = new Schema(
     customerPhone: { type: String },
     accountCode: {
       type: String,
-      enum: ['CASH', 'BANK'],
       default: 'CASH',
       required: true,
     },

@@ -129,7 +129,7 @@ export async function logLedgerTransaction(
 /**
  * Recalculate ledger balance for an account
  */
-export async function recalculateLedgerBalance(accountCode: 'CASH' | 'BANK' | 'AR' | 'AP', session?: any) {
+export async function recalculateLedgerBalance(accountCode: string, session?: any) {
   await connectToDatabase();
   const account = await LedgerAccount.findOne({ code: accountCode }).session(session);
   if (!account) return;

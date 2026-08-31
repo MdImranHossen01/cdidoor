@@ -42,7 +42,7 @@ const transactionSchema = z.object({
   description: z.string().optional(),
   showroom: z.string().optional(),
   employee: z.string().optional(),
-  accountCode: z.enum(['CASH', 'BANK']).default('CASH'),
+  accountCode: z.string().min(1, 'Account is required').default('CASH'),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -83,10 +83,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
 
   // Transfer state
   const [transferDate, setTransferDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [fromAccountCode, setFromAccountCode] = useState<'CASH' | 'BANK'>('CASH');
-  const [toAccountCode, setToAccountCode] = useState<'CASH' | 'BANK'>('BANK');
+  const [fromAccountCode, setFromAccountCode] = useState<string>('CASH');
+  const [toAccountCode, setToAccountCode] = useState<string>('BANK');
   const [transferTitle, setTransferTitle] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
+  const [accounts, setAccounts] = useState<any[]>([]);
   const [transferSubmitLoading, setTransferSubmitLoading] = useState(false);
 
   const handleTransferSubmit = async (e: React.FormEvent) => {
@@ -185,6 +186,13 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         if (Array.isArray(data)) setCategories(data);
       })
       .catch((err) => console.error('Error fetching categories:', err));
+
+    fetch('/api/accounts')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setAccounts(data);
+      })
+      .catch((err) => console.error('Error fetching accounts:', err));
 
     fetch('/api/admin/loans/providers')
       .then((res) => res.json())
@@ -762,8 +770,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CASH" className="text-xs md:text-sm">{t("ledger.cash_account") || "Cash Account"}</SelectItem>
-                  <SelectItem value="BANK" className="text-xs md:text-sm">{t("ledger.bank_account") || "Bank Account"}</SelectItem>
+                  {accounts.map((acc) => (
+                    <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
+                      {acc.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage className="text-[10px] md:text-xs" />
@@ -819,7 +830,8 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 onValueChange={(val: any) => {
                   setFromAccountCode(val);
                   if (val === toAccountCode) {
-                    setToAccountCode(val === 'CASH' ? 'BANK' : 'CASH');
+                    const nextAcc = accounts.find(a => a.code !== val);
+                    setToAccountCode(nextAcc ? nextAcc.code : val);
                   }
                 }}
               >
@@ -827,8 +839,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CASH" className="text-xs md:text-sm">{t("ledger.cash_account")}</SelectItem>
-                  <SelectItem value="BANK" className="text-xs md:text-sm">{t("ledger.bank_account")}</SelectItem>
+                  {accounts.map((acc) => (
+                    <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
+                      {acc.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -839,7 +854,8 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 onValueChange={(val: any) => {
                   setToAccountCode(val);
                   if (val === fromAccountCode) {
-                    setFromAccountCode(val === 'CASH' ? 'BANK' : 'CASH');
+                    const nextAcc = accounts.find(a => a.code !== val);
+                    setFromAccountCode(nextAcc ? nextAcc.code : val);
                   }
                 }}
               >
@@ -847,8 +863,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CASH" className="text-xs md:text-sm">{t("ledger.cash_account")}</SelectItem>
-                  <SelectItem value="BANK" className="text-xs md:text-sm">{t("ledger.bank_account")}</SelectItem>
+                  {accounts.map((acc) => (
+                    <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
+                      {acc.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
