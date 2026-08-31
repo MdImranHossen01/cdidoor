@@ -198,10 +198,8 @@ export default function CategoriesPage() {
             form.reset();
           }
         }}>
-        <DialogTrigger asChild>
-          <Button className="w-full sm:w-auto rounded-none h-10 bg-primary text-primary-foreground font-bold flex items-center justify-center">
-            <Plus className="mr-2 h-4 w-4" /> {t("categories.add_category")}
-          </Button>
+        <DialogTrigger render={<Button className="w-full sm:w-auto rounded-none h-10 bg-primary text-primary-foreground font-bold flex items-center justify-center" />}>
+          <Plus className="mr-2 h-4 w-4" /> {t("categories.add_category")}
         </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
