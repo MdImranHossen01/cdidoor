@@ -816,7 +816,7 @@ const [dateRange, setDateRange] = useState({
         </Link>
 
         {/* Account Receivable */}
-        <Link href="/admin/ledger" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        <Link href="/admin/ledger/receivable" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
@@ -863,7 +863,7 @@ const [dateRange, setDateRange] = useState({
         </Link>
 
         {/* Supplier Account Payable */}
-        <Link href="/admin/supplier-bills" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        <Link href="/admin/ledger/payable" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">

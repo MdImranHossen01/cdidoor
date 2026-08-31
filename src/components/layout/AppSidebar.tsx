@@ -246,6 +246,16 @@ const data = {
           tKey: "sidebar.accounts_ledger",
           url: "/admin/ledger"
         },
+        {
+          title: "Account Receivable",
+          tKey: "sidebar.account_receivable",
+          url: "/admin/ledger/receivable"
+        },
+        {
+          title: "Account Payable",
+          tKey: "sidebar.account_payable",
+          url: "/admin/ledger/payable"
+        },
       ],
     },
     {
