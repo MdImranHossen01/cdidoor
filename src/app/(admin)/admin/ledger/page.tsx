@@ -534,7 +534,7 @@ function AccountsLedgerContent() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-4 md:px-6">
+            <CardContent className="px-1 md:px-6">
               {summaryLoading ? (
                 <div className="space-y-4 p-4">
                   <Skeleton className="h-8 w-full rounded" />
@@ -546,8 +546,10 @@ function AccountsLedgerContent() {
                 <div className="grid grid-cols-1 gap-8">
                   {/* Category-wise summary table */}
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-foreground">{t("ledger.category_wise") || "Category-wise Summary"}</h3>
-                    <div className="overflow-x-auto border border-border/60 rounded-xl">
+                    <h3 className="text-lg font-bold text-foreground px-1 md:px-0">{t("ledger.category_wise") || "Category-wise Summary"}</h3>
+                    
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto border border-border/60 rounded-xl">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/40">
@@ -582,12 +584,50 @@ function AccountsLedgerContent() {
                         </TableBody>
                       </Table>
                     </div>
+
+                    {/* Mobile View */}
+                    <div className="block md:hidden space-y-2.5 px-0.5">
+                      {categorySummary.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8 bg-card border border-border/50 rounded-xl">
+                          {t("ledger.no_summary_records") || "No summary records found."}
+                        </div>
+                      ) : (
+                        categorySummary.map((item, idx) => {
+                          const netFlow = item.debit - item.credit;
+                          return (
+                            <div key={idx} className="p-3 border border-border/50 rounded-xl bg-card shadow-sm space-y-2.5">
+                              <div className="flex items-center justify-between border-b border-border/40 pb-1.5">
+                                <span className="font-extrabold text-foreground text-sm">{item.category}</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1 text-center">
+                                <div className="flex flex-col items-start">
+                                  <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider">{t("ledger.debit_in")?.split(' ')[0] || "Debit"}</span>
+                                  <span className="text-xs font-semibold text-emerald-600">৳{Math.round(item.debit).toLocaleString()}</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[9px] text-rose-600 font-bold uppercase tracking-wider">{t("ledger.credit_out")?.split(' ')[0] || "Credit"}</span>
+                                  <span className="text-xs font-semibold text-rose-600">৳{Math.round(item.credit).toLocaleString()}</span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">{t("ledger.net_flow")?.split(' ')[0] || "Net"}</span>
+                                  <span className={`text-xs font-extrabold ${netFlow > 0 ? 'text-emerald-600' : netFlow < 0 ? 'text-rose-600' : 'text-foreground'}`}>
+                                    ৳{Math.round(netFlow).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
 
                   {/* Account-wise summary table */}
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-foreground">{t("ledger.account_wise") || "Account-wise Summary"}</h3>
-                    <div className="overflow-x-auto border border-border/60 rounded-xl">
+                    <h3 className="text-lg font-bold text-foreground px-1 md:px-0">{t("ledger.account_wise") || "Account-wise Summary"}</h3>
+                    
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto border border-border/60 rounded-xl">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/40">
@@ -623,6 +663,43 @@ function AccountsLedgerContent() {
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="block md:hidden space-y-2.5 px-0.5">
+                      {accountSummary.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8 bg-card border border-border/50 rounded-xl">
+                          {t("ledger.no_summary_records") || "No summary records found."}
+                        </div>
+                      ) : (
+                        accountSummary.map((item, idx) => {
+                          const netChange = item.debit - item.credit;
+                          return (
+                            <div key={idx} className="p-3 border border-border/50 rounded-xl bg-card shadow-sm space-y-2.5">
+                              <div className="flex items-center justify-between border-b border-border/40 pb-1.5">
+                                <span className="font-extrabold text-foreground text-sm">{item.accountName}</span>
+                                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">{item.code}</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1 text-center">
+                                <div className="flex flex-col items-start">
+                                  <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider">{t("ledger.debit") || "Debit"}</span>
+                                  <span className="text-xs font-semibold text-emerald-600">৳{Math.round(item.debit).toLocaleString()}</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[9px] text-rose-600 font-bold uppercase tracking-wider">{t("ledger.credit") || "Credit"}</span>
+                                  <span className="text-xs font-semibold text-rose-600">৳{Math.round(item.credit).toLocaleString()}</span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">{t("ledger.net_change")?.split(' ')[0] || "Net"}</span>
+                                  <span className={`text-xs font-extrabold ${netChange > 0 ? 'text-emerald-600' : netChange < 0 ? 'text-rose-600' : 'text-foreground'}`}>
+                                    ৳{Math.round(netChange).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 </div>
