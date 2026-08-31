@@ -473,6 +473,7 @@ function AbandonedCartsContent() {
         </CardContent>
       </Card>
     </div>
+    </div>
   );
 }
 
