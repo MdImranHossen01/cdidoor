@@ -1007,9 +1007,12 @@ const [dateRange, setDateRange] = useState({
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex flex-col justify-center items-center gap-1">
                 <span className="text-2xl font-black text-primary leading-none">
                   {stats?.expiringProductsCount || 0}
+                </span>
+                <span className="text-[9px] text-rose-600 font-bold leading-none">
+                  Expired: {stats?.expiredProductsCount || 0}
                 </span>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
@@ -1026,7 +1029,10 @@ const [dateRange, setDateRange] = useState({
                 <div className="text-lg md:text-2xl font-extrabold text-primary">
                   {stats?.expiringProductsCount || 0}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.expiring_products")}</p>
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {t("dashboard.expiring_products")}
+                  <span className="text-rose-600 font-bold ml-2">(Expired: {stats?.expiredProductsCount || 0})</span>
+                </p>
               </CardContent>
             </div>
           </Card>

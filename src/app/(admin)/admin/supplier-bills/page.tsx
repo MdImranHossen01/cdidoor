@@ -192,10 +192,10 @@ function SupplierBillsContent() {
 
   const fetchLedgerAccounts = async () => {
     try {
-      const res = await fetch('/api/admin/ledger/accounts');
+      const res = await fetch('/api/accounts');
       if (res.ok) {
         const data = await res.json();
-        setLedgerAccounts(data.accounts || []);
+        setLedgerAccounts(data || []);
       }
     } catch (error) {
       console.error('Error fetching ledger accounts:', error);
@@ -950,20 +950,14 @@ function SupplierBillsContent() {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                    {/* Batch + Variant row for product items */}
+                    {/* Batch row for product items */}
                     {item.isProductItem && (
                       <div className="flex gap-2">
                         <Input
                           placeholder="Batch Number (optional)"
                           value={item.batchNumber || ''}
                           onChange={(e) => { const n = [...billItems]; n[idx].batchNumber = e.target.value; setBillItems(n); }}
-                          className="bg-white h-8 text-xs"
-                        />
-                        <Input
-                          placeholder="Variant (e.g. Red / L)"
-                          value={item.variantName || ''}
-                          onChange={(e) => { const n = [...billItems]; n[idx].variantName = e.target.value; setBillItems(n); }}
-                          className="bg-white h-8 text-xs"
+                          className="bg-white h-8 text-xs w-full"
                         />
                       </div>
                     )}

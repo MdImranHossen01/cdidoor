@@ -100,13 +100,19 @@ export default function UpcomingExpiryPage() {
             ) : (
               batches.map((batch) => {
                 const daysRemaining = getDaysRemaining(batch.expiryDate);
-                const isVerySoon = daysRemaining <= 7;
+                const isExpired = daysRemaining <= 0;
+                const isVerySoon = daysRemaining <= 7 && !isExpired;
 
                 return (
-                  <TableRow key={batch.id}>
+                  <TableRow key={batch.id} className={isExpired ? "bg-rose-50/30 dark:bg-rose-950/5" : ""}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {batch.name}
+                        {isExpired && (
+                          <Badge className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-[9px] uppercase">
+                            Expired
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -127,7 +133,12 @@ export default function UpcomingExpiryPage() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span>{format(new Date(batch.expiryDate), 'PPP')}</span>
-                        {isVerySoon ? (
+                        {isExpired ? (
+                          <Badge variant="destructive" className="flex items-center gap-1 text-[10px] font-bold">
+                            <AlertTriangle className="h-3 w-3" />
+                            Expired
+                          </Badge>
+                        ) : isVerySoon ? (
                           <Badge variant="destructive" className="flex items-center gap-1 text-[10px]">
                             <AlertTriangle className="h-3 w-3" />
                             {daysRemaining} days left
@@ -169,14 +180,19 @@ export default function UpcomingExpiryPage() {
         ) : (
           batches.map((batch) => {
             const daysRemaining = getDaysRemaining(batch.expiryDate);
-            const isVerySoon = daysRemaining <= 7;
+            const isExpired = daysRemaining <= 0;
+            const isVerySoon = daysRemaining <= 7 && !isExpired;
 
             return (
-              <div key={batch.id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+              <div key={batch.id} className={`p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative ${isExpired ? "bg-rose-50/20" : ""}`}>
                 {/* Header: Product Name & Expiry Badges */}
                 <div className="flex items-start justify-between gap-3">
                   <h4 className="font-bold text-base text-foreground leading-snug">{batch.name}</h4>
-                  {isVerySoon ? (
+                  {isExpired ? (
+                    <Badge className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] uppercase shrink-0 px-2 py-0.5">
+                      Expired
+                    </Badge>
+                  ) : isVerySoon ? (
                     <Badge variant="destructive" className="flex items-center gap-1 text-[10px] uppercase font-bold shrink-0 animate-pulse px-2 py-0.5">
                       <AlertTriangle className="h-3 w-3" /> Urgent
                     </Badge>
@@ -215,9 +231,9 @@ export default function UpcomingExpiryPage() {
                 {/* Footer details: Days Remaining & Remaining Stock */}
                 <div className="flex items-center justify-between border-t pt-2.5 mt-1 bg-muted/20 p-2.5 rounded-lg border border-border/30 text-xs">
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Days Left</span>
-                    <span className={`font-bold text-sm ${isVerySoon ? 'text-red-600' : 'text-orange-600'}`}>
-                      {daysRemaining} Days
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Status</span>
+                    <span className={`font-bold text-sm ${isExpired ? 'text-rose-600' : isVerySoon ? 'text-red-600' : 'text-orange-600'}`}>
+                      {isExpired ? 'Already Expired' : `${daysRemaining} Days Left`}
                     </span>
                   </div>
 

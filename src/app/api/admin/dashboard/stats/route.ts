@@ -547,6 +547,25 @@ export async function GET(req: NextRequest) {
       ]
     });
 
+    const expiredProductsCount = await Product.countDocuments({
+      $or: [
+        {
+          batches: {
+            $elemMatch: {
+              expiryDate: { $lt: new Date() }
+            }
+          }
+        },
+        {
+          'variants.batches': {
+            $elemMatch: {
+              expiryDate: { $lt: new Date() }
+            }
+          }
+        }
+      ]
+    });
+
     const wholesalerDuesMap: Record<string, any> = {};
     for (const order of creditOrders) {
       if (!order.user) continue;
@@ -602,6 +621,7 @@ export async function GET(req: NextRequest) {
         pendingExpenseTotal,
         totalSuppliersCount,
         expiringProductsCount,
+        expiredProductsCount,
         pendingLeavesCount,
         isShowroomFiltered: !!isShowroomFiltered
       },

@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
         for (const batch of product.batches) {
           if (batch.expiryDate) {
             const expDate = new Date(batch.expiryDate);
-            if (expDate >= today && expDate <= next30Days && batch.stock > 0) {
+            if (expDate <= next30Days && batch.stock > 0) {
               expiringBatches.push({
                 id: `${product._id}-${batch.batchNumber}`,
                 productId: product._id,
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
             for (const batch of variant.batches) {
               if (batch.expiryDate) {
                 const expDate = new Date(batch.expiryDate);
-                if (expDate >= today && expDate <= next30Days && batch.stock > 0) {
+                if (expDate <= next30Days && batch.stock > 0) {
                   expiringBatches.push({
                     id: `${product._id}-${variant._id}-${batch.batchNumber}`,
                     productId: product._id,
