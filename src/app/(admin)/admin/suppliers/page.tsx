@@ -317,8 +317,7 @@ function SuppliersContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("suppliers.name_company")}</TableHead>
-                  <TableHead>{t("suppliers.phone")}</TableHead>
+                  <TableHead>{t("suppliers.name_company")} / {t("suppliers.contact") || "Contact"}</TableHead>
                   <TableHead>{t("suppliers.address")}</TableHead>
                   <TableHead className="text-right">{t("suppliers.outstanding_payable")}</TableHead>
                   <TableHead className="text-right">{t("suppliers.actions")}</TableHead>
@@ -328,8 +327,12 @@ function SuppliersContent() {
                 {loading ? (
                   Array.from({ length: 6 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-36 rounded" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-28 rounded" /></TableCell>
+                      <TableCell>
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-36 rounded" />
+                          <Skeleton className="h-3 w-28 rounded" />
+                        </div>
+                      </TableCell>
                       <TableCell><Skeleton className="h-4 w-40 rounded" /></TableCell>
                       <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded ml-auto" /></TableCell>
                       <TableCell className="text-right">
@@ -343,7 +346,7 @@ function SuppliersContent() {
                   ))
                 ) : filteredSuppliers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
                       {t("suppliers.no_suppliers_found")}
                     </TableCell>
                   </TableRow>
@@ -351,12 +354,19 @@ function SuppliersContent() {
                   paginatedSuppliers.map((supplier) => (
                     <TableRow key={supplier._id}>
                       <TableCell>
-                        <div className="font-medium text-foreground">{supplier.name}</div>
+                        <div className="font-semibold text-foreground">{supplier.name}</div>
                         {supplier.companyName && (
                           <div className="text-xs text-muted-foreground">{supplier.companyName}</div>
                         )}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1 text-slate-600 font-normal text-xs">
+                          {supplier.phone && (
+                            <span className="text-slate-500 font-medium">{supplier.phone}</span>
+                          )}
+                          {supplier.email && (
+                            <span className="truncate">{supplier.email}</span>
+                          )}
+                        </div>
                       </TableCell>
-                      <TableCell>{supplier.phone}</TableCell>
                       <TableCell className="max-w-[200px] truncate">{supplier.address}</TableCell>
                       <TableCell className="text-right font-semibold text-rose-600">
                         ৳{(supplier.currentBalance || 0).toLocaleString()}

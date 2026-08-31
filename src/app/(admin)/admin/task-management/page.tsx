@@ -7,7 +7,8 @@ import {
   DollarSign, 
   Trash2,
   X,
-  Plus
+  Plus,
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,12 @@ import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function AdminTaskManagementPage() {
   const { t } = useLanguage();
@@ -194,32 +201,31 @@ export default function AdminTaskManagementPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
+    <div className="space-y-4 px-0 pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-[1px] md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-3xl font-black text-zinc-950">{t("task_management.title")}</h1>
           <p className="text-sm text-zinc-500 mt-1">{t("task_management.subtitle")}</p>
         </div>
-        <div>
-          <Button 
-            onClick={() => {
-              if (taskEmps.length > 0) {
-                setAssignEmployeeId(taskEmps[0]._id);
-              } else {
-                setAssignEmployeeId('');
-              }
-              setAssignPayout('');
-              setAssignDueDate('');
-              setShowAssignModal(true);
-            }}
-            className="bg-primary text-primary-foreground font-bold flex items-center gap-1.5"
-          >
-            <Plus className="h-4 w-4" /> {t("task_management.assign_new_task")}
-          </Button>
-        </div>
+        <Button 
+          onClick={() => {
+            if (taskEmps.length > 0) {
+              setAssignEmployeeId(taskEmps[0]._id);
+            } else {
+              setAssignEmployeeId('');
+            }
+            setAssignPayout('');
+            setAssignDueDate('');
+            setShowAssignModal(true);
+          }}
+          className="bg-primary text-primary-foreground font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto rounded-none h-10"
+        >
+          <Plus className="h-4 w-4" /> {t("task_management.assign_new_task")}
+        </Button>
       </div>
 
-      <Card className="border border-zinc-200">
+      <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border border-zinc-200">
           <CardHeader className="bg-zinc-50/50 border-b border-zinc-200 p-5">
             <CardTitle className="text-lg font-black text-zinc-900">{t("task_management.directory")}</CardTitle>
             <CardDescription className="text-sm text-zinc-500">{t("task_management.directory_desc")}</CardDescription>
@@ -283,30 +289,32 @@ export default function AdminTaskManagementPage() {
                           )}
                         </td>
                         <td className="py-4 text-right p-4">
-                          <div className="flex justify-end gap-2">
-                            {task.status === 'Completed' && (
-                              <Button 
-                                onClick={() => handleDisburseTaskPayout(task)}
-                                size="sm"
-                                className="bg-emerald-600 text-white hover:bg-emerald-700 h-8 flex items-center gap-1"
-                              >
-                                <DollarSign className="h-3.5 w-3.5" /> {t("task_management.disburse_payout")}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                                <MoreHorizontal className="h-4 w-4 text-zinc-500" />
                               </Button>
-                            )}
-                            {task.status === 'Pending' && (
-                              <Button
-                                onClick={() => handleDeleteTask(task._id)}
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-500 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {task.status === 'Paid' && (
-                              <span className="text-xs text-zinc-400 italic font-medium flex items-center justify-center p-1 bg-zinc-100 rounded">{t("task_management.paid_cleared")}</span>
-                            )}
-                          </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36 bg-white border shadow-sm">
+                              {task.status === 'Completed' && (
+                                <DropdownMenuItem onClick={() => handleDisburseTaskPayout(task)} className="cursor-pointer text-emerald-600 flex items-center gap-2">
+                                  <DollarSign className="h-3.5 w-3.5" />
+                                  <span>Disburse</span>
+                                </DropdownMenuItem>
+                              )}
+                              {task.status === 'Pending' && (
+                                <DropdownMenuItem onClick={() => handleDeleteTask(task._id)} className="cursor-pointer text-destructive flex items-center gap-2">
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                  <span>Delete</span>
+                                </DropdownMenuItem>
+                              )}
+                              {task.status === 'Paid' && (
+                                <DropdownMenuItem disabled className="text-zinc-400 italic">
+                                  <span>Paid & Cleared</span>
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </td>
                       </tr>
                     ))}
@@ -315,26 +323,54 @@ export default function AdminTaskManagementPage() {
               </div>
 
               {/* Mobile View */}
-              <div className="block md:hidden space-y-3 p-4 bg-muted/10">
+              <div className="block md:hidden space-y-3 p-3 bg-zinc-50/55">
                 {tasks.map((task) => (
-                  <div key={task._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                  <div key={task._id} className="p-4 mb-3 border border-border/50 rounded-2xl bg-card bg-white shadow-sm flex flex-col gap-2.5 relative">
                     {/* Top Row: Employee Name & Status Badge */}
                     <div className="flex items-center justify-between">
                       <div className="font-bold text-base text-foreground">
                         {task.employee?.name || t("task_management.unknown_user")}
                       </div>
-                      <Badge 
-                        className="font-bold text-xs px-2 py-0.5" 
-                        variant={
-                          task.status === 'Paid' 
-                            ? 'default' 
-                            : task.status === 'Completed' 
-                            ? 'secondary' 
-                            : 'outline'
-                        }
-                      >
-                        {task.status === 'Paid' ? t("task_management.paid_out") : task.status === 'Completed' ? t("task_management.completed") : t("task_management.pending_work")}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          className="font-bold text-xs px-2 py-0.5" 
+                          variant={
+                            task.status === 'Paid' 
+                              ? 'default' 
+                              : task.status === 'Completed' 
+                              ? 'secondary' 
+                              : 'outline'
+                          }
+                        >
+                          {task.status === 'Paid' ? t("task_management.paid_out") : task.status === 'Completed' ? t("task_management.completed") : t("task_management.pending_work")}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                              <MoreHorizontal className="h-4 w-4 text-zinc-500" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-36 bg-white border shadow-sm">
+                            {task.status === 'Completed' && (
+                              <DropdownMenuItem onClick={() => handleDisburseTaskPayout(task)} className="cursor-pointer text-emerald-600 flex items-center gap-2">
+                                <DollarSign className="h-3.5 w-3.5" />
+                                <span>Disburse</span>
+                              </DropdownMenuItem>
+                            )}
+                            {task.status === 'Pending' && (
+                              <DropdownMenuItem onClick={() => handleDeleteTask(task._id)} className="cursor-pointer text-destructive flex items-center gap-2">
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            )}
+                            {task.status === 'Paid' && (
+                              <DropdownMenuItem disabled className="text-zinc-400 italic">
+                                <span>Paid & Cleared</span>
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
 
                     {/* Task Title & Description */}
@@ -373,36 +409,11 @@ export default function AdminTaskManagementPage() {
                       )}
                     </div>
 
-                    {/* Footer: Payout & Actions */}
+                    {/* Footer: Payout */}
                     <div className="flex items-center justify-between border-t pt-2.5 mt-1">
                       <div className="flex flex-col">
                         <span className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Payout</span>
-                        <span className="font-extrabold text-base text-foreground">{task.payout?.toLocaleString()} Tk</span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        {task.status === 'Completed' && (
-                          <Button 
-                            onClick={() => handleDisburseTaskPayout(task)}
-                            size="sm"
-                            className="bg-emerald-600 text-white hover:bg-emerald-700 h-9 px-3 text-xs flex items-center gap-1.5"
-                          >
-                            <DollarSign className="h-4 w-4" /> {t("task_management.disburse_payout")}
-                          </Button>
-                        )}
-                        {task.status === 'Pending' && (
-                          <Button
-                            onClick={() => handleDeleteTask(task._id)}
-                            variant="outline"
-                            size="icon"
-                            className="h-9 w-9 text-red-500 hover:bg-red-50 hover:text-red-600 border-red-200 flex items-center justify-center"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {task.status === 'Paid' && (
-                          <span className="text-xs text-zinc-400 italic font-medium p-1 bg-zinc-100 rounded">{t("task_management.paid_cleared")}</span>
-                        )}
+                        <span className="font-extrabold text-base text-zinc-900">{task.payout?.toLocaleString()} Tk</span>
                       </div>
                     </div>
                   </div>

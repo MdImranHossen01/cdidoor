@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
-
 import { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -11,7 +8,8 @@ import {
   Phone,
   Store,
   Loader2,
-  ShieldAlert
+  ShieldAlert,
+  MoreHorizontal
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -31,6 +29,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function ShowroomManagersPage() {
   const { t } = useLanguage();
@@ -196,22 +200,22 @@ export default function ShowroomManagersPage() {
   }
 
   return (
-    <div className="px-0 py-4 md:p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 px-4 md:px-0">
-        <div>
+    <div className="px-0 pt-[1px] pb-4 md:p-6 space-y-4 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-0 px-[1px] md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{t("showroom_managers.title")}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t("showroom_managers.subtitle")}</p>
         </div>
         <Button 
           onClick={() => { resetForm(); setShowAddModal(true); }}
-          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold flex gap-2 h-10 text-xs sm:text-sm md:h-11 px-4 rounded-full w-full sm:w-auto justify-center"
+          className="bg-primary hover:bg-primary/95 text-primary-foreground font-bold flex gap-2 h-10 text-xs sm:text-sm md:h-11 px-4 rounded-none w-full sm:w-auto justify-center"
         >
           <UserPlus className="h-4 w-4" /> {t("showroom_managers.add_manager")}
         </Button>
       </div>
 
       {managers.length === 0 ? (
-        <div className="px-4 md:px-0">
+        <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
           <Card className="border-dashed border-2 py-10">
             <CardContent className="flex flex-col items-center justify-center text-center space-y-3">
               <ShieldAlert className="h-12 w-12 text-muted-foreground" />
@@ -223,7 +227,7 @@ export default function ShowroomManagersPage() {
           </Card>
         </div>
       ) : (
-        <div className="px-4 md:px-0">
+        <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
           <Card className="border-muted overflow-hidden">
             <CardContent className="p-0">
               <div className="hidden md:block">
@@ -278,24 +282,29 @@ export default function ShowroomManagersPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="py-4 text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={() => handleEditClick(manager)}
-                              className="h-8 px-2 hover:bg-muted text-xs flex gap-1 font-bold"
-                            >
-                              <Edit className="h-3.5 w-3.5" /> {t("showroom_managers.edit")}
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={() => handleRevokeRole(manager._id)}
-                              className="h-8 px-2 text-destructive hover:bg-destructive/10 text-xs flex gap-1 font-bold"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" /> {t("showroom_managers.revoke")}
-                            </Button>
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                                <MoreHorizontal className="h-4 w-4 text-zinc-500" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-32 bg-white border shadow-sm">
+                              <DropdownMenuItem
+                                onClick={() => handleEditClick(manager)}
+                                className="cursor-pointer flex items-center gap-2"
+                              >
+                                <Edit className="h-3.5 w-3.5 text-indigo-600" />
+                                <span>Edit</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleRevokeRole(manager._id)}
+                                className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span>Revoke</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -304,9 +313,9 @@ export default function ShowroomManagersPage() {
               </div>
 
               {/* Mobile View */}
-              <div className="block md:hidden space-y-3 p-4 bg-muted/10">
+              <div className="block md:hidden space-y-3 p-3 bg-zinc-50/55">
                 {managers.map((manager) => (
-                  <div key={manager._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+                  <div key={manager._id} className="p-4 mb-3 border border-border/50 rounded-2xl bg-card bg-white shadow-sm flex flex-col gap-2.5 relative">
                     {/* Header info */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -327,20 +336,45 @@ export default function ShowroomManagersPage() {
                         </div>
                       </div>
 
-                      <Badge 
-                        variant={manager.showroomName === 'Not Assigned' ? 'outline' : 'default'}
-                        className={`font-semibold border-none text-xs px-2 py-0.5 ${
-                          manager.showroomName === 'Not Assigned' 
-                            ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' 
-                            : 'bg-primary/10 text-primary'
-                        }`}
-                      >
-                        {manager.showroomName === 'Not Assigned' ? t("showroom_managers.not_assigned") : manager.showroomName}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={manager.showroomName === 'Not Assigned' ? 'outline' : 'default'}
+                          className={`font-semibold border-none text-xs px-2 py-0.5 ${
+                            manager.showroomName === 'Not Assigned' 
+                              ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' 
+                              : 'bg-primary/10 text-primary'
+                          }`}
+                        >
+                          {manager.showroomName === 'Not Assigned' ? t("showroom_managers.not_assigned") : manager.showroomName}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                              <MoreHorizontal className="h-4 w-4 text-zinc-500" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32 bg-white border shadow-sm">
+                            <DropdownMenuItem
+                              onClick={() => handleEditClick(manager)}
+                              className="cursor-pointer flex items-center gap-2"
+                            >
+                              <Edit className="h-3.5 w-3.5 text-indigo-600" />
+                              <span>Edit</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleRevokeRole(manager._id)}
+                              className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span>Revoke</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
 
                     {/* Details */}
-                    <div className="space-y-2 text-sm md:text-xs border-t pt-2 mt-1">
+                    <div className="space-y-2 text-sm border-t pt-2 mt-1">
                       <div className="flex justify-between items-center py-0.5">
                         <span className="text-muted-foreground">{t("showroom_managers.email")}:</span>
                         <span className="text-foreground font-semibold">{manager.email}</span>
@@ -349,26 +383,6 @@ export default function ShowroomManagersPage() {
                         <span className="text-muted-foreground">{t("showroom_managers.phone")}:</span>
                         <span className="text-foreground font-semibold">{manager.phone || 'N/A'}</span>
                       </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-end gap-2 border-t pt-2.5 mt-1">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleEditClick(manager)}
-                        className="h-9 px-3 hover:bg-muted text-xs flex gap-1 font-bold items-center justify-center"
-                      >
-                        <Edit className="h-3.5 w-3.5" /> {t("showroom_managers.edit")}
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleRevokeRole(manager._id)}
-                        className="h-9 px-3 text-destructive hover:bg-destructive/10 text-xs flex gap-1 font-bold items-center justify-center"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> {t("showroom_managers.revoke")}
-                      </Button>
                     </div>
                   </div>
                 ))}

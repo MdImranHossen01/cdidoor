@@ -289,21 +289,23 @@ export default function AdminEmployeesPage() {
   };
 
   return (
-    <div className="space-y-4 px-0 py-1 md:space-y-6 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-0">
-        <div>
+    <div className="space-y-4 px-0 pt-[1px] pb-4 md:space-y-6 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-[1px] md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl md:text-3xl font-black text-zinc-950">{t("employees.title")}</h1>
           <p className="text-xs md:text-sm text-zinc-500 mt-1">{t("employees.subtitle")}</p>
         </div>
         <Button 
           onClick={() => setShowAddModal(true)}
-          className="bg-primary text-primary-foreground font-bold flex items-center gap-2 h-10 text-xs md:text-sm md:h-11 px-4 rounded-full"
+          className="bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 h-10 text-xs md:text-sm md:h-11 px-4 rounded-none w-full sm:w-auto"
         >
           <UserPlus className="h-4 w-4" /> {t("employees.add_employee")}
         </Button>
       </div>
 
-      <EmployeeTabs />
+      <div className="!mt-[1px] md:!mt-4 px-[1px] md:px-0">
+        <EmployeeTabs />
+      </div>
 
       {loading ? (
         <div className="space-y-3">
@@ -331,7 +333,7 @@ export default function AdminEmployeesPage() {
       ) : (
         <>
           {/* Desktop View */}
-          <div className="hidden md:block">
+          <div className="hidden md:block !mt-4 px-[1px] md:px-0">
             <Card className="border border-zinc-200 shadow-sm bg-white">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
@@ -440,9 +442,9 @@ export default function AdminEmployeesPage() {
           </div>
 
           {/* Mobile View */}
-          <div className="block md:hidden space-y-3 px-0 py-1">
+          <div className="block md:hidden space-y-3 px-[1px] py-1 bg-zinc-50/55 !mt-[1px] md:!mt-4">
             {employees.map((emp) => (
-              <div key={emp._id} className="relative p-4 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative animate-in fade-in duration-200">
+              <div key={emp._id} className="relative p-4 border border-border/50 rounded-2xl bg-card bg-white shadow-sm flex flex-col gap-2.5 animate-in fade-in duration-200">
                 {/* Dropdown Menu at Top Right */}
                 <div className="absolute top-3 right-3">
                   <DropdownMenu>

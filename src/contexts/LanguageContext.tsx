@@ -426,7 +426,7 @@ const translations = {
     "offers.generate_offer": "Generate Offer",
 
     "users.title": "Customers",
-    "users.subtitle": "General customers only. Wholesalers → /wholesalers · Staff/Admins → /employees",
+    "users.subtitle": "General customers only. Wholesalers → /admin/wholesalers · Staff/Admins → /admin/employees",
     "users.assign_admin": "Assign Admin",
     "users.total_users": "Total Users",
     "users.search_placeholder": "Search name, email or phone...",
@@ -1215,9 +1215,10 @@ const translations = {
     "faqs.deleted": "FAQ deleted successfully",
     "faqs.failed_delete": "Failed to delete FAQ",
     "faqs.error_delete": "Error deleting FAQ",
-    "faqs.failed_fetch": "Failed to fetch FAQs",
     "faqs.error_update": "Error updating status",
     "faqs.failed_update": "Failed to update status",
+    "faqs.edit_faq": "Edit",
+    "faqs.delete_faq": "Delete",
 
     "testimonials.title": "Customer Testimonials",
     "testimonials.desc": "Manage feedback displayed on your storefront",
@@ -2928,6 +2929,8 @@ const translations = {
     "faqs.failed_fetch": "FAQ লোড করতে ব্যর্থ",
     "faqs.error_update": "স্ট্যাটাস আপডেট করতে ত্রুটি",
     "faqs.failed_update": "স্ট্যাটাস আপডেট করতে ব্যর্থ",
+    "faqs.edit_faq": "সম্পাদনা করুন",
+    "faqs.delete_faq": "মুছে ফেলুন",
 
     "testimonials.title": "কাস্টমার টেস্টিমোনিয়াল",
     "testimonials.desc": "আপনার স্টোরফ্রন্টে প্রদর্শিত ফিডব্যাক পরিচালনা করুন",

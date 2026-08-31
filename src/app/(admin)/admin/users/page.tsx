@@ -68,6 +68,7 @@ interface UserData {
   lastActive?: string;
   totalOrders: number;
   totalSpent: number;
+  totalDue?: number;
   lastOrderDate?: string;
 }
 
@@ -333,10 +334,9 @@ function UsersContent() {
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-[80px]">{t("users.avatar")}</TableHead>
-              <TableHead className="font-bold">{t("users.name")}</TableHead>
-              <TableHead className="font-bold">{t("users.email")}</TableHead>
+              <TableHead className="font-bold">{t("users.name")} / {t("users.contact") || "Contact"}</TableHead>
               <TableHead className="font-bold">{t("users.orders")}</TableHead>
+              <TableHead className="font-bold">{t("users.total_due") || "Due"}</TableHead>
               <TableHead className="font-bold">{t("users.role")}</TableHead>
               <TableHead className="font-bold">{t("users.joined")}</TableHead>
               <TableHead className="font-bold">{t("users.last_visit") || "Last Login"}</TableHead>
@@ -347,14 +347,16 @@ function UsersContent() {
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
                   <TableCell>
-                    <div className="space-y-1.5">
-                      <Skeleton className="h-4 w-32 rounded" />
-                      <Skeleton className="h-3 w-40 rounded" />
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-4 w-32 rounded" />
+                        <Skeleton className="h-3 w-40 rounded" />
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell><Skeleton className="h-4 w-28 rounded" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
@@ -366,7 +368,7 @@ function UsersContent() {
               ))
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-48 text-center">
+                <TableCell colSpan={7} className="h-48 text-center">
                   <p className="text-muted-foreground">{t("users.no_users_found")}</p>
                 </TableCell>
               </TableRow>
@@ -374,36 +376,50 @@ function UsersContent() {
               users.map((user) => (
                 <TableRow key={user._id} className="hover:bg-muted/30 transition-colors">
                   <TableCell>
-                    {user.image && user.image !== '' ? (
-                      <div className="relative h-10 w-10 rounded-full overflow-hidden border">
-                        <Image
-                          src={user.image}
-                          alt={user.name}
-                          width={40}
-                          height={40}
-                          className="h-full w-full object-cover"
-                        />
+                    <div className="flex items-center gap-3">
+                      {user.image && user.image !== '' ? (
+                        <div className="relative h-10 w-10 rounded-full overflow-hidden border shrink-0">
+                          <Image
+                            src={user.image}
+                            alt={user.name}
+                            width={40}
+                            height={40}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                          <UserIcon className="h-5 w-5" />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <button
+                          onClick={() => openUserDetails(user)}
+                          className="font-semibold text-slate-900 hover:text-primary transition-colors text-left"
+                        >
+                          {user.name}
+                        </button>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 mt-1 text-slate-600 font-normal text-xs">
+                          {user.email && (
+                            <span className="truncate">{user.email}</span>
+                          )}
+                          {user.phone && (
+                            <span className="text-slate-500 font-medium">{user.phone}</span>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                        <UserIcon className="h-5 w-5" />
-                      </div>
-                    )}
+                    </div>
                   </TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() => openUserDetails(user)}
-                      className="font-semibold text-slate-900 hover:text-primary transition-colors text-left"
-                    >
-                      {user.name}
-                    </button>
-                  </TableCell>
-                  <TableCell className="text-slate-600">{user.email}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-700">{user.totalOrders} {t("users.orders")}</span>
                       <span className="text-[10px] text-muted-foreground font-medium">৳{user.totalSpent.toLocaleString()}</span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className={`font-bold px-2 py-0.5 rounded text-xs inline-block ${(user.totalDue || 0) > 0 ? 'text-red-700 bg-red-50 border border-red-100' : 'text-slate-500 bg-slate-50 border border-slate-200'}`}>
+                      ৳{Math.round(user.totalDue || 0).toLocaleString()}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge

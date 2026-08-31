@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,13 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Edit, Trash, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
 import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function BannersPage() {
   const { t } = useLanguage();
@@ -99,20 +103,20 @@ export default function BannersPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-0">
-        <div>
+    <div className="flex flex-col gap-4 px-0 pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 px-[1px] md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl font-bold tracking-tight">{t("banners.title")}</h1>
           <p className="text-muted-foreground text-sm">{t("banners.subtitle")}</p>
         </div>
-        <Link href="/admin/cms/banners/new">
-          <Button>
+        <Link href="/admin/cms/banners/new" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto rounded-none">
             <Plus className="mr-2 h-4 w-4" /> {t("banners.add_banner")}
           </Button>
         </Link>
       </div>
 
-      <div className="hidden md:block rounded-md border bg-background overflow-hidden shadow-sm">
+      <div className="hidden md:block rounded-md border bg-background overflow-hidden shadow-sm !mt-[1px] md:!mt-6 px-[1px] md:px-0">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -148,10 +152,7 @@ export default function BannersPage() {
                     <Skeleton className="h-4 w-24 rounded" />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Skeleton className="h-8 w-8 rounded-md" />
-                      <Skeleton className="h-8 w-8 rounded-md" />
-                    </div>
+                    <Skeleton className="h-8 w-8 rounded-full ml-auto" />
                   </TableCell>
                 </TableRow>
               ))
@@ -216,25 +217,28 @@ export default function BannersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/admin/cms/banners/${banner._id}/edit`}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:text-primary hover:bg-primary/10"
-                        >
-                          <Edit className="h-4 w-4" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                          <MoreHorizontal className="h-4 w-4 text-zinc-500" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(banner._id, banner.title)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-32 bg-white border shadow-sm">
+                        <Link href={`/admin/cms/banners/${banner._id}/edit`} className="w-full">
+                          <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                            <Edit className="h-3.5 w-3.5 text-indigo-600" />
+                            <span>Edit</span>
+                          </DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(banner._id, banner.title)}
+                          className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
@@ -244,7 +248,7 @@ export default function BannersPage() {
       </div>
 
       {/* Mobile View */}
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden space-y-3 px-[1px] py-1 bg-zinc-50/55 !mt-[1px] md:!mt-6">
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -260,7 +264,7 @@ export default function BannersPage() {
           </div>
         ) : (
           banners.map((banner) => (
-            <div key={banner._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative">
+            <div key={banner._id} className="p-4 mb-3 border border-border/50 rounded-2xl bg-card bg-white shadow-sm flex flex-col gap-2.5 relative">
               {/* Banner Image Preview */}
               <div className="aspect-[21/9] w-full overflow-hidden rounded-lg border bg-muted relative">
                 <Image
@@ -282,14 +286,38 @@ export default function BannersPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => toggleStatus(banner._id, banner.isActive)}
-                  className="transition-opacity hover:opacity-80 shrink-0"
-                >
-                  <Badge variant={banner.isActive ? 'default' : 'secondary'} className="cursor-pointer text-xs px-2 py-0.5">
-                    {banner.isActive ? t("banners.active") : t("banners.inactive")}
-                  </Badge>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => toggleStatus(banner._id, banner.isActive)}
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    <Badge variant={banner.isActive ? 'default' : 'secondary'} className="cursor-pointer text-xs px-2 py-0.5">
+                      {banner.isActive ? t("banners.active") : t("banners.inactive")}
+                    </Badge>
+                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+                        <MoreHorizontal className="h-4 w-4 text-zinc-500" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-32 bg-white border shadow-sm">
+                      <Link href={`/admin/cms/banners/${banner._id}/edit`} className="w-full">
+                        <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                          <Edit className="h-3.5 w-3.5 text-indigo-600" />
+                          <span>Edit</span>
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(banner._id, banner.title)}
+                        className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {/* CTAs */}
@@ -302,23 +330,6 @@ export default function BannersPage() {
                   <span className="font-bold text-foreground block">{banner.secondaryBtnText || t("banners.contact")}</span>
                   <span className="text-[10px] text-muted-foreground truncate block mt-0.5">{banner.secondaryBtnLink || t("banners.no_link")}</span>
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2 border-t pt-2 mt-1">
-                <Link href={`/admin/cms/banners/${banner._id}/edit`}>
-                  <Button variant="outline" size="sm" className="h-9 px-3 text-xs flex gap-1 font-bold">
-                    <Edit className="h-3.5 w-3.5" /> {t("banners.edit_banner") || "Edit"}
-                  </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 text-xs flex gap-1 font-bold"
-                  onClick={() => handleDelete(banner._id, banner.title)}
-                >
-                  <Trash className="h-3.5 w-3.5" /> {t("banners.delete_banner") || "Delete"}
-                </Button>
               </div>
             </div>
           ))

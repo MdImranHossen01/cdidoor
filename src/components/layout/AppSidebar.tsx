@@ -324,6 +324,11 @@ const data = {
           url: "/admin/cms/banners",
         },
         {
+          title: "Landing Pages",
+          tKey: "sidebar.landing_pages",
+          url: "/admin/landing-pages",
+        },
+        {
           title: "Testimonials",
           tKey: "sidebar.testimonials",
           url: "/admin/cms/testimonials",

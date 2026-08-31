@@ -371,8 +371,7 @@ export default function AdminWholesalersPage() {
                   <table className="w-full text-left border-collapse text-sm block md:table">
                     <thead className="hidden md:table-header-group">
                       <tr className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-bold">
-                        <th className="p-4">{t("wholesalers.name")}</th>
-                        <th className="p-4">{t("wholesalers.contact_information")}</th>
+                        <th className="p-4">{t("wholesalers.name")} / {t("wholesalers.contact_information")}</th>
                         <th className="p-4">{t("wholesalers.joined_date")}</th>
                         <th className="p-4">{t("wholesalers.order_info")}</th>
                         <th className="p-4">{t("wholesalers.total_due")}</th>
@@ -397,7 +396,19 @@ export default function AdminWholesalersPage() {
                               )}
                               <div className="flex flex-col">
                                 <span className="text-zinc-950 font-bold">{w.name}</span>
-                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1 text-zinc-600 font-normal text-xs">
+                                  <div className="flex items-center gap-1">
+                                    <Mail className="h-3.5 w-3.5" />
+                                    <span>{w.email}</span>
+                                  </div>
+                                  {w.phone && (
+                                    <div className="flex items-center gap-1 text-zinc-500">
+                                      <Phone className="h-3 w-3" />
+                                      <span>{w.phone}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                                   {w.nidImage && (
                                     <a href={w.nidImage} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
                                       <Badge variant="outline" className="text-[9px] px-1.5 py-0 cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200 font-bold uppercase rounded-full">
@@ -416,18 +427,6 @@ export default function AdminWholesalersPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="p-2 md:p-4 space-y-0.5 block md:table-cell text-left">
-                          <div className="flex items-center gap-1 text-zinc-600">
-                            <Mail className="h-3.5 w-3.5" />
-                            <span className="text-xs sm:text-sm">{w.email}</span>
-                          </div>
-                          {w.phone && (
-                            <div className="flex items-center gap-1 text-zinc-500 text-xs">
-                              <Phone className="h-3 w-3" />
-                              <span>{w.phone}</span>
-                            </div>
-                          )}
-                        </td>
                         <td className="p-2 md:p-4 text-zinc-500 block md:table-cell text-left">
                           <span className="md:hidden text-[10px] text-muted-foreground font-bold mr-2 uppercase">Joined:</span>
                           <span className="text-xs md:text-sm">{new Date(w.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}</span>

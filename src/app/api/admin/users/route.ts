@@ -61,6 +61,26 @@ export async function GET(req: NextRequest) {
           lastActive: 1,
           totalOrders: { $size: '$userOrders' },
           totalSpent: { $sum: '$userOrders.totalAmount' },
+          totalDue: {
+            $sum: {
+              $map: {
+                input: '$userOrders',
+                as: 'order',
+                in: {
+                  $cond: [
+                    { $eq: ['$$order.paymentStatus', 'Paid'] },
+                    0,
+                    {
+                      $subtract: [
+                        '$$order.totalAmount',
+                        { $ifNull: ['$$order.paidAmount', 0] }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
           lastOrderDate: { $max: '$userOrders.createdAt' }
         }
       }
