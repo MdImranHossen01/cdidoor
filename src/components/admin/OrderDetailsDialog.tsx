@@ -615,7 +615,7 @@ export default function OrderDetailsDialog({
                           <label className="text-[10px] font-bold text-muted-foreground">Size</label>
                           <input
                             type="text"
-                            placeholder="e.g. XL"
+                            placeholder="Size"
                             value={item.size || ''}
                             onChange={(e) => {
                               const newItems = [...editForm.items];
@@ -799,31 +799,31 @@ export default function OrderDetailsDialog({
                             <span className="font-bold">{order.manualPaymentDetails.senderNumber}</span>
                           </div>
                           <div className="col-span-2">
-                              <span className="text-muted-foreground block">TrxID:</span>
-                              <code className="font-bold text-primary bg-white px-1.5 py-0.5 rounded border">{order.manualPaymentDetails.transactionId}</code>
-                            </div>
+                            <span className="text-muted-foreground block">TrxID:</span>
+                            <code className="font-bold text-primary bg-white px-1.5 py-0.5 rounded border">{order.manualPaymentDetails.transactionId}</code>
                           </div>
                         </div>
-                      )}
+                      </div>
+                    )}
 
                     {(order.isCreditOrder || order.paymentMethod === 'Credit') && (
-                       <div className={`mt-3 p-3 rounded-xl border space-y-2 ${order.paymentStatus === 'Paid' ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
-                         <p className={`text-[10px] font-black uppercase tracking-widest ${order.paymentStatus === 'Paid' ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                           {order.paymentStatus === 'Paid' ? 'Credit Order (Paid)' : 'Credit Order / Due'}
-                         </p>
-                         {order.expectedPaymentDate && (
-                           <div className="text-[11px]">
-                             <span className="text-muted-foreground block font-medium">Expected Payment Date:</span>
-                             <span className={`font-bold ${order.paymentStatus === 'Paid' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                               {new Date(order.expectedPaymentDate).toLocaleDateString('en-US', {
-                                 year: 'numeric',
-                                 month: 'long',
-                                 day: 'numeric'
-                               })}
-                             </span>
-                           </div>
-                         )}
-                       </div>
+                      <div className={`mt-3 p-3 rounded-xl border space-y-2 ${order.paymentStatus === 'Paid' ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                        <p className={`text-[10px] font-black uppercase tracking-widest ${order.paymentStatus === 'Paid' ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
+                          {order.paymentStatus === 'Paid' ? 'Credit Order (Paid)' : 'Credit Order / Due'}
+                        </p>
+                        {order.expectedPaymentDate && (
+                          <div className="text-[11px]">
+                            <span className="text-muted-foreground block font-medium">Expected Payment Date:</span>
+                            <span className={`font-bold ${order.paymentStatus === 'Paid' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                              {new Date(order.expectedPaymentDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

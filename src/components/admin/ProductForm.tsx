@@ -257,10 +257,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
     const batches = values.batchNumber
       ? [{
-          batchNumber: values.batchNumber,
-          expiryDate: values.expiryDate ? new Date(values.expiryDate) : undefined,
-          stock: values.stock === '' ? 0 : Number(values.stock),
-        }]
+        batchNumber: values.batchNumber,
+        expiryDate: values.expiryDate ? new Date(values.expiryDate) : undefined,
+        stock: values.stock === '' ? 0 : Number(values.stock),
+      }]
       : [];
 
     const cleanValues = {
@@ -692,7 +692,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                       <Label className="text-xs font-medium text-muted-foreground">{t("products.form.size")}</Label>
                                       <Input
                                         {...form.register(`variants.${colorIndex}.sizes.${sizeIndex}.size` as const)}
-                                        placeholder="e.g. XL"
+                                        placeholder="Size"
                                         className="h-9 mt-1"
                                       />
                                     </div>
