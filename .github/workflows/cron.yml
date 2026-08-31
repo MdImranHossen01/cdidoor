@@ -1,0 +1,43 @@
+name: Daily Cron Jobs (Midnight UTC)
+
+on:
+  schedule:
+    # Runs once daily at midnight UTC (06:00 AM Bangladesh time)
+    - cron: '0 0 * * *'
+  # Also allow manual triggering from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-courier-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync Courier Delivery Status from Steadfast
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://cdidoorind.com/api/cron/sync-courier-status")
+          echo "Response HTTP status: $response"
+          if [ "$response" != "200" ]; then
+            echo "❌ Courier sync failed with HTTP $response"
+            exit 1
+          else
+            echo "✅ Courier sync completed successfully"
+          fi
+
+  auto-attendance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Fill Missing Attendance
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://cdidoorind.com/api/cron/auto-attendance")
+          echo "Response HTTP status: $response"
+          if [ "$response" != "200" ]; then
+            echo "❌ Auto attendance failed with HTTP $response"
+            exit 1
+          else
+            echo "✅ Auto attendance completed successfully"
+          fi
