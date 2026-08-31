@@ -105,6 +105,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
       toast.error('From and To accounts must be different.');
       return;
     }
+    const fromAcc = accounts.find(a => a.code === fromAccountCode);
+    if (fromAcc && amtVal > fromAcc.currentBalance) {
+      toast.error(`Insufficient balance in ${fromAcc.name}. Available: ৳${fromAcc.currentBalance.toLocaleString()}`);
+      return;
+    }
 
     setTransferSubmitLoading(true);
     try {
@@ -240,6 +245,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const selectedType = form.watch('type');
   const selectedCategory = form.watch('category');
   const selectedEmployeeId = form.watch('employee');
+  const selectedAmount = Number(form.watch('amount')) || 0;
   const filteredCategories = categories.filter(c => c.type === selectedType);
 
   useEffect(() => {
@@ -273,6 +279,17 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   }, [selectedCategory, selectedEmployeeId, selectedProviderId, selectedCustomerPhone, selectedSupplierId, employees, loanProviders, dueCustomers, suppliers, form, initialData]);
 
   const onSubmit = async (values: TransactionFormValues) => {
+    if (values.type === 'expense') {
+      const selectedAcc = accounts.find(a => a.code === values.accountCode);
+      if (selectedAcc) {
+        const isEditCurrentAccount = initialData && initialData.accountCode === values.accountCode && initialData.type === 'expense';
+        const effectiveBalance = selectedAcc.currentBalance + (isEditCurrentAccount ? initialData.amount : 0);
+        if (values.amount > effectiveBalance) {
+          toast.error(`Insufficient balance in ${selectedAcc.name}. Available: ৳${effectiveBalance.toLocaleString()}`);
+          return;
+        }
+      }
+    }
     setLoading(true);
     try {
       const url = initialData ? `/api/admin/expenses-incomes/${initialData._id}` : '/api/admin/expenses-incomes';
@@ -768,17 +785,33 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                   >
                     <SelectValue placeholder="Select Account">
                      {field.value
-                       ? accounts.find((a) => a.code === field.value)?.name || field.value
+                       ? (() => {
+                           const acc = accounts.find((a) => a.code === field.value);
+                           if (!acc) return field.value;
+                           const isEditCurrentAccount = initialData && initialData.accountCode === acc.code && initialData.type === 'expense';
+                           const effectiveBalance = acc.currentBalance + (isEditCurrentAccount ? initialData.amount : 0);
+                           return `${acc.name} (৳${effectiveBalance.toLocaleString()})`;
+                         })()
                        : "Select Account"}
                     </SelectValue>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {accounts.map((acc) => (
-                    <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
-                      {acc.name}
-                    </SelectItem>
-                  ))}
+                  {accounts.map((acc) => {
+                    const isEditCurrentAccount = initialData && initialData.accountCode === acc.code && initialData.type === 'expense';
+                    const effectiveBalance = acc.currentBalance + (isEditCurrentAccount ? initialData.amount : 0);
+                    const hasInsufficientBalance = selectedType === 'expense' && selectedAmount > effectiveBalance;
+                    return (
+                      <SelectItem 
+                        key={acc.code} 
+                        value={acc.code} 
+                        disabled={hasInsufficientBalance}
+                        className="text-xs md:text-sm"
+                      >
+                        {acc.name} (৳{effectiveBalance.toLocaleString()}) {hasInsufficientBalance && " - Insufficient Balance"}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               <FormMessage className="text-[10px] md:text-xs" />
@@ -841,15 +874,27 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
               >
                 <SelectTrigger id="fromAcc" className="h-8 md:h-10 text-xs md:text-sm">
                   <SelectValue>
-                    {fromAccountCode ? accounts.find(a => a.code === fromAccountCode)?.name || fromAccountCode : ""}
+                    {fromAccountCode ? (() => {
+                      const acc = accounts.find(a => a.code === fromAccountCode);
+                      return acc ? `${acc.name} (৳${acc.currentBalance.toLocaleString()})` : fromAccountCode;
+                    })() : ""}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {accounts.map((acc) => (
-                    <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
-                      {acc.name}
-                    </SelectItem>
-                  ))}
+                  {accounts.map((acc) => {
+                    const transferAmtVal = parseFloat(transferAmount) || 0;
+                    const hasInsufficient = transferAmtVal > acc.currentBalance;
+                    return (
+                      <SelectItem 
+                        key={acc.code} 
+                        value={acc.code} 
+                        disabled={hasInsufficient}
+                        className="text-xs md:text-sm"
+                      >
+                        {acc.name} (৳{acc.currentBalance.toLocaleString()}) {hasInsufficient && " - Insufficient Balance"}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -867,13 +912,16 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
               >
                 <SelectTrigger id="toAcc" className="h-8 md:h-10 text-xs md:text-sm">
                   <SelectValue>
-                    {toAccountCode ? accounts.find(a => a.code === toAccountCode)?.name || toAccountCode : ""}
+                    {toAccountCode ? (() => {
+                      const acc = accounts.find(a => a.code === toAccountCode);
+                      return acc ? `${acc.name} (৳${acc.currentBalance.toLocaleString()})` : toAccountCode;
+                    })() : ""}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((acc) => (
                     <SelectItem key={acc.code} value={acc.code} className="text-xs md:text-sm">
-                      {acc.name}
+                      {acc.name} (৳{acc.currentBalance.toLocaleString()})
                     </SelectItem>
                   ))}
                 </SelectContent>
