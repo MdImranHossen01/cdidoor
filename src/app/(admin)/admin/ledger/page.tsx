@@ -54,7 +54,9 @@ function AccountsLedgerContent() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [journalSearchTerm, setJournalSearchTerm] = useState('');
+  const [journalSearchTerm, setJournalSearchTerm] = useState(() => {
+    return searchParams.get('search') || '';
+  });
   
   const initialPage = Math.max(1, parseInt(searchParams.get('page') || '1'));
   const [currentPage, setCurrentPage] = useState(initialPage);

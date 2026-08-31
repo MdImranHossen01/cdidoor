@@ -10,6 +10,8 @@ export interface IExpense extends Document {
   status: 'Approved' | 'Pending' | 'Rejected';
   showroom?: mongoose.Types.ObjectId;
   employee?: mongoose.Types.ObjectId;
+  supplier?: mongoose.Types.ObjectId;
+  customerPhone?: string;
   accountCode: 'CASH' | 'BANK';
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +42,8 @@ const ExpenseSchema: Schema<IExpense> = new Schema(
     },
     showroom: { type: Schema.Types.ObjectId, ref: 'Showroom' },
     employee: { type: Schema.Types.ObjectId, ref: 'User' },
+    supplier: { type: Schema.Types.ObjectId, ref: 'Supplier' },
+    customerPhone: { type: String },
     accountCode: {
       type: String,
       enum: ['CASH', 'BANK'],

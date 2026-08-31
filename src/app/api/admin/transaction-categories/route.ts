@@ -16,10 +16,23 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const type = url.searchParams.get('type');
     
-    // Ensure standard loan-related categories exist
+    // Ensure standard default categories exist
     const defaultCategories: { name: string; type: 'expense' | 'income' }[] = [
+      { name: 'Product Sales', type: 'income' },
+      { name: 'Refund Received', type: 'income' },
+      { name: 'Service Charge', type: 'income' },
+      { name: 'Account receivable', type: 'income' },
+      { name: 'Account payable', type: 'expense' },
       { name: 'Profit/Interest', type: 'expense' },
-      { name: 'Loan Paid', type: 'expense' }
+      { name: 'Loan Paid', type: 'expense' },
+      { name: 'Packaging Material', type: 'expense' },
+      { name: 'Snacks & Entertainment', type: 'expense' },
+      { name: 'Staff Salary', type: 'expense' },
+      { name: 'Transportation', type: 'expense' },
+      { name: 'Utility Bills', type: 'expense' },
+      { name: 'Wages', type: 'expense' },
+      { name: 'Purchase Product', type: 'expense' },
+      { name: 'Purchase Materials', type: 'expense' }
     ];
     for (const cat of defaultCategories) {
       const exists = await TransactionCategory.findOne({ name: cat.name, type: cat.type });

@@ -19,6 +19,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {
   Select,
@@ -52,6 +53,12 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ initialData, onSuccess }: TransactionFormProps) {
+  const searchParams = useSearchParams();
+  const presetType = searchParams.get('type') as 'expense' | 'income' | null;
+  const presetAccountCode = searchParams.get('accountCode') as 'CASH' | 'BANK' | null;
+  const presetCategory = searchParams.get('category') || '';
+  const presetTab = searchParams.get('tab') as 'transaction' | 'transfer' | null;
+
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [showrooms, setShowrooms] = useState<any[]>([]);
@@ -61,13 +68,18 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
   const loanProviderRef = useRef<HTMLButtonElement>(null);
 
+  const [dueCustomers, setDueCustomers] = useState<any[]>([]);
+  const [selectedCustomerPhone, setSelectedCustomerPhone] = useState<string>('');
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
+
   const userRole = (session?.user as any)?.role;
   const isAdmin = ['admin', 'super_admin'].includes(userRole);
   const isSuperAdmin = userRole === 'super_admin';
   const { t } = useLanguage();
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'transaction' | 'transfer'>('transaction');
+  const [activeTab, setActiveTab] = useState<'transaction' | 'transfer'>(presetTab || 'transaction');
 
   // Transfer state
   const [transferDate, setTransferDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -132,21 +144,25 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const employeeRef = useRef<HTMLButtonElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
+  const showroomRef = useRef<HTMLButtonElement>(null);
+  const accountRef = useRef<HTMLButtonElement>(null);
+  const customerRef = useRef<HTMLButtonElement>(null);
+  const supplierRef = useRef<HTMLButtonElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const submitBtnRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
-      type: initialData?.type || 'expense',
+      type: initialData?.type || presetType || 'expense',
       title: initialData?.title || '',
       amount: initialData?.amount !== undefined ? initialData.amount : '',
-      category: initialData?.category || '',
+      category: initialData?.category || presetCategory || '',
       date: initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       description: initialData?.description || '',
       showroom: initialData?.showroom || undefined,
       employee: initialData?.employee?._id || initialData?.employee || undefined,
-      accountCode: initialData?.accountCode || 'CASH',
+      accountCode: initialData?.accountCode || presetAccountCode || 'CASH',
     },
   });
 
@@ -183,6 +199,34 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         }
       })
       .catch((err) => console.error('Error fetching loan providers:', err));
+
+    fetch('/api/admin/customers/due')
+      .then((res) => res.json())
+      .then((data) => {
+        const customers = data.customers || [];
+        setDueCustomers(customers);
+        if (initialData && initialData.category === 'Account receivable') {
+          const match = customers.find((c: any) => initialData.title.endsWith(c.name));
+          if (match) {
+            setSelectedCustomerPhone(match.phone);
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching due customers:', err));
+
+    fetch('/api/admin/suppliers')
+      .then((res) => res.json())
+      .then((data) => {
+        const suppliersList = data || [];
+        setSuppliers(suppliersList);
+        if (initialData && initialData.category === 'Account payable') {
+          const match = suppliersList.find((s: any) => initialData.title.endsWith(s.name) || initialData.title.endsWith(s.companyName));
+          if (match) {
+            setSelectedSupplierId(match._id);
+          }
+        }
+      })
+      .catch((err) => console.error('Error fetching suppliers:', err));
   }, [isAdmin, initialData]);
 
   const selectedType = form.watch('type');
@@ -204,11 +248,21 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
           const prefix = selectedCategory === 'Loan Paid' ? 'Loan paid to' : 'Interest/profit paid to';
           form.setValue('title', `${prefix} ${provider.name}`, { shouldValidate: true });
         }
+      } else if (selectedCategory === 'Account receivable' && selectedCustomerPhone) {
+        const customer = dueCustomers.find(c => c.phone === selectedCustomerPhone);
+        if (customer) {
+          form.setValue('title', `Account receivable from ${customer.name}`, { shouldValidate: true });
+        }
+      } else if (selectedCategory === 'Account payable' && selectedSupplierId) {
+        const supplier = suppliers.find(s => s._id === selectedSupplierId);
+        if (supplier) {
+          form.setValue('title', `Account payable to ${supplier.name || supplier.companyName}`, { shouldValidate: true });
+        }
       } else if (selectedCategory) {
         form.setValue('title', selectedCategory, { shouldValidate: true });
       }
     }
-  }, [selectedCategory, selectedEmployeeId, selectedProviderId, employees, loanProviders, form, initialData]);
+  }, [selectedCategory, selectedEmployeeId, selectedProviderId, selectedCustomerPhone, selectedSupplierId, employees, loanProviders, dueCustomers, suppliers, form, initialData]);
 
   const onSubmit = async (values: TransactionFormValues) => {
     setLoading(true);
@@ -216,10 +270,16 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
       const url = initialData ? `/api/admin/expenses-incomes/${initialData._id}` : '/api/admin/expenses-incomes';
       const method = initialData ? 'PUT' : 'POST';
 
+      const payload = {
+        ...values,
+        supplier: values.category === 'Account payable' ? selectedSupplierId : undefined,
+        customerPhone: values.category === 'Account receivable' ? selectedCustomerPhone : undefined,
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -238,9 +298,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
             employee: undefined,
             accountCode: 'CASH',
           });
+          setSelectedCustomerPhone('');
+          setSelectedSupplierId('');
           onSuccess(false);
           setTimeout(() => {
-            categoryRef.current?.focus();
+            dateRef.current?.focus();
           }, 50);
         }
       } else {
@@ -275,9 +337,27 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
         employeeRef.current?.focus();
       } else if (['Loan Paid', 'Profit/Interest'].includes(selectedCategory)) {
         loanProviderRef.current?.focus();
+      } else if (selectedCategory === 'Account receivable') {
+        customerRef.current?.focus();
+      } else if (selectedCategory === 'Account payable') {
+        supplierRef.current?.focus();
       } else {
         titleRef.current?.focus();
       }
+    }
+  };
+
+  const handleCustomerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleRef.current?.focus();
+    }
+  };
+
+  const handleSupplierKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      titleRef.current?.focus();
     }
   };
 
@@ -296,6 +376,24 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   };
 
   const handleAmountKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isAdmin && showrooms.length > 0) {
+        showroomRef.current?.focus();
+      } else {
+        accountRef.current?.focus();
+      }
+    }
+  };
+
+  const handleShowroomKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      accountRef.current?.focus();
+    }
+  };
+
+  const handleAccountKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       descriptionRef.current?.focus();
@@ -472,20 +570,18 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
           />
         )}
         {['Loan Paid', 'Profit/Interest'].includes(selectedCategory) && (
-          <FormItem className="space-y-1">
-            <FormLabel className="text-xs md:text-sm">Loan Provider</FormLabel>
+          <div className="space-y-1">
+            <Label className="text-xs md:text-sm">Loan Provider</Label>
             <Select value={selectedProviderId} onValueChange={(val) => setSelectedProviderId(val || '')}>
-              <FormControl>
-                <SelectTrigger 
-                  className="h-8 md:h-10 text-xs md:text-sm"
-                  ref={loanProviderRef}
-                  onKeyDown={handleLoanProviderKeyDown}
-                >
-                  <SelectValue placeholder="Select Loan Provider">
-                    {selectedProviderId ? loanProviders.find(p => p._id === selectedProviderId)?.name : "Select Loan Provider"}
-                  </SelectValue>
-                </SelectTrigger>
-              </FormControl>
+              <SelectTrigger 
+                className="h-8 md:h-10 text-xs md:text-sm"
+                ref={loanProviderRef}
+                onKeyDown={handleLoanProviderKeyDown}
+              >
+                <SelectValue placeholder="Select Loan Provider">
+                  {selectedProviderId ? loanProviders.find(p => p._id === selectedProviderId)?.name : "Select Loan Provider"}
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent>
                 {loanProviders.length === 0 ? (
                   <SelectItem value="none" disabled className="text-xs md:text-sm">
@@ -500,7 +596,73 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 )}
               </SelectContent>
             </Select>
-          </FormItem>
+          </div>
+        )}
+
+        {selectedCategory === 'Account receivable' && (
+          <div className="space-y-1">
+            <Label className="text-xs md:text-sm">Customer (Due)</Label>
+            <Select value={selectedCustomerPhone} onValueChange={(val) => setSelectedCustomerPhone(val || '')}>
+              <SelectTrigger 
+                className="h-8 md:h-10 text-xs md:text-sm"
+                ref={customerRef}
+                onKeyDown={handleCustomerKeyDown}
+              >
+                <SelectValue placeholder="Select Customer">
+                  {selectedCustomerPhone ? (() => {
+                    const match = dueCustomers.find(c => c.phone === selectedCustomerPhone);
+                    return match ? `${match.name} (Due: ৳${match.due})` : "Select Customer";
+                  })() : "Select Customer"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {dueCustomers.length === 0 ? (
+                  <SelectItem value="none" disabled className="text-xs md:text-sm">
+                    No customers with outstanding dues
+                  </SelectItem>
+                ) : (
+                  dueCustomers.map((customer) => (
+                    <SelectItem key={customer.phone} value={customer.phone} className="text-xs md:text-sm">
+                      {customer.name} ({customer.phone}) - Due: ৳{customer.due}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {selectedCategory === 'Account payable' && (
+          <div className="space-y-1">
+            <Label className="text-xs md:text-sm">Supplier</Label>
+            <Select value={selectedSupplierId} onValueChange={(val) => setSelectedSupplierId(val || '')}>
+              <SelectTrigger 
+                className="h-8 md:h-10 text-xs md:text-sm"
+                ref={supplierRef}
+                onKeyDown={handleSupplierKeyDown}
+              >
+                <SelectValue placeholder="Select Supplier">
+                  {selectedSupplierId ? (() => {
+                    const match = suppliers.find(s => s._id === selectedSupplierId);
+                    return match ? `${match.name || match.companyName} (Due: ৳${match.currentBalance})` : "Select Supplier";
+                  })() : "Select Supplier"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {suppliers.length === 0 ? (
+                  <SelectItem value="none" disabled className="text-xs md:text-sm">
+                    No suppliers found
+                  </SelectItem>
+                ) : (
+                  suppliers.map((supplier) => (
+                    <SelectItem key={supplier._id} value={supplier._id} className="text-xs md:text-sm">
+                      {supplier.name || supplier.companyName} ({supplier.phone}) - Due: ৳{supplier.currentBalance}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
         )}
         <FormField
           control={form.control}
@@ -548,7 +710,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
             </FormItem>
           )}
         />
-        {isAdmin && (
+        {isAdmin && showrooms.length > 0 && (
           <FormField
             control={form.control}
             name="showroom"
@@ -557,7 +719,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 <FormLabel className="text-xs md:text-sm">Showroom (Optional)</FormLabel>
                 <Select value={field.value || 'none'} onValueChange={(val) => field.onChange(val === 'none' ? undefined : val)}>
                   <FormControl>
-                    <SelectTrigger className="h-8 md:h-10 text-xs md:text-sm">
+                    <SelectTrigger 
+                      className="h-8 md:h-10 text-xs md:text-sm"
+                      ref={showroomRef}
+                      onKeyDown={handleShowroomKeyDown}
+                    >
                       <SelectValue placeholder="Select Showroom">
                         {field.value && field.value !== 'none'
                           ? showrooms.find(s => s._id === field.value)?.name
@@ -587,7 +753,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
               <FormLabel className="text-xs md:text-sm">Adjust Account</FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
-                  <SelectTrigger className="h-8 md:h-10 text-xs md:text-sm">
+                  <SelectTrigger 
+                    className="h-8 md:h-10 text-xs md:text-sm"
+                    ref={accountRef}
+                    onKeyDown={handleAccountKeyDown}
+                  >
                     <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
                 </FormControl>

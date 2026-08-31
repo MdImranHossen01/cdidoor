@@ -18,7 +18,7 @@ export default function AddAccountPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    accountCategory: 'Cash',
+    accountCategory: 'MFS',
     mfsProvider: 'bKash',
     mfsType: 'Merchant',
     branchName: '',
@@ -97,7 +97,6 @@ export default function AddAccountPage() {
                 <SelectValue placeholder={t("accounts.select_placeholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Cash">Cash</SelectItem>
                 <SelectItem value="MFS">MFS (bKash, Nagad, etc.)</SelectItem>
                 <SelectItem value="Bank">Bank</SelectItem>
               </SelectContent>

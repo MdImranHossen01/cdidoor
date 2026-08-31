@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, amount, category, date, description, type, employee, accountCode } = body;
+    const { title, amount, category, date, description, type, employee, accountCode, supplier, customerPhone } = body;
 
     // Validate required fields (basic)
     if (!title || amount === undefined || !category || !type) {
@@ -110,6 +110,8 @@ export async function POST(req: NextRequest) {
       description,
       status: expenseStatus,
       employee,
+      supplier: supplier || undefined,
+      customerPhone: customerPhone || undefined,
       accountCode: accountCode || 'CASH'
     };
 
@@ -137,6 +139,37 @@ export async function POST(req: NextRequest) {
             ledgerDescription,
             expense._id.toString()
           );
+
+          if (category === 'Account payable') {
+            // Log Debit to AP ledger (reduces Accounts Payable liability)
+            await logLedgerTransaction(
+              'AP',
+              'debit',
+              amount,
+              `Supplier Payment: ${title}`,
+              expense._id.toString()
+            );
+
+            // Deduct supplier currentBalance and create SupplierPayment record
+            if (supplier) {
+              const Supplier = (await import('@/models/Supplier')).default;
+              const SupplierPayment = (await import('@/models/SupplierPayment')).default;
+              
+              const targetSupplier = await Supplier.findById(supplier);
+              if (targetSupplier) {
+                targetSupplier.currentBalance = (targetSupplier.currentBalance || 0) - amount;
+                await targetSupplier.save();
+
+                await SupplierPayment.create({
+                  supplier: targetSupplier._id,
+                  amount: amount,
+                  paymentMethod: targetAccount === 'BANK' ? 'Bank' : 'Cash',
+                  description: `Supplier payment recorded via Expense Transaction: ${title}`,
+                  date: date ? new Date(date) : new Date()
+                });
+              }
+            }
+          }
         } else {
           // Debit selected account (increases asset)
           await logLedgerTransaction(
@@ -146,6 +179,74 @@ export async function POST(req: NextRequest) {
             `Income Received: ${title}`,
             expense._id.toString()
           );
+
+          if (category === 'Account receivable') {
+            // Log Credit to AR ledger (reduces Accounts Receivable asset)
+            await logLedgerTransaction(
+              'AR',
+              'credit',
+              amount,
+              `Accounts Receivable Collection: ${title}`,
+              expense._id.toString()
+            );
+
+            // Adjust customer outstanding dues (Bills first, then Orders)
+            if (customerPhone) {
+              const Bill = (await import('@/models/Bill')).default;
+              const Order = (await import('@/models/Order')).default;
+              const phoneStr = customerPhone.trim();
+              let remainingAmount = amount;
+
+              // 1. Fetch outstanding due Bills for this customer (oldest first)
+              const dueBills = await Bill.find({ 
+                clientPhone: phoneStr,
+                currentBillDue: { $gt: 0 }
+              }).sort({ date: 1, createdAt: 1 });
+
+              for (const bill of dueBills) {
+                if (remainingAmount <= 0) break;
+                const due = bill.currentBillDue || 0;
+                const pay = Math.min(remainingAmount, due);
+
+                bill.cashIn = (bill.cashIn || 0) + pay;
+                bill.currentBillDue = Math.max(0, due - pay);
+                bill.status = bill.currentBillDue <= 0 ? 'Paid' : 'Due';
+                await bill.save();
+
+                remainingAmount -= pay;
+              }
+
+              // 2. Fetch outstanding due Orders for this customer if there is remainingAmount (oldest first)
+              if (remainingAmount > 0) {
+                const dueOrders = await Order.find({
+                  $or: [
+                    { clientPhone: phoneStr },
+                    { 'shippingAddress.phone': phoneStr }
+                  ],
+                  paymentStatus: { $ne: 'Paid' },
+                  status: { $ne: 'Cancelled' }
+                }).sort({ createdAt: 1 });
+
+                for (const order of dueOrders) {
+                  if (remainingAmount <= 0) break;
+                  const total = order.totalAmount || 0;
+                  const paid = order.paidAmount || 0;
+                  const orderDue = total - paid;
+                  if (orderDue <= 0) continue;
+
+                  const pay = Math.min(remainingAmount, orderDue);
+                  order.paidAmount = paid + pay;
+                  order.paymentStatus = (order.paidAmount >= total) ? 'Paid' : 'Pending';
+                  if (order.paymentStatus === 'Paid') {
+                    order.status = 'Paid';
+                  }
+                  await order.save();
+
+                  remainingAmount -= pay;
+                }
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('Error logging transaction to ledger:', err);

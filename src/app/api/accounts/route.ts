@@ -16,10 +16,24 @@ export async function GET(req: NextRequest) {
     // Ensure primary accounts exist
     await seedLedgerAccounts();
 
-    const accounts = await LedgerAccount.find({ code: /^AC/ })
+    const accounts = await LedgerAccount.find({
+      $or: [
+        { code: /^AC/ },
+        { code: 'CASH' }
+      ]
+    })
       .populate('createdBy', 'name')
-      .sort({ createdAt: -1 })
       .lean();
+
+    // Sort: CASH account first, then others by createdAt descending
+    accounts.sort((a: any, b: any) => {
+      if (a.code === 'CASH') return -1;
+      if (b.code === 'CASH') return 1;
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+
     return NextResponse.json(accounts, { status: 200 });
   } catch (error: any) {
     console.error("GET /api/accounts error:", error);

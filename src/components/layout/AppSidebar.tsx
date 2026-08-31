@@ -236,7 +236,7 @@ const data = {
           url: "/admin/expenses-incomes?action=new",
         },
         {
-          title: "Add Category",
+          title: "Category",
           tKey: "sidebar.add_category",
           url: "/admin/expenses-incomes/categories",
         },
