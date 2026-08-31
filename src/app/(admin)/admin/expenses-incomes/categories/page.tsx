@@ -156,8 +156,8 @@ export default function TransactionCategoriesPage() {
 
   return (
     <div className="flex flex-col gap-0 md:gap-4 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Transaction Categories</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 w-full">
+        <h1 className="hidden md:block text-2xl font-bold tracking-tight">Transaction Categories</h1>
         <Dialog open={open} onOpenChange={(val) => {
           setOpen(val);
           if (!val) {
@@ -165,10 +165,8 @@ export default function TransactionCategoriesPage() {
             form.reset();
           }
         }}>
-          <DialogTrigger>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Category
-            </Button>
+          <DialogTrigger render={<Button className="w-full md:w-auto" />}>
+            <Plus className="mr-2 h-4 w-4" /> Add Category
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>

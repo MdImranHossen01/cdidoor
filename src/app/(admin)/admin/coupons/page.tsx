@@ -109,15 +109,15 @@ export default function CouponsPage() {
 
   return (
     <div className="flex-1 space-y-4 px-[1px] pt-[1px] pb-4 md:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-0">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 w-full mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h2 className="text-3xl font-bold tracking-tight">{t("coupons.title")}</h2>
           <p className="text-muted-foreground">{t("coupons.subtitle")}</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger 
             render={
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="w-full md:w-auto bg-primary hover:bg-primary/90">
                 <Plus className="mr-2 h-4 w-4" /> {t("coupons.add_coupon")}
               </Button>
             }

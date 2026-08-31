@@ -109,8 +109,8 @@ function BlogsContent() {
 
   return (
     <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl font-black flex items-center gap-2">
             <Newspaper className="h-6 w-6 text-primary" />
             {t("blogs.title")}
@@ -119,9 +119,9 @@ function BlogsContent() {
             {t("blogs.subtitle")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/admin/blogs/new">
-            <Button className="font-bold">
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <Link href="/admin/blogs/new" className="w-full md:w-auto">
+            <Button className="font-bold w-full md:w-auto">
               <Plus className="mr-2 h-4 w-4" /> {t("blogs.create_blog")}
             </Button>
           </Link>

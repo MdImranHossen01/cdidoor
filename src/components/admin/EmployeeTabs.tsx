@@ -29,7 +29,7 @@ export function EmployeeTabs() {
             key={tab.name}
             href={tab.href}
             className={cn(
-              "px-5 py-3 text-sm font-bold border-b-2 transition-all hover:text-primary",
+              "px-3 py-2.5 md:px-5 md:py-3 text-xs md:text-sm font-bold border-b-2 transition-all hover:text-primary",
               isActive 
                 ? "border-primary text-primary" 
                 : "border-transparent text-zinc-500 hover:border-zinc-300"

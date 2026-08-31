@@ -39,7 +39,7 @@ export default function UpcomingPayablePage() {
         <p className="text-muted-foreground mt-1">Repayments and installments scheduled within the next 30 days</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-0 md:px-0 !mt-[1px] md:!mt-6">
+      <div className="grid gap-2 grid-cols-2 md:gap-4 md:grid-cols-2 lg:grid-cols-3 px-0 md:px-0 !mt-[1px] md:!mt-6">
         <Card className="border-l-4 border-l-rose-500 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-semibold">Total Upcoming Due (30d)</CardTitle>
