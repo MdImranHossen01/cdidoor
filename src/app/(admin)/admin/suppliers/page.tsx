@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Plus, Trash2, Edit, Search, User, Eye, CreditCard, DollarSign, Loader2, Phone, Copy } from 'lucide-react';
+import { Plus, Trash2, Edit, Search, User, Eye, CreditCard, DollarSign, Loader2, Phone, Copy, MoreHorizontal } from 'lucide-react';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -359,7 +359,7 @@ function SuppliersContent() {
                         {supplier.companyName && (
                           <div className="text-xs text-muted-foreground">{supplier.companyName}</div>
                         )}
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1 text-slate-600 font-normal text-xs">
+                        <div className="flex flex-col gap-0.5 mt-1 text-slate-600 font-normal text-xs">
                           {supplier.phone && (
                             <span className="text-slate-500 font-medium">{supplier.phone}</span>
                           )}
@@ -372,16 +372,26 @@ function SuppliersContent() {
                       <TableCell className="text-right font-semibold text-rose-600">
                         ৳{(supplier.currentBalance || 0).toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => viewSupplierDetails(supplier)}>
-                          <Eye className="h-4 w-4 text-sky-600" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(supplier)}>
-                          <Edit className="h-4 w-4 text-indigo-600" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(supplier._id)}>
-                          <Trash2 className="h-4 w-4 text-rose-600" />
-                        </Button>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-card">
+                            <DropdownMenuItem onClick={() => viewSupplierDetails(supplier)} className="cursor-pointer">
+                              <Eye className="mr-2 h-4 w-4 text-sky-600" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(supplier)} className="cursor-pointer">
+                              <Edit className="mr-2 h-4 w-4 text-indigo-600" /> Edit Supplier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(supplier._id)} className="cursor-pointer text-rose-600 focus:text-rose-600">
+                              <Trash2 className="mr-2 h-4 w-4 text-rose-600" /> Delete Supplier
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -496,7 +506,7 @@ function SuppliersContent() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">{t("suppliers.supplier_name")}</Label>
+              <Label htmlFor="name" className="block mb-1.5">{t("suppliers.supplier_name")}</Label>
               <Input
                 id="name"
                 value={supplierName}
@@ -505,7 +515,7 @@ function SuppliersContent() {
               />
             </div>
             <div>
-              <Label htmlFor="company">{t("suppliers.company_name")}</Label>
+              <Label htmlFor="company" className="block mb-1.5">{t("suppliers.company_name")}</Label>
               <Input
                 id="company"
                 value={supplierCompany}
@@ -513,7 +523,7 @@ function SuppliersContent() {
               />
             </div>
             <div>
-              <Label htmlFor="phone">{t("suppliers.phone")} *</Label>
+              <Label htmlFor="phone" className="block mb-1.5">{t("suppliers.phone")} *</Label>
               <Input
                 id="phone"
                 value={supplierPhone}
@@ -522,7 +532,7 @@ function SuppliersContent() {
               />
             </div>
             <div>
-              <Label htmlFor="email">{t("suppliers.email")}</Label>
+              <Label htmlFor="email" className="block mb-1.5">{t("suppliers.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -531,7 +541,7 @@ function SuppliersContent() {
               />
             </div>
             <div>
-              <Label htmlFor="address">{t("suppliers.address")} *</Label>
+              <Label htmlFor="address" className="block mb-1.5">{t("suppliers.address")} *</Label>
               <Input
                 id="address"
                 value={supplierAddress}

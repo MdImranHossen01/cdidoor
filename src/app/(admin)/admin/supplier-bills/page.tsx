@@ -851,7 +851,7 @@ function SupplierBillsContent() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="supplierSelect">{t("supplier_bills.supplier_label")}</Label>
                 <select
@@ -888,11 +888,11 @@ function SupplierBillsContent() {
                     variant="outline"
                     size="sm"
                     onClick={() => { setProductPickerOpen(true); setSelectedProductVariants({}); setProductSearchTerm(''); }}
-                    className="text-primary border-primary/40 hover:bg-primary/5"
+                    className="text-primary border-primary/40 hover:bg-primary/5 text-xs px-2.5 h-8 md:h-9"
                   >
                     <Package className="h-4 w-4 mr-1" /> Add Product
                   </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={handleAddCustomItem}>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddCustomItem} className="text-xs px-2.5 h-8 md:h-9">
                     <Plus className="h-4 w-4 mr-1" /> Custom Item
                   </Button>
                 </div>
@@ -900,55 +900,57 @@ function SupplierBillsContent() {
 
               <div className="border rounded-md p-2 space-y-2 bg-slate-50/50">
                 {billItems.map((item, idx) => (
-                  <div key={idx} className="space-y-1">
+                  <div key={idx} className="space-y-1.5 p-2 border-b border-muted/50 last:border-0">
                     {/* Row label badge */}
                     {item.isProductItem && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                         <Package className="h-2.5 w-2.5" /> Product
                       </span>
                     )}
-                    <div className="flex gap-2 items-center">
-                      <div className="flex-1">
+                    <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+                      <div className="w-full flex-1">
                         <Input
                           placeholder={item.isProductItem ? 'Product name (auto-filled)' : t("supplier_bills.item_name_placeholder") as string}
                           value={item.name}
                           onChange={(e) => handleItemChange(idx, 'name', e.target.value)}
-                          className="bg-white"
+                          className="bg-white text-xs md:text-sm h-9"
                           required
                         />
                       </div>
-                      <div className="w-20">
-                        <Input
-                          type="number"
-                          placeholder="Qty"
-                          value={item.quantity}
-                          onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
-                          className="bg-white text-center"
-                          min="1"
-                          required
-                        />
+                      <div className="w-full md:w-auto flex gap-2 items-center">
+                        <div className="flex-1 md:w-20">
+                          <Input
+                            type="number"
+                            placeholder="Qty"
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(idx, 'quantity', e.target.value)}
+                            className="bg-white text-center text-xs md:text-sm h-9"
+                            min="1"
+                            required
+                          />
+                        </div>
+                        <div className="flex-1 md:w-28">
+                          <Input
+                            type="number"
+                            placeholder="Price"
+                            value={item.price || ''}
+                            onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
+                            className="bg-white text-right text-xs md:text-sm h-9"
+                            min="0"
+                            required
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveItem(idx)}
+                          disabled={billItems.length === 1}
+                          className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 shrink-0 h-9 w-9"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="w-28">
-                        <Input
-                          type="number"
-                          placeholder="Purchase Price"
-                          value={item.price || ''}
-                          onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
-                          className="bg-white text-right"
-                          min="0"
-                          required
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveItem(idx)}
-                        disabled={billItems.length === 1}
-                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                     {/* Batch row for product items */}
                     {item.isProductItem && (
@@ -967,7 +969,7 @@ function SupplierBillsContent() {
             </div>
 
             {/* Calculation summary */}
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="paymentMethod">{t("supplier_bills.payment_method")}</Label>
