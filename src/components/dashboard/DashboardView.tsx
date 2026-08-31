@@ -626,7 +626,7 @@ const [dateRange, setDateRange] = useState({
         </Link>
 
         {/* Pending Expenses */}
-        <Link href="/admin/expense" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        <Link href="/admin/expenses-incomes?type=expense&status=Pending" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">
@@ -1003,7 +1003,7 @@ const [dateRange, setDateRange] = useState({
         </Link>
 
         {/* Expire Alert Card */}
-        <Link href="/admin/products" className="block transition-transform hover:scale-[1.02] active:scale-95">
+        <Link href="/admin/upcoming-expiry" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full min-h-[85px] sm:min-h-0 shadow-sm hover:shadow transition-shadow">
             {/* Mobile Layout */}
             <div className="flex flex-col p-2.5 sm:hidden justify-between h-full gap-2 items-center text-center">

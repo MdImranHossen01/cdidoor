@@ -62,7 +62,10 @@ function ExpensesIncomesContent() {
 
   const initialType = (searchParams.get('type') as 'all' | 'expense' | 'income') || 'all';
   const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>(initialType);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Approved' | 'Pending' | 'Rejected'>('all');
+  
+  const initialStatus = (searchParams.get('status') as 'all' | 'Approved' | 'Pending' | 'Rejected') || 'all';
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Approved' | 'Pending' | 'Rejected'>(initialStatus);
+
   const [dateFilter, setDateFilter] = useState(() => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -100,11 +103,13 @@ function ExpensesIncomesContent() {
     const params = new URLSearchParams(searchParams.toString());
     const newPage = targetPage > 1 ? targetPage.toString() : '';
     const newType = typeFilter !== 'all' ? typeFilter : '';
+    const newStatus = statusFilter !== 'all' ? statusFilter : '';
 
     const currentType = searchParams.get('type') || '';
+    const currentStatus = searchParams.get('status') || '';
     const currentPageParam = searchParams.get('page') || '';
 
-    if (newType !== currentType || newPage !== currentPageParam) {
+    if (newType !== currentType || newStatus !== currentStatus || newPage !== currentPageParam) {
       if (newPage) {
         params.set('page', newPage);
       } else {
@@ -115,9 +120,27 @@ function ExpensesIncomesContent() {
       } else {
         params.delete('type');
       }
+      if (newStatus) {
+        params.set('status', newStatus);
+      } else {
+        params.delete('status');
+      }
       router.push(`/admin/expenses-incomes?${params.toString()}`);
     }
   }, [currentPage, searchTerm, typeFilter, statusFilter, dateFilter.from, dateFilter.to, searchParams, router]);
+
+  // Keep state updated if URL search parameters change externally
+  useEffect(() => {
+    const urlType = (searchParams.get('type') as 'all' | 'expense' | 'income') || 'all';
+    const urlStatus = (searchParams.get('status') as 'all' | 'Approved' | 'Pending' | 'Rejected') || 'all';
+
+    if (urlType !== typeFilter) {
+      setTypeFilter(urlType);
+    }
+    if (urlStatus !== statusFilter) {
+      setStatusFilter(urlStatus);
+    }
+  }, [searchParams]);
 
   const fetchTransactions = async () => {
     setLoading(true);
