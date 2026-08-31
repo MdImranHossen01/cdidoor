@@ -87,6 +87,10 @@ const ProductSchema: Schema<IProduct> = new Schema(
       type: Number,
       min: [0, 'Purchase price cannot be negative'],
     },
+    showroomPrice: {
+      type: Number,
+      min: [0, 'Showroom price cannot be negative'],
+    },
     discountRate: { type: Number },
     sku: { type: String, required: true, unique: true },
     stock: { type: Number, required: true, default: 0, min: [0, 'Stock cannot be negative'] },

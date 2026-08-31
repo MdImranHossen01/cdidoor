@@ -404,7 +404,7 @@ export async function GET(req: NextRequest) {
     
     const cashAccount = ledgerAccounts.find((a: any) => a.code === 'CASH');
     const apAccount = ledgerAccounts.find((a: any) => a.code === 'AP');
-    const bankAccounts = ledgerAccounts.filter((a: any) => a.accountCategory === 'Bank' || a.code === 'BANK');
+    const bankAccounts = ledgerAccounts.filter((a: any) => a.accountCategory === 'Bank' && a.code !== 'BANK');
     const mfsAccounts = ledgerAccounts.filter((a: any) => a.accountCategory === 'MFS');
 
     let cashBalance = cashAccount ? cashAccount.currentBalance : 0;

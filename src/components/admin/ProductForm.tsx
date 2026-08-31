@@ -75,6 +75,7 @@ const productSchema = z.object({
       size: z.string().optional(),
       price: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
       purchasePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
+      showroomPrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
       discountRate: z.union([z.coerce.number().min(0).max(100), z.literal('')]).optional(),
       salePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
       wholesaleSalePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
@@ -173,6 +174,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
           discountRate: calculateDiscount(v.price, v.salePrice) || '',
           salePrice: v.salePrice ?? '',
           wholesaleSalePrice: v.wholesaleSalePrice ?? '',
+          showroomPrice: v.showroomPrice ?? '',
           sku: v.sku || ''
         });
       });
@@ -243,6 +245,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
           size: sizeInfo.size || '',
           price: sizeInfo.price === '' ? 0 : Number(sizeInfo.price),
           purchasePrice: sizeInfo.purchasePrice === '' ? undefined : Number(sizeInfo.purchasePrice),
+          showroomPrice: sizeInfo.showroomPrice === '' ? undefined : Number(sizeInfo.showroomPrice),
           salePrice: sizeInfo.salePrice === '' ? undefined : Number(sizeInfo.salePrice),
           wholesaleSalePrice: sizeInfo.wholesaleSalePrice === '' ? undefined : Number(sizeInfo.wholesaleSalePrice),
           discountRate: sizeInfo.discountRate === '' || isNaN(Number(sizeInfo.discountRate)) ? undefined : Number(sizeInfo.discountRate),
@@ -683,7 +686,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                   </button>
 
                                   {/* 2 Row Layout */}
-                                  {/* Row 1: Size, Price, Purchase Price, Stock, SKU */}
+                                  {/* Row 1: Size, Purchase Price, Showroom Price, Wholesale Price, Stock */}
                                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
                                     <div>
                                       <Label className="text-xs font-medium text-muted-foreground">{t("products.form.size")}</Label>
@@ -694,23 +697,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                       />
                                     </div>
                                     <div>
-                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.price_tk")}</Label>
-                                      <Input
-                                        type="number"
-                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.price`) ?? ''}
-                                        className="h-9 mt-1"
-                                        onChange={(e) => {
-                                          const val = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
-                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.price`, val);
-                                          const disc = form.getValues(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`) || 0;
-                                          if (disc > 0 && val !== '') {
-                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, Math.round(val * (1 - disc / 100)));
-                                          }
-                                        }}
-                                      />
-                                    </div>
-                                    <div>
-                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.purchase_tk")}</Label>
+                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.purchase_tk") || "Purchase (Tk)"}</Label>
                                       <Input
                                         type="number"
                                         value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.purchasePrice`) ?? ''}
@@ -718,6 +705,31 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                         onChange={(e) => {
                                           const val = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
                                           form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.purchasePrice`, val);
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs font-medium text-muted-foreground">Showroom (Tk)</Label>
+                                      <Input
+                                        type="number"
+                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.showroomPrice`) ?? ''}
+                                        className="h-9 mt-1"
+                                        onChange={(e) => {
+                                          const val = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
+                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.showroomPrice`, val);
+                                        }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.wholesale_price_tk") || "Wholesale (Tk)"}</Label>
+                                      <Input
+                                        type="number"
+                                        placeholder="Optional"
+                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.wholesaleSalePrice`) ?? ''}
+                                        className="h-9 mt-1"
+                                        onChange={(e) => {
+                                          const val = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
+                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.wholesaleSalePrice`, val);
                                         }}
                                       />
                                     </div>
@@ -733,37 +745,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                         }}
                                       />
                                     </div>
-                                    <div className="col-span-2 md:col-span-1">
-                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.sku")}</Label>
-                                      <Input
-                                        {...form.register(`variants.${colorIndex}.sizes.${sizeIndex}.sku` as const)}
-                                        placeholder="SKU"
-                                        className="h-9 mt-1"
-                                      />
-                                    </div>
                                   </div>
 
-                                  {/* Row 2: Discount Rate (%), Sale Price, Wholesale Price */}
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    <div>
-                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.disc_percent")}</Label>
-                                      <Input
-                                        type="number"
-                                        placeholder="0"
-                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`) ?? ''}
-                                        className="h-9 mt-1"
-                                        onChange={(e) => {
-                                          const disc = e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0);
-                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`, disc);
-                                          const prc = form.getValues(`variants.${colorIndex}.sizes.${sizeIndex}.price`) || 0;
-                                          if (prc > 0 && disc !== undefined) {
-                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, Math.round(prc * (1 - disc / 100)));
-                                          } else {
-                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, undefined);
-                                          }
-                                        }}
-                                      />
-                                    </div>
+                                  {/* Row 2: Sale Price, Regular Price, Discount Rate (%), SKU */}
+                                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                     <div>
                                       <Label className="text-xs font-medium text-muted-foreground">{t("products.form.sale_price_tk")}</Label>
                                       <Input
@@ -783,17 +768,47 @@ export function ProductForm({ initialData }: ProductFormProps) {
                                         }}
                                       />
                                     </div>
-                                    <div className="col-span-2">
-                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.wholesale_price_tk")}</Label>
+                                    <div>
+                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.price_tk")}</Label>
                                       <Input
                                         type="number"
-                                        placeholder="Optional"
-                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.wholesaleSalePrice`) ?? ''}
+                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.price`) ?? ''}
                                         className="h-9 mt-1"
                                         onChange={(e) => {
                                           const val = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
-                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.wholesaleSalePrice`, val);
+                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.price`, val);
+                                          const disc = form.getValues(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`) || 0;
+                                          if (disc > 0 && val !== '') {
+                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, Math.round(val * (1 - disc / 100)));
+                                          }
                                         }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.disc_percent")}</Label>
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={form.watch(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`) ?? ''}
+                                        className="h-9 mt-1"
+                                        onChange={(e) => {
+                                          const disc = e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0);
+                                          form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.discountRate`, disc);
+                                          const prc = form.getValues(`variants.${colorIndex}.sizes.${sizeIndex}.price`) || 0;
+                                          if (prc > 0 && disc !== undefined) {
+                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, Math.round(prc * (1 - disc / 100)));
+                                          } else {
+                                            form.setValue(`variants.${colorIndex}.sizes.${sizeIndex}.salePrice`, undefined);
+                                          }
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="col-span-2">
+                                      <Label className="text-xs font-medium text-muted-foreground">{t("products.form.sku")}</Label>
+                                      <Input
+                                        {...form.register(`variants.${colorIndex}.sizes.${sizeIndex}.sku` as const)}
+                                        placeholder="SKU"
+                                        className="h-9 mt-1"
                                       />
                                     </div>
                                   </div>
@@ -812,35 +827,6 @@ export function ProductForm({ initialData }: ProductFormProps) {
           <Card>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("products.form.regular_price_tk")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          {...field}
-                          value={field.value ?? ''}
-                          onChange={(e) => {
-                            const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
-                            field.onChange(value);
-                            // Sync sale price if discount exists
-                            const prc = value === '' ? 0 : value;
-                            const discount = form.getValues('discountRate') || 0;
-                            if (discount > 0 && prc > 0) {
-                              const newSale = prc * (1 - discount / 100);
-                              form.setValue('salePrice', Math.round(newSale));
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="purchasePrice"
@@ -865,26 +851,41 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="discountRate"
+                  name="showroomPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("products.form.discount_percent")}</FormLabel>
+                      <FormLabel>Showroom Price (Tk)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0"
+                          placeholder="0.00"
                           {...field}
-                          value={field.value || ''}
+                          value={field.value ?? ''}
                           onChange={(e) => {
-                            const discount = e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0);
-                            field.onChange(discount);
-                            const price = form.getValues('price') || 0;
-                            if (price > 0 && discount !== undefined) {
-                              const newSale = price * (1 - discount / 100);
-                              form.setValue('salePrice', Math.round(newSale));
-                            } else {
-                              form.setValue('salePrice', undefined);
-                            }
+                            const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="wholesaleSalePrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("products.form.wholesale_price_tk")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
+                            field.onChange(value);
                           }}
                         />
                       </FormControl>
@@ -923,10 +924,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="wholesaleSalePrice"
+                  name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("products.form.wholesale_price_tk")}</FormLabel>
+                      <FormLabel>{t("products.form.regular_price_tk")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -936,6 +937,13 @@ export function ProductForm({ initialData }: ProductFormProps) {
                           onChange={(e) => {
                             const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
                             field.onChange(value);
+                            // Sync sale price if discount exists
+                            const prc = value === '' ? 0 : value;
+                            const discount = form.getValues('discountRate') || 0;
+                            if (discount > 0 && prc > 0) {
+                              const newSale = prc * (1 - discount / 100);
+                              form.setValue('salePrice', Math.round(newSale));
+                            }
                           }}
                         />
                       </FormControl>
@@ -945,19 +953,26 @@ export function ProductForm({ initialData }: ProductFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="showroomPrice"
+                  name="discountRate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Showroom Price (Tk)</FormLabel>
+                      <FormLabel>{t("products.form.discount_percent")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0.00"
+                          placeholder="0"
                           {...field}
-                          value={field.value ?? ''}
+                          value={field.value || ''}
                           onChange={(e) => {
-                            const value = e.target.value === '' ? '' : (parseFloat(e.target.value) || 0);
-                            field.onChange(value);
+                            const discount = e.target.value === '' ? undefined : (parseFloat(e.target.value) || 0);
+                            field.onChange(discount);
+                            const price = form.getValues('price') || 0;
+                            if (price > 0 && discount !== undefined) {
+                              const newSale = price * (1 - discount / 100);
+                              form.setValue('salePrice', Math.round(newSale));
+                            } else {
+                              form.setValue('salePrice', undefined);
+                            }
                           }}
                         />
                       </FormControl>

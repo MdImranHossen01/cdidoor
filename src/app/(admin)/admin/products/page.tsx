@@ -715,73 +715,76 @@ function ProductsContent() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        {selectedShowroom !== 'all' && selectedShowroom !== 'central' && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Add Stock from Central"
-                            disabled={(product.stock || 0) <= 0}
-                            onClick={() => {
-                              setTransferProduct(product);
-                              setTransferSource('central');
-                              setTargetShowroom(selectedShowroom);
-                              setTransferQuantity(1);
-                              setTransferBatchNumber('auto');
-                              setIsAddMode(true);
-                              setTransferModalOpen(true);
-                            }}
-                          >
-                            <Plus className="h-4 w-4 text-green-600" />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Transfer Stock"
-                          disabled={getTransferSourceStock(product) <= 0}
-                          onClick={() => handleInitiateTransfer(product)}
-                        >
-                          <Send className="h-4 w-4 text-blue-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Add Stock"
-                          onClick={() => {
-                            setAddStockProduct(product);
-                            setAddStockBatchNumber('');
-                            setAddStockExpiryDate('');
-                            setAddStockTopLevel(0);
-                            setAddStockVariants(
-                              (product.variants || []).map((v: any) => ({
-                                variantId: v._id,
-                                color: v.color || '',
-                                size: v.size || '',
-                                stockToAdd: 0
-                              }))
-                            );
-                            setAddStockModalOpen(true);
-                          }}
-                        >
-                          <DatabaseZap className="h-4 w-4 text-orange-500" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => router.push(`/admin/products/${product._id}/edit`)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-destructive" 
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          {selectedShowroom !== 'all' && selectedShowroom !== 'central' && (
+                            <DropdownMenuItem
+                              disabled={(product.stock || 0) <= 0}
+                              onClick={() => {
+                                setTransferProduct(product);
+                                setTransferSource('central');
+                                setTargetShowroom(selectedShowroom);
+                                setTransferQuantity(1);
+                                setTransferBatchNumber('auto');
+                                setIsAddMode(true);
+                                setTransferModalOpen(true);
+                              }}
+                              className="cursor-pointer text-green-600 focus:text-green-600"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              <span>{t("products.add_from_central") || "Add from Central"}</span>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            disabled={getTransferSourceStock(product) <= 0}
+                            onClick={() => handleInitiateTransfer(product)}
+                            className="cursor-pointer text-blue-600 focus:text-blue-600"
+                          >
+                            <Send className="h-4 w-4 mr-2" />
+                            <span>{t("products.transfer_stock") || "Transfer Stock"}</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setAddStockProduct(product);
+                              setAddStockBatchNumber('');
+                              setAddStockExpiryDate('');
+                              setAddStockTopLevel(0);
+                              setAddStockVariants(
+                                (product.variants || []).map((v: any) => ({
+                                  variantId: v._id,
+                                  color: v.color || '',
+                                  size: v.size || '',
+                                  stockToAdd: 0
+                                }))
+                              );
+                              setAddStockModalOpen(true);
+                            }}
+                            className="cursor-pointer text-orange-500 focus:text-orange-500"
+                          >
+                            <DatabaseZap className="h-4 w-4 mr-2" />
+                            <span>{t("products.add_stock") || "Add Stock"}</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => router.push(`/admin/products/${product._id}/edit`)}
+                            className="cursor-pointer"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            <span>{t("products.edit") || "Edit"}</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(product._id)}
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                          >
+                            <Trash className="h-4 w-4 mr-2" />
+                            <span>{t("products.delete") || "Delete"}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

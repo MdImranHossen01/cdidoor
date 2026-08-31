@@ -444,8 +444,8 @@ const [dateRange, setDateRange] = useState({
     <div className="flex-1 space-y-3 md:space-y-6 px-0 pt-[1px] pb-4 md:p-8">
       {/* Header */}
       <div className="flex flex-col gap-1 md:gap-3 mt-0 md:mt-0">
-        {/* Title Row */}
-        <div className="flex flex-row items-center justify-between gap-2">
+        {/* Title & Filters Row */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b pb-2 md:pb-4">
           <h2 className="hidden md:block text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">
             {activeTab === 'report' ? 'Report' : activeTab === 'insight' ? 'Insight' : t("dashboard.overview")}
           </h2>
@@ -466,72 +466,72 @@ const [dateRange, setDateRange] = useState({
               </Button>
             )}
           </div>
-        </div>
 
-        {/* Desktop Filter Row (below title) */}
-        <div className="hidden md:flex flex-wrap items-center gap-2">
-          {/* Showroom Dropdown */}
-          {showroomsList.length > 0 && (
-            <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-lg border">
-              <div className="flex items-center gap-1 px-2 shrink-0">
-                <Store className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Showroom</span>
+          {/* Desktop Filter Row (top right corner on desktop) */}
+          <div className="hidden md:flex flex-wrap items-center gap-2">
+            {/* Showroom Dropdown */}
+            {showroomsList.length > 0 && (
+              <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-lg border">
+                <div className="flex items-center gap-1 px-2 shrink-0">
+                  <Store className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Showroom</span>
+                </div>
+                <select
+                  value={selectedShowroom}
+                  onChange={(e) => setSelectedShowroom(e.target.value)}
+                  className="h-8 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium"
+                >
+                  <option value="all">All Showrooms</option>
+                  <option value="online">🌐 Online / Central</option>
+                  {showroomsList.map(s => (
+                    <option key={s._id} value={s._id}>{s.name}</option>
+                  ))}
+                </select>
               </div>
-              <select
-                value={selectedShowroom}
-                onChange={(e) => setSelectedShowroom(e.target.value)}
-                className="h-8 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium"
-              >
-                <option value="all">All Showrooms</option>
-                <option value="online">🌐 Online / Central</option>
-                {showroomsList.map(s => (
-                  <option key={s._id} value={s._id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
+            )}
 
-          {/* Date Range */}
-          {activeTab !== 'cards' && (
-            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
-              <div className="flex items-center gap-1 px-2 shrink-0">
-                <Filter className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Range</span>
+            {/* Date Range */}
+            {activeTab !== 'cards' && (
+              <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
+                <div className="flex items-center gap-1 px-2 shrink-0">
+                  <Filter className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Range</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="date"
+                    className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
+                    value={dateRange.from}
+                    onChange={(e) => handleDateChange('from', e.target.value)}
+                    max={format(new Date(), 'yyyy-MM-dd')}
+                  />
+                  <span className="text-muted-foreground text-[10px] shrink-0">to</span>
+                  <Input
+                    type="date"
+                    className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
+                    value={dateRange.to}
+                    onChange={(e) => handleDateChange('to', e.target.value)}
+                    max={format(new Date(), 'yyyy-MM-dd')}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="date"
-                  className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
-                  value={dateRange.from}
-                  onChange={(e) => handleDateChange('from', e.target.value)}
-                  max={format(new Date(), 'yyyy-MM-dd')}
-                />
-                <span className="text-muted-foreground text-[10px] shrink-0">to</span>
-                <Input
-                  type="date"
-                  className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
-                  value={dateRange.to}
-                  onChange={(e) => handleDateChange('to', e.target.value)}
-                  max={format(new Date(), 'yyyy-MM-dd')}
-                />
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Refresh */}
-          <Button variant="outline" size="sm" onClick={fetchStats} className="h-10 px-4 font-bold">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Refresh'}
-          </Button>
+            {/* Refresh */}
+            <Button variant="outline" size="sm" onClick={fetchStats} className="h-8 px-3 text-xs font-bold">
+              {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Refresh'}
+            </Button>
 
-          {/* Active filter badge */}
-          {selectedShowroom !== 'all' && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              <Store className="h-2.5 w-2.5" />
-              {selectedShowroom === 'online'
-                ? '🌐 Online / Central'
-                : showroomsList.find(s => s._id === selectedShowroom)?.name || 'Showroom'}
-            </span>
-          )}
+            {/* Active filter badge */}
+            {selectedShowroom !== 'all' && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                <Store className="h-2.5 w-2.5" />
+                {selectedShowroom === 'online'
+                  ? '🌐 Online / Central'
+                  : showroomsList.find(s => s._id === selectedShowroom)?.name || 'Showroom'}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1345,7 +1345,7 @@ const [dateRange, setDateRange] = useState({
                     <p className="text-sm font-bold leading-none truncate max-w-[150px]">{product._id}</p>
                     <p className="text-xs text-muted-foreground">{product.quantity} {t("dashboard.units_sold")}</p>
                   </div>
-                  <div className="text-2xl font-black">৳{Math.round(product.revenue).toLocaleString()}</div>
+                  <div className="text-base sm:text-lg font-bold">৳{Math.round(product.revenue).toLocaleString()}</div>
                 </div>
               ))}
               {(!topSellingProducts || topSellingProducts.length === 0) && (
@@ -1385,7 +1385,7 @@ const [dateRange, setDateRange] = useState({
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <div className="text-2xl font-black text-primary">৳{(order?.totalAmount || 0).toLocaleString()}</div>
+                      <div className="text-base sm:text-lg font-bold text-primary">৳{(order?.totalAmount || 0).toLocaleString()}</div>
                       <Badge
                         variant={order.status === 'Delivered' ? 'default' : 'secondary'}
                         className={`text-[10px] uppercase font-bold tracking-tighter ${order.status === 'Delivered' ? 'bg-emerald-500' : ''}`}
