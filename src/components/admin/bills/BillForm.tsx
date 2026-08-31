@@ -600,6 +600,36 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                   />
                 </div>
 
+                {/* Row 0: Name & Mobile Number */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Customer Name */}
+                  <div className="space-y-2">
+                    <Label htmlFor="dlgClientName" className="text-sm font-semibold">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="dlgClientName"
+                      value={clientName}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      placeholder="e.g. Rahim Khan"
+                      className="h-11 text-base"
+                      required
+                    />
+                  </div>
+
+                  {/* Customer Phone */}
+                  <div className="space-y-2">
+                    <Label htmlFor="dlgClientPhone" className="text-sm font-semibold">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="dlgClientPhone"
+                      value={clientPhone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onBlur={(e) => validatePhone(e.target.value)}
+                      placeholder="e.g. 01712345678"
+                      className={`h-11 text-base ${phoneError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                      required
+                    />
+                  </div>
+                </div>
+
                 {/* Row 1: Email and Address */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Customer Email */}
@@ -639,6 +669,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                         setClientDivision(val || '');
                         setClientDistrict('');
                         setClientThana('');
+                        setClientArea('');
                       }}
                     >
                       <SelectTrigger className="h-11 text-base">
@@ -663,6 +694,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                       onValueChange={(val) => {
                         setClientDistrict(val || '');
                         setClientThana('');
+                        setClientArea('');
                       }}
                     >
                       <SelectTrigger className="h-11 text-base">
@@ -686,7 +718,10 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                     <Select
                       disabled={!clientDistrict}
                       value={clientThana}
-                      onValueChange={(val) => setClientThana(val || '')}
+                      onValueChange={(val) => {
+                        setClientThana(val || '');
+                        setClientArea('');
+                      }}
                     >
                       <SelectTrigger className="h-11 text-base">
                         <SelectValue placeholder={t("settings.select_thana") as string} />
@@ -705,6 +740,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold">Area</Label>
                     <Select
+                      disabled={!clientDivision}
                       value={clientArea}
                       onValueChange={(val) => setClientArea(val || '')}
                     >
@@ -714,7 +750,8 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                       <SelectContent>
                         {areas
                           .filter((a) => {
-                            if (clientDivision && a.division !== clientDivision) return false;
+                            if (!clientDivision) return false;
+                            if (a.division !== clientDivision) return false;
                             if (clientDistrict && a.district && a.district !== clientDistrict) return false;
                             if (clientThana && a.thana && a.thana !== clientThana) return false;
                             return true;

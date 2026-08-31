@@ -242,6 +242,15 @@ function SuppliersContent() {
     setIsPaymentOpen(true);
   };
 
+  const openDirectPaymentDialog = (supplier: any) => {
+    setSelectedSupplier(supplier);
+    setPayAmount('');
+    setPayDescription('');
+    setPayMethod('Cash');
+    setPayDate(format(new Date(), 'yyyy-MM-dd'));
+    setIsPaymentOpen(true);
+  };
+
   const handleRecordPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = parseFloat(payAmount);
@@ -266,7 +275,9 @@ function SuppliersContent() {
 
       toast.success(t("suppliers.payment_recorded") as string);
       setIsPaymentOpen(false);
-      fetchSupplierDetails(selectedSupplier._id);
+      if (isDetailsOpen) {
+        fetchSupplierDetails(selectedSupplier._id);
+      }
       fetchSuppliers();
     } catch (error: any) {
       toast.error(error.message || 'Error recording payment');
@@ -384,6 +395,9 @@ function SuppliersContent() {
                             <DropdownMenuItem onClick={() => viewSupplierDetails(supplier)} className="cursor-pointer">
                               <Eye className="mr-2 h-4 w-4 text-sky-600" /> View Details
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openDirectPaymentDialog(supplier)} className="cursor-pointer">
+                              <CreditCard className="mr-2 h-4 w-4 text-emerald-650" /> Record Payout
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openEditDialog(supplier)} className="cursor-pointer">
                               <Edit className="mr-2 h-4 w-4 text-indigo-600" /> Edit Supplier
                             </DropdownMenuItem>
@@ -470,15 +484,18 @@ function SuppliersContent() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t">
-                    <Button variant="outline" size="sm" className="h-8 text-sky-600" onClick={() => viewSupplierDetails(supplier)}>
-                      <Eye className="h-4 w-4 mr-1" /> {t("suppliers.view")}
+                  <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 border-t">
+                    <Button variant="outline" size="sm" className="h-8 text-sky-600 text-[10px] px-2" onClick={() => viewSupplierDetails(supplier)}>
+                      <Eye className="h-3.5 w-3.5 mr-1" /> {t("suppliers.view")}
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 text-indigo-600" onClick={() => openEditDialog(supplier)}>
-                      <Edit className="h-4 w-4 mr-1" /> {t("suppliers.edit")}
+                    <Button variant="outline" size="sm" className="h-8 text-emerald-600 text-[10px] px-2" onClick={() => openDirectPaymentDialog(supplier)}>
+                      <CreditCard className="h-3.5 w-3.5 mr-1" /> Pay Out
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 text-rose-600" onClick={() => handleDelete(supplier._id)}>
-                      <Trash2 className="h-4 w-4 mr-1" /> {t("suppliers.delete")}
+                    <Button variant="outline" size="sm" className="h-8 text-indigo-600 text-[10px] px-2" onClick={() => openEditDialog(supplier)}>
+                      <Edit className="h-3.5 w-3.5 mr-1" /> {t("suppliers.edit")}
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 text-rose-600 text-[10px] px-2" onClick={() => handleDelete(supplier._id)}>
+                      <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("suppliers.delete")}
                     </Button>
                   </div>
                 </div>
