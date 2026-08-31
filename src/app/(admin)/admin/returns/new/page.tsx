@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,15 @@ export default function NewReturnPage() {
   const [searching, setSearching] = useState(false);
   const [bill, setBill] = useState<any>(null);
   const [order, setOrder] = useState<any>(null);
-  const [refundAccount, setRefundAccount] = useState<'CASH'>('CASH');
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [refundAccount, setRefundAccount] = useState<string>('CASH');
+  
+  useEffect(() => {
+    fetch('/api/accounts')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setAccounts(data || []))
+      .catch(err => console.error('Failed to load accounts', err));
+  }, []);
   
   // State for tracking return quantities and refund
   const [returnItems, setReturnItems] = useState<any[]>([]);
@@ -134,11 +142,18 @@ export default function NewReturnPage() {
     }
   };
 
-  const handleQtyChange = (index: number, qty: number) => {
+  const handleQtyChange = (index: number, val: string) => {
     const newItems = [...returnItems];
     const maxQty = newItems[index].quantity;
     
-    if (qty < 0) qty = 0;
+    if (val === '') {
+      newItems[index].returnQty = 0;
+      setReturnItems(newItems);
+      return;
+    }
+
+    let qty = parseInt(val);
+    if (isNaN(qty) || qty < 0) qty = 0;
     if (qty > maxQty) qty = maxQty;
     
     newItems[index].returnQty = qty;
@@ -320,8 +335,9 @@ export default function NewReturnPage() {
                         type="number" 
                         min="0" 
                         max={item.quantity}
-                        value={item.returnQty}
-                        onChange={(e) => handleQtyChange(index, parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        value={item.returnQty === 0 ? '' : item.returnQty}
+                        onChange={(e) => handleQtyChange(index, e.target.value)}
                         className="w-24 font-bold text-center"
                       />
                     </TableCell>
@@ -372,9 +388,17 @@ export default function NewReturnPage() {
                 <select
                   value={refundAccount}
                   onChange={(e: any) => setRefundAccount(e.target.value)}
-                  className="h-9 w-32 bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-semibold text-right"
+                  className="h-9 min-w-44 bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-semibold text-right"
                 >
-                  <option value="CASH">Cash Account</option>
+                  {accounts.length === 0 ? (
+                    <option value="CASH">Cash Account</option>
+                  ) : (
+                    accounts.map((acc) => (
+                      <option key={acc.code} value={acc.code}>
+                        {acc.name} (৳{acc.currentBalance?.toLocaleString() || 0})
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 
