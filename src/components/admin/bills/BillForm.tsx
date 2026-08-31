@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Search, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -534,7 +535,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
               <div className="flex gap-2 items-center">
                 {clientImage && (
                   <div className="relative w-11 h-11 rounded-full overflow-hidden border border-primary/20 shadow-xs shrink-0 bg-muted flex items-center justify-center">
-                    <img src={clientImage} alt="Client Avatar" className="w-full h-full object-cover" />
+                    <Image src={clientImage} alt="Client Avatar" width={44} height={44} className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div className="relative flex-1">

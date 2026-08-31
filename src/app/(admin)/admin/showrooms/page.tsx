@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
@@ -226,9 +227,11 @@ export default function ShowroomsPage() {
               {/* Image Section */}
               <div className="relative aspect-video w-full bg-muted overflow-hidden">
                 {showroom.image ? (
-                  <img
+                  <Image
                     src={showroom.image}
                     alt={showroom.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                   />
                 ) : (

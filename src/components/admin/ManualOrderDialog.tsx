@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Search, Trash2, Loader2 } from 'lucide-react';
 import { normalizePhoneNumber } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -448,7 +449,7 @@ export default function ManualOrderDialog({
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           {item.image && (
-                            <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded border" />
+                           <Image src={item.image} alt={item.name} width={40} height={40} className="w-10 h-10 object-cover rounded border" />
                           )}
                           <div>
                             <p className="font-semibold text-sm leading-tight">{item.name}</p>

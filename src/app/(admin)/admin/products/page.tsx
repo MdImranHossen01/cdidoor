@@ -832,9 +832,11 @@ function ProductsContent() {
                       {/* Image */}
                       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border bg-muted">
                         {primaryImage ? (
-                          <img 
+                          <Image 
                             src={primaryImage} 
                             alt={product.name} 
+                            width={48}
+                            height={48}
                             className="h-full w-full object-cover" 
                           />
                         ) : (

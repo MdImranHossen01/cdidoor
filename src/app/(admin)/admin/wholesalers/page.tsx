@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   Users, 
   UserPlus, 
@@ -384,9 +385,11 @@ export default function AdminWholesalersPage() {
                           <td className="p-2 md:p-4 font-bold text-zinc-900 block md:table-cell text-left">
                             <div className="flex items-center gap-3">
                               {w.image ? (
-                                <img 
+                                <Image 
                                   src={w.image} 
                                   alt={w.name} 
+                                  width={36}
+                                  height={36}
                                   className="h-9 w-9 rounded-full object-cover border border-zinc-200"
                                 />
                               ) : (

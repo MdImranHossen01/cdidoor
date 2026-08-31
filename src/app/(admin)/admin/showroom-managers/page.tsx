@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   Users, 
   UserPlus, 
@@ -249,10 +250,13 @@ export default function ShowroomManagersPage() {
                         <TableCell className="font-medium py-4">
                           <div className="flex items-center gap-3">
                             {manager.image ? (
-                              <img 
+                              <Image 
                                 src={manager.image} 
                                 alt={manager.name} 
+                                width={36}
+                                height={36}
                                 className="h-9 w-9 rounded-full object-cover border border-muted"
+                                unoptimized
                               />
                             ) : (
                               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
@@ -322,10 +326,13 @@ export default function ShowroomManagersPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         {manager.image ? (
-                          <img 
+                          <Image 
                             src={manager.image} 
                             alt={manager.name} 
+                            width={44}
+                            height={44}
                             className="h-11 w-11 rounded-full object-cover border border-muted"
+                            unoptimized
                           />
                         ) : (
                           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-base border border-primary/20">
