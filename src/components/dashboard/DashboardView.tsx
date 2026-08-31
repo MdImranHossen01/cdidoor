@@ -1419,7 +1419,7 @@ const [dateRange, setDateRange] = useState({
                   required
                 >
                   <option value="">-- Select {addBalanceTargetType} Account --</option>
-                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === addBalanceTargetType || (addBalanceTargetType === 'Bank' && a.code === 'BANK')).map((a: any) => (
+                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === addBalanceTargetType).map((a: any) => (
                     <option key={a._id} value={a._id}>{a.name}</option>
                   ))}
                 </select>
@@ -1452,7 +1452,7 @@ const [dateRange, setDateRange] = useState({
                   required
                 >
                   <option value="">-- Select Source Account --</option>
-                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === fundSourceType || (fundSourceType === 'Bank' && a.code === 'BANK') || (fundSourceType === 'Cash' && a.code === 'CASH')).map((a: any) => (
+                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === fundSourceType || (fundSourceType === 'Cash' && a.code === 'CASH')).map((a: any) => (
                     <option key={a._id} value={a._id}>{a.name}</option>
                   ))}
                 </select>

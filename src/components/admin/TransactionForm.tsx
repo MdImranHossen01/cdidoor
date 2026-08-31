@@ -55,7 +55,7 @@ interface TransactionFormProps {
 export function TransactionForm({ initialData, onSuccess }: TransactionFormProps) {
   const searchParams = useSearchParams();
   const presetType = searchParams.get('type') as 'expense' | 'income' | null;
-  const presetAccountCode = searchParams.get('accountCode') as 'CASH' | 'BANK' | null;
+  const presetAccountCode = searchParams.get('accountCode') as 'CASH' | null;
   const presetCategory = searchParams.get('category') || '';
   const presetTab = searchParams.get('tab') as 'transaction' | 'transfer' | null;
 
@@ -84,7 +84,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   // Transfer state
   const [transferDate, setTransferDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [fromAccountCode, setFromAccountCode] = useState<string>('CASH');
-  const [toAccountCode, setToAccountCode] = useState<string>('BANK');
+  const [toAccountCode, setToAccountCode] = useState<string>('CASH');
   const [transferTitle, setTransferTitle] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const [accounts, setAccounts] = useState<any[]>([]);

@@ -26,7 +26,7 @@ export default function ShowroomNewReturnPage() {
   const [searching, setSearching] = useState(false);
   const [bill, setBill] = useState<any>(null);
   const [order, setOrder] = useState<any>(null);
-  const [refundAccount, setRefundAccount] = useState<'CASH' | 'BANK'>('CASH');
+  const [refundAccount, setRefundAccount] = useState<'CASH'>('CASH');
   
   // State for tracking return quantities and refund
   const [returnItems, setReturnItems] = useState<any[]>([]);
@@ -375,7 +375,7 @@ export default function ShowroomNewReturnPage() {
                   className="h-9 w-32 bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-semibold text-right"
                 >
                   <option value="CASH">Cash Account</option>
-                  <option value="BANK">Bank Account</option>
+
                 </select>
               </div>
 

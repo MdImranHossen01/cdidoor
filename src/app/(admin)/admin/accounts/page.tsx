@@ -200,12 +200,12 @@ export default function AllAccountsPage() {
 
               {/* Action Buttons */}
               <div className="bg-slate-50 dark:bg-slate-900/50 p-3 border-t flex flex-wrap justify-center gap-2">
-                <Link href={`/admin/expenses-incomes?action=new&type=income&accountCode=${acc.code.startsWith('AC') ? (acc.accountCategory === 'Bank' ? 'BANK' : 'CASH') : acc.code}`}>
+                <Link href={`/admin/expenses-incomes?action=new&type=income&accountCode=${acc.code.startsWith('AC') ? acc.code : acc.code}`}>
                   <Button size="sm" variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white">
                     {t("accounts.credit") || "Credit +"}
                   </Button>
                 </Link>
-                <Link href={`/admin/expenses-incomes?action=new&type=expense&accountCode=${acc.code.startsWith('AC') ? (acc.accountCategory === 'Bank' ? 'BANK' : 'CASH') : acc.code}`}>
+                <Link href={`/admin/expenses-incomes?action=new&type=expense&accountCode=${acc.code.startsWith('AC') ? acc.code : acc.code}`}>
                   <Button size="sm" variant="destructive">
                     {t("accounts.debit") || "Debit -"}
                   </Button>

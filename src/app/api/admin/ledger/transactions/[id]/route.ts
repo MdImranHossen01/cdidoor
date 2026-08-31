@@ -48,7 +48,7 @@ export async function PUT(
 
       tx.amount = amount;
       tx.date = new Date(date);
-      const toCode = companion ? (companion.account as any).code : 'BANK';
+      const toCode = companion ? (companion.account as any).code : 'CASH';
       const fromCode = companion ? (companion.account as any).code : 'CASH';
       tx.description = tx.type === 'credit' ? `Transfer to ${toCode}: ${cleanDesc}` : `Transfer from ${fromCode}: ${cleanDesc}`;
       await tx.save();

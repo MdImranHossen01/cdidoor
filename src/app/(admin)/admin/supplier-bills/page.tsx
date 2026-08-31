@@ -1006,7 +1006,7 @@ function SupplierBillsContent() {
                       required
                     >
                       <option value="">-- Select Bank --</option>
-                      {ledgerAccounts.filter(a => a.accountCategory === 'Bank' || a.code === 'BANK').map(a => (
+                      {ledgerAccounts.filter(a => a.accountCategory === 'Bank').map(a => (
                         <option key={a._id} value={a._id}>{a.name}</option>
                       ))}
                     </select>

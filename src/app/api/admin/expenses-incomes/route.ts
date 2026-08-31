@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
                 await SupplierPayment.create({
                   supplier: targetSupplier._id,
                   amount: amount,
-                  paymentMethod: targetAccount === 'BANK' ? 'Bank' : 'Cash',
+                  paymentMethod: 'Cash',
                   description: `Supplier payment recorded via Expense Transaction: ${title}`,
                   date: date ? new Date(date) : new Date()
                 });

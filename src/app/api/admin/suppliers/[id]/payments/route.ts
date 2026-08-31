@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       );
 
       // 2. Credit Cash/Bank (decreases asset)
-      const accCode = paymentMethod === 'Bank' ? 'BANK' : 'CASH';
+      const accCode = paymentMethod === 'Bank' ? 'CASH' : 'CASH';
       await logLedgerTransaction(
         accCode,
         'credit',

@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
       if (Number(refundAmount) > 0) {
         try {
           const { logLedgerTransaction } = await import('@/lib/ledgerHelper');
-          const targetAccountCode = (refundAccount === 'BANK' || refundAccount === 'CASH') ? refundAccount : 'CASH';
+          const targetAccountCode = refundAccount === 'CASH' ? 'CASH' : 'CASH';
 
           // Credit the selected account (reducing Cash or Bank)
           await logLedgerTransaction(

@@ -17,7 +17,6 @@ export async function GET() {
     await recalculateLedgerBalance('AR');
     await recalculateLedgerBalance('AP');
     await recalculateLedgerBalance('CASH');
-    await recalculateLedgerBalance('BANK');
 
     const accounts = await LedgerAccount.find().sort({ code: 1 });
     return NextResponse.json(accounts);

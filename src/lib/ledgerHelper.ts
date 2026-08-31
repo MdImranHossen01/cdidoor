@@ -8,9 +8,8 @@ import LedgerTransaction from '@/models/LedgerTransaction';
 export async function seedLedgerAccounts() {
   await connectToDatabase();
 
-  const accounts: { name: string; code: 'CASH' | 'BANK' | 'AR' | 'AP' | 'INTEREST_EXP'; type: 'asset' | 'liability' | 'expense' | 'equity' | 'revenue' }[] = [
+  const accounts: { name: string; code: 'CASH' | 'AR' | 'AP' | 'INTEREST_EXP'; type: 'asset' | 'liability' | 'expense' | 'equity' | 'revenue' }[] = [
     { name: 'Cash', code: 'CASH', type: 'asset' },
-    { name: 'Bank', code: 'BANK', type: 'asset' },
     { name: 'Accounts Receivable', code: 'AR', type: 'asset' },
     { name: 'Accounts Payable', code: 'AP', type: 'liability' },
     { name: 'Interest Expense', code: 'INTEREST_EXP', type: 'expense' },
@@ -158,9 +157,8 @@ export async function logOrderPaymentToLedger(order: any) {
   try {
     await connectToDatabase();
     
-    // Determine account code based on paymentMethod
-    // Online -> BANK, others (COD, Manual) -> CASH
-    const accountCode = order.paymentMethod === 'Online' ? 'BANK' : 'CASH';
+    // All order payments go to CASH regardless of payment method
+    const accountCode = 'CASH';
     
     const amount = order.totalAmount || 0;
     const orderIdStr = order._id.toString();

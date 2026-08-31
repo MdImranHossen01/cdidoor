@@ -543,7 +543,7 @@ function AccountsLedgerContent() {
                   <Skeleton className="h-20 w-full rounded" />
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-8">
                   {/* Category-wise summary table */}
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-foreground">{t("ledger.category_wise") || "Category-wise Summary"}</h3>
