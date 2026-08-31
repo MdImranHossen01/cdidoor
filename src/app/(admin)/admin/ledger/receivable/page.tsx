@@ -417,9 +417,7 @@ export default function ReceivablePage() {
                 <Label htmlFor="adjustAccount" className="text-xs font-semibold">Receiving Account <span className="text-destructive">*</span></Label>
                 <Select value={selectedAccount} onValueChange={setSelectedAccount}>
                   <SelectTrigger id="adjustAccount" className="h-9 text-xs md:text-sm">
-                    <SelectValue placeholder="Select Account">
-                      {selectedAccount ? accounts.find(a => a.code === selectedAccount)?.name || selectedAccount : "Select Account"}
-                    </SelectValue>
+                    <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((acc) => (

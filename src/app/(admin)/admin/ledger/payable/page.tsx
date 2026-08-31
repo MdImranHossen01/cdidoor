@@ -480,12 +480,7 @@ export default function PayablePage() {
                 <Label htmlFor="payAccount" className="text-xs font-semibold">Pay From Account <span className="text-destructive">*</span></Label>
                 <Select value={selectedAccount} onValueChange={setSelectedAccount}>
                   <SelectTrigger id="payAccount" className="h-9 text-xs md:text-sm">
-                    <SelectValue placeholder="Select Account">
-                      {selectedAccount ? (() => {
-                        const acc = accounts.find(a => a.code === selectedAccount);
-                        return acc ? `${acc.name} (৳${acc.currentBalance.toLocaleString()})` : selectedAccount;
-                      })() : "Select Account"}
-                    </SelectValue>
+                    <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((acc) => {
