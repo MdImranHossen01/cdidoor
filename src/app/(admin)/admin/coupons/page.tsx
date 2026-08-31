@@ -108,7 +108,7 @@ export default function CouponsPage() {
   );
 
   return (
-    <div className="flex-1 space-y-4 px-0 py-4 md:p-8">
+    <div className="flex-1 space-y-4 px-[1px] pt-[1px] pb-4 md:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-0">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">{t("coupons.title")}</h2>

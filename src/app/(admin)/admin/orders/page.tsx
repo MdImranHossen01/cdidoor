@@ -657,7 +657,7 @@ function OrdersContent() {
   }
 
   return (
-    <div className="flex-1 space-y-4 px-0 py-4 md:p-8 w-full max-w-full overflow-x-hidden">
+    <div className="flex-1 space-y-4 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <div className="flex-1 min-w-0">

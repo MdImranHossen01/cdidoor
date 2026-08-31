@@ -311,96 +311,169 @@ export default function CategoriesPage() {
         </Dialog>
       </div>
 
-      <div className="px-0 md:px-0 !mt-[1px] md:!mt-4">
+      {/* Desktop View */}
+      <div className="hidden md:block px-0 md:px-0 !mt-[1px] md:!mt-4">
         <div className="rounded-md border bg-background overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">{t("categories.image")}</TableHead>
-              <TableHead>{t("categories.name")}</TableHead>
-              <TableHead>{t("categories.slug")}</TableHead>
-              <TableHead>{t("categories.parent")}</TableHead>
-              <TableHead>{t("categories.status")}</TableHead>
-              <TableHead className="text-right">{t("categories.actions")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-10 w-10 rounded-md" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-32 rounded" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-20 rounded" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Skeleton className="h-8 w-8 rounded-md" />
-                      <Skeleton className="h-8 w-8 rounded-md" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : categories.length === 0 ? (
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  {t("categories.no_categories_found")}
-                </TableCell>
+                <TableHead className="w-[100px]">{t("categories.image")}</TableHead>
+                <TableHead>{t("categories.name")}</TableHead>
+                <TableHead>{t("categories.slug")}</TableHead>
+                <TableHead>{t("categories.parent")}</TableHead>
+                <TableHead>{t("categories.status")}</TableHead>
+                <TableHead className="text-right">{t("categories.actions")}</TableHead>
               </TableRow>
-            ) : (
-              categories.map((category) => (
-                <TableRow key={category._id}>
-                  <TableCell>
-                    <div className="h-10 w-10 overflow-hidden rounded-md border bg-muted">
-                      {category.image ? (
-                        <Image src={category.image} alt={category.name} width={40} height={40} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Plus className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{category.slug}</TableCell>
-                  <TableCell>
-                    {category.parentCategory ? (
-                      <Badge variant="outline">{category.parentCategory.name || 'Parent'}</Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={category.isActive ? 'default' : 'secondary'}>
-                      {category.isActive ? t("categories.active") : t("categories.inactive")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleEdit(category)}
-                      aria-label={`Edit ${category.name}`}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-destructive" 
-                      onClick={() => handleDelete(category._id)}
-                      aria-label={`Delete ${category.name}`}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-10 w-10 rounded-md" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32 rounded" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20 rounded" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : categories.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    {t("categories.no_categories_found")}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                categories.map((category) => (
+                  <TableRow key={category._id}>
+                    <TableCell>
+                      <div className="h-10 w-10 overflow-hidden rounded-md border bg-muted">
+                        {category.image ? (
+                          <Image src={category.image} alt={category.name} width={40} height={40} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <Plus className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell>{category.slug}</TableCell>
+                    <TableCell>
+                      {category.parentCategory ? (
+                        <Badge variant="outline">{category.parentCategory.name || 'Parent'}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                        {category.isActive ? t("categories.active") : t("categories.inactive")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleEdit(category)}
+                        aria-label={`Edit ${category.name}`}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-destructive" 
+                        onClick={() => handleDelete(category._id)}
+                        aria-label={`Delete ${category.name}`}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile View */}
+      <div className="block md:hidden space-y-3 px-0 md:px-0 !mt-[1px] md:!mt-4">
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4 border border-border/50 rounded-xl bg-card shadow-sm space-y-2">
+                <div className="flex gap-3 items-center">
+                  <Skeleton className="h-12 w-12 rounded-md" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-1/2 rounded" />
+                    <Skeleton className="h-3.5 w-3/4 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground bg-background rounded-xl border">
+            <p className="font-semibold text-sm">{t("categories.no_categories_found")}</p>
+          </div>
+        ) : (
+          categories.map((category) => (
+            <div key={category._id} className="p-4 mb-3 border border-border/50 rounded-xl bg-card shadow-sm flex flex-col gap-2.5 relative bg-white dark:bg-zinc-900">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 overflow-hidden rounded-md border bg-muted shrink-0">
+                  {category.image ? (
+                    <Image src={category.image} alt={category.name} width={48} height={48} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Plus className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-base text-foreground truncate">{category.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{category.slug}</div>
+                </div>
+                <Badge variant={category.isActive ? 'default' : 'secondary'} className="shrink-0">
+                  {category.isActive ? t("categories.active") : t("categories.inactive")}
+                </Badge>
+              </div>
+
+              {category.parentCategory && (
+                <div className="flex items-center justify-between border-t border-border/30 pt-2 text-xs">
+                  <span className="text-muted-foreground">{t("categories.parent") || "Parent"}:</span>
+                  <Badge variant="outline">{category.parentCategory.name || 'Parent'}</Badge>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 border-t border-border/30 pt-2 mt-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-xs font-semibold"
+                  onClick={() => handleEdit(category)}
+                >
+                  <Edit className="h-3.5 w-3.5 mr-1" /> {t("showroom_managers.edit") || "Edit"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-xs font-semibold text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDelete(category._id)}
+                >
+                  <Trash className="h-3.5 w-3.5 mr-1" /> {t("products.delete") || "Delete"}
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

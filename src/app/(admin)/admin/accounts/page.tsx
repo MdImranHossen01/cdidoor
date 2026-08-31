@@ -31,7 +31,7 @@ export default function AllAccountsPage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-0 sm:gap-6 pt-[2px] sm:pt-6 pb-20">
+    <div className="flex flex-col gap-0 sm:gap-6 pt-[1px] sm:pt-6 pb-20">
       <div className="hidden sm:flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">
           {t("sidebar.all_accounts") || "All Accounts"}

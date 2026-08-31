@@ -289,7 +289,7 @@ export default function MarketingSettingsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 px-0 py-4 md:p-8">
+    <div className="flex-1 space-y-4 px-[1px] pt-[1px] pb-4 md:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-0">
         <h1 className="text-2xl font-bold tracking-tight">{t("marketing.title")}</h1>
         <Button type="submit" form="marketing-settings-form" disabled={submitting}>

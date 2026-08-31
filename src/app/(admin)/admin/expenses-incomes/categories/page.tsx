@@ -155,7 +155,7 @@ export default function TransactionCategoriesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 pt-6">
+    <div className="flex flex-col gap-0 md:gap-4 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Transaction Categories</h1>
         <Dialog open={open} onOpenChange={(val) => {

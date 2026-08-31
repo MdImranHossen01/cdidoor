@@ -138,7 +138,7 @@ export default function LandingPagesPage() {
   });
 
   return (
-    <div className="px-0 py-4 md:p-8 space-y-6">
+    <div className="px-[1px] pt-[1px] pb-4 md:p-8 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
