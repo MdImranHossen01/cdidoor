@@ -6,8 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PrivacyClient({ settings, lastUpdated }: { settings: any, lastUpdated: string }) {
   const { t } = useLanguage();
-  const brandName = settings?.brandName || "RPL Market";
-  const contactEmail = settings?.contact?.email || "support@cdidoorind.com";
+  const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store";
+  const contactEmail = settings?.contact?.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "";
 
   return (
     <div className="flex flex-col min-h-screen">

@@ -1,7 +1,7 @@
 import { format, isValid } from 'date-fns';
 
 export async function printBillPOS(bill: any, settings: any, targetWindow?: Window | null): Promise<void> {
-  const brandName = settings?.brandName || "CDI Door Ind";
+  const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store";
   const brandEmail = settings?.contact?.email || "";
   const brandPhone = settings?.contact?.phone || "";
   const brandAddress = settings?.contact?.address || "";

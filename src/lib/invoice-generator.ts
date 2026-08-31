@@ -4,7 +4,7 @@ export async function generateInvoicePDF(orderOrOrders: any | any[], settings: a
   const orders = Array.isArray(orderOrOrders) ? orderOrOrders : [orderOrOrders];
   if (orders.length === 0) return;
 
-  const brandName = settings?.brandName || "CDI Door Ind";
+  const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store";
   const brandEmail = settings?.contact?.email || "";
   const brandPhone = settings?.contact?.phone || "";
   const brandAddress = settings?.contact?.address || "";

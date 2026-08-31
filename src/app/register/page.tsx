@@ -86,10 +86,15 @@ export default function RegisterPage() {  const { t } = useLanguage();
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsLoading(true);
     try {
+      const { normalizePhoneNumber } = await import('@/lib/utils');
+      const payload = {
+        ...values,
+        phone: normalizePhoneNumber(values.phone),
+      };
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
 
       let data;
@@ -103,6 +108,9 @@ export default function RegisterPage() {  const { t } = useLanguage();
 
       if (!response.ok) {
         toast.error(data.message || 'Registration failed');
+      } else if (data.upgraded) {
+        toast.success('Account upgraded! Your previous orders are preserved. Please log in.');
+        router.push('/login');
       } else {
         toast.success('Registered successfully! Please log in.');
         router.push('/login');
@@ -345,7 +353,7 @@ export default function RegisterPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                              placeholder="Enter your password"
                               type={showPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading}
@@ -384,7 +392,7 @@ export default function RegisterPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                              placeholder="Confirm your password"
                               type={showConfirmPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading}

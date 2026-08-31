@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { normalizePhoneNumber } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ export default function NewLoanProviderPage() {
       const res = await fetch('/api/admin/loans/providers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, address, description }),
+        body: JSON.stringify({ name, phone: normalizePhoneNumber(phone), email, address, description }),
       });
 
       if (res.ok) {

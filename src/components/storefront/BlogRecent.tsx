@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,7 +35,7 @@ export function BlogRecent({ blogs }: BlogRecentProps) {
               Latest from our <span className="text-primary italic">Blog</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl">
-              Discover tips, news, and trends from the CDI Door Ind community.
+              Discover tips, news, and trends from the {process.env.NEXT_PUBLIC_STORE_NAME || 'Store'} community.
             </p>
           </div>
           <Button asChild variant="default" className="rounded-full font-bold group">

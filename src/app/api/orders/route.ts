@@ -8,6 +8,7 @@ import GlobalSettings from '@/models/GlobalSettings';
 import WalletTransaction from '@/models/WalletTransaction';
 import Coupon from '@/models/Coupon';
 import { auth } from '@/auth';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 import { z } from 'zod';
 import mongoose from 'mongoose';
@@ -37,7 +38,7 @@ const orderSchema = z.object({
   items: z.array(orderItemSchema).min(1, 'At least one item is required'),
   shippingAddress: z.object({
     fullName: z.string().min(2, 'Full name is required'),
-    phone: z.string().min(10, 'Invalid phone number'),
+    phone: z.string().transform((val) => normalizePhoneNumber(val)).refine((val) => val.length === 11, 'Invalid phone number'),
     email: z.string().email('Invalid email address'),
     street: z.string().min(1, 'Street is required'),
     city: z.string().min(1, 'City is required'),

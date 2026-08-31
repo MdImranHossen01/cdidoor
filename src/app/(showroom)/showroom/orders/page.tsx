@@ -3,39 +3,28 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState, useEffect, Suspense } from 'react';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
-import { Search, Loader2, Calendar, FileText, CheckCircle2, XCircle, Clock, Truck, RefreshCw, Eye, Share2, Plus, Trash2 } from 'lucide-react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Search, Calendar, FileText, CheckCircle2, XCircle, Clock,
+  Truck, RefreshCw, Eye, Share2, Plus, SlidersHorizontal,
+  ChevronDown, Filter as FilterIcon, MoreHorizontal
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import ManualOrderDialog from '@/components/admin/ManualOrderDialog';
 import { toast } from 'sonner';
 import { Pagination } from '@/components/ui/pagination';
 import { format } from 'date-fns';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from '@/components/ui/dropdown-menu';
 
 interface OrderItem {
   _id: string;
@@ -50,7 +39,19 @@ interface OrderItem {
   paymentStatus: string;
   status: string;
   totalAmount: number;
+  items?: any[];
 }
+
+const STATUS_TABS = [
+  { label: 'All',        value: 'All',                  countKey: 'all' },
+  { label: 'Placed',     value: 'Order Placed',          countKey: 'placed' },
+  { label: 'Processing', value: 'Processing',            countKey: 'processing' },
+  { label: 'Courier',    value: 'Shipped via Courier',   countKey: 'courier' },
+  { label: 'Completed',  value: 'Completed',             countKey: 'completed' },
+  { label: 'Cancelled',  value: 'Cancelled',             countKey: 'cancelled' },
+  { label: 'Hold',       value: 'On Hold',               countKey: 'hold' },
+  { label: 'Returned',   value: 'Returned',              countKey: 'returned' },
+];
 
 function ShowroomOrdersContent() {
   const { t } = useLanguage();
@@ -63,27 +64,20 @@ function ShowroomOrdersContent() {
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [counts, setCounts] = useState({
-    all: 0,
-    placed: 0,
-    processing: 0,
-    courier: 0,
-    completed: 0,
-    cancelled: 0,
-    hold: 0,
-    returned: 0
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({
+    all: 0, placed: 0, processing: 0, courier: 0,
+    completed: 0, cancelled: 0, hold: 0, returned: 0
   });
   const limit = 15;
-
-  // {t('store.showroom.manual_order') || 'Manual Order'} states
   const [isManualOrderOpen, setIsManualOrderOpen] = useState(false);
 
   const handleCopyLink = async (orderId: string) => {
     try {
-      const shareableLink = `${window.location.origin}/orders/${orderId}`;
-      await navigator.clipboard.writeText(shareableLink);
-      toast.success('Shareable order link copied to clipboard!');
-    } catch (err) {
+      await navigator.clipboard.writeText(`${window.location.origin}/orders/${orderId}`);
+      toast.success('Shareable order link copied!');
+    } catch {
       toast.error('Failed to copy link.');
     }
   };
@@ -92,166 +86,237 @@ function ShowroomOrdersContent() {
     try {
       setLoading(true);
       const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        status: status,
-        search,
-        from: dateFilter.from,
-        to: dateFilter.to
+        page: page.toString(), limit: limit.toString(),
+        status, search, from: dateFilter.from, to: dateFilter.to
       });
-
-      const response = await fetch(`/api/showroom/orders?${queryParams.toString()}`);
-      if (!response.ok) {
-        toast.error('Failed to fetch orders');
-        return;
-      }
+      const response = await fetch(`/api/showroom/orders?${queryParams}`);
+      if (!response.ok) { toast.error('Failed to fetch orders'); return; }
       const data = await response.json();
       setOrders(data.orders || []);
       setPagination(data.pagination || { total: 0, totalPages: 1 });
-      setCounts(data.counts || {
-        all: 0,
-        placed: 0,
-        processing: 0,
-        courier: 0,
-        completed: 0,
-        cancelled: 0,
-        hold: 0,
-        returned: 0
-      });
-    } catch (error) {
+      setCounts(data.counts || {});
+    } catch {
       toast.error('An error occurred while fetching orders.');
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchOrders(1, statusFilter);
-  }, [search, dateFilter.from, dateFilter.to]);
+  useEffect(() => { fetchOrders(1, statusFilter); }, [search, dateFilter.from, dateFilter.to]);
 
   const handleTabChange = (val: string) => {
-    setStatusFilter(val);
-    setCurrentPage(1);
-    fetchOrders(1, val);
+    setStatusFilter(val); setCurrentPage(1); fetchOrders(1, val);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    fetchOrders(page, statusFilter);
+  const toggleSelect = (id: string) =>
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  const toggleSelectAll = () => {
+    const allIds = orders.map(o => o._id);
+    const allSelected = allIds.every(id => selectedIds.includes(id));
+    setSelectedIds(allSelected ? selectedIds.filter(id => !allIds.includes(id)) : [...new Set([...selectedIds, ...allIds])]);
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Order Placed':
-        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400"><Clock className="h-3 w-3 mr-1" /> Placed</Badge>;
+        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400"><Clock className="h-3 w-3 mr-1" />Placed</Badge>;
       case 'Processing':
-        return <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-950/20 dark:text-amber-400"><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> Processing</Badge>;
+        return <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"><RefreshCw className="h-3 w-3 mr-1" />Processing</Badge>;
       case 'Shipped via Courier':
-        return <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:text-indigo-400"><Truck className="h-3 w-3 mr-1" /> Courier</Badge>;
+        return <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"><Truck className="h-3 w-3 mr-1" />Courier</Badge>;
       case 'Completed':
-        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400"><CheckCircle2 className="h-3 w-3 mr-1" /> Completed</Badge>;
+        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"><CheckCircle2 className="h-3 w-3 mr-1" />Completed</Badge>;
       case 'Cancelled':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Cancelled</Badge>;
+        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  const hasActiveFilters = statusFilter !== 'All' || dateFilter.from || dateFilter.to || search;
 
   if (loading && orders.length === 0) {
     return <AdminTableSkeleton rowCount={7} columnCount={7} titleWidth="w-48" />;
   }
 
   return (
-    <div className="flex-1 space-y-6 py-6 md:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">{t('store.showroom.orders_title') || 'Showroom Orders'}</h2>
-          <p className="text-muted-foreground text-xs md:text-sm">
-            {t('store.showroom.orders_desc') || 'আপনার শো-রুমের মাধ্যমে আসা অর্ডারগুলো ট্র্যাক ও প্রসেস করুন।'}
-          </p>
+    <div className="flex-1 space-y-4 px-0 py-4 md:p-8 w-full max-w-full overflow-x-hidden">
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+              {t('store.showroom.orders_title') || 'Showroom Orders'}
+            </h2>
+            <p className="text-muted-foreground text-xs hidden sm:block">
+              {t('store.showroom.orders_desc') || 'Track and process showroom orders'}
+            </p>
+          </div>
         </div>
-        <Button onClick={() => setIsManualOrderOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold shrink-0">
-          <Plus className="mr-2 h-4 w-4" /> {t('store.showroom.manual_order') || 'Manual Order'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Mobile filter toggle */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className={`h-9 px-3 md:hidden flex-1 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
+          >
+            <SlidersHorizontal className="mr-1.5 h-4 w-4" />
+            {t('store.showroom.filters') || 'Filters'}
+            {hasActiveFilters && (
+              <span className="ml-1.5 flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+            )}
+          </Button>
+
+          <Button
+            onClick={() => setIsManualOrderOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4 shrink-0 flex-[2] md:flex-none"
+          >
+            <Plus className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            {t('store.showroom.manual_order') || 'Manual Order'}
+          </Button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={statusFilter} onValueChange={handleTabChange} className="w-full">
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="flex w-max lg:w-full lg:grid lg:grid-cols-8 h-10">
-            <TabsTrigger value="All" className="px-3 text-xs">{t('store.showroom.tab_all') || 'All'} ({counts.all})</TabsTrigger>
-            <TabsTrigger value="Order Placed" className="px-3 text-xs">{t('store.showroom.tab_placed') || 'Placed'} ({counts.placed})</TabsTrigger>
-            <TabsTrigger value="Processing" className="px-3 text-xs">{t('store.showroom.tab_processing') || 'Processing'} ({counts.processing})</TabsTrigger>
-            <TabsTrigger value="Shipped via Courier" className="px-3 text-xs">{t('store.showroom.tab_courier') || 'Courier'} ({counts.courier})</TabsTrigger>
-            <TabsTrigger value="Completed" className="px-3 text-xs">{t('store.showroom.tab_completed') || 'Completed'} ({counts.completed})</TabsTrigger>
-            <TabsTrigger value="Cancelled" className="px-3 text-xs">{t('store.showroom.tab_cancelled') || 'Cancelled'} ({counts.cancelled})</TabsTrigger>
-            <TabsTrigger value="On Hold" className="px-3 text-xs">{t('store.showroom.tab_hold') || 'Hold'} ({counts.hold})</TabsTrigger>
-            <TabsTrigger value="Returned" className="px-3 text-xs">{t('store.showroom.tab_returned') || 'Returned'} ({counts.returned})</TabsTrigger>
-          </TabsList>
-        </div>
-      </Tabs>
-
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <div className="relative w-full md:w-80">
+      {/* ── Desktop Search & Date Filters ── */}
+      <div className="hidden md:flex items-center gap-2 w-full">
+        <div className="relative w-80 shrink-0">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder={t('store.showroom.search_orders_placeholder') || 'Search by Order ID, name, phone...'}
+            placeholder={t('store.showroom.search_orders_placeholder') as string || 'Search by name, phone, order ID...'}
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-8 text-sm"
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+            className="pl-8 h-10"
           />
         </div>
-
-        <div className="flex items-center gap-2 bg-muted/50 p-1.5 rounded-lg border text-sm w-full md:w-auto">
+        <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-md border h-10">
           <Calendar className="h-4 w-4 text-muted-foreground ml-1" />
-          <Input
-            type="date"
-            className="h-8 border-none bg-transparent focus-visible:ring-0 p-1 w-32"
+          <Input type="date" className="h-8 w-36 border-none bg-transparent focus-visible:ring-0 text-xs"
             value={dateFilter.from}
-            onChange={(e) => {
-              setDateFilter(prev => ({ ...prev, from: e.target.value }));
-              setCurrentPage(1);
-            }}
-          />
+            onChange={e => { setDateFilter(p => ({ ...p, from: e.target.value })); setCurrentPage(1); }} />
           <span className="text-muted-foreground text-xs">{t('store.showroom.date_to') || 'to'}</span>
-          <Input
-            type="date"
-            className="h-8 border-none bg-transparent focus-visible:ring-0 p-1 w-32"
+          <Input type="date" className="h-8 w-36 border-none bg-transparent focus-visible:ring-0 text-xs"
             value={dateFilter.to}
-            onChange={(e) => {
-              setDateFilter(prev => ({ ...prev, to: e.target.value }));
-              setCurrentPage(1);
-            }}
-          />
-          {(dateFilter.from || dateFilter.to) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDateFilter({ from: '', to: '' });
-                setCurrentPage(1);
-              }}
-              className="h-7 px-2 text-xs"
+            onChange={e => { setDateFilter(p => ({ ...p, to: e.target.value })); setCurrentPage(1); }} />
+        </div>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm"
+            onClick={() => { setSearch(''); setDateFilter({ from: '', to: '' }); setStatusFilter('All'); setCurrentPage(1); }}
+            className="text-xs text-muted-foreground hover:text-primary shrink-0"
+          >
+            {t('store.showroom.clear_all') || 'Clear All'}
+          </Button>
+        )}
+      </div>
+
+      {/* ── Collapsible Mobile Filter Panel ── */}
+      <div className={`grid transition-all duration-300 ease-in-out md:hidden w-full ${showMobileFilters
+        ? 'grid-rows-[1fr] opacity-100 visible'
+        : 'grid-rows-[0fr] opacity-0 invisible h-0 overflow-hidden'}`}>
+        <div className="overflow-hidden flex flex-col gap-2.5 p-3 rounded-xl border bg-muted/30">
+          {/* Search */}
+          <div className="relative w-full">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('store.showroom.search_orders_placeholder') as string || 'Search...'}
+              value={search}
+              onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+              className="pl-8 h-9 text-xs"
+            />
+          </div>
+
+          {/* Status dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-9 w-full justify-between text-xs">
+                <span className="flex items-center">
+                  <FilterIcon className="mr-2 h-3.5 w-3.5" />
+                  {statusFilter === 'All' ? (t('store.showroom.all_statuses') || 'All Statuses') : statusFilter}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>{t('store.showroom.filter_by_status') || 'Filter by Status'}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {STATUS_TABS.map(s => (
+                  <DropdownMenuItem key={s.value}
+                    onClick={() => { handleTabChange(s.value); }}
+                    className={statusFilter === s.value ? 'bg-accent font-bold' : ''}
+                  >
+                    <div className="flex items-center justify-between w-full text-xs">
+                      <span>{s.label}</span>
+                      <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
+                        {counts[s.countKey] ?? 0}
+                      </Badge>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Mobile date filter */}
+          <div className="flex flex-col gap-1.5 text-xs bg-background p-2 rounded-md border">
+            <span className="font-bold text-foreground">{t('store.showroom.filter_by_date') || 'Filter by Date'}</span>
+            <div className="flex items-center gap-1">
+              <Input type="date" className="h-7 w-full border border-input rounded bg-transparent p-1 text-xs focus-visible:ring-0"
+                value={dateFilter.from}
+                onChange={e => { setDateFilter(p => ({ ...p, from: e.target.value })); setCurrentPage(1); }} />
+              <span className="text-muted-foreground text-[10px]">{t('store.showroom.date_to') || 'to'}</span>
+              <Input type="date" className="h-7 w-full border border-input rounded bg-transparent p-1 text-xs focus-visible:ring-0"
+                value={dateFilter.to}
+                onChange={e => { setDateFilter(p => ({ ...p, to: e.target.value })); setCurrentPage(1); }} />
+            </div>
+          </div>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm"
+              onClick={() => { setSearch(''); setDateFilter({ from: '', to: '' }); setStatusFilter('All'); setCurrentPage(1); }}
+              className="text-xs text-muted-foreground hover:text-primary h-8"
             >
-              Clear
+              {t('store.showroom.clear_all_filters') || 'Clear All Filters'}
             </Button>
           )}
         </div>
       </div>
 
-      {/* Table & Mobile list */}
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-        {/* Desktop View */}
+      {/* ── Desktop Status Tabs ── */}
+      <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-8 gap-2 pb-2 border-b">
+        {STATUS_TABS.map(s => {
+          const isActive = statusFilter === s.value;
+          return (
+            <button key={s.value}
+              onClick={() => handleTabChange(s.value)}
+              className={`w-full py-2 text-xs font-semibold rounded-md transition-all duration-200 text-center flex items-center justify-center gap-1.5 ${isActive
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'bg-background hover:bg-muted text-muted-foreground border border-input'}`}
+            >
+              <span>{s.label}</span>
+              <span className={`text-[10px] px-1.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground border'}`}>
+                {counts[s.countKey] ?? 0}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Table & Cards ── */}
+      <div className="rounded-md border bg-background overflow-hidden relative">
+
+        {/* Desktop Table */}
         <div className="hidden md:block">
-          <Table className="block md:table">
-            <TableHeader className="hidden md:table-header-group">
-              <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={orders.length > 0 && orders.every(o => selectedIds.includes(o._id))}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
                 <TableHead>{t('store.showroom.th_order_id') || 'Order ID'}</TableHead>
                 <TableHead>{t('store.showroom.th_customer') || 'Customer'}</TableHead>
                 <TableHead>{t('store.showroom.th_date') || 'Date'}</TableHead>
@@ -261,54 +326,58 @@ function ShowroomOrdersContent() {
                 <TableHead className="text-right">{t('store.showroom.th_actions') || 'Actions'}</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="block md:table-row-group space-y-3 md:space-y-0 p-3 md:p-0">
-              {loading ? (
-                <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell colSpan={7} className="block md:table-cell py-1.5 md:py-4 text-left h-24 text-center">
-                    <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
-                  </TableCell>
-                </TableRow>
-              ) : orders.length === 0 ? (
-                <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0">
-                  <TableCell colSpan={7} className="block md:table-cell py-1.5 md:py-4 text-left h-24 text-center text-muted-foreground">
+            <TableBody>
+              {orders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                     {t('store.showroom.no_orders_found') || 'No orders found.'}
                   </TableCell>
                 </TableRow>
               ) : (
-                orders.map((order) => (
-                  <TableRow className="block md:table-row border md:border-b border-slate-100 rounded-xl p-3 sm:p-4 md:p-0 bg-white md:bg-transparent shadow-sm md:shadow-none mb-3 md:mb-0" key={order._id}>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left font-bold text-xs">#{order.shortId}</TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                orders.map(order => (
+                  <TableRow key={order._id} className={selectedIds.includes(order._id) ? 'bg-muted/50' : ''}>
+                    <TableCell>
+                      <Checkbox checked={selectedIds.includes(order._id)} onCheckedChange={() => toggleSelect(order._id)} />
+                    </TableCell>
+                    <TableCell className="font-mono text-xs font-bold text-primary">#{order.shortId}</TableCell>
+                    <TableCell>
                       <div className="font-semibold text-sm">{order.shippingAddress?.fullName}</div>
                       <div className="text-xs text-muted-foreground">{order.shippingAddress?.phone}</div>
                     </TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left text-xs text-muted-foreground">
+                    <TableCell className="text-xs text-muted-foreground">
                       {order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy') : '-'}
                     </TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">
+                    <TableCell>
                       <div className="text-xs font-semibold">{order.paymentMethod}</div>
                       <Badge variant={order.paymentStatus === 'Paid' ? 'default' : 'secondary'} className="text-[10px] scale-90 -ml-1">
                         {order.paymentStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left">{getStatusBadge(order.status)}</TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left text-right font-extrabold text-sm text-primary">
+                    <TableCell>{getStatusBadge(order.status)}</TableCell>
+                    <TableCell className="text-right font-extrabold text-sm text-primary">
                       ৳{Math.round(order.totalAmount)}
                     </TableCell>
-                    <TableCell className="block md:table-cell py-1.5 md:py-4 text-left text-right">
+                    <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                          onClick={() => handleCopyLink(order._id)}
-                          title={t('store.showroom.copy_link_title') || 'Copy Shareable Invoice/Payment Link'}
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }} aria-label="View order details">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary"
+                          onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}>
                           <Eye className="h-4 w-4" />
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuGroup>
+                              <DropdownMenuLabel>{t('store.showroom.th_actions') || 'Actions'}</DropdownMenuLabel>
+                              <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
+                                <Share2 className="mr-2 h-4 w-4 text-indigo-600" /> {t('store.showroom.copy_link_title') || 'Copy Link'}
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -318,56 +387,87 @@ function ShowroomOrdersContent() {
           </Table>
         </div>
 
-        {/* Mobile View */}
-        <div className="block md:hidden space-y-2.5">
-          {loading ? (
-            <div className="py-12 text-center">
-              <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground text-sm sm:text-base">
+        {/* ── Mobile Cards (Admin Pattern) ── */}
+        <div className="block md:hidden divide-y">
+          {orders.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground text-xs">
               {t('store.showroom.no_orders_found') || 'No orders found.'}
             </div>
           ) : (
-            orders.map((order) => (
-              <div key={order._id} className="p-3 border rounded-xl bg-card shadow-xs space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-sm sm:text-base text-foreground">#{order.shortId}</span>
-                  <span className="text-xs sm:text-sm text-muted-foreground">
-                    {order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy') : '-'}
+            orders.map(order => (
+              <div key={order._id}
+                className={`p-4 sm:p-5 transition-colors ${selectedIds.includes(order._id) ? 'bg-muted/50' : 'bg-background'}`}
+              >
+                {/* Card Header: Checkbox + Order ID + Status */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedIds.includes(order._id)}
+                      onCheckedChange={() => toggleSelect(order._id)}
+                      className="h-5 w-5"
+                    />
+                    <button type="button"
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
+                    >
+                      <span className="text-sm font-bold text-primary hover:underline">
+                        #{order.shortId}
+                      </span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {getStatusBadge(order.status)}
+                  </div>
+                </div>
+
+                {/* Customer name + Total */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-base text-foreground">
+                    {order.shippingAddress?.fullName || '—'}
+                  </span>
+                  <span className="font-bold text-lg text-foreground">
+                    ৳{Math.round(order.totalAmount)}
                   </span>
                 </div>
-                <div className="space-y-1.5 text-xs sm:text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Customer:</span>
-                    <span className="font-semibold text-foreground">{order.shippingAddress?.fullName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Phone:</span>
-                    <span className="text-foreground">{order.shippingAddress?.phone}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Method:</span>
-                    <span className="text-foreground">{order.paymentMethod} • {order.paymentStatus}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <span className="text-sm sm:text-base font-extrabold text-primary">৳{Math.round(order.totalAmount)}</span>
-                    <div className="flex items-center gap-1.5">
-                      {getStatusBadge(order.status)}
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                        onClick={() => handleCopyLink(order._id)}
-                        title={t('store.showroom.copy_link_title_mobile') || 'Copy Shareable Link'}
-                      >
-                        <Share2 className="h-4 w-4" />
+
+                {/* Phone + Date */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2.5">
+                  <span className="font-medium">{order.shippingAddress?.phone || '—'}</span>
+                  <span>{order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy, p') : '—'}</span>
+                </div>
+
+                {/* Payment info */}
+                <div className="flex items-center gap-2 py-2 border-t border-b mb-2.5">
+                  <span className="text-xs text-muted-foreground">{order.paymentMethod}</span>
+                  <Badge variant={order.paymentStatus === 'Paid' ? 'default' : 'secondary'} className="text-[10px]">
+                    {order.paymentStatus}
+                  </Badge>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-between pt-0.5">
+                  <Button variant="outline" size="sm" className="h-8 text-xs flex-1 mr-2"
+                    onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
+                  >
+                    <Eye className="mr-1.5 h-3.5 w-3.5" />
+                    {t('store.showroom.view_details') || 'View Details'}
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-8 w-8 shrink-0">
+                        <MoreHorizontal className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }} aria-label="View order details">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>{t('store.showroom.th_actions') || 'Actions'}</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
+                          <Share2 className="mr-2 h-4 w-4 text-indigo-600" />
+                          {t('store.showroom.copy_link_title_mobile') || 'Copy Shareable Link'}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))
@@ -375,6 +475,7 @@ function ShowroomOrdersContent() {
         </div>
       </div>
 
+      {/* Order Details Dialog */}
       {isDetailsOpen && (
         <OrderDetailsDialog
           orderId={selectedOrderId}
@@ -384,6 +485,7 @@ function ShowroomOrdersContent() {
         />
       )}
 
+      {/* Manual Order Dialog */}
       <ManualOrderDialog
         open={isManualOrderOpen}
         onOpenChange={setIsManualOrderOpen}
@@ -399,12 +501,13 @@ function ShowroomOrdersContent() {
         ]}
       />
 
+      {/* Pagination */}
       {!loading && pagination.totalPages > 1 && (
         <div className="py-4">
           <Pagination
             currentPage={currentPage}
             totalPages={pagination.totalPages}
-            onPageChange={handlePageChange}
+            onPageChange={p => { setCurrentPage(p); fetchOrders(p, statusFilter); }}
           />
         </div>
       )}
@@ -413,13 +516,8 @@ function ShowroomOrdersContent() {
 }
 
 export default function ShowroomOrdersPage() {
-  const { t } = useLanguage();
   return (
-    <Suspense fallback={
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense fallback={<AdminTableSkeleton />}>
       <ShowroomOrdersContent />
     </Suspense>
   );

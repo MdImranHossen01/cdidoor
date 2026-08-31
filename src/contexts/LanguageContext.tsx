@@ -12,7 +12,7 @@ const translations = {
     "store.home.testimonials.title_end": "say",
     "store.home.testimonials.desc": "Don't just take our word for it. Join thousands of happy customers all over Bangladesh!",
     "store.home.features.title_start": "Why Shop With",
-    "store.home.features.title_highlight": "CDI Door Ind",
+    "store.home.features.title_highlight": process.env.NEXT_PUBLIC_STORE_NAME || "Store",
     "store.home.view_all": "View All",
     "store.home.new_arrivals": "New Arrivals",
     "store.home.trending_now": "Trending Now",
@@ -44,7 +44,7 @@ const translations = {
     "sidebar.purchase_supplier": "Purchase & Supplier",
     "sidebar.supplier_list": "Supplier List",
     "sidebar.add_supplier": "Add Supplier",
-     "sidebar.bill_list": "Bill List",
+    "sidebar.bill_list": "Bill List",
     "sidebar.add_bill": "Add Bill",
     "sidebar.suppliers": "Suppliers & Purchases",
     "sidebar.loan": "Loan",
@@ -67,7 +67,7 @@ const translations = {
     "dashboard.salary_payable": "Salary Payable",
     "dashboard.wages_payable": "Wages Payable",
     "dashboard.running_tasks": "Running Tasks",
-    
+
     "dashboard.requires_attention": "Requires attention",
     "dashboard.across_all_time": "Across all time",
     "dashboard.physical_cash_on_hand": "Physical cash on hand",
@@ -80,7 +80,7 @@ const translations = {
     "dashboard.expiring_products": "Expiring in 30 days",
     "dashboard.filter": "Filter",
     "dashboard.refresh": "Refresh",
-    
+
     "dashboard.performance_trends": "Performance Trends",
     "dashboard.customer_insights": "Customer Insights",
     "dashboard.new": "New",
@@ -1355,15 +1355,15 @@ const translations = {
     "store.nav.track_order": "Track Order",
     "store.nav.sign_out": "Sign Out",
     "store.nav.tokens": "Tokens",
-    
+
     "store.footer.about": "About Us",
     "store.footer.faq": "FAQ",
     "store.footer.newsletter": "Newsletter",
     "store.footer.subscribe": "Subscribe",
-    
+
     "store.hero.shop_now": "Shop Now",
     "store.hero.learn_more": "Learn More",
-    
+
     "store.product.add_to_cart": "Add to Cart",
     "store.product.buy_now": "Buy Now",
     "store.product.out_of_stock": "Out of Stock",
@@ -1375,7 +1375,7 @@ const translations = {
     "store.product.specifications": "Specifications",
     "store.product.reviews": "Reviews",
     "store.product.related": "Related Products",
-    
+
     "store.shop.filter": "Filter",
     "store.shop.price_range": "Price Range",
     "store.shop.sort_by": "Sort by",
@@ -1403,7 +1403,7 @@ const translations = {
     "store.shop.product": "product",
     "store.shop.products": "products",
     "store.shop.filtered_by": "Filtered By:",
-    
+
     "store.blog.read_more": "Read More",
     "store.blog.published_on": "Published on",
     "store.blog.recent_posts": "Recent Posts",
@@ -1459,8 +1459,17 @@ const translations = {
     "auth.login.email_phone": "Email or Phone Number",
     "auth.login.password": "Password",
     "auth.login.sign_in": "Sign In",
-    "auth.login.agree_terms": "By clicking continue, you agree to our",
     "auth.login.and": "and",
+    "auth.register.title": "Create an account",
+    "auth.register.full_name": "Full Name",
+    "auth.register.mobile": "Mobile Number",
+    "auth.register.email": "Email Address",
+    "auth.register.address": "Address",
+    "auth.register.division": "Division",
+    "auth.register.district": "District",
+    "auth.register.thana": "Thana/Upazila",
+    "auth.register.confirm_password": "Confirm Password",
+    "auth.forgot.title": "Forgot Password",
 
     "store.dashboard.dashboard": "Dashboard",
     "store.dashboard.log_out": "Log out",
@@ -1635,7 +1644,7 @@ const translations = {
     "store.home.testimonials.title_end": "কী বলেন",
     "store.home.testimonials.desc": "শুধুমাত্র আমাদের কথায় বিশ্বাস করবেন না। সারা বাংলাদেশের হাজারো সন্তুষ্ট কাস্টমারদের সাথে যোগ দিন!",
     "store.home.features.title_start": "কেন",
-    "store.home.features.title_highlight": "CDI Door Ind",
+    "store.home.features.title_highlight": process.env.NEXT_PUBLIC_STORE_NAME || "Store",
     "store.home.view_all": "সব দেখুন",
     "store.home.new_arrivals": "নতুন কালেকশন",
     "store.home.trending_now": "ট্রেন্ডিং",
@@ -2971,15 +2980,15 @@ const translations = {
     "store.nav.track_order": "অর্ডার ট্র্যাক করুন",
     "store.nav.sign_out": "সাইন আউট",
     "store.nav.tokens": "টোকেন",
-    
+
     "store.footer.about": "আমাদের সম্পর্কে",
     "store.footer.faq": "সাধারণ জিজ্ঞাসা",
     "store.footer.newsletter": "নিউজলেটার",
     "store.footer.subscribe": "সাবস্ক্রাইব করুন",
-    
+
     "store.hero.shop_now": "এখনই কিনুন",
     "store.hero.learn_more": "আরও জানুন",
-    
+
     "store.product.add_to_cart": "কার্টে যোগ করুন",
     "store.product.buy_now": "এখনই কিনুন",
     "store.product.out_of_stock": "স্টক আউট",
@@ -2991,7 +3000,7 @@ const translations = {
     "store.product.specifications": "স্পেসিফিকেশন",
     "store.product.reviews": "রিভিউ",
     "store.product.related": "সম্পর্কিত পণ্যসমূহ",
-    
+
     "store.shop.filter": "ফিল্টার",
     "store.shop.price_range": "দামের পরিসর",
     "store.shop.sort_by": "সাজান",
@@ -3019,7 +3028,7 @@ const translations = {
     "store.shop.product": "টি পণ্য",
     "store.shop.products": "টি পণ্য",
     "store.shop.filtered_by": "ফিল্টার করা হয়েছে:",
-    
+
     "store.blog.read_more": "আরও পড়ুন",
     "store.blog.published_on": "প্রকাশিত হয়েছে",
     "store.blog.recent_posts": "সাম্প্রতিক পোস্টসমূহ",
@@ -3077,6 +3086,16 @@ const translations = {
     "auth.login.sign_in": "লগইন করুন",
     "auth.login.agree_terms": "এগিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের শর্তাবলীর সাথে সম্মত হন",
     "auth.login.and": "এবং",
+    "auth.register.title": "অ্যাকাউন্ট তৈরি করুন",
+    "auth.register.full_name": "সম্পূর্ণ নাম",
+    "auth.register.mobile": "মোবাইল নাম্বার",
+    "auth.register.email": "ইমেইল ঠিকানা",
+    "auth.register.address": "ঠিকানা",
+    "auth.register.division": "বিভাগ",
+    "auth.register.district": "জেলা",
+    "auth.register.thana": "থানা/উপজেলা",
+    "auth.register.confirm_password": "পাসওয়ার্ড নিশ্চিত করুন",
+    "auth.forgot.title": "পাসওয়ার্ড ভুলে গেছেন?",
 
     "store.dashboard.dashboard": "ড্যাশবোর্ড",
     "store.dashboard.log_out": "লগ আউট",

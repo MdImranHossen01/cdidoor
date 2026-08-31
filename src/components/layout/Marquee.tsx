@@ -17,11 +17,12 @@ export function Marquee({ marqueeText: initialText }: { marqueeText?: string }) 
         if (!res.ok) throw new Error('Failed to fetch settings');
 
         const data = await res.json();
-        setMarqueeText(data.marqueeText || 'Welcome to CDI Door Ind! Free shipping on orders over ৳500.');
+        const defaultText = `Welcome to ${process.env.NEXT_PUBLIC_STORE_NAME || 'Store'}! Free shipping on orders over ৳500.`;
+        setMarqueeText(data.marqueeText || defaultText);
       } catch (error: any) {
         if (error.name !== 'AbortError') {
           console.error('Error fetching marquee text:', error);
-          setMarqueeText('Welcome to CDI Door Ind! Free shipping on orders over ৳500.');
+          setMarqueeText(`Welcome to ${process.env.NEXT_PUBLIC_STORE_NAME || 'Store'}! Free shipping on orders over ৳500.`);
         }
       }
     }

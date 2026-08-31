@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import LoanProvider from '@/models/LoanProvider';
 import BusinessLoan from '@/models/BusinessLoan';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -22,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     await connectToDatabase();
     const provider = await LoanProvider.findByIdAndUpdate(
       resolvedParams.id,
-      { name, phone, email, address, description },
+      { name, phone: normalizePhoneNumber(phone), email, address, description },
       { new: true }
     );
 

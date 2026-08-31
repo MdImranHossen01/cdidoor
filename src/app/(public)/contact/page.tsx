@@ -3,30 +3,38 @@ import connectToDatabase from '@/lib/db';
 import GlobalSettings from '@/models/GlobalSettings';
 import ContactClient from './ContactClient';
 
-export const metadata: Metadata = {
-  title: 'Contact Us | CDI Door Ind',
-  description: 'Get in touch with CDI Door Ind for any inquiries, support, or feedback.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Store';
+  return {
+    title: `Contact Us | ${storeName}`,
+    description: `Get in touch with ${storeName} for any inquiries, support, or feedback.`,
+  };
+}
 
 async function getSettings() {
   try {
     await connectToDatabase();
     const settings = await GlobalSettings.findOne().lean();
-    if (!settings) {
-      return {
-        brandName: "CDI Door Ind",
-        contact: {
-          email: "support@cdidoorind.com",
-          phone: "+8801234567890",
-          address: "Dhaka, Bangladesh"
-        },
-        socialLinks: {}
-      };
-    }
-    return JSON.parse(JSON.stringify(settings));
+    return {
+      brandName: settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store",
+      contact: {
+        email: settings?.contact?.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: settings?.contact?.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: settings?.contact?.address || ""
+      },
+      socialLinks: settings?.socialLinks || {}
+    };
   } catch (error) {
     console.error('Error fetching settings for contact page:', error);
-    return null;
+    return {
+      brandName: process.env.NEXT_PUBLIC_STORE_NAME || "Store",
+      contact: {
+        email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: ""
+      },
+      socialLinks: {}
+    };
   }
 }
 

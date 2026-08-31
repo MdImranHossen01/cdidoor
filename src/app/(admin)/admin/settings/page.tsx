@@ -514,7 +514,7 @@ export default function SettingsPage() {
                       <FormItem>
                         <FormLabel className="text-sm font-semibold text-gray-700">{t("settings.brand_name")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="CDI Door Ind" {...field} className="h-12 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-primary transition-all" />
+                          <Input placeholder={process.env.NEXT_PUBLIC_STORE_NAME || "Store"} {...field} className="h-12 rounded-xl bg-gray-50 border-2 border-gray-100 focus:border-primary transition-all" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -566,7 +566,7 @@ export default function SettingsPage() {
                         <FormItem>
                           <FormLabel>{t("settings.meta_title")}</FormLabel>
                           <FormControl>
-                            <Input placeholder="CDI Door Ind | Best Ecommerce in BD" {...field} />
+                            <Input placeholder={`${process.env.NEXT_PUBLIC_STORE_NAME || "Store"} | Best Ecommerce in BD`} {...field} />
                           </FormControl>
                           <FormDescription>{t("settings.meta_title_desc")}</FormDescription>
                           <FormMessage />
@@ -580,7 +580,7 @@ export default function SettingsPage() {
                         <FormItem>
                           <FormLabel>{t("settings.meta_desc")}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Shop the best products at CDI Door Ind..." {...field} />
+                            <Input placeholder={`Shop the best products at ${process.env.NEXT_PUBLIC_STORE_NAME || "Store"}...`} {...field} />
                           </FormControl>
                           <FormDescription>{t("settings.meta_desc_help")}</FormDescription>
                           <FormMessage />

@@ -3,30 +3,34 @@ import connectToDatabase from '@/lib/db';
 import GlobalSettings from '@/models/GlobalSettings';
 import PrivacyClient from './PrivacyClient';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | CDI Door Ind',
-  description: 'Learn how CDI Door Ind collects, uses, and protects your personal information.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Store';
+  return {
+    title: `Privacy Policy | ${storeName}`,
+    description: `Learn how ${storeName} collects, uses, and protects your personal information.`,
+  };
+}
 
 async function getSettings() {
   try {
     await connectToDatabase();
     const settings = await GlobalSettings.findOne().lean();
-    if (!settings) {
-      return {
-        brandName: "CDI Door Ind",
-        contact: {
-          email: "support@cdidoorind.com"
-        }
-      };
-    }
-    return JSON.parse(JSON.stringify(settings));
+    return {
+      brandName: settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store",
+      contact: {
+        email: settings?.contact?.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: settings?.contact?.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: settings?.contact?.address || ""
+      }
+    };
   } catch (error) {
     console.error('Error fetching settings for privacy page:', error);
     return {
-      brandName: "CDI Door Ind",
+      brandName: process.env.NEXT_PUBLIC_STORE_NAME || "Store",
       contact: {
-        email: "support@cdidoorind.com"
+        email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: ""
       }
     };
   }

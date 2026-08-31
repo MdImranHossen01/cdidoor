@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import connectToDatabase from './lib/db';
 import User from './models/User';
 import bcrypt from 'bcryptjs';
+import { normalizePhoneNumber } from './lib/utils';
 
 import authConfig from './auth.config';
 
@@ -17,18 +18,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const identifier = (credentials?.email as string || '').trim();
-        if (!identifier) {
+        const inputIdentifier = (credentials?.email as string || '').trim();
+        if (!inputIdentifier) {
           throw new Error('Please provide email or phone number.');
         }
 
+        const isEmail = inputIdentifier.includes('@');
+        const query = isEmail 
+          ? { email: inputIdentifier.toLowerCase() } 
+          : { phone: normalizePhoneNumber(inputIdentifier) };
+
         await connectToDatabase();
-        const user = await User.findOne({
-          $or: [
-            { email: identifier },
-            { phone: identifier }
-          ]
-        }).select('+password');
+        const user = await User.findOne(query).select('+password');
 
         if (!user) {
           throw new Error('Invalid credentials.');

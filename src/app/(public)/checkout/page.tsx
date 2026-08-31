@@ -28,6 +28,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { fbEvent } from '@/lib/fpixel';
 import { ttEvent } from '@/lib/tiktok';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 
 
@@ -356,20 +357,7 @@ function CheckoutContent() {
     setLoading(true);
     try {
       // Normalize Bangla digits to English digits and sanitize phone
-      const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-      let normalizedPhone = values.phone || '';
-      for (let i = 0; i < 10; i++) {
-        normalizedPhone = normalizedPhone.replace(new RegExp(banglaDigits[i], 'g'), englishDigits[i]);
-      }
-      let cleanedPhone = normalizedPhone.replace(/[^0-9]/g, '');
-
-      // Remove country prefixes (88, +88, 0088) if present
-      if (cleanedPhone.startsWith('88')) {
-        cleanedPhone = cleanedPhone.substring(2);
-      } else if (cleanedPhone.startsWith('0088')) {
-        cleanedPhone = cleanedPhone.substring(4);
-      }
+      const cleanedPhone = normalizePhoneNumber(values.phone);
 
       const orderData = {
         items: items.map(item => ({

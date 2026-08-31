@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import Supplier from '@/models/Supplier';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     const supplier = await Supplier.create({
       name,
       companyName,
-      phone,
+      phone: normalizePhoneNumber(phone),
       email,
       address,
       currentBalance: 0

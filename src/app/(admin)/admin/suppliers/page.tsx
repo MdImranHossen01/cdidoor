@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { Pagination } from '@/components/ui/pagination';
+import { normalizePhoneNumber } from '@/lib/utils';
 import { getWhatsAppLink } from '@/lib/utils';
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -168,7 +169,7 @@ function SuppliersContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: supplierName,
-          phone: supplierPhone,
+          phone: normalizePhoneNumber(supplierPhone),
           email: supplierEmail || undefined,
           address: supplierAddress,
           companyName: supplierCompany || undefined

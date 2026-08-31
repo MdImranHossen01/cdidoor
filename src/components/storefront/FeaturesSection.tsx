@@ -51,7 +51,7 @@ export function FeaturesSection() {
       <div className="container mx-auto px-4 md:px-0 ">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-2xl md:text-4xl font-black tracking-tighter">
-            {t('store.home.features.title_start') || 'Why Shop With'} <span className="text-primary italic">{t('store.home.features.title_highlight') || 'CDI Door Ind'}</span>
+            {t('store.home.features.title_start') || 'Why Shop With'} <span className="text-primary italic">{t('store.home.features.title_highlight') || process.env.NEXT_PUBLIC_STORE_NAME || 'Store'}</span>
           </h2>
         </div>
 

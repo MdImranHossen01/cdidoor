@@ -34,7 +34,7 @@ export async function upsertCustomer(
       }
       
       // Update email if it was a placeholder and we now have a real email
-      if (emailVal && (!user.email || user.email.includes('@placeholder.cdidoorind.com'))) {
+      if (emailVal && (!user.email || user.email.includes(`@placeholder.${process.env.NEXT_PUBLIC_GUEST_EMAIL_DOMAIN || 'example-guest.com'}`))) {
         user.email = emailVal;
         changed = true;
       }
@@ -74,7 +74,7 @@ export async function upsertCustomer(
       let uniqueEmail: string | undefined = undefined;
       if (emailVal) {
         const emailExists = await User.findOne({ email: emailVal });
-        uniqueEmail = emailExists ? `${phone}-${Date.now()}@placeholder.cdidoorind.com` : emailVal;
+        uniqueEmail = emailExists ? `${phone}-${Date.now()}@placeholder.${process.env.NEXT_PUBLIC_GUEST_EMAIL_DOMAIN || 'example-guest.com'}` : emailVal;
       }
 
       const newUser = new User({

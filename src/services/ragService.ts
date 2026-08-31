@@ -1,4 +1,4 @@
-﻿import connectToDatabase from '@/lib/db';
+import connectToDatabase from '@/lib/db';
 import { getEmbedding } from '@/lib/embeddings';
 
 // Import Mongoose models
@@ -121,7 +121,7 @@ export async function retrieveRelevantContext(
     const mergedResults = allResultsGroups.flat();
 
     // 2. Format outputs into a context string for the LLM
-    let contextString = "Here is the relevant real-time data from CDI Door Ind's database:\n\n";
+    let contextString = "Here is the relevant real-time data from the store's database:\n\n";
 
     // Direct lookup for Order Tracking
     // Match phone numbers or 5+ digit numeric strings (order shortIds)

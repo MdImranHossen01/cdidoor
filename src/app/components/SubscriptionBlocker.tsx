@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { ShieldAlert, MessageCircle, Globe } from 'lucide-react';
 
 interface SubscriptionBlockerProps {
@@ -41,7 +41,7 @@ export default function SubscriptionBlocker({ brandName, expiryDate }: Subscript
 
         <div className="pt-4">
           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-            Infrastructure Powered by CDI Door Ind SaaS Platform
+            Infrastructure Powered by {process.env.NEXT_PUBLIC_STORE_NAME || 'Store'} SaaS Platform
           </p>
         </div>
       </div>

@@ -32,6 +32,7 @@ import {
   Search
 } from 'lucide-react';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
+import { normalizePhoneNumber } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { ImageUpload } from '@/components/ui/image-upload';
@@ -105,10 +106,9 @@ function UsersContent() {
   }, [debouncedSearchTerm]);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isAssignAdminOpen, setIsAssignAdminOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
+  const [adminIdentifier, setAdminIdentifier] = useState('');
   const [adminName, setAdminName] = useState('');
   const [adminImage, setAdminImage] = useState('');
-  const [adminPhone, setAdminPhone] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
 
@@ -215,10 +215,14 @@ function UsersContent() {
 
   const handleAssignAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEmail && !adminPhone) {
+    if (!adminIdentifier.trim()) {
       toast.error('Email or phone number is required');
       return;
     }
+
+    const isEmail = adminIdentifier.includes('@');
+    const email = isEmail ? adminIdentifier.trim() : undefined;
+    const phone = !isEmail ? normalizePhoneNumber(adminIdentifier) : undefined;
 
     setIsAssigning(true);
     try {
@@ -226,21 +230,19 @@ function UsersContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email: adminEmail || undefined,
+          email,
           name: adminName,
           image: adminImage,
-          phone: adminPhone || undefined,
+          phone,
           password: adminPassword
         }),
       });
 
       if (response.ok) {
-        const identifier = adminEmail || adminPhone;
-        toast.success(`Successfully assigned Admin role to ${identifier}`);
-        setAdminEmail('');
+        toast.success(`Successfully assigned Admin role to ${adminIdentifier}`);
+        setAdminIdentifier('');
         setAdminName('');
         setAdminImage('');
-        setAdminPhone('');
         setAdminPassword('');
         setIsAssignAdminOpen(false);
         fetchUsers();
@@ -815,17 +817,17 @@ function UsersContent() {
                 />
               </div>
 
-              {/* Email Address */}
+              {/* Email or Phone Number */}
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
-                  {t("users.email_address")}
-                  {!adminPhone && <span className="text-red-500 ml-1">*</span>}
+                  {t("auth.login.email_phone") || "Email or Phone Number"}
+                  <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input
-                  type="email"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  type="text"
+                  value={adminIdentifier}
+                  onChange={(e) => setAdminIdentifier(e.target.value)}
+                  placeholder="email@example.com or 017xxxxxxxx"
                   className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
                 />
               </div>
@@ -838,21 +840,6 @@ function UsersContent() {
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
-                  {t("users.phone_number") || "Phone Number"}
-                  {!adminEmail && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                <input
-                  type="text"
-                  value={adminPhone}
-                  onChange={(e) => setAdminPhone(e.target.value)}
-                  placeholder="+880 1700..."
                   className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-blue-500 transition-all outline-none font-bold text-slate-700 text-sm"
                 />
               </div>

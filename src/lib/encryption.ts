@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Standard for GCM
@@ -17,7 +17,7 @@ function getEffectiveKey(): string {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('ENCRYPTION_KEY is required in production environments to secure sensitive data.');
     }
-    return 'CDI Door Indshop-dev-only-insecure-key-32';
+    return 'generic-dev-only-insecure-key-32';
   }
   return MASTER_KEY;
 }

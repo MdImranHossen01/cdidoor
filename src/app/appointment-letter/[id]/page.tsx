@@ -102,13 +102,13 @@ export default function AppointmentLetterPage() {
       <div className="max-w-3xl mx-auto bg-white border border-zinc-200 shadow-lg p-12 print:border-none print:shadow-none print:p-0 min-h-[297mm] font-serif text-zinc-800 leading-relaxed text-sm">
         {/* Company Header */}
         <div className="text-center border-b pb-6 mb-8 border-zinc-200">
-          <h1 className="text-2xl font-black font-heading text-zinc-950 uppercase tracking-wide">CDI Door Industries</h1>
-          <p className="text-xs text-zinc-500 font-sans mt-1">Chittagong, Bangladesh | Phone: 01700000000 | Email: contact@cdidoor.com</p>
+          <h1 className="text-2xl font-black font-heading text-zinc-950 uppercase tracking-wide">{process.env.NEXT_PUBLIC_STORE_NAME || 'Store'}</h1>
+          <p className="text-xs text-zinc-500 font-sans mt-1">Bangladesh | Phone: {process.env.NEXT_PUBLIC_SUPPORT_PHONE || '01700000000'} | Email: {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@store.com'}</p>
         </div>
 
         {/* Date & Address */}
         <div className="mb-6 font-sans text-xs text-zinc-600 flex justify-between">
-          <div>Ref: CDI/HR/AL-{employee._id?.slice(-6).toUpperCase()}</div>
+          <div>Ref: {(process.env.NEXT_PUBLIC_STORE_NAME || 'Store').split(' ').map(w => w[0]).join('').toUpperCase()}/HR/AL-{employee._id?.slice(-6).toUpperCase()}</div>
           <div>Date: {currentDateFormatted}</div>
         </div>
 
@@ -132,7 +132,7 @@ export default function AppointmentLetterPage() {
           
           <p>
             With reference to your application and subsequent interview, we are pleased to offer you appointment as a 
-            <strong> {employee.role === 'showroom_manager' ? 'Showroom Manager' : employee.role === 'manager' ? 'General Manager' : 'Staff Member'} ({employee.employeeType === 'monthly' ? 'Permanent' : 'Contractual'})</strong> at CDI Door Industries, 
+            <strong> {employee.role === 'showroom_manager' ? 'Showroom Manager' : employee.role === 'manager' ? 'General Manager' : 'Staff Member'} ({employee.employeeType === 'monthly' ? 'Permanent' : 'Contractual'})</strong> at {process.env.NEXT_PUBLIC_STORE_NAME || 'Store'}, 
             effective from <strong>{joinedDateFormatted}</strong> under the following terms and conditions:
           </p>
 
@@ -165,7 +165,7 @@ export default function AppointmentLetterPage() {
         <div className="mt-20 flex justify-between font-sans text-xs pt-10">
           <div>
             <div className="border-t border-zinc-400 w-48 pt-1 text-zinc-600">Authorized Signature</div>
-            <div className="font-bold text-zinc-800">CDI Door Industries HR</div>
+            <div className="font-bold text-zinc-800">{process.env.NEXT_PUBLIC_STORE_NAME || 'Store'} HR</div>
           </div>
           <div className="text-right">
             <div className="border-t border-zinc-400 w-48 pt-1 text-zinc-600">Employee Signature</div>

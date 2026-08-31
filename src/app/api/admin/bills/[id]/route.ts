@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import Bill from '@/models/Bill';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -72,7 +73,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     } = body;
 
     if (clientName !== undefined) bill.clientName = clientName;
-    if (clientPhone !== undefined) bill.clientPhone = clientPhone;
+    if (clientPhone !== undefined) bill.clientPhone = normalizePhoneNumber(clientPhone);
     if (clientAddress !== undefined) bill.clientAddress = clientAddress;
     if (clientEmail !== undefined) bill.clientEmail = clientEmail;
     if (clientDivision !== undefined) bill.clientDivision = clientDivision;

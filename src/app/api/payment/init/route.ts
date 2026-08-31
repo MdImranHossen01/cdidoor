@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       const transactionId = `BILL-${billId}-${Date.now()}`;
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-      const customerEmail = bill.clientEmail || 'billing@cdidoorind.com';
+      const customerEmail = bill.clientEmail || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'billing@example.com';
 
       const data = {
         total_amount: bill.currentBillDue,
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
         cancel_url: `${baseUrl}/api/payment/cancel?id=${billId}&type=bill&redirect=${redirectVal}`,
         ipn_url: `${baseUrl}/api/payment/ipn`,
         shipping_method: 'Courier',
-        product_name: 'CDI Door Ind Bill Payment',
+        product_name: `${process.env.NEXT_PUBLIC_STORE_NAME || 'Store'} Bill Payment`,
         product_category: 'E-commerce',
         product_profile: 'general',
         cus_name: bill.clientName || 'Customer',
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         }
       }
       if (!customerEmail) {
-        customerEmail = session?.user?.email || 'guest@cdidoorind.com';
+        customerEmail = session?.user?.email || `guest@${process.env.NEXT_PUBLIC_GUEST_EMAIL_DOMAIN || 'example.com'}`;
       }
 
       const data = {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
         cancel_url: `${baseUrl}/api/payment/cancel?id=${orderId}&type=order&redirect=${redirectVal}`,
         ipn_url: `${baseUrl}/api/payment/ipn`,
         shipping_method: 'Courier',
-        product_name: 'CDI Door Ind Order',
+        product_name: `${process.env.NEXT_PUBLIC_STORE_NAME || 'Store'} Order`,
         product_category: 'E-commerce',
         product_profile: 'general',
         cus_name: shippingAddress.fullName,

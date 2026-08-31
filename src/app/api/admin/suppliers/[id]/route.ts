@@ -4,6 +4,7 @@ import connectToDatabase from '@/lib/db';
 import Supplier from '@/models/Supplier';
 import SupplierBill from '@/models/SupplierBill';
 import SupplierPayment from '@/models/SupplierPayment';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -54,7 +55,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (name) supplier.name = name;
     if (companyName !== undefined) supplier.companyName = companyName;
-    if (phone) supplier.phone = phone;
+    if (phone) supplier.phone = normalizePhoneNumber(phone);
     if (email !== undefined) supplier.email = email;
     if (address !== undefined) supplier.address = address;
 

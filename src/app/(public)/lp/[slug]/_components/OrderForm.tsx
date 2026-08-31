@@ -46,6 +46,7 @@ import {
 
 import { fbEvent } from '@/lib/fpixel';
 import { ttEvent } from '@/lib/tiktok';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, 'নাম আবশ্যক'),
@@ -482,13 +483,7 @@ export default function OrderForm({ content, settings }: { content: any; setting
     setLoading(true);
     try {
       // Normalize Bangla digits to English digits and sanitize phone
-      const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-      let normalizedPhone = values.phone || '';
-      for (let i = 0; i < 10; i++) {
-        normalizedPhone = normalizedPhone.replace(new RegExp(banglaDigits[i], 'g'), englishDigits[i]);
-      }
-      let cleanedPhone = normalizedPhone.replace(/[^0-9]/g, '');
+      const cleanedPhone = normalizePhoneNumber(values.phone);
 
       const orderData = {
         items: [{

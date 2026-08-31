@@ -3,32 +3,34 @@ import connectToDatabase from '@/lib/db';
 import GlobalSettings from '@/models/GlobalSettings';
 import TermsClient from './TermsClient';
 
-export const metadata: Metadata = {
-  title: 'Terms & Conditions | CDI Door Ind',
-  description: 'Understand the terms and conditions for shopping at CDI Door Ind.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Store';
+  return {
+    title: `Terms & Conditions | ${storeName}`,
+    description: `Understand the terms and conditions for shopping at ${storeName}.`,
+  };
+}
 
 async function getSettings() {
   try {
     await connectToDatabase();
     const settings = await GlobalSettings.findOne().lean();
-    if (!settings) {
-      return {
-        brandName: "CDI Door Ind",
-        contact: {
-          email: "support@cdidoorind.com",
-          phone: "+8801234567890"
-        }
-      };
-    }
-    return JSON.parse(JSON.stringify(settings));
+    return {
+      brandName: settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store",
+      contact: {
+        email: settings?.contact?.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: settings?.contact?.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: settings?.contact?.address || ""
+      }
+    };
   } catch (error) {
     console.error('Error fetching settings for terms page:', error);
     return {
-      brandName: "CDI Door Ind",
+      brandName: process.env.NEXT_PUBLIC_STORE_NAME || "Store",
       contact: {
-        email: "support@cdidoorind.com",
-        phone: "+8801234567890"
+        email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "",
+        phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
+        address: ""
       }
     };
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import LoanProvider from '@/models/LoanProvider';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     const provider = await LoanProvider.create({
       name,
-      phone,
+      phone: normalizePhoneNumber(phone),
       email,
       address,
       description,

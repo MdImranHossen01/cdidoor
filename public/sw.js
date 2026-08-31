@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'CDI Door Ind-cache-v1';
+const CACHE_NAME = 'storefront-cache-v1';
 const OFFLINE_URL = '/offline';
 
 const ASSETS_TO_CACHE = [

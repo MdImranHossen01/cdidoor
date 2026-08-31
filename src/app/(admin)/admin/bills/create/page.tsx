@@ -2,9 +2,12 @@ import React from 'react';
 import { BillForm } from '@/components/admin/bills/BillForm';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Create Invoice | CDI Door Ind',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Store';
+  return {
+    title: `Create Invoice | ${storeName}`,
+  };
+}
 
 export default function CreateBillPage() {
   return (

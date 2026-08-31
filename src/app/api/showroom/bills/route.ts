@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import Showroom from '@/models/Showroom';
 import Bill from '@/models/Bill';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -176,7 +177,7 @@ export async function POST(req: NextRequest) {
     try {
       const newBill = new Bill({
         clientName,
-        clientPhone,
+        clientPhone: normalizePhoneNumber(clientPhone),
         clientAddress,
         invoiceNo,
         items: sanitizedItems,

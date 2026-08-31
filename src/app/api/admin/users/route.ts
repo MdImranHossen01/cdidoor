@@ -4,6 +4,7 @@ import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import Order from '@/models/Order'; // Import to ensure model is registered
 import bcrypt from 'bcryptjs';
+import { normalizePhoneNumber } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -101,24 +102,26 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
+    const cleanPhone = phone ? normalizePhoneNumber(phone) : undefined;
+
     const updateObj: any = { role: 'admin' };
     if (name) updateObj.name = name;
     if (image) updateObj.image = image;
     if (email) updateObj.email = email.toLowerCase();
-    if (phone) updateObj.phone = phone;
+    if (cleanPhone) updateObj.phone = cleanPhone;
     if (password) {
       updateObj.password = await bcrypt.hash(password, 12);
     }
 
     const setOnInsertObj: any = {};
     if (!name) {
-      setOnInsertObj.name = email ? email.split('@')[0] : phone;
+      setOnInsertObj.name = email ? email.split('@')[0] : cleanPhone;
     }
 
     // Build query: find by email OR phone (whichever is provided)
     const query: any = { $or: [] };
     if (email) query.$or.push({ email: email.toLowerCase() });
-    if (phone) query.$or.push({ phone: phone });
+    if (cleanPhone) query.$or.push({ phone: cleanPhone });
 
     const result = await User.findOneAndUpdate(
       query,

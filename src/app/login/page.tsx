@@ -43,7 +43,8 @@ const loginSchema = z.object({
   password: z.string().optional().or(z.literal('')),
 });
 
-export default function LoginPage() {  const { t } = useLanguage();
+export default function LoginPage() {
+  const { t } = useLanguage();
 
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -208,7 +209,7 @@ export default function LoginPage() {  const { t } = useLanguage();
                         <FormControl>
                           <div className="relative">
                             <Input
-                              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                              placeholder="Enter your password"
                               type={showPassword ? "text" : "password"}
                               {...field}
                               disabled={isLoading || isGoogleLoading}
@@ -264,16 +265,7 @@ export default function LoginPage() {  const { t } = useLanguage();
           </div>
         </motion.div>
 
-        <div className="mt-auto pt-6 text-center text-xs text-muted-foreground">
-          {t('auth.login.agree_terms') || 'By clicking continue, you agree to our'}{' '}
-          <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
-            Terms of Service
-          </Link>{' '}
-          {t('auth.login.and') || 'and'}{' '}
-          <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">
-            Privacy Policy
-          </Link>.
-        </div>
+
       </div>
     </main>
   );
