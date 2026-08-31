@@ -415,7 +415,7 @@ export default function ReceivablePage() {
 
               <div className="space-y-1">
                 <Label htmlFor="adjustAccount" className="text-xs font-semibold">Receiving Account <span className="text-destructive">*</span></Label>
-                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <Select value={selectedAccount} onValueChange={(val) => setSelectedAccount(val || '')}>
                   <SelectTrigger id="adjustAccount" className="h-9 text-xs md:text-sm">
                     <SelectValue placeholder="Select Account" />
                   </SelectTrigger>

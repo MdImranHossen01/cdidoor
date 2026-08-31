@@ -478,7 +478,7 @@ export default function PayablePage() {
 
               <div className="space-y-1">
                 <Label htmlFor="payAccount" className="text-xs font-semibold">Pay From Account <span className="text-destructive">*</span></Label>
-                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <Select value={selectedAccount} onValueChange={(val) => setSelectedAccount(val || '')}>
                   <SelectTrigger id="payAccount" className="h-9 text-xs md:text-sm">
                     <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
