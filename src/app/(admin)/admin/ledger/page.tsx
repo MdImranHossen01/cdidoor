@@ -630,7 +630,7 @@ function AccountsLedgerContent() {
             </CardContent>
           </Card>
         </div>
-      )}  </div>
+      )}
 
       {/* Edit Opening Balance Dialog */}
       <Dialog open={!!editingAccount} onOpenChange={(open) => { if (!open) setEditingAccount(null); }}>
