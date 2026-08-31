@@ -423,6 +423,7 @@ export default function AdminTaskManagementPage() {
           )}
           </CardContent>
         </Card>
+      </div>
 
       {/* Assign Task Modal */}
       {showAssignModal && (
