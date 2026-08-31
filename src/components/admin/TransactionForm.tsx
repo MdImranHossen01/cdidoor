@@ -766,7 +766,11 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                     ref={accountRef}
                     onKeyDown={handleAccountKeyDown}
                   >
-                    <SelectValue placeholder="Select Account" />
+                    <SelectValue placeholder="Select Account">
+                     {field.value
+                       ? accounts.find((a) => a.code === field.value)?.name || field.value
+                       : "Select Account"}
+                    </SelectValue>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -836,7 +840,9 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 }}
               >
                 <SelectTrigger id="fromAcc" className="h-8 md:h-10 text-xs md:text-sm">
-                  <SelectValue />
+                  <SelectValue>
+                    {fromAccountCode ? accounts.find(a => a.code === fromAccountCode)?.name || fromAccountCode : ""}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((acc) => (
@@ -860,7 +866,9 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
                 }}
               >
                 <SelectTrigger id="toAcc" className="h-8 md:h-10 text-xs md:text-sm">
-                  <SelectValue />
+                  <SelectValue>
+                    {toAccountCode ? accounts.find(a => a.code === toAccountCode)?.name || toAccountCode : ""}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((acc) => (
