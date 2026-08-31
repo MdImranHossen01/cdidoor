@@ -195,6 +195,5 @@ export default function LowStockPage() {
         )}
       </div>
     </div>
-    </div>
   );
 }

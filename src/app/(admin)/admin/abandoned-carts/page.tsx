@@ -258,7 +258,6 @@ function AbandonedCartsContent() {
             </div>
           </div>
         </CardContent>
-        </CardContent>
       </Card>
     </div>
 
@@ -473,7 +472,6 @@ function AbandonedCartsContent() {
           )}
         </CardContent>
       </Card>
-    </div>
     </div>
   );
 }

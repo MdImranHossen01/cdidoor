@@ -180,6 +180,5 @@ export default function ReturnsListPage() {
         )}
       </div>
     </div>
-    </div>
   );
 }
