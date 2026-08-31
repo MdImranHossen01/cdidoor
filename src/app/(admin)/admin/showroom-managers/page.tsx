@@ -202,8 +202,8 @@ export default function ShowroomManagersPage() {
   }
 
   return (
-    <div className="px-0 pt-[1px] pb-4 md:p-6 space-y-4 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-0 px-[1px] md:px-0">
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-0 px-0 md:px-0">
         <div className="hidden md:block">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{t("showroom_managers.title")}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t("showroom_managers.subtitle")}</p>
@@ -217,7 +217,7 @@ export default function ShowroomManagersPage() {
       </div>
 
       {managers.length === 0 ? (
-        <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
+        <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
           <Card className="border-dashed border-2 py-10">
             <CardContent className="flex flex-col items-center justify-center text-center space-y-3">
               <ShieldAlert className="h-12 w-12 text-muted-foreground" />
@@ -229,7 +229,7 @@ export default function ShowroomManagersPage() {
           </Card>
         </div>
       ) : (
-        <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
+        <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
           <Card className="border-muted overflow-hidden">
             <CardContent className="p-0">
               <div className="hidden md:block">

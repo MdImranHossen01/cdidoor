@@ -209,15 +209,15 @@ export default function NewReturnPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pt-6 max-w-5xl">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-0 md:gap-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-5xl overflow-x-hidden">
+      <div className="hidden md:flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <RotateCcw className="h-6 w-6 text-primary" />
           {t("sidebar.new_return") || "New Return"}
         </h1>
       </div>
 
-      <div className="flex flex-col gap-4 p-6 border rounded-xl bg-card shadow-sm">
+      <div className="flex flex-col gap-4 p-6 border rounded-xl bg-card shadow-sm px-0 md:px-6 !mt-[1px] md:!mt-6">
         <Label className="text-lg">{t("returns.search_title")}</Label>
         <div className="flex gap-2 max-w-md relative">
           <div className="relative flex-1">

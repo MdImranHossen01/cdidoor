@@ -289,8 +289,8 @@ export default function AdminEmployeesPage() {
   };
 
   return (
-    <div className="space-y-4 px-0 pt-[1px] pb-4 md:space-y-6 md:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-[1px] md:px-0">
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-0 md:px-0">
         <div className="hidden md:block">
           <h1 className="text-2xl md:text-3xl font-black text-zinc-950">{t("employees.title")}</h1>
           <p className="text-xs md:text-sm text-zinc-500 mt-1">{t("employees.subtitle")}</p>
@@ -303,7 +303,7 @@ export default function AdminEmployeesPage() {
         </Button>
       </div>
 
-      <div className="!mt-[1px] md:!mt-4 px-[1px] md:px-0">
+      <div className="!mt-[1px] md:!mt-4 px-0 md:px-0">
         <EmployeeTabs />
       </div>
 

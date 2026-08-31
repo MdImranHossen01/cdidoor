@@ -287,20 +287,20 @@ function SuppliersContent() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t("suppliers.title")}</h1>
           <p className="text-muted-foreground text-xs md:text-sm hidden md:block">
             {t("suppliers.subtitle")}
           </p>
         </div>
-        <Button onClick={openAddDialog} size="sm" className="h-9 md:h-10 px-3 md:px-4 shrink-0 font-bold">
+        <Button onClick={openAddDialog} className="w-full sm:w-auto rounded-none h-10 shrink-0 font-bold bg-primary text-primary-foreground">
           <Plus className="mr-1.5 h-4 w-4" /> {t("suppliers.add_supplier")}
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 max-w-sm">
+      <div className="flex items-center gap-2 max-w-sm px-0 md:px-0 !mt-[1px] md:!mt-6">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
           placeholder={t("suppliers.search_placeholder") as string}
@@ -310,7 +310,8 @@ function SuppliersContent() {
         />
       </div>
 
-      <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
         <CardContent className="p-0">
           {/* Desktop View */}
           <div className="hidden md:block">
@@ -485,6 +486,7 @@ function SuppliersContent() {
           )}
         </CardContent>
       </Card>
+    </div>
 
       {/* Add / Edit Supplier Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

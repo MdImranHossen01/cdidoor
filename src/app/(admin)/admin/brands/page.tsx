@@ -182,9 +182,9 @@ export default function BrandsPage() {
   }, [nameValue, form, editingBrand]);
 
   return (
-    <div className="flex flex-col gap-4 pt-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">{t("brands.title")}</h1>
+    <div className="flex-1 space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden flex flex-col gap-0 md:gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0 w-full">
+        <h1 className="hidden md:block text-2xl font-bold tracking-tight">{t("brands.title")}</h1>
         <Dialog open={open} onOpenChange={(val) => {
           setOpen(val);
           if (!val) {
@@ -192,8 +192,10 @@ export default function BrandsPage() {
             form.reset();
           }
         }}>
-          <DialogTrigger render={<Button />}>
-            <Plus className="mr-2 h-4 w-4" /> {t("brands.add_brand")}
+          <DialogTrigger asChild>
+            <Button className="w-full sm:w-auto rounded-none h-10 bg-primary text-primary-foreground font-bold flex items-center justify-center">
+              <Plus className="mr-2 h-4 w-4" /> {t("brands.add_brand")}
+            </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -270,7 +272,8 @@ export default function BrandsPage() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border bg-background">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-4">
+        <div className="rounded-md border bg-background overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -358,6 +361,7 @@ export default function BrandsPage() {
           </TableBody>
         </Table>
       </div>
+    </div>
     </div>
   );
 }

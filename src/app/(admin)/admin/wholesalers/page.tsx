@@ -299,23 +299,23 @@ export default function AdminWholesalersPage() {
   }
 
   return (
-    <div className="space-y-6 px-0 py-4 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-0">
-        <div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-0 md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl md:text-3xl font-black text-zinc-950">{t("wholesalers.title")}</h1>
           <p className="text-xs md:text-sm text-zinc-500 mt-1">{t("wholesalers.subtitle")}</p>
         </div>
-        <div>
+        <div className="w-full sm:w-auto">
           <Button 
             onClick={() => setShowAddModal(true)}
-            className="bg-primary text-primary-foreground font-bold flex items-center gap-1.5 h-10 text-xs md:text-sm md:h-11 px-4 rounded-full w-full sm:w-auto justify-center"
+            className="bg-primary text-primary-foreground font-bold flex items-center gap-1.5 h-10 text-xs md:text-sm md:h-11 px-4 rounded-none w-full sm:w-auto justify-center"
           >
             <UserPlus className="h-4 w-4" /> {t("wholesalers.register_wholesaler")}
           </Button>
         </div>
       </div>
 
-      <div className="px-4 md:px-0">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
           <Card className="border border-zinc-200">
             <div className="p-5 border-b border-zinc-200 flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-50/50">
               <div className="relative w-full md:w-72">

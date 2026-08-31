@@ -592,22 +592,23 @@ function ClientChalansContent() {
   const isFiltered = !!((filterByDate && (dateFilter.from || dateFilter.to)) || searchTerm);
 
   return (
-    <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+    <div className="flex-1 space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h2 className="text-3xl font-bold tracking-tight">{t("chalans.title")}</h2>
           <p className="text-muted-foreground text-sm">{t("chalans.subtitle")}</p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="w-full md:w-auto bg-primary text-primary-foreground">
+        <Button onClick={() => setIsCreateOpen(true)} className="w-full sm:w-auto rounded-none h-10 bg-primary text-primary-foreground font-bold flex items-center justify-center">
           <Plus className="mr-2 h-4 w-4" /> {t("chalans.create_chalan")}
         </Button>
       </div>
 
       {/* Challans Table */}
-      <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <CardTitle>{t("chalans.list_title")}</CardTitle>
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <CardTitle className="hidden md:block">{t("chalans.list_title")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-56">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -872,6 +873,7 @@ function ClientChalansContent() {
           )}
         </CardContent>
       </Card>
+    </div>
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if(!open) resetForm(); }}>

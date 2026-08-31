@@ -218,18 +218,17 @@ function AccountsLedgerContent() {
   const isFiltered = !!((filterByDate && (dateFilter.from || dateFilter.to)) || journalSearchTerm);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{t("ledger.title")}</h2>
-          <p className="text-muted-foreground text-sm">
-            {t("ledger.subtitle")}
-          </p>
-        </div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="hidden md:block">
+        <h2 className="text-3xl font-bold tracking-tight">{t("ledger.title")}</h2>
+        <p className="text-muted-foreground text-sm">
+          {t("ledger.subtitle")}
+        </p>
       </div>
 
       {/* Account Balance Card (TallyPay Inspired) */}
-      <Card className="relative overflow-hidden rounded-2xl border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm p-0 md:p-6">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="relative overflow-hidden rounded-2xl border-none md:border bg-transparent md:bg-card shadow-none md:shadow-sm p-0 md:p-6">
         {/* 4 Cards in 1 Row */}
         <div className="grid grid-cols-4 gap-2 md:gap-6">
           {accounts.map((acc) => {
@@ -275,12 +274,14 @@ function AccountsLedgerContent() {
           })}
         </div>
       </Card>
+    </div>
 
       {/* Transactions Journal */}
-      <Card className="border-0 md:border bg-transparent md:bg-card shadow-none md:shadow-sm">
-        <CardHeader className="px-4 md:px-6 pb-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <CardTitle>{t("ledger.transaction_journal")}</CardTitle>
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border-0 md:border bg-transparent md:bg-card shadow-none md:shadow-sm">
+          <CardHeader className="px-4 md:px-6 pb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <CardTitle className="hidden md:block">{t("ledger.transaction_journal")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-64">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -481,6 +482,7 @@ function AccountsLedgerContent() {
           )}
         </CardContent>
       </Card>
+    </div>
 
       {/* Edit Opening Balance Dialog */}
       <Dialog open={!!editingAccount} onOpenChange={(open) => { if (!open) setEditingAccount(null); }}>

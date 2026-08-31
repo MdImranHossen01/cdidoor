@@ -49,16 +49,17 @@ export default function LowStockPage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4 pt-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-0 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden md:gap-4">
+      <div className="hidden md:flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <TrendingDown className="h-6 w-6 text-red-500" />
           {t("sidebar.low_stock") || "Low Stock Products"}
         </h1>
       </div>
 
-      <div className="hidden md:block rounded-md border bg-card text-card-foreground shadow">
-        <Table>
+      <div className="hidden md:block px-0 md:px-0 !mt-[1px] md:!mt-4">
+        <div className="rounded-md border bg-card text-card-foreground shadow">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Product Name</TableHead>
@@ -122,11 +123,12 @@ export default function LowStockPage() {
               })
             )}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       </div>
 
       {/* Mobile View */}
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden space-y-3 px-0 md:px-0 !mt-[1px] md:!mt-4">
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -192,6 +194,7 @@ export default function LowStockPage() {
           })
         )}
       </div>
+    </div>
     </div>
   );
 }

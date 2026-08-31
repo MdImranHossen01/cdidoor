@@ -203,27 +203,28 @@ function AbandonedCartsContent() {
   };
 
   return (
-    <div className="space-y-6 p-1">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h1 className="text-2xl font-bold tracking-tight">{t("abandoned_carts.title")}</h1>
           <p className="text-muted-foreground text-sm">
             {t("abandoned_carts.desc")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => fetchCarts(currentPage)} className="h-9">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => fetchCarts(currentPage)} className="h-10 w-full sm:w-auto rounded-none">
             <RefreshCw className="mr-2 h-4 w-4" /> {t("abandoned_carts.reload")}
           </Button>
-          <Button variant="default" size="sm" onClick={exportToCSV} className="h-9 bg-primary text-primary-foreground hover:bg-primary/95">
+          <Button variant="default" onClick={exportToCSV} className="h-10 w-full sm:w-auto rounded-none bg-primary text-primary-foreground hover:bg-primary/95">
             <Download className="mr-2 h-4 w-4" /> {t("abandoned_carts.export_csv")}
           </Button>
         </div>
       </div>
 
       {/* Date Filters & Search */}
-      <Card className="bg-card/50">
-        <CardContent className="pt-6">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="bg-card/50">
+          <CardContent className="pt-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-1.5 col-span-1 sm:col-span-2">
               <label className="text-xs font-semibold text-muted-foreground">{t("abandoned_carts.search")}</label>
@@ -257,15 +258,18 @@ function AbandonedCartsContent() {
             </div>
           </div>
         </CardContent>
+        </CardContent>
       </Card>
+    </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("abandoned_carts.cart_sessions")}</CardTitle>
-          <CardDescription>
-            {t("abandoned_carts.showing_sessions")}{carts.length}{t("abandoned_carts.showing_of")}{totalCount}{t("abandoned_carts.showing_active")}
-          </CardDescription>
-        </CardHeader>
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card>
+          <CardHeader className="hidden md:block">
+            <CardTitle>{t("abandoned_carts.cart_sessions")}</CardTitle>
+            <CardDescription>
+              {t("abandoned_carts.showing_sessions")}{carts.length}{t("abandoned_carts.showing_of")}{totalCount}{t("abandoned_carts.showing_active")}
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           {loading ? (
             <div className="py-12 flex justify-center items-center text-muted-foreground gap-2">
@@ -469,6 +473,7 @@ function AbandonedCartsContent() {
           )}
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 }

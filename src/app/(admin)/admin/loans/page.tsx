@@ -237,24 +237,25 @@ export default function AllLoansPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-8 max-w-7xl mx-auto w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-0 px-0 md:px-0">
+        <div className="hidden md:block">
           <h1 className="text-3xl font-bold text-primary tracking-tight">All Business Loans</h1>
           <p className="text-muted-foreground mt-1">Add, track, and repay active business loans</p>
         </div>
-        <Button onClick={openCreateDialog} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button onClick={openCreateDialog} className="w-full sm:w-auto rounded-none h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
           <Plus className="h-4 w-4 mr-2" /> Add New Loan
         </Button>
       </div>
 
-      <Card className="border-t-4 border-t-primary shadow-md">
-        <CardHeader className="bg-slate-50/50 border-b pb-4">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
-              <Landmark className="h-5 w-5" />
-              Loans List
-            </CardTitle>
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border-t-4 border-t-primary shadow-md">
+          <CardHeader className="bg-slate-50/50 border-b pb-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <CardTitle className="hidden md:flex text-lg font-semibold text-primary items-center gap-2">
+                <Landmark className="h-5 w-5" />
+                Loans List
+              </CardTitle>
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -329,6 +330,7 @@ export default function AllLoansPage() {
           </Table>
         </CardContent>
       </Card>
+    </div>
 
       {/* Create Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

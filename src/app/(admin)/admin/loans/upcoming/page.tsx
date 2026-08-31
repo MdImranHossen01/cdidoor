@@ -33,13 +33,13 @@ export default function UpcomingPayablePage() {
   const totalUpcomingAmount = upcoming.reduce((sum, item) => sum + item.amount, 0);
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
-      <div>
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-8 max-w-7xl mx-auto w-full max-w-full overflow-x-hidden">
+      <div className="hidden md:block">
         <h1 className="text-3xl font-bold text-primary tracking-tight">Upcoming Payables</h1>
         <p className="text-muted-foreground mt-1">Repayments and installments scheduled within the next 30 days</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 px-0 md:px-0 !mt-[1px] md:!mt-6">
         <Card className="border-l-4 border-l-rose-500 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-semibold">Total Upcoming Due (30d)</CardTitle>
@@ -63,25 +63,26 @@ export default function UpcomingPayablePage() {
         </Card>
       </div>
 
-      <Card className="border-t-4 border-t-primary shadow-md">
-        <CardHeader className="bg-slate-50/50 border-b pb-4">
-          <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
-            <CalendarClock className="h-5 w-5" />
-            30-Day Repayment Schedule
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Loan ID</TableHead>
-                  <TableHead>Lender</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Scheduled Date</TableHead>
-                  <TableHead className="text-right">Amount Due</TableHead>
-                </TableRow>
-              </TableHeader>
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <Card className="border-t-4 border-t-primary shadow-md">
+          <CardHeader className="bg-slate-50/50 border-b pb-4">
+            <CardTitle className="hidden md:flex text-lg font-semibold text-primary items-center gap-2">
+              <CalendarClock className="h-5 w-5" />
+              30-Day Repayment Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Loan ID</TableHead>
+                    <TableHead>Lender</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Scheduled Date</TableHead>
+                    <TableHead className="text-right">Amount Due</TableHead>
+                  </TableRow>
+                </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow><TableCell colSpan={5} className="text-center py-6">Loading...</TableCell></TableRow>
@@ -166,6 +167,7 @@ export default function UpcomingPayablePage() {
           </div>
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 }

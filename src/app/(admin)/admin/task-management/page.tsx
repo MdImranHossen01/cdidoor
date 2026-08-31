@@ -201,8 +201,8 @@ export default function AdminTaskManagementPage() {
   }
 
   return (
-    <div className="space-y-4 px-0 pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-[1px] md:px-0">
+    <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 px-0 md:px-0">
         <div className="hidden md:block">
           <h1 className="text-3xl font-black text-zinc-950">{t("task_management.title")}</h1>
           <p className="text-sm text-zinc-500 mt-1">{t("task_management.subtitle")}</p>
@@ -224,9 +224,9 @@ export default function AdminTaskManagementPage() {
         </Button>
       </div>
 
-      <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-6">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
         <Card className="border border-zinc-200">
-          <CardHeader className="bg-zinc-50/50 border-b border-zinc-200 p-5">
+          <CardHeader className="hidden md:block bg-zinc-50/50 border-b border-zinc-200 p-5">
             <CardTitle className="text-lg font-black text-zinc-900">{t("task_management.directory")}</CardTitle>
             <CardDescription className="text-sm text-zinc-500">{t("task_management.directory_desc")}</CardDescription>
           </CardHeader>

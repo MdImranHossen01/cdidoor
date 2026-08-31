@@ -40,21 +40,22 @@ export default function ReturnsListPage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4 pt-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+    <div className="flex flex-col gap-0 md:gap-4 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0 w-full">
+        <h1 className="hidden md:flex text-2xl font-bold tracking-tight items-center gap-2">
           <RotateCcw className="h-6 w-6 text-primary" />
           {t("sidebar.return_list") || "Return List"}
         </h1>
-        <Link href="/admin/returns/new">
-          <Button>
+        <Link href="/admin/returns/new" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto rounded-none h-10 bg-primary text-primary-foreground font-bold flex items-center justify-center">
             {t("sidebar.new_return") || "New Return"}
           </Button>
         </Link>
       </div>
 
-      <div className="hidden md:block rounded-md border bg-card text-card-foreground shadow">
-        <Table>
+      <div className="hidden md:block px-0 md:px-0 !mt-[1px] md:!mt-4">
+        <div className="rounded-md border bg-card text-card-foreground shadow">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Return ID</TableHead>
@@ -115,9 +116,10 @@ export default function ReturnsListPage() {
           </TableBody>
         </Table>
       </div>
+    </div>
 
       {/* Mobile View */}
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden space-y-3 px-0 md:px-0 !mt-[1px] md:!mt-4">
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -177,6 +179,7 @@ export default function ReturnsListPage() {
           ))
         )}
       </div>
+    </div>
     </div>
   );
 }

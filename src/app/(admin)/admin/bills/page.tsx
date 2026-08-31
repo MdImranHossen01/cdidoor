@@ -287,13 +287,13 @@ function ClientBillsContent() {
   const accountsReceivable = bills.reduce((sum, b) => sum + (b.currentBillDue || 0), 0);
 
   return (
-    <div className="flex-1 space-y-6 px-0 py-4 md:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
+    <div className="flex-1 space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0">
+        <div className="hidden md:block">
           <h2 className="text-3xl font-bold tracking-tight">{t("bills.title")}</h2>
           <p className="text-muted-foreground text-xs sm:text-sm">{t("bills.subtitle")}</p>
         </div>
-        <Button asChild className="w-full sm:w-auto font-bold bg-primary text-primary-foreground">
+        <Button asChild className="w-full sm:w-auto rounded-none h-10 font-bold bg-primary text-primary-foreground">
           <Link href="/admin/bills/create" target="_blank">
             <Plus className="mr-2 h-4 w-4 shrink-0" /> {t("bills.create_bill")}
           </Link>
@@ -301,7 +301,8 @@ function ClientBillsContent() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid gap-2 sm:gap-4 grid-cols-3">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <div className="grid gap-2 sm:gap-4 grid-cols-3">
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 sm:p-6 pb-1 sm:pb-2">
             <CardTitle className="text-[10px] sm:text-xs md:text-sm font-medium truncate">{t("bills.total_billed")}</CardTitle>
@@ -332,10 +333,12 @@ function ClientBillsContent() {
             <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5 truncate hidden xs:block">{t("bills.outstanding_due")}</p>
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
         <div className="flex items-center justify-between w-full md:w-auto">
           <h3 className="font-semibold text-lg tracking-tight text-foreground md:hidden">{t("bills.all_invoices")}</h3>
           {/* Mobile Filter Toggle Button */}
@@ -473,10 +476,12 @@ function ClientBillsContent() {
             </div>
           </div>
         </div>
+        </div>
       </div>
 
       {/* Bill List Table */}
-      <div className="rounded-md md:border md:bg-background overflow-hidden">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+        <div className="rounded-md md:border md:bg-background overflow-hidden">
         {loading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -783,6 +788,7 @@ function ClientBillsContent() {
           </div>
         )}
       </div>
+    </div>
 
       {/* Bill Detail View Dialog */}
       <Dialog open={!!selectedBill} onOpenChange={(open) => { if (!open) setSelectedBill(null); }}>

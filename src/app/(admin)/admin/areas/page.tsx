@@ -218,8 +218,8 @@ export default function AdminAreasPage() {
   });
 
   return (
-    <div className="flex-1 space-y-4 px-0 pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 px-[1px] md:px-0">
+    <div className="flex-1 space-y-0 md:space-y-4 px-[1px] pt-[1px] pb-4 md:p-8 w-full max-w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0 px-0 md:px-0">
         <div className="hidden md:block">
           <h1 className="text-2xl font-bold tracking-tight">{t("settings.areas_title")}</h1>
           <p className="text-sm text-muted-foreground">{t("settings.areas_desc")}</p>
@@ -231,7 +231,7 @@ export default function AdminAreasPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-4">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-4">
         <div className="relative max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -243,7 +243,7 @@ export default function AdminAreasPage() {
         </div>
       </div>
 
-      <div className="px-[1px] md:px-0 !mt-[1px] md:!mt-4">
+      <div className="px-0 md:px-0 !mt-[1px] md:!mt-4">
         <Card className="rounded-3xl border shadow-sm">
           <CardContent className="p-0">
             {loading ? (
