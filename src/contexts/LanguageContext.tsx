@@ -1460,6 +1460,7 @@ const translations = {
     "auth.login.password": "Password",
     "auth.login.sign_in": "Sign In",
     "auth.login.and": "and",
+    "auth.login.invalid_credentials": "Invalid email/phone number or password.",
     "auth.register.title": "Create an account",
     "auth.register.full_name": "Full Name",
     "auth.register.mobile": "Mobile Number",
@@ -1634,6 +1635,7 @@ const translations = {
     "store.showroom.action": "Action",
     "store.showroom.income": "Income",
     "store.showroom.expense": "Expense",
+    "store.showroom.filters": "Filters",
 
     "topbar.toggle_menu": "Toggle Menu",
     "topbar.open_sidebar": "Open sidebar"
@@ -3086,6 +3088,7 @@ const translations = {
     "auth.login.sign_in": "লগইন করুন",
     "auth.login.agree_terms": "এগিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের শর্তাবলীর সাথে সম্মত হন",
     "auth.login.and": "এবং",
+    "auth.login.invalid_credentials": "ভুল ইমেল/ফোন নম্বর অথবা পাসওয়ার্ড।",
     "auth.register.title": "অ্যাকাউন্ট তৈরি করুন",
     "auth.register.full_name": "সম্পূর্ণ নাম",
     "auth.register.mobile": "মোবাইল নাম্বার",
@@ -3260,6 +3263,7 @@ const translations = {
     "store.showroom.action": "অ্যাকশন",
     "store.showroom.income": "আয় (Income)",
     "store.showroom.expense": "খরচ (Expense)",
+    "store.showroom.filters": "ফিল্টার",
 
     "topbar.toggle_menu": "মেনু টগল করুন",
     "topbar.open_sidebar": "সাইডবার খুলুন"

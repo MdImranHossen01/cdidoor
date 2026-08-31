@@ -280,7 +280,7 @@ export default function ShowroomDashboard() {
   const fmt = (n: number) => `৳${Math.round(n).toLocaleString('en-BD')}`;
   const stats = data?.stats;
   return (
-    <div className="flex-1 space-y-6 px-0 py-6 md:p-8">
+    <div className="flex-1 space-y-6 px-0 pt-[1px] pb-6 md:p-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 md:px-0">
         <div className="hidden md:block">
@@ -351,9 +351,9 @@ export default function ShowroomDashboard() {
       </div>
 
       {/* Collapsible Mobile Filters Wrapper (Smooth transition like income-expense) */}
-      <div className={`grid transition-all duration-300 ease-in-out md:hidden w-full px-2 ${
+      <div className={`grid transition-all duration-300 ease-in-out md:hidden w-full px-2 !mt-0 ${
         showMobileFilters 
-          ? 'grid-rows-[1fr] opacity-100 mt-2 visible' 
+          ? 'grid-rows-[1fr] opacity-100 !mt-[1px] visible' 
           : 'grid-rows-[0fr] opacity-0 invisible h-0'
       }`}>
         <div className="overflow-hidden w-full">
@@ -398,7 +398,7 @@ export default function ShowroomDashboard() {
       </div>
 
       {/* Unified Operational & Financial Cards */}
-      <div className="grid gap-2 md:gap-4 grid-cols-3 px-2 md:px-0">
+      <div className="grid gap-2 md:gap-4 grid-cols-3 px-2 md:px-0 !mt-[1px] md:!mt-6">
         {/* Pending Orders Card */}
         <Link href="/showroom/orders" className="block transition-transform hover:scale-[1.02] active:scale-95">
           <Card className="bg-orange-500/5 border-orange-500/10 border-l-2 border-l-orange-500 relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">

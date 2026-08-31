@@ -93,6 +93,7 @@ export default function ShowroomTopbar() {
       </div>
 
       <div className="hidden md:flex items-center gap-4">
+        <LanguageToggle />
         <ModeToggle />
         {session?.user ? (
           <DropdownMenu>

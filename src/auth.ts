@@ -32,16 +32,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await User.findOne(query).select('+password');
 
         if (!user) {
-          throw new Error('Invalid credentials.');
+          return null;
         }
 
         if (user.password) {
           if (!credentials?.password) {
-            throw new Error('Please enter your password.');
+            return null;
           }
           const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
           if (!isPasswordValid) {
-            throw new Error('Invalid credentials.');
+            return null;
           }
         }
 

@@ -100,7 +100,11 @@ export default function LoginPage() {
       });
 
       if (response?.error) {
-        toast.error(response.error);
+        if (response.error === 'CredentialsSignin' || response.error === 'CallbackRouteError' || response.error === 'Configuration') {
+          toast.error(t('auth.login.invalid_credentials') || 'Invalid email/phone number or password.');
+        } else {
+          toast.error(response.error);
+        }
       } else {
         toast.success('Logged in successfully!');
         // Redirect to /dashboard â€” proxy will read fresh JWT and redirect to correct role-based dashboard
