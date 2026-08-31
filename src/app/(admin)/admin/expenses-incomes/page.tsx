@@ -270,7 +270,7 @@ function ExpensesIncomesContent() {
 
   return (
     <div className="space-y-0 md:space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-0 md:gap-4 -mt-[15px] md:mt-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-0 md:gap-4 mt-0 md:mt-0">
         <div className="hidden md:block">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight font-heading">{t("expenses.title")}</h1>
           <p className="text-muted-foreground text-xs md:text-sm">{t("expenses.subtitle")}</p>

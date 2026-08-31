@@ -441,9 +441,9 @@ const [dateRange, setDateRange] = useState({
   const { stats, recentOrders, lowStockProducts, topSellingProducts, topCustomers, chartData } = data || {};
 
   return (
-    <div className="flex-1 space-y-3 md:space-y-6 px-0 pt-0 pb-4 md:p-8">
+    <div className="flex-1 space-y-3 md:space-y-6 px-0 pt-[1px] pb-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-1 md:gap-3 mt-[-15px] md:mt-0">
+      <div className="flex flex-col gap-1 md:gap-3 mt-0 md:mt-0">
         {/* Title Row */}
         <div className="flex flex-row items-center justify-between gap-2">
           <h2 className="hidden md:block text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">

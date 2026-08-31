@@ -483,7 +483,7 @@ function ProductsContent() {
   };
 
   return (
-    <div className="flex flex-col gap-4 px-0 pb-2 pt-[2px] -mt-4 md:mt-0 md:p-8 md:pt-6">
+    <div className="flex flex-col gap-4 px-0 pb-2 pt-[1px] md:mt-0 md:p-8 md:pt-6">
       <div className="hidden md:flex items-center justify-between gap-4 px-2 md:px-0">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t("products.title")}</h1>
         <div className="flex items-center gap-2 shrink-0">
