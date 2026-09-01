@@ -1173,28 +1173,8 @@ function ShowroomBillsContent() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cashIn">Cash-in (Paid) (৳)</Label>
-                    <Input
-                      id="cashIn"
-                      type="number"
-                      value={cashIn || ''}
-                      onChange={(e) => setCashIn(Math.max(0, parseFloat(e.target.value) || 0))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Status</Label>
-                    <div className="pt-2">
-                      <Badge variant={calculatedStatus === 'Paid' ? 'default' : 'destructive'} className={calculatedStatus === 'Paid' ? 'bg-green-600 text-white border-none' : ''}>
-                        {calculatedStatus}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
                 {calculatedStatus === 'Due' && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 pt-1">
                     <Label htmlFor="expectedReceivableDate">Expected Date of Receivable *</Label>
                     <Input
                       id="expectedReceivableDate"
@@ -1209,7 +1189,12 @@ function ShowroomBillsContent() {
 
               {/* Calculations summary */}
               <div className="bg-muted/40 p-4 rounded-lg space-y-3 border h-fit text-sm">
-                <h4 className="font-bold border-b pb-2 mb-2 text-base">Bill Summary</h4>
+                <div className="flex items-center justify-between border-b pb-2 mb-2">
+                  <h4 className="font-bold text-base">Bill Summary</h4>
+                  <Badge variant={calculatedStatus === 'Paid' ? 'default' : 'destructive'} className={calculatedStatus === 'Paid' ? 'bg-green-600 text-white border-none' : ''}>
+                    {calculatedStatus}
+                  </Badge>
+                </div>
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span className="font-semibold">৳{subtotal.toLocaleString()}</span>
@@ -1246,10 +1231,26 @@ function ShowroomBillsContent() {
                   <span>Grand Total:</span>
                   <span>৳{gTotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-green-700 border-t pt-2">
-                  <span>Cash-in:</span>
-                  <span>৳{cashIn.toLocaleString()}</span>
+                
+                {/* Interactive Cash-in Row */}
+                <div className="flex items-center justify-between border-t pt-2.5 gap-3">
+                  <Label htmlFor="cashIn" className="font-bold text-green-700 text-sm whitespace-nowrap cursor-pointer">
+                    Cash-in:
+                  </Label>
+                  <div className="relative w-36 sm:w-44">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">৳</span>
+                    <Input
+                      id="cashIn"
+                      type="number"
+                      value={cashIn || ''}
+                      onChange={(e) => setCashIn(Math.max(0, parseFloat(e.target.value) || 0))}
+                      placeholder="0"
+                      className="h-9 pl-7 pr-3 text-right font-bold text-green-700 text-base bg-background border-green-600/40 focus-visible:ring-green-500"
+                      min="0"
+                    />
+                  </div>
                 </div>
+
                 <div className="flex justify-between border-t pt-2 font-bold text-base text-destructive">
                   <span>Remaining Due:</span>
                   <span>৳{currentBillDue.toLocaleString()}</span>
