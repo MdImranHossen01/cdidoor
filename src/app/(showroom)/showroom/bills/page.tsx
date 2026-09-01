@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   Table,
@@ -40,6 +41,7 @@ import {
   User,
   Ticket,
   Coins,
+  ShoppingBag,
   CalendarDays,
   Hash,
   MoreHorizontal,
@@ -156,6 +158,22 @@ function ShowroomBillsContent() {
   } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
 
+  // Customer selection & suggestion state
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [nameSuggestions, setNameSuggestions] = useState<any[]>([]);
+  const [phoneSuggestions, setPhoneSuggestions] = useState<any[]>([]);
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
+  const nameRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
+  const nameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const phoneTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nameAbortControllerRef = useRef<AbortController | null>(null);
+
+  // Print states (POS default selected, mutually exclusive)
+  const [printA4, setPrintA4] = useState(false);
+  const [printPOS, setPrintPOS] = useState(true);
+
   // Token adjustment state
   const [useTokens, setUseTokens] = useState<boolean>(false);
   const [tokensToUse, setTokensToUse] = useState<number>(0);
@@ -169,6 +187,96 @@ function ShowroomBillsContent() {
 
   // Phone validation
   const [phoneError, setPhoneError] = useState('');
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (nameRef.current && !nameRef.current.contains(e.target as Node)) setShowNameDropdown(false);
+      if (phoneRef.current && !phoneRef.current.contains(e.target as Node)) setShowPhoneDropdown(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      if (nameTimeoutRef.current) clearTimeout(nameTimeoutRef.current);
+      if (phoneTimeoutRef.current) clearTimeout(phoneTimeoutRef.current);
+      if (nameAbortControllerRef.current) nameAbortControllerRef.current.abort();
+    };
+  }, []);
+
+  const handleCustomerSelect = (customer: any) => {
+    setSelectedCustomer(customer);
+    setClientName(customer.clientName || '');
+    setClientPhone(customer.clientPhone || '');
+    setClientAddress(customer.clientAddress || '');
+    setCustomerTokens(customer.walletBalance || 0);
+    if (customer.totalDue && customer.totalDue > 0 && prevDue === 0) {
+      setPrevDue(customer.totalDue);
+    }
+    setShowNameDropdown(false);
+    setShowPhoneDropdown(false);
+  };
+
+  const handleNameChange = (val: string) => {
+    setClientName(val);
+    setCustomerTokens(0);
+    
+    if (nameTimeoutRef.current) clearTimeout(nameTimeoutRef.current);
+    if (nameAbortControllerRef.current) nameAbortControllerRef.current.abort();
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      const controller = new AbortController();
+      nameAbortControllerRef.current = controller;
+
+      nameTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`, {
+            signal: controller.signal
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setNameSuggestions(list);
+            setShowNameDropdown(list.length > 0);
+          }
+        } catch (err: any) {
+          if (err.name !== 'AbortError') {
+            console.error('Error fetching suggestions:', err);
+          }
+        }
+      }, 200);
+    } else {
+      setNameSuggestions([]);
+      setShowNameDropdown(false);
+    }
+  };
+
+  const handlePhoneChange = (val: string) => {
+    setClientPhone(val);
+    setCustomerTokens(0);
+    if (phoneError) validatePhone(val);
+
+    if (phoneTimeoutRef.current) clearTimeout(phoneTimeoutRef.current);
+
+    const trimmed = val.trim();
+    if (trimmed.length >= 1) {
+      phoneTimeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/admin/customers?search=${encodeURIComponent(trimmed)}`);
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.customers || [];
+            setPhoneSuggestions(list);
+            setShowPhoneDropdown(list.length > 0);
+          }
+        } catch (err) {
+          console.error('Error fetching suggestions:', err);
+        }
+      }, 200);
+    } else {
+      setPhoneSuggestions([]);
+      setShowPhoneDropdown(false);
+    }
+  };
 
   const handleCopyLink = async (invoiceNo: string) => {
     try {
@@ -330,13 +438,20 @@ function ShowroomBillsContent() {
       const prod = products.find(p => p._id === productId);
       if (!prod) return;
 
+      const price = selectedCustomer?.role === 'wholesaler'
+        ? (prod.wholesaleSalePrice || prod.wholesalePrice || prod.salePrice || prod.price || 0)
+        : (prod.salePrice || prod.price || 0);
+
       if (variantId === null) {
-        newItems.push({ productId: prod._id, name: prod.name, price: prod.salePrice || prod.price || 0, quantity: 1, batchNumber: 'auto' });
+        newItems.push({ productId: prod._id, name: prod.name, price, quantity: 1, batchNumber: 'auto' });
       } else {
         const variant = (prod.variants || []).find((v: any) => v._id === variantId);
         if (!variant) return;
+        const vPrice = selectedCustomer?.role === 'wholesaler'
+          ? (variant.wholesaleSalePrice || variant.wholesalePrice || variant.salePrice || variant.price || price)
+          : (variant.salePrice || variant.price || 0);
         const label = [prod.name, variant.color, variant.size].filter(Boolean).join(' — ');
-        newItems.push({ productId: prod._id, variantId: variant._id, name: label, price: variant.salePrice || variant.price || 0, quantity: 1, batchNumber: 'auto' });
+        newItems.push({ productId: prod._id, variantId: variant._id, name: label, price: vPrice, quantity: 1, batchNumber: 'auto' });
       }
     });
 
@@ -404,6 +519,11 @@ function ShowroomBillsContent() {
       return;
     }
 
+    let printTab: Window | null = null;
+    if (!editingBill && printPOS) {
+      printTab = window.open('about:blank', '_blank');
+    }
+
     try {
       setFormLoading(true);
       const billData = {
@@ -445,12 +565,25 @@ function ShowroomBillsContent() {
         throw new Error(errorData.message || `Failed to ${editingBill ? 'update' : 'create'} bill`);
       }
 
+      const savedBill = await res.json();
+
       toast.success(editingBill ? 'Bill updated successfully!' : 'Bill generated successfully!');
+
+      if (!editingBill && printPOS && printTab) {
+        await printBillPOS(savedBill, settings, printTab);
+      } else if (printTab) {
+        printTab.close();
+      }
+
+      if (!editingBill && printA4) {
+        await generateBillPDF(savedBill, settings, 'print');
+      }
 
       setIsCreateOpen(false);
       resetForm();
       fetchBills();
     } catch (error: any) {
+      if (printTab) printTab.close();
       toast.error(error.message || 'Error saving bill');
     } finally {
       setFormLoading(false);
@@ -462,6 +595,14 @@ function ShowroomBillsContent() {
     setClientPhone('');
     setPhoneError('');
     setClientAddress('');
+    setSelectedCustomer(null);
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setUseTokens(false);
+    setTokensToUse(0);
+    setCustomerTokens(0);
+    setPrintA4(false);
+    setPrintPOS(true);
     setBillItems([{ name: '', quantity: 1, price: 0, batchNumber: 'auto' }]);
     setDeliveryCharge(0);
     setServiceFee(0);
@@ -1063,44 +1204,155 @@ function ShowroomBillsContent() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Client Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="space-y-2">
-                <Label htmlFor="clientName" className="text-sm font-semibold">Client Name *</Label>
-                <Input
-                  id="clientName"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  placeholder="e.g. Rahim Khan"
-                  className="h-11 text-base"
-                  required
-                />
+            <div className="relative space-y-4 bg-gray-50/50 p-4 sm:p-5 rounded-2xl border border-gray-100/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Customer Details</h3>
+                {selectedCustomer && (
+                  <div className="flex flex-wrap items-center gap-2 bg-white/95 border border-primary/25 rounded-xl px-3 py-1.5 shadow-xs text-xs">
+                    {selectedCustomer.role === 'wholesaler' ? (
+                      <Badge className="bg-purple-100 text-purple-800 border-purple-300 font-bold px-2 py-0.5 text-[11px] uppercase tracking-wide hover:bg-purple-100 shadow-none">
+                        Wholesaler
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-200 font-semibold px-2 py-0.5 text-[11px] uppercase tracking-wide hover:bg-slate-100">
+                        Regular Customer
+                      </Badge>
+                    )}
+                    <span className="text-slate-300">|</span>
+                    <div className="flex items-center gap-1 font-semibold text-slate-700">
+                      <ShoppingBag className="h-3.5 w-3.5 text-primary" />
+                      <span>Orders: <strong className="text-slate-900 font-bold">{selectedCustomer.totalOrders || 0}</strong></span>
+                    </div>
+                    <span className="text-slate-300">|</span>
+                    <div className="flex items-center gap-1 font-semibold text-slate-700">
+                      <Coins className="h-3.5 w-3.5 text-amber-500" />
+                      <span>Tokens: <strong className="text-amber-600 font-bold">৳{selectedCustomer.walletBalance || 0}</strong></span>
+                    </div>
+                    {(selectedCustomer.totalDue || 0) > 0 && (
+                      <>
+                        <span className="text-slate-300">|</span>
+                        <div className="flex items-center gap-1 font-semibold text-red-600">
+                          <span>Due: <strong className="font-bold">৳{(selectedCustomer.totalDue || 0).toLocaleString()}</strong></span>
+                        </div>
+                      </>
+                    )}
+                    {(selectedCustomer.totalSpent || 0) > 0 && (
+                      <>
+                        <span className="text-slate-300">|</span>
+                        <div className="flex items-center gap-1 font-semibold text-emerald-700">
+                          <span>Spent: <strong className="font-bold">৳{(selectedCustomer.totalSpent || 0).toLocaleString()}</strong></span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="clientPhone" className="text-sm font-semibold">Client Phone *</Label>
-                <Input
-                  id="clientPhone"
-                  value={clientPhone}
-                  onChange={(e) => {
-                    setClientPhone(e.target.value);
-                    if (phoneError) validatePhone(e.target.value);
-                  }}
-                  onBlur={(e) => validatePhone(e.target.value)}
-                  placeholder="e.g. 01712345678"
-                  className={`h-11 text-base ${phoneError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                  required
-                />
-                {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="clientAddress" className="text-sm font-semibold">Client Address *</Label>
-                <Input
-                  id="clientAddress"
-                  value={clientAddress}
-                  onChange={(e) => setClientAddress(e.target.value)}
-                  placeholder="e.g. Nawabpur, Dhaka"
-                  className="h-11 text-base"
-                  required
-                />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Customer Name */}
+                <div className="space-y-2" ref={nameRef}>
+                  <Label htmlFor="clientName" className="text-sm font-semibold">Client Name <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="clientName"
+                      value={clientName}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      onFocus={() => { if (clientName.trim() && nameSuggestions.length > 0) setShowNameDropdown(true); }}
+                      placeholder="e.g. Rahim Khan"
+                      className="h-11 text-base"
+                      autoComplete="off"
+                      required
+                    />
+                    {showNameDropdown && nameSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                        {nameSuggestions.map((c, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                            onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                          >
+                            <div className="flex justify-between items-center w-full">
+                              <span className="font-medium text-sm text-foreground">{c.clientName}</span>
+                              <div className="flex items-center gap-1">
+                                {c.role === 'wholesaler' && (
+                                  <span className="text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded-sm">
+                                    Wholesaler
+                                  </span>
+                                )}
+                                {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                                  <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                                    ৳{c.walletBalance} Tokens
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Customer Phone */}
+                <div className="space-y-2" ref={phoneRef}>
+                  <Label htmlFor="clientPhone" className="text-sm font-semibold">Client Phone <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="clientPhone"
+                      value={clientPhone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      onFocus={() => { if (clientPhone.trim() && phoneSuggestions.length > 0) setShowPhoneDropdown(true); }}
+                      onBlur={(e) => validatePhone(e.target.value)}
+                      placeholder="e.g. 01712345678"
+                      className={`h-11 text-base ${phoneError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                      autoComplete="off"
+                      required
+                    />
+                    {showPhoneDropdown && phoneSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                        {phoneSuggestions.map((c, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-left"
+                            onMouseDown={(e) => { e.preventDefault(); handleCustomerSelect(c); }}
+                          >
+                            <div className="flex justify-between items-center w-full">
+                              <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
+                              <div className="flex items-center gap-1">
+                                {c.role === 'wholesaler' && (
+                                  <span className="text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded-sm">
+                                    Wholesaler
+                                  </span>
+                                )}
+                                {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                                  <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                                    ৳{c.walletBalance} Tokens
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{c.clientName}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {phoneError && <p className="text-xs text-destructive mt-1">{phoneError}</p>}
+                </div>
+
+                {/* Customer Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="clientAddress" className="text-sm font-semibold">Client Address <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="clientAddress"
+                    value={clientAddress}
+                    onChange={(e) => setClientAddress(e.target.value)}
+                    placeholder="e.g. Nawabpur, Dhaka"
+                    className="h-11 text-base"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -1454,11 +1706,43 @@ function ShowroomBillsContent() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={formLoading} className="font-bold">
-                {formLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (editingBill ? 'Update Bill' : 'Generate Bill')}
-              </Button>
+            <DialogFooter className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t">
+              {!editingBill && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={printA4}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setPrintA4(checked);
+                        if (checked) setPrintPOS(false);
+                      }}
+                      className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
+                    />
+                    Print A4 Invoice
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={printPOS}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setPrintPOS(checked);
+                        if (checked) setPrintA4(false);
+                      }}
+                      className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
+                    />
+                    Print POS Invoice
+                  </label>
+                </div>
+              )}
+              <div className="flex gap-2 sm:ml-auto">
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={formLoading} className="font-bold">
+                  {formLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (editingBill ? 'Update Bill' : 'Generate Bill')}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1495,6 +1779,10 @@ function ShowroomBillsContent() {
                     .filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
                     .map((prod) => {
                       const hasVariants = prod.variants && prod.variants.length > 0;
+                      const basePrice = selectedCustomer?.role === 'wholesaler'
+                        ? (prod.wholesaleSalePrice || prod.wholesalePrice || prod.salePrice || prod.price)
+                        : (prod.salePrice || prod.price);
+
                       return (
                         <TableRow key={prod._id}>
                           <TableCell>
@@ -1505,13 +1793,23 @@ function ShowroomBillsContent() {
                               />
                             )}
                           </TableCell>
-                          <TableCell className="font-medium">{prod.name}</TableCell>
+                          <TableCell className="font-medium">
+                            <div>{prod.name}</div>
+                            {selectedCustomer?.role === 'wholesaler' && (
+                              <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-1 rounded-sm">
+                                Wholesale
+                              </span>
+                            )}
+                          </TableCell>
                           <TableCell>
                             {hasVariants ? (
                               <div className="flex flex-wrap gap-2 py-1">
                                 {prod.variants.map((v: any) => {
                                   const label = [v.color, v.size].filter(Boolean).join(' / ');
                                   const isSelected = selectedProductVariants[prod._id] === v._id;
+                                  const vPrice = selectedCustomer?.role === 'wholesaler'
+                                    ? (v.wholesaleSalePrice || v.wholesalePrice || v.salePrice || v.price || basePrice)
+                                    : (v.salePrice || v.price);
                                   return (
                                     <Button
                                       key={v._id}
@@ -1521,7 +1819,7 @@ function ShowroomBillsContent() {
                                       onClick={() => toggleProductVariant(prod._id, v._id)}
                                       className="text-xs py-0.5 px-2 h-7"
                                     >
-                                      {label} (৳{v.salePrice || v.price})
+                                      {label} (৳{vPrice})
                                     </Button>
                                   );
                                 })}
@@ -1530,8 +1828,8 @@ function ShowroomBillsContent() {
                               <span className="text-xs text-muted-foreground">Standard Item</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-right">
-                            {!hasVariants && `৳${prod.salePrice || prod.price}`}
+                          <TableCell className="text-right font-semibold">
+                            {!hasVariants && `৳${basePrice}`}
                           </TableCell>
                         </TableRow>
                       );

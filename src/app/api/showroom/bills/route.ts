@@ -93,11 +93,21 @@ export async function POST(req: NextRequest) {
       clientName,
       clientPhone,
       clientAddress,
+      clientEmail,
+      clientDivision,
+      clientDistrict,
+      clientThana,
+      clientArea,
+      clientImage,
       items,
       deliveryCharge,
       serviceFee,
       discountType,
       discountValue,
+      couponCode,
+      couponDiscount,
+      walletAmountUsed,
+      changeReturn,
       prevDue,
       cashIn,
       expectedReceivableDate,
@@ -113,6 +123,8 @@ export async function POST(req: NextRequest) {
     const validatedDeliveryCharge = Math.max(0, Number(deliveryCharge) || 0);
     const validatedServiceFee = Math.max(0, Number(serviceFee) || 0);
     const validatedDiscountValue = Math.max(0, Number(discountValue) || 0);
+    const validatedCouponDiscount = Math.max(0, Number(couponDiscount) || 0);
+    const validatedWalletAmountUsed = Math.max(0, Number(walletAmountUsed) || 0);
     const validatedPrevDue = Math.max(0, Number(prevDue) || 0);
     const validatedCashIn = Math.max(0, Number(cashIn) || 0);
 
@@ -141,7 +153,8 @@ export async function POST(req: NextRequest) {
     }
     calculatedDiscount = Math.max(0, calculatedDiscount);
 
-    const calculatedTotal = Math.max(0, calculatedSubtotal + validatedDeliveryCharge + validatedServiceFee - calculatedDiscount);
+    const totalDiscountCombined = calculatedDiscount + validatedCouponDiscount;
+    const calculatedTotal = Math.max(0, calculatedSubtotal + validatedDeliveryCharge + validatedServiceFee - totalDiscountCombined - validatedWalletAmountUsed);
     const calculatedGTotal = calculatedTotal + validatedPrevDue;
     const calculatedCurrentBillDue = Math.max(0, calculatedGTotal - validatedCashIn);
     const derivedStatus = validatedCashIn >= calculatedGTotal ? 'Paid' : 'Due';
@@ -179,6 +192,12 @@ export async function POST(req: NextRequest) {
         clientName,
         clientPhone: normalizePhoneNumber(clientPhone),
         clientAddress,
+        clientEmail,
+        clientDivision,
+        clientDistrict,
+        clientThana,
+        clientArea,
+        clientImage,
         invoiceNo,
         items: sanitizedItems,
         subtotal: calculatedSubtotal,
@@ -186,11 +205,15 @@ export async function POST(req: NextRequest) {
         serviceFee: validatedServiceFee,
         discountType,
         discountValue: validatedDiscountValue,
-        discount: calculatedDiscount,
+        discount: totalDiscountCombined,
+        couponCode: couponCode ? couponCode.toUpperCase() : undefined,
+        couponDiscount: validatedCouponDiscount,
+        walletAmountUsed: validatedWalletAmountUsed,
         total: calculatedTotal,
         prevDue: validatedPrevDue,
         gTotal: calculatedGTotal,
         cashIn: validatedCashIn,
+        changeReturn: changeReturn || (validatedCashIn > calculatedGTotal ? validatedCashIn - calculatedGTotal : 0),
         currentBillDue: calculatedCurrentBillDue,
         status: derivedStatus,
         expectedReceivableDate: derivedStatus === 'Due' && expectedReceivableDate ? new Date(expectedReceivableDate) : undefined,
@@ -330,6 +353,42 @@ export async function POST(req: NextRequest) {
             showroom._id.toString(),
             dbSession
           );
+        }
+
+        // Deduct User Wallet Tokens if used
+        if (validatedWalletAmountUsed > 0) {
+          try {
+            const User = (await import('@/models/User')).default;
+            const normalizedPhone = normalizePhoneNumber(clientPhone);
+            const userDoc = await User.findOne({
+              $or: [
+                ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
+                ...(clientEmail ? [{ email: clientEmail }] : [])
+              ]
+            }).session(dbSession);
+
+            if (userDoc && (userDoc.walletBalance || 0) > 0) {
+              const deductAmount = Math.min(userDoc.walletBalance, validatedWalletAmountUsed);
+              userDoc.walletBalance = Math.max(0, userDoc.walletBalance - deductAmount);
+              await userDoc.save({ session: dbSession });
+            }
+          } catch (walletErr) {
+            console.error('Error deducting wallet balance in showroom bill creation:', walletErr);
+          }
+        }
+
+        // Increment Coupon usedCount if coupon code provided
+        if (couponCode) {
+          try {
+            const Coupon = (await import('@/models/Coupon')).default;
+            await Coupon.findOneAndUpdate(
+              { code: couponCode.toUpperCase() },
+              { $inc: { usedCount: 1 } },
+              { session: dbSession }
+            );
+          } catch (couponErr) {
+            console.error('Error updating coupon used count in showroom bill creation:', couponErr);
+          }
         }
       }
 
