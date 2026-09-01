@@ -23,6 +23,7 @@ import {
   Plus,
   Trash2,
   Printer,
+  Receipt,
   Download,
   DollarSign,
   Users,
@@ -51,6 +52,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { generateBillPDF } from '@/lib/bill-invoice-generator';
+import { printBillPOS } from '@/lib/bill-pos-generator';
 import { getWhatsAppLink } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -590,9 +592,18 @@ function ClientBillsContent() {
                             size="icon"
                             className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
                             onClick={() => generateBillPDF(bill, settings, 'print')}
-                            title="Print Bill"
+                            title="Print Bill (A4)"
                           >
                             <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            onClick={() => printBillPOS(bill, settings)}
+                            title="Print POS Receipt"
+                          >
+                            <Receipt className="h-4 w-4" />
                           </Button>
                           {bill.status === 'Due' && (
                             <Button
@@ -625,6 +636,9 @@ function ClientBillsContent() {
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => generateBillPDF(bill, settings, 'print')}>
                                 <Printer className="mr-2 h-4 w-4 text-teal-600" /> {t("bills.print_bill")}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => printBillPOS(bill, settings)}>
+                                <Receipt className="mr-2 h-4 w-4 text-indigo-600" /> {t("bills.print_pos")}
                               </DropdownMenuItem>
                               {bill.status === 'Due' && (
                                 <DropdownMenuItem onClick={() => handleUpdateStatus(bill._id, bill.currentBillDue)}>
@@ -725,10 +739,18 @@ function ClientBillsContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 text-teal-600 hover:text-teal-700 text-xs px-3 py-1 flex items-center gap-1"
+                      className="h-9 text-teal-600 hover:text-teal-700 text-xs px-2.5 py-1 flex items-center gap-1"
                       onClick={() => generateBillPDF(bill, settings, 'print')}
                     >
-                      <Printer className="h-3.5 w-3.5 mr-1" /> {t("bills.print")}
+                      <Printer className="h-3.5 w-3.5 mr-0.5" /> A4
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 text-indigo-600 hover:text-indigo-700 text-xs px-2.5 py-1 flex items-center gap-1"
+                      onClick={() => printBillPOS(bill, settings)}
+                    >
+                      <Receipt className="h-3.5 w-3.5 mr-0.5" /> POS
                     </Button>
                     {bill.status === 'Due' && (
                       <Button
@@ -760,6 +782,9 @@ function ClientBillsContent() {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => generateBillPDF(bill, settings, 'print')}>
                           <Printer className="mr-2 h-4 w-4 text-teal-600" /> {t("bills.print_bill")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => printBillPOS(bill, settings)}>
+                          <Receipt className="mr-2 h-4 w-4 text-indigo-600" /> {t("bills.print_pos")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleCopyLink(bill.invoiceNo)}>
                           <Share2 className="mr-2 h-4 w-4 text-indigo-600" /> {t("bills.copy_link")}
@@ -975,6 +1000,13 @@ function ClientBillsContent() {
                     onClick={() => generateBillPDF(selectedBill, settings, 'print')}
                   >
                     <Printer className="h-4 w-4 mr-2" /> {t("bills.print")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 font-bold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                    onClick={() => printBillPOS(selectedBill, settings)}
+                  >
+                    <Receipt className="h-4 w-4 mr-2" /> {t("bills.print_pos")}
                   </Button>
                 </div>
               </div>

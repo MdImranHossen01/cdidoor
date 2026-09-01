@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Search, Loader2, ShoppingBag, Coins } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [formLoading, setFormLoading] = useState(false);
 
   // Form states
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [clientName, setClientName] = useState(initialData?.clientName || '');
   const [clientPhone, setClientPhone] = useState(initialData?.clientPhone || '');
   const [clientAddress, setClientAddress] = useState(initialData?.clientAddress || '');
@@ -46,12 +47,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [clientImage, setClientImage] = useState(initialData?.clientImage || '');
   const [areas, setAreas] = useState<any[]>([]);
   const [clientTokens, setClientTokens] = useState<number>(0);
-  const [showMoreFields, setShowMoreFields] = useState(() => {
-    if (initialData?.clientEmail || initialData?.clientDivision || initialData?.clientDistrict || initialData?.clientThana || initialData?.clientArea || initialData?.clientAddress) {
-      return true;
-    }
-    return false;
-  });
+  const [showMoreFields, setShowMoreFields] = useState(false);
 
   const [billItems, setBillItems] = useState<BillItemInput[]>(
     initialData?.items || [{ name: '', quantity: 1, price: 0, batchNumber: 'auto' }]
@@ -192,6 +188,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   }, []);
 
   const handleCustomerSelect = (customer: any) => {
+    setSelectedCustomer(customer);
     setClientName(customer.clientName);
     setClientPhone(customer.clientPhone);
     setClientAddress(customer.clientAddress || '');
@@ -202,11 +199,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     setClientArea(customer.clientArea || '');
     setClientImage(customer.clientImage || '');
     setClientTokens(customer.walletBalance || 0);
+    if (customer.totalDue && customer.totalDue > 0 && prevDue === 0) {
+      setPrevDue(customer.totalDue);
+    }
     setShowNameDropdown(false);
     setShowPhoneDropdown(false);
-    if (customer.clientEmail || customer.clientDivision || customer.clientDistrict || customer.clientThana || customer.clientArea || customer.clientAddress) {
-      setShowMoreFields(true);
-    }
   };
 
   const handleNameChange = (val: string) => {
@@ -482,17 +479,45 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     <div className="px-[1px] md:px-0">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Client Info */}
-        <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
+        <div className="relative space-y-4 bg-gray-50/50 p-4 sm:p-5 rounded-2xl border border-gray-100/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Customer Details</h3>
+            {selectedCustomer && (
+              <div className="flex flex-wrap items-center gap-2 bg-white/95 border border-primary/25 rounded-xl px-3 py-1.5 shadow-xs text-xs">
+                <div className="flex items-center gap-1 font-semibold text-slate-700">
+                  <ShoppingBag className="h-3.5 w-3.5 text-primary" />
+                  <span>Orders: <strong className="text-slate-900 font-bold">{selectedCustomer.totalOrders || 0}</strong></span>
+                </div>
+                <span className="text-slate-300">|</span>
+                <div className="flex items-center gap-1 font-semibold text-slate-700">
+                  <Coins className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Tokens: <strong className="text-amber-600 font-bold">৳{selectedCustomer.walletBalance || 0}</strong></span>
+                </div>
+                {(selectedCustomer.totalDue || 0) > 0 && (
+                  <>
+                    <span className="text-slate-300">|</span>
+                    <div className="flex items-center gap-1 font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">
+                      <span>Due: ৳{Math.round(selectedCustomer.totalDue).toLocaleString()}</span>
+                    </div>
+                  </>
+                )}
+                {(selectedCustomer.totalSpent || 0) > 0 && (
+                  <>
+                    <span className="text-slate-300">|</span>
+                    <div className="flex items-center gap-1 font-semibold text-slate-700">
+                      <span>Spent: <strong className="text-emerald-700 font-bold">৳{Math.round(selectedCustomer.totalSpent).toLocaleString()}</strong></span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Customer Name with auto-suggestion */}
             <div className="space-y-2" ref={nameRef}>
               <div className="flex justify-between items-center">
                 <Label htmlFor="clientName" className="text-sm font-semibold">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
-                {clientTokens > 0 && (
-                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-bold text-xs py-0.5 px-2">
-                    Tokens: ৳{clientTokens}
-                  </Badge>
-                )}
               </div>
               <div className="relative">
                 <Input

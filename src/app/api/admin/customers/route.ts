@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import Bill from '@/models/Bill';
+import Order from '@/models/Order';
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,10 +49,10 @@ export async function GET(req: NextRequest) {
         clientDistrict: defAddress.district || '',
         clientThana: defAddress.thana || '',
         clientArea: defAddress.area || '',
+        walletBalance: u.walletBalance || 0,
       };
       if (userRole !== 'showroom_manager') {
         item.clientEmail = u.email || '';
-        item.walletBalance = u.walletBalance || 0;
       }
       return item;
     });
@@ -91,16 +92,65 @@ export async function GET(req: NextRequest) {
           clientDistrict: b.clientDistrict || '',
           clientThana: b.clientThana || '',
           clientArea: b.clientArea || '',
+          walletBalance: 0,
         };
         if (userRole !== 'showroom_manager') {
           item.clientEmail = b.clientEmail || '';
-          item.walletBalance = 0;
         }
         merged.push(item);
       }
     });
 
-    return NextResponse.json({ customers: merged.slice(0, 15) });
+    const topList = merged.slice(0, 15);
+    const phoneList = topList.map(m => m.clientPhone).filter(Boolean);
+
+    // Compute order and bill statistics
+    const [orderAgg, billAgg] = await Promise.all([
+      phoneList.length > 0 ? Order.aggregate([
+        { $match: { 'shippingAddress.phone': { $in: phoneList } } },
+        {
+          $group: {
+            _id: '$shippingAddress.phone',
+            totalOrders: { $sum: 1 },
+            totalSpent: { $sum: '$totalAmount' }
+          }
+        }
+      ]) : [],
+      phoneList.length > 0 ? Bill.aggregate([
+        { $match: { clientPhone: { $in: phoneList } } },
+        {
+          $group: {
+            _id: '$clientPhone',
+            totalBills: { $sum: 1 },
+            totalBilled: { $sum: '$gTotal' },
+            totalDue: { $sum: '$currentBillDue' }
+          }
+        }
+      ]) : []
+    ]);
+
+    const orderMap: Record<string, any> = {};
+    orderAgg.forEach((o: any) => {
+      orderMap[o._id] = o;
+    });
+
+    const billMap: Record<string, any> = {};
+    billAgg.forEach((b: any) => {
+      billMap[b._id] = b;
+    });
+
+    const enriched = topList.map(c => {
+      const o = orderMap[c.clientPhone] || {};
+      const b = billMap[c.clientPhone] || {};
+      return {
+        ...c,
+        totalOrders: (o.totalOrders || 0) + (b.totalBills || 0),
+        totalSpent: (o.totalSpent || 0) + (b.totalBilled || 0),
+        totalDue: b.totalDue || 0,
+      };
+    });
+
+    return NextResponse.json({ customers: enriched });
   } catch (error: any) {
     console.error('Search Customers Error:', error);
     return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });

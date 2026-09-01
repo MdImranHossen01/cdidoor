@@ -1,5 +1,51 @@
 import { format, isValid } from 'date-fns';
 
+function generateBarcodeHtml(value: string): string {
+  const CODE39_MAP: Record<string, string> = {
+    '0': '000110100', '1': '100100001', '2': '001100001', '3': '101100000',
+    '4': '000110001', '5': '100110000', '6': '001110000', '7': '000100101',
+    '8': '100100100', '9': '001100100', 'A': '100001001', 'B': '001001001',
+    'C': '101001000', 'D': '000011001', 'E': '100011000', 'F': '001011000',
+    'G': '000001101', 'H': '100001100', 'I': '001001100', 'J': '000011100',
+    'K': '100000011', 'L': '001000011', 'M': '101000010', 'N': '000010011',
+    'O': '100010010', 'P': '001010010', 'Q': '000000111', 'R': '100000110',
+    'S': '001000110', 'T': '000010110', 'U': '110000001', 'V': '011000001',
+    'W': '111000000', 'X': '010010001', 'Y': '110010000', 'Z': '011010000',
+    '-': '010000101', '.': '110000100', ' ': '011000100', '*': '010010100',
+  };
+
+  const clean = value.trim().toUpperCase().replace(/[^0-9A-Z\-\.\ ]/g, '');
+  const encoded = `*${clean}*`;
+
+  let totalWidth = 0;
+  for (const char of encoded) {
+    const pat = CODE39_MAP[char] || CODE39_MAP['*'];
+    for (let j = 0; j < 9; j++) {
+      const isWide = pat[j] === '1';
+      totalWidth += isWide ? 3 : 1;
+    }
+    totalWidth += 1;
+  }
+
+  let svgHtml = `<svg viewBox="0 0 ${totalWidth} 35" width="100%" height="35" xmlns="http://www.w3.org/2000/svg" style="max-width: 220px; display: block; margin: 0 auto; shape-rendering: crispEdges;" shape-rendering="crispEdges">`;
+  let currentX = 0;
+  for (const char of encoded) {
+    const pat = CODE39_MAP[char] || CODE39_MAP['*'];
+    for (let j = 0; j < 9; j++) {
+      const isBar = j % 2 === 0;
+      const isWide = pat[j] === '1';
+      const width = isWide ? 3 : 1;
+      if (isBar) {
+        svgHtml += `<rect x="${currentX}" y="0" width="${width}" height="35" fill="#000000" />`;
+      }
+      currentX += width;
+    }
+    currentX += 1;
+  }
+  svgHtml += `</svg>`;
+  return svgHtml;
+}
+
 export async function printBillPOS(bill: any, settings: any, targetWindow?: Window | null): Promise<void> {
   const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store";
   const brandEmail = settings?.contact?.email || "";
@@ -73,7 +119,7 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
           .brand-details {
             font-size: 9px;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
           }
           .title-box {
             border: 1px solid #000;
@@ -81,20 +127,24 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             font-weight: 900;
             font-size: 11px;
             display: inline-block;
-            margin: 5px 0;
+            margin: 4px 0;
             text-transform: uppercase;
+          }
+          .barcode-box {
+            text-align: center;
+            margin: 3px 0 6px 0;
           }
           .divider {
             border-top: 1px dashed #000;
-            margin: 6px 0;
+            margin: 5px 0;
           }
           .info-table {
             width: 100%;
-            font-size: 10px;
-            margin-bottom: 6px;
+            font-size: 10.5px;
+            margin-bottom: 5px;
           }
           .info-table td {
-            padding: 1px 0;
+            padding: 1.5px 0;
             vertical-align: top;
           }
           .info-label {
@@ -105,7 +155,7 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             width: 100%;
             border-collapse: collapse;
             font-size: 10px;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
           }
           .items-table th {
             border-bottom: 1px dashed #000;
@@ -125,8 +175,8 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
           }
           .summary-table {
             width: 100%;
-            font-size: 10px;
-            margin-top: 6px;
+            font-size: 10.5px;
+            margin-top: 4px;
           }
           .summary-table td {
             padding: 2px 0;
@@ -142,7 +192,7 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             padding: 4px 0 !important;
           }
           .footer-msg {
-            margin-top: 12px;
+            margin-top: 10px;
             font-size: 9px;
             color: #444;
           }
@@ -157,6 +207,9 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             ${brandEmail ? `<div>Email: ${brandEmail}</div>` : ''}
           </div>
           <div class="title-box">${title}</div>
+          <div class="barcode-box">
+            ${generateBarcodeHtml(bill.invoiceNo || 'INV-0000')}
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -164,7 +217,7 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
         <table class="info-table">
           <tr>
             <td class="info-label">Invoice No:</td>
-            <td>${bill.invoiceNo}</td>
+            <td style="font-weight: 700;">${bill.invoiceNo}</td>
           </tr>
           <tr>
             <td class="info-label">Date:</td>
@@ -172,18 +225,12 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
           </tr>
           <tr>
             <td class="info-label">Customer:</td>
-            <td>${bill.clientName || 'N/A'}</td>
+            <td style="font-weight: 700; text-transform: uppercase;">${bill.clientName || 'N/A'}</td>
           </tr>
           ${bill.clientPhone ? `
             <tr>
               <td class="info-label">Mobile:</td>
-              <td>${bill.clientPhone}</td>
-            </tr>
-          ` : ''}
-          ${bill.clientAddress ? `
-            <tr>
-              <td class="info-label">Address:</td>
-              <td>${bill.clientAddress}</td>
+              <td style="font-weight: 700;">${bill.clientPhone}</td>
             </tr>
           ` : ''}
         </table>
@@ -282,15 +329,24 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
   if (printWindow) {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
+    let hasPrinted = false;
     const triggerPrint = () => {
+      if (hasPrinted) return;
+      hasPrinted = true;
       printWindow.focus();
+      printWindow.onafterprint = () => {
+        try {
+          printWindow.close();
+        } catch (e) {}
+      };
       printWindow.print();
-      printWindow.close();
     };
-    if (printWindow.document.readyState === 'complete') {
-      triggerPrint();
-    } else {
-      printWindow.onload = triggerPrint;
-    }
+
+    printWindow.onload = triggerPrint;
+    setTimeout(() => {
+      if (!hasPrinted) {
+        triggerPrint();
+      }
+    }, 500);
   }
 }

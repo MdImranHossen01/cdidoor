@@ -460,14 +460,20 @@ export async function generateBillPDF(bill: any, settings: any, mode: 'download'
       if (hasPrinted) return;
       hasPrinted = true;
       printWindow.focus();
+      printWindow.onafterprint = () => {
+        try {
+          printWindow.close();
+        } catch (e) {}
+      };
       printWindow.print();
-      if (mode === 'print') {
-        printWindow.close();
-      }
     };
 
     printWindow.onload = triggerPrint;
     
-    setTimeout(triggerPrint, 800);
+    setTimeout(() => {
+      if (!hasPrinted) {
+        triggerPrint();
+      }
+    }, 500);
   }
 }
