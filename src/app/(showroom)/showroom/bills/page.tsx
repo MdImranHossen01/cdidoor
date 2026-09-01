@@ -180,12 +180,6 @@ function ShowroomBillsContent() {
     }
   };
 
-  useEffect(() => {
-    fetchBills();
-    fetchProducts();
-    fetchSettings();
-  }, [statusFilter]);
-
   const fetchBills = async () => {
     try {
       setLoading(true);
@@ -223,6 +217,12 @@ function ShowroomBillsContent() {
       console.error('Error fetching settings:', err);
     }
   };
+
+  useEffect(() => {
+    fetchBills();
+    fetchProducts();
+    fetchSettings();
+  }, [statusFilter]);
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) {
