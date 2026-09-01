@@ -1446,7 +1446,7 @@ const [dateRange, setDateRange] = useState({
                 <option value="Income">Direct Income / Owner Equity</option>
                 <option value="Bank">Transfer from Bank</option>
                 <option value="MFS">Transfer from MFS</option>
-                <option value="Cash">Transfer from Cash</option>
+                {addBalanceTargetType !== 'Cash' && <option value="Cash">Transfer from Cash</option>}
                 <option value="Loan">Business Loan</option>
               </select>
             </div>
@@ -1461,9 +1461,14 @@ const [dateRange, setDateRange] = useState({
                   required
                 >
                   <option value="">-- Select Source Account --</option>
-                  {stats?.ledgerAccounts?.filter((a: any) => a.accountCategory === fundSourceType || (fundSourceType === 'Cash' && a.code === 'CASH')).map((a: any) => (
-                    <option key={a._id} value={a._id}>{a.name}</option>
-                  ))}
+                  {stats?.ledgerAccounts
+                    ?.filter((a: any) => 
+                      String(a._id) !== String(targetAccountId) && 
+                      (a.accountCategory === fundSourceType || (fundSourceType === 'Cash' && a.code === 'CASH'))
+                    )
+                    .map((a: any) => (
+                      <option key={a._id} value={a._id}>{a.name}</option>
+                    ))}
                 </select>
               </div>
             )}
