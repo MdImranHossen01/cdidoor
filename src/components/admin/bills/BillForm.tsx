@@ -1210,7 +1210,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                 <input
                   type="checkbox"
                   checked={printA4}
-                  onChange={(e) => setPrintA4(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setPrintA4(checked);
+                    if (checked) setPrintPOS(false);
+                  }}
                   className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
                 />
                 Print A4 Invoice
@@ -1219,7 +1223,11 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                 <input
                   type="checkbox"
                   checked={printPOS}
-                  onChange={(e) => setPrintPOS(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setPrintPOS(checked);
+                    if (checked) setPrintA4(false);
+                  }}
                   className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
                 />
                 Print POS Invoice
