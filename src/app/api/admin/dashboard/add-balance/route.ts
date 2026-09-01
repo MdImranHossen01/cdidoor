@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       sourceAccountId,
       // For Loan
       lenderName,
+      lenderId,
       amount,
       repaymentType,
       expectedRepaymentDate,
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
           const [loan] = await BusinessLoan.create([{
             loanId,
             lenderName,
+            lenderId: lenderId || undefined,
             amount: Number(amount),
             date: new Date(),
             expectedRepaymentDate: expectedRepaymentDate ? new Date(expectedRepaymentDate) : new Date(),

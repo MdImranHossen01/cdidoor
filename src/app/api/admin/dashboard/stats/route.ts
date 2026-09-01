@@ -402,6 +402,10 @@ export async function GET(req: NextRequest) {
     const LedgerTransaction = (await import('@/models/LedgerTransaction')).default;
     const ledgerAccounts = await LedgerAccount.find().lean() as any[];
     
+    // Fetch Loan Providers
+    const LoanProvider = (await import('@/models/LoanProvider')).default;
+    const loanProviders = await LoanProvider.find({}).sort({ name: 1 }).lean() as any[];
+
     const cashAccount = ledgerAccounts.find((a: any) => a.code === 'CASH');
     const apAccount = ledgerAccounts.find((a: any) => a.code === 'AP');
     const bankAccounts = ledgerAccounts.filter((a: any) => a.accountCategory === 'Bank' && a.code !== 'BANK');
@@ -624,7 +628,8 @@ export async function GET(req: NextRequest) {
         expiredProductsCount,
         pendingLeavesCount,
         isShowroomFiltered: !!isShowroomFiltered,
-        ledgerAccounts: ledgerAccounts || []
+        ledgerAccounts: ledgerAccounts || [],
+        loanProviders: loanProviders || []
       },
       recentOrders,
       lowStockProducts,

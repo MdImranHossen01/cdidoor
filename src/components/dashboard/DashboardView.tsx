@@ -178,6 +178,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
   const [fundSourceType, setFundSourceType] = useState('Income');
   const [sourceAccountId, setSourceAccountId] = useState('');
   // Loan Specific
+  const [lenderId, setLenderId] = useState('');
   const [lenderName, setLenderName] = useState('');
   const [loanAmount, setLoanAmount] = useState<number | ''>('');
   const [repaymentType, setRepaymentType] = useState<'One-time' | 'Installment'>('One-time');
@@ -204,6 +205,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
     
     setFundSourceType('Income');
     setSourceAccountId('');
+    setLenderId('');
     setLenderName('');
     setLoanAmount('');
     setRepaymentType('One-time');
@@ -231,6 +233,7 @@ export function DashboardView({ activeTab }: { activeTab: 'cards' | 'report' | '
           targetAccountId,
           sourceType: fundSourceType,
           sourceAccountId,
+          lenderId,
           lenderName,
           amount: loanAmount || 0,
           repaymentType,
@@ -1485,8 +1488,26 @@ const [dateRange, setDateRange] = useState({
                 <div className="font-semibold text-primary">Loan Details</div>
                 
                 <div className="space-y-1.5">
-                  <Label>Lender Name</Label>
-                  <Input required value={lenderName} onChange={e => setLenderName(e.target.value)} />
+                  <Label>Loan Provider (Lender)</Label>
+                  <select
+                    value={lenderId}
+                    onChange={e => {
+                      const selId = e.target.value;
+                      setLenderId(selId);
+                      const p = stats?.loanProviders?.find((lp: any) => String(lp._id) === String(selId));
+                      if (p) setLenderName(p.name);
+                      else setLenderName('');
+                    }}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="">-- Select Loan Provider --</option>
+                    {stats?.loanProviders?.map((lp: any) => (
+                      <option key={lp._id} value={lp._id}>
+                        {lp.name} {lp.phone ? `(${lp.phone})` : ''}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="space-y-1.5">
