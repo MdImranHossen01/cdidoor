@@ -163,10 +163,6 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             ${brandEmail ? `<div>Email: ${brandEmail}</div>` : ''}
           </div>
           <div class="title-box">${title}</div>
-          <div class="qr-box" style="margin: 6px auto 3px auto; text-align: center;">
-            <img src="${qrCodeUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block; margin: 0 auto;" />
-            <div style="font-size: 9.5px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px; margin-top: 1px;">${invoiceNo}</div>
-          </div>
         </div>
 
         <div class="divider"></div>
@@ -291,6 +287,11 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
         </table>
 
         <div class="divider"></div>
+
+        <div class="center" style="margin: 8px auto 6px auto;">
+          <img src="${qrCodeUrl}" alt="QR Code" style="width: 75px; height: 75px; display: block; margin: 0 auto;" />
+          <div style="font-size: 9px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px; margin-top: 2px;">${invoiceNo}</div>
+        </div>
 
         <div class="center footer-msg">
           <div style="font-weight: 700; margin-bottom: 2px;">Thank you for shopping with us!</div>

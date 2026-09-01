@@ -40,6 +40,7 @@ const profileSchema = z.object({
     division: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
+    area: z.string().optional(),
     zipCode: z.string().optional(),
     country: z.string().optional(),
   }).optional()
@@ -65,6 +66,7 @@ export function ProfileForm() {
         division: '',
         city: '',
         state: '',
+        area: '',
         zipCode: '',
         country: 'Bangladesh',
       }
@@ -101,9 +103,10 @@ export function ProfileForm() {
             image: data.image || '',
             address: {
               street: data.addresses?.[0]?.street || '',
-              division: data.addresses?.[0]?.division || '',
-              city: data.addresses?.[0]?.city || '',
-              state: data.addresses?.[0]?.state || '',
+              division: data.division || data.addresses?.[0]?.division || '',
+              city: data.district || data.addresses?.[0]?.district || data.addresses?.[0]?.city || '',
+              state: data.thana || data.addresses?.[0]?.thana || data.addresses?.[0]?.state || '',
+              area: data.area || data.addresses?.[0]?.area || '',
               zipCode: data.addresses?.[0]?.zipCode || '',
               country: data.addresses?.[0]?.country || 'Bangladesh',
             }
@@ -341,6 +344,19 @@ export function ProfileForm() {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.area"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('store.dashboard.area') || 'Area / Village / Sector'}</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Uttara Sector 10" {...field} disabled={isSubmitting} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

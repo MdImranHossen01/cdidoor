@@ -65,17 +65,42 @@ export async function PUT(req: NextRequest) {
     }
 
     if (address) {
+      const divisionVal = address.division || '';
+      const districtVal = address.district || address.city || '';
+      const thanaVal = address.thana || address.state || '';
+      const areaVal = address.area || '';
+      const streetVal = address.street || '';
+
+      user.division = divisionVal;
+      user.district = districtVal;
+      user.thana = thanaVal;
+      user.area = areaVal;
+
       if (user.addresses && user.addresses.length > 0) {
         // Update the first address (acting as default)
-        user.addresses[0].street = address.street;
-        user.addresses[0].division = address.division;
-        user.addresses[0].city = address.city;
-        user.addresses[0].state = address.state;
-        user.addresses[0].zipCode = address.zipCode;
-        user.addresses[0].country = address.country;
+        user.addresses[0].street = streetVal;
+        user.addresses[0].division = divisionVal;
+        user.addresses[0].district = districtVal;
+        user.addresses[0].thana = thanaVal;
+        user.addresses[0].area = areaVal;
+        user.addresses[0].city = districtVal;
+        user.addresses[0].state = thanaVal;
+        user.addresses[0].zipCode = address.zipCode || '';
+        user.addresses[0].country = address.country || 'Bangladesh';
       } else {
         // Create new address
-        user.addresses = [address];
+        user.addresses = [{
+          street: streetVal,
+          division: divisionVal,
+          district: districtVal,
+          thana: thanaVal,
+          area: areaVal,
+          city: districtVal,
+          state: thanaVal,
+          zipCode: address.zipCode || '',
+          country: address.country || 'Bangladesh',
+          isDefault: true
+        }];
       }
     }
 

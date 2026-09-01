@@ -49,7 +49,19 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, email, phone, image, nidImage, tradeLicenseImage } = body;
+    const {
+      name,
+      email,
+      phone,
+      image,
+      nidImage,
+      tradeLicenseImage,
+      division,
+      district,
+      thana,
+      area,
+      address
+    } = body;
 
     await connectToDatabase();
 
@@ -71,6 +83,20 @@ export async function PATCH(
     if (image !== undefined) user.image = image;
     if (nidImage !== undefined) user.nidImage = nidImage;
     if (tradeLicenseImage !== undefined) user.tradeLicenseImage = tradeLicenseImage;
+    if (division !== undefined) user.division = division;
+    if (district !== undefined) user.district = district;
+    if (thana !== undefined) user.thana = thana;
+    if (area !== undefined) user.area = area;
+    if (division !== undefined || district !== undefined || thana !== undefined || area !== undefined || address !== undefined) {
+      user.addresses = [{
+        street: address || user.addresses?.[0]?.street || '',
+        division: division !== undefined ? division : (user.addresses?.[0]?.division || ''),
+        district: district !== undefined ? district : (user.addresses?.[0]?.district || ''),
+        thana: thana !== undefined ? thana : (user.addresses?.[0]?.thana || ''),
+        area: area !== undefined ? area : (user.addresses?.[0]?.area || ''),
+        isDefault: true
+      }];
+    }
     await user.save();
 
     return NextResponse.json({
@@ -83,6 +109,10 @@ export async function PATCH(
         image: user.image,
         nidImage: user.nidImage,
         tradeLicenseImage: user.tradeLicenseImage,
+        division: user.division,
+        district: user.district,
+        thana: user.thana,
+        area: user.area,
         role: user.role,
         createdAt: user.createdAt
       }

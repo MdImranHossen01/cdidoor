@@ -290,6 +290,11 @@ const data = {
           url: "/admin/users"
         },
         {
+          title: "System Users",
+          tKey: "sidebar.system_users",
+          url: "/admin/system-users"
+        },
+        {
           title: "Wholesalers",
           tKey: "sidebar.wholesalers",
           url: "/admin/wholesalers",

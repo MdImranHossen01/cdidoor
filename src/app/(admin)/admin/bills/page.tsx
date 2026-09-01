@@ -543,7 +543,19 @@ function ClientBillsContent() {
                       <TableCell>
                         <div className="font-medium">{bill.clientName}</div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                          <span>{bill.clientPhone}</span>
+                          {bill.clientPhone ? (
+                            <a
+                              href={getWhatsAppLink(bill.clientPhone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline hover:text-green-600 font-medium transition-colors"
+                              title="Chat on WhatsApp"
+                            >
+                              {bill.clientPhone}
+                            </a>
+                          ) : (
+                            <span>{bill.clientPhone}</span>
+                          )}
                           {bill.clientPhone && (
                             <div className="flex items-center gap-1">
                               <a
@@ -687,7 +699,19 @@ function ClientBillsContent() {
                     <div className="flex items-center justify-between py-0.5 border-t border-border/30">
                       <span className="text-muted-foreground">{t("bills.phone")}:</span>
                       <div className="flex items-center gap-2 font-medium text-foreground">
-                        <span className="text-sm md:text-[11px]">{bill.clientPhone}</span>
+                        {bill.clientPhone ? (
+                          <a
+                            href={getWhatsAppLink(bill.clientPhone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm md:text-[11px] hover:underline hover:text-green-600 font-semibold transition-colors"
+                            title="Chat on WhatsApp"
+                          >
+                            {bill.clientPhone}
+                          </a>
+                        ) : (
+                          <span className="text-sm md:text-[11px]">{bill.clientPhone}</span>
+                        )}
                         {bill.clientPhone && (
                           <div className="flex items-center gap-1.5">
                             <a
@@ -846,7 +870,19 @@ function ClientBillsContent() {
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-primary shrink-0" />
                       <div className="flex items-center gap-1.5">
-                        <span>{selectedBill.clientPhone}</span>
+                        {selectedBill.clientPhone ? (
+                          <a
+                            href={getWhatsAppLink(selectedBill.clientPhone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline hover:text-green-600 font-semibold transition-colors"
+                            title="Chat on WhatsApp"
+                          >
+                            {selectedBill.clientPhone}
+                          </a>
+                        ) : (
+                          <span>{selectedBill.clientPhone}</span>
+                        )}
                         {selectedBill.clientPhone && (
                           <div className="flex items-center gap-1">
                             <a

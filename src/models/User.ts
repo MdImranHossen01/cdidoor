@@ -16,6 +16,10 @@ export interface IUser extends Document {
   resetPasswordExpires?: Date;
   isSubscriptionActive: boolean;
   walletBalance: number;
+  division?: string;
+  district?: string;
+  thana?: string;
+  area?: string;
   addresses: {
     street?: string;
     division?: string;
@@ -65,6 +69,10 @@ const UserSchema: Schema<IUser> = new Schema(
     lastActive: { type: Date, default: Date.now },
     isSubscriptionActive: { type: Boolean, default: false },
     walletBalance: { type: Number, default: 0, min: 0 },
+    division: { type: String },
+    district: { type: String },
+    thana: { type: String },
+    area: { type: String },
     addresses: [
       {
         street: { type: String },

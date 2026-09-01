@@ -14,10 +14,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const division = searchParams.get('division');
+    const district = searchParams.get('district');
+    const thana = searchParams.get('thana');
+    const area = searchParams.get('area');
+
     await connectToDatabase();
 
-    // Find all users with role 'wholesaler'
-    const wholesalersList = await User.find({ role: 'wholesaler' }).select('-password').sort({ createdAt: -1 }).lean() as any[];
+    // Find all users with role 'wholesaler' with optional geo filters
+    const matchQuery: any = { role: 'wholesaler' };
+    if (division) {
+      matchQuery.$or = [{ division }, { 'addresses.division': division }];
+    }
+    if (district) {
+      matchQuery.$or = [{ district }, { 'addresses.district': district }];
+    }
+    if (thana) {
+      matchQuery.$or = [{ thana }, { 'addresses.thana': thana }];
+    }
+    if (area) {
+      matchQuery.$or = [{ area }, { 'addresses.area': area }];
+    }
+
+    const wholesalersList = await User.find(matchQuery).select('-password').sort({ createdAt: -1 }).lean() as any[];
 
     // Calculate order metrics and total credit due for each wholesaler
     const wholesalers = await Promise.all(
@@ -60,13 +80,35 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, email, password, phone, image, nidImage, tradeLicenseImage } = body;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      image,
+      nidImage,
+      tradeLicenseImage,
+      division,
+      district,
+      thana,
+      area,
+      address
+    } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
     await connectToDatabase();
+
+    const addressObj = {
+      street: address || '',
+      division: division || '',
+      district: district || '',
+      thana: thana || '',
+      area: area || '',
+      isDefault: true
+    };
 
     // Check if user already exists
     let user = await User.findOne({ email });
@@ -84,6 +126,13 @@ export async function POST(req: NextRequest) {
       if (image) user.image = image;
       if (nidImage) user.nidImage = nidImage;
       if (tradeLicenseImage) user.tradeLicenseImage = tradeLicenseImage;
+      if (division !== undefined) user.division = division;
+      if (district !== undefined) user.district = district;
+      if (thana !== undefined) user.thana = thana;
+      if (area !== undefined) user.area = area;
+      if (division || district || thana || area || address) {
+        user.addresses = [addressObj];
+      }
       await user.save();
     } else {
       user = await User.create({
@@ -94,6 +143,11 @@ export async function POST(req: NextRequest) {
         image,
         nidImage,
         tradeLicenseImage,
+        division: division || '',
+        district: district || '',
+        thana: thana || '',
+        area: area || '',
+        addresses: [addressObj],
         role: 'wholesaler'
       });
     }
@@ -108,6 +162,10 @@ export async function POST(req: NextRequest) {
         image: user.image,
         nidImage: user.nidImage,
         tradeLicenseImage: user.tradeLicenseImage,
+        division: user.division,
+        district: user.district,
+        thana: user.thana,
+        area: user.area,
         role: user.role,
         createdAt: user.createdAt
       }

@@ -40,7 +40,7 @@ export default function PublicBillPage({ params }: { params: Promise<{ invoiceNo
         setLoading(true);
         const [billRes, settingsRes] = await Promise.all([
           fetch(`/api/public/bills/${encodeURIComponent(invoiceNo)}`),
-          fetch('/api/admin/settings').catch(() => null)
+          fetch('/api/settings').catch(() => null)
         ]);
 
         if (!billRes.ok) {
@@ -141,10 +141,10 @@ export default function PublicBillPage({ params }: { params: Promise<{ invoiceNo
     );
   }
 
-  const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || 'Store';
-  const brandPhone = settings?.contact?.phone || '';
-  const brandEmail = settings?.contact?.email || '';
-  const brandAddress = settings?.contact?.address || '';
+  const brandName = settings?.brandName || settings?.companyName || process.env.NEXT_PUBLIC_STORE_NAME || 'CDI Door Ind';
+  const brandPhone = settings?.contact?.phone || settings?.companyPhone || '';
+  const brandEmail = settings?.contact?.email || settings?.companyEmail || '';
+  const brandAddress = settings?.contact?.address || settings?.companyAddress || '';
 
   const docTitle = bill.documentType === 'offer' ? 'QUOTATION' : bill.documentType === 'chalan' ? 'CHALLAN' : 'RETAIL INVOICE';
   const isPaid = bill.status === 'Paid' || (bill.currentBillDue || 0) <= 0;

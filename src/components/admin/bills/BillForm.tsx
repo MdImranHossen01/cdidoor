@@ -86,8 +86,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const [selectedProductVariants, setSelectedProductVariants] = useState<Record<string, string | null>>({});
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [phoneError, setPhoneError] = useState('');
-  const [printA4, setPrintA4] = useState(false);
-  const [printPOS, setPrintPOS] = useState(true);
+  const [printMode, setPrintMode] = useState<'none' | 'pos' | 'a4'>('none');
   const [settings, setSettings] = useState<any>(null);
 
   const nameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -95,12 +94,26 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
   const nameAbortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem('default_bill_print_mode') as 'none' | 'pos' | 'a4';
+      if (savedMode === 'none' || savedMode === 'pos' || savedMode === 'a4') {
+        setPrintMode(savedMode);
+      }
+    } catch (e) {}
+
     return () => {
       if (nameTimeoutRef.current) clearTimeout(nameTimeoutRef.current);
       if (phoneTimeoutRef.current) clearTimeout(phoneTimeoutRef.current);
       if (nameAbortControllerRef.current) nameAbortControllerRef.current.abort();
     };
   }, []);
+
+  const handlePrintModeSelect = (mode: 'none' | 'pos' | 'a4') => {
+    setPrintMode(mode);
+    try {
+      localStorage.setItem('default_bill_print_mode', mode);
+    } catch (e) {}
+  };
 
   // Customer auto-suggestion state
   const [pastCustomers, setPastCustomers] = useState<{
@@ -480,11 +493,10 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
       return;
     }
 
-    // Pre-open tabs synchronously to bypass browser pop-up blockers
+    // Pre-open tabs synchronously to bypass browser pop-up block
     let printTab: Window | null = null;
-
     if (!initialData) {
-      if (printPOS) {
+      if (printMode === 'pos') {
         printTab = window.open('', '_blank');
         if (printTab) {
           printTab.document.write('<html><head><title>POS Receipt</title></head><body style="font-family: sans-serif; padding: 20px; text-align: center;"><h3>Generating POS Invoice Receipt...</h3></body></html>');
@@ -543,7 +555,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
       toast.success(initialData ? 'Bill updated successfully!' : 'Bill generated successfully!');
 
-      if (!initialData && printPOS && printTab) {
+      if (!initialData && printMode === 'pos' && printTab) {
         // Print POS invoice
         const { printBillPOS } = await import('@/lib/bill-pos-generator');
         await printBillPOS(savedBill, settings, printTab);
@@ -551,7 +563,7 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
         printTab.close();
       }
 
-      if (!initialData && printA4) {
+      if (!initialData && printMode === 'a4') {
         // Print A4 Invoice
         await generateBillPDF(savedBill, settings, 'print');
       }
@@ -1205,32 +1217,33 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t">
           {!initialData && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={printA4}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setPrintA4(checked);
-                    if (checked) setPrintPOS(false);
-                  }}
+                  checked={printMode === 'none'}
+                  onChange={() => handlePrintModeSelect('none')}
                   className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
                 />
-                Print A4 Invoice
+                None
               </label>
               <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={printPOS}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setPrintPOS(checked);
-                    if (checked) setPrintA4(false);
-                  }}
+                  checked={printMode === 'pos'}
+                  onChange={() => handlePrintModeSelect('pos')}
                   className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
                 />
                 Print POS Invoice
+              </label>
+              <label className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={printMode === 'a4'}
+                  onChange={() => handlePrintModeSelect('a4')}
+                  className="h-4 w-4 rounded border-slate-300 text-[#ec4899] focus:ring-[#ec4899] accent-[#ec4899] cursor-pointer"
+                />
+                Print A4 Invoice
               </label>
             </div>
           )}

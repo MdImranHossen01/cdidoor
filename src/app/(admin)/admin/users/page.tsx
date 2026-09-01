@@ -812,16 +812,13 @@ function UsersContent() {
       {/* Assign Admin Modal */}
       <Dialog open={isAssignAdminOpen} onOpenChange={setIsAssignAdminOpen}>
         <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden rounded-3xl border-none shadow-2xl max-h-[90vh] flex flex-col">
-          <div className="bg-blue-600 p-8 text-white relative overflow-hidden shrink-0">
+          <div className="bg-blue-600 px-6 py-5 text-white relative overflow-hidden shrink-0">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full -ml-12 -mb-12 blur-xl" />
 
             <DialogHeader className="relative z-10">
-              <div className="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30">
-                <ShieldCheck className="h-6 w-6 text-white" />
-              </div>
-              <DialogTitle className="text-2xl font-black tracking-tight text-white">{t("users.assign_admin_access")}</DialogTitle>
-              <p className="text-blue-100 text-sm font-medium mt-1">Grant admin access using email or phone number.</p>
+              <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-white">{t("users.assign_admin_access")}</DialogTitle>
+              <p className="text-blue-100 text-xs sm:text-sm font-medium mt-1">Grant admin access using email or phone number.</p>
             </DialogHeader>
           </div>
 
