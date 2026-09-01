@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
         clientThana: defAddress.thana || '',
         clientArea: defAddress.area || '',
         walletBalance: u.walletBalance || 0,
+        role: u.role || 'user',
       };
       if (userRole !== 'showroom_manager') {
         item.clientEmail = u.email || '';

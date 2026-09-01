@@ -94,6 +94,10 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
     clientThana: string;
     clientArea: string;
     walletBalance?: number;
+    role?: string;
+    totalOrders?: number;
+    totalSpent?: number;
+    totalDue?: number;
   }[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<typeof pastCustomers>([]);
   const [phoneSuggestions, setPhoneSuggestions] = useState<typeof pastCustomers>([]);
@@ -319,13 +323,21 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
       const prod = products.find(p => p._id === productId);
       if (!prod) return;
 
+      const isWholesaler = selectedCustomer?.role === 'wholesaler';
+
       if (variantId === null) {
-        newItems.push({ productId: prod._id, name: prod.name, price: prod.salePrice || prod.price || 0, quantity: 1, batchNumber: 'auto' });
+        const itemPrice = isWholesaler
+          ? (prod.wholesaleSalePrice || prod.wholesalePrice || prod.salePrice || prod.price || 0)
+          : (prod.salePrice || prod.price || 0);
+        newItems.push({ productId: prod._id, name: prod.name, price: itemPrice, quantity: 1, batchNumber: 'auto' });
       } else {
         const variant = (prod.variants || []).find((v: any) => v._id === variantId);
         if (!variant) return;
         const label = [prod.name, variant.color, variant.size].filter(Boolean).join(' — ');
-        newItems.push({ productId: prod._id, variantId: variant._id, name: label, price: variant.salePrice || variant.price || 0, quantity: 1, batchNumber: 'auto' });
+        const itemPrice = isWholesaler
+          ? (variant.wholesaleSalePrice || variant.wholesalePrice || variant.salePrice || variant.price || prod.wholesaleSalePrice || prod.wholesalePrice || prod.salePrice || prod.price || 0)
+          : (variant.salePrice || variant.price || 0);
+        newItems.push({ productId: prod._id, variantId: variant._id, name: label, price: itemPrice, quantity: 1, batchNumber: 'auto' });
       }
     });
 
@@ -484,6 +496,16 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Customer Details</h3>
             {selectedCustomer && (
               <div className="flex flex-wrap items-center gap-2 bg-white/95 border border-primary/25 rounded-xl px-3 py-1.5 shadow-xs text-xs">
+                {selectedCustomer.role === 'wholesaler' ? (
+                  <Badge className="bg-purple-100 text-purple-800 border-purple-300 font-bold px-2 py-0.5 text-[11px] uppercase tracking-wide hover:bg-purple-100 shadow-none">
+                    Wholesaler
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-200 font-semibold px-2 py-0.5 text-[11px] uppercase tracking-wide hover:bg-slate-100">
+                    Regular Customer
+                  </Badge>
+                )}
+                <span className="text-slate-300">|</span>
                 <div className="flex items-center gap-1 font-semibold text-slate-700">
                   <ShoppingBag className="h-3.5 w-3.5 text-primary" />
                   <span>Orders: <strong className="text-slate-900 font-bold">{selectedCustomer.totalOrders || 0}</strong></span>
@@ -540,11 +562,18 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                       >
                         <div className="flex justify-between items-center w-full">
                           <span className="font-medium text-sm text-foreground">{c.clientName}</span>
-                          {c.walletBalance !== undefined && c.walletBalance > 0 && (
-                            <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                              ৳{c.walletBalance} Tokens
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {c.role === 'wholesaler' && (
+                              <span className="text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded-sm">
+                                Wholesaler
+                              </span>
+                            )}
+                            {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                              <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                                ৳{c.walletBalance} Tokens
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <span className="text-xs text-muted-foreground">{c.clientPhone}</span>
                       </div>
@@ -585,11 +614,18 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
                         >
                           <div className="flex justify-between items-center w-full">
                             <span className="font-medium text-sm text-foreground">{c.clientPhone}</span>
-                            {c.walletBalance !== undefined && c.walletBalance > 0 && (
-                              <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                                ৳{c.walletBalance} Tokens
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1">
+                              {c.role === 'wholesaler' && (
+                                <span className="text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 px-1.5 py-0.2 rounded-sm">
+                                  Wholesaler
+                                </span>
+                              )}
+                              {c.walletBalance !== undefined && c.walletBalance > 0 && (
+                                <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                                  ৳{c.walletBalance} Tokens
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <span className="text-xs text-muted-foreground">{c.clientName}</span>
                         </div>
