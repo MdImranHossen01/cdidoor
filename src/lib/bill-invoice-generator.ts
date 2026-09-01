@@ -425,12 +425,18 @@ export async function generateBillPDF(bill: any, settings: any, mode: 'download'
                     <span>৳${Math.round(bill.gTotal || 0)}</span>
                   </div>
                   <div class="total-row">
-                    <span>Paid Amount:</span>
-                    <span>৳${Math.round(bill.cashIn || 0)}</span>
+                    <span>Cash Received:</span>
+                    <span>৳${Math.round(bill.cashIn || 0).toLocaleString()}</span>
                   </div>
+                  ${(bill.cashIn || 0) > (bill.gTotal || 0) ? `
+                    <div class="total-row" style="color: #059669; font-weight: 700;">
+                      <span>Change Return:</span>
+                      <span>৳${Math.round((bill.cashIn || 0) - (bill.gTotal || 0)).toLocaleString()}</span>
+                    </div>
+                  ` : ''}
                   <div class="total-row highlight" style="${bill.currentBillDue > 0 ? 'color: #ef4444;' : 'color: var(--primary);'}">
                     <span>Remaining Due:</span>
-                    <span>৳${Math.round(bill.currentBillDue || 0)}</span>
+                    <span>৳${Math.round(bill.currentBillDue || 0).toLocaleString()}</span>
                   </div>
                 ` : ''}
               </div>

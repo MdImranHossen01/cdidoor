@@ -1,51 +1,5 @@
 import { format, isValid } from 'date-fns';
 
-function generateBarcodeHtml(value: string): string {
-  const CODE39_MAP: Record<string, string> = {
-    '0': '000110100', '1': '100100001', '2': '001100001', '3': '101100000',
-    '4': '000110001', '5': '100110000', '6': '001110000', '7': '000100101',
-    '8': '100100100', '9': '001100100', 'A': '100001001', 'B': '001001001',
-    'C': '101001000', 'D': '000011001', 'E': '100011000', 'F': '001011000',
-    'G': '000001101', 'H': '100001100', 'I': '001001100', 'J': '000011100',
-    'K': '100000011', 'L': '001000011', 'M': '101000010', 'N': '000010011',
-    'O': '100010010', 'P': '001010010', 'Q': '000000111', 'R': '100000110',
-    'S': '001000110', 'T': '000010110', 'U': '110000001', 'V': '011000001',
-    'W': '111000000', 'X': '010010001', 'Y': '110010000', 'Z': '011010000',
-    '-': '010000101', '.': '110000100', ' ': '011000100', '*': '010010100',
-  };
-
-  const clean = value.trim().toUpperCase().replace(/[^0-9A-Z\-\.\ ]/g, '');
-  const encoded = `*${clean}*`;
-
-  let totalWidth = 0;
-  for (const char of encoded) {
-    const pat = CODE39_MAP[char] || CODE39_MAP['*'];
-    for (let j = 0; j < 9; j++) {
-      const isWide = pat[j] === '1';
-      totalWidth += isWide ? 3 : 1;
-    }
-    totalWidth += 1;
-  }
-
-  let svgHtml = `<svg viewBox="0 0 ${totalWidth} 35" width="100%" height="35" xmlns="http://www.w3.org/2000/svg" style="max-width: 220px; display: block; margin: 0 auto; shape-rendering: crispEdges;" shape-rendering="crispEdges">`;
-  let currentX = 0;
-  for (const char of encoded) {
-    const pat = CODE39_MAP[char] || CODE39_MAP['*'];
-    for (let j = 0; j < 9; j++) {
-      const isBar = j % 2 === 0;
-      const isWide = pat[j] === '1';
-      const width = isWide ? 3 : 1;
-      if (isBar) {
-        svgHtml += `<rect x="${currentX}" y="0" width="${width}" height="35" fill="#000000" />`;
-      }
-      currentX += width;
-    }
-    currentX += 1;
-  }
-  svgHtml += `</svg>`;
-  return svgHtml;
-}
-
 export async function printBillPOS(bill: any, settings: any, targetWindow?: Window | null): Promise<void> {
   const brandName = settings?.brandName || process.env.NEXT_PUBLIC_STORE_NAME || "Store";
   const brandEmail = settings?.contact?.email || "";
@@ -57,8 +11,11 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
   if (docType === 'offer') title = "QUOTATION";
   else if (docType === 'chalan') title = "CHALLAN";
 
-  const dateVal = bill.createdAt ? new Date(bill.createdAt) : new Date();
+  const dateVal = bill.createdAt ? new Date(bill.createdAt) : (bill.date ? new Date(bill.date) : new Date());
   const formattedDate = isValid(dateVal) ? format(dateVal, 'dd/MM/yyyy hh:mm a') : 'N/A';
+
+  const invoiceNo = bill.invoiceNo || 'INV-0000';
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(invoiceNo)}`;
 
   const items = Array.isArray(bill.items) ? bill.items : [];
 
@@ -110,61 +67,60 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             text-align: center;
           }
           .brand-name {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 2px;
             letter-spacing: 0.5px;
+            margin-bottom: 2px;
           }
           .brand-details {
-            font-size: 9px;
+            font-size: 9.5px;
             color: #333;
+            line-height: 1.3;
             margin-bottom: 4px;
           }
           .title-box {
-            border: 1px solid #000;
-            padding: 2px 6px;
-            font-weight: 900;
-            font-size: 11px;
             display: inline-block;
-            margin: 4px 0;
+            border: 1px solid #000;
+            padding: 1px 8px;
+            font-size: 10px;
+            font-weight: 700;
             text-transform: uppercase;
-          }
-          .barcode-box {
-            text-align: center;
-            margin: 3px 0 6px 0;
+            letter-spacing: 1px;
+            margin: 4px 0 2px 0;
           }
           .divider {
             border-top: 1px dashed #000;
-            margin: 5px 0;
+            margin: 6px 0;
           }
           .info-table {
             width: 100%;
-            font-size: 10.5px;
-            margin-bottom: 5px;
+            font-size: 10px;
+            margin-bottom: 4px;
           }
           .info-table td {
-            padding: 1.5px 0;
+            padding: 1px 0;
             vertical-align: top;
           }
           .info-label {
-            font-weight: 700;
-            width: 75px;
+            width: 65px;
+            color: #444;
           }
           .items-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 10px;
-            margin-bottom: 5px;
+            margin: 4px 0;
           }
           .items-table th {
+            border-top: 1px dashed #000;
             border-bottom: 1px dashed #000;
-            text-align: left;
-            padding: 4px 0;
+            padding: 3px 0;
             font-weight: 700;
+            text-align: left;
           }
           .items-table td {
-            padding: 4px 0;
+            padding: 3px 0;
             vertical-align: top;
           }
           .text-right {
@@ -207,8 +163,9 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             ${brandEmail ? `<div>Email: ${brandEmail}</div>` : ''}
           </div>
           <div class="title-box">${title}</div>
-          <div class="barcode-box">
-            ${generateBarcodeHtml(bill.invoiceNo || 'INV-0000')}
+          <div class="qr-box" style="margin: 6px auto 3px auto; text-align: center;">
+            <img src="${qrCodeUrl}" alt="QR Code" style="width: 80px; height: 80px; display: block; margin: 0 auto;" />
+            <div style="font-size: 9.5px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px; margin-top: 1px;">${invoiceNo}</div>
           </div>
         </div>
 
@@ -301,11 +258,17 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
             </tr>
             <tr>
               <td class="summary-label">Cash Received:</td>
-              <td class="text-right" style="color: green; font-weight: 700;">৳${cashIn.toLocaleString()}</td>
+              <td class="text-right" style="font-weight: 700;">৳${cashIn.toLocaleString()}</td>
             </tr>
+            ${cashIn > gTotal ? `
+              <tr>
+                <td class="summary-label" style="color: #059669; font-weight: 700;">Change Return:</td>
+                <td class="text-right" style="color: #059669; font-weight: 900; font-size: 11px;">৳${(cashIn - gTotal).toLocaleString()}</td>
+              </tr>
+            ` : ''}
             <tr>
               <td class="summary-label">Remaining Due:</td>
-              <td class="text-right" style="color: red; font-weight: 700;">৳${currentBillDue.toLocaleString()}</td>
+              <td class="text-right" style="color: ${currentBillDue > 0 ? 'red' : '#059669'}; font-weight: 700;">৳${currentBillDue.toLocaleString()}</td>
             </tr>
           ` : `
             <tr>

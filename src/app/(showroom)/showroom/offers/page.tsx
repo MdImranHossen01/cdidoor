@@ -164,9 +164,6 @@ function ClientOffersContent() {
     setClientArea(customer.clientArea || '');
     setShowNameDropdown(false);
     setShowPhoneDropdown(false);
-    if (customer.clientEmail || customer.clientDivision || customer.clientDistrict || customer.clientThana || customer.clientArea || customer.clientAddress) {
-      setShowMoreFields(true);
-    }
   };
 
   const handleNameChange = (val: string) => {

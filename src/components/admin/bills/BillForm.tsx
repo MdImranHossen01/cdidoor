@@ -983,6 +983,14 @@ export function BillForm({ initialData = null }: { initialData?: any }) {
               </div>
             </div>
 
+            {/* Change Return Alert when cashIn > gTotal */}
+            {cashIn > gTotal && (
+              <div className="flex items-center justify-between border-t pt-2 font-bold text-base text-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-800">
+                <span>Change Return (ফেরত):</span>
+                <span className="text-lg font-extrabold text-emerald-700">৳{(cashIn - gTotal).toLocaleString()}</span>
+              </div>
+            )}
+
             <div className="flex justify-between border-t pt-2 font-bold text-base text-destructive">
               <span>{t("bills.remaining_due_label")}:</span>
               <span>৳{currentBillDue.toLocaleString()}</span>
