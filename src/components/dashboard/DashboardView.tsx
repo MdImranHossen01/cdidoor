@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/chart";
 import { format, subDays, parseISO, isAfter, startOfToday } from 'date-fns';
 
-const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
+const CustomTooltip = ({ active, payload, label, activeChart, t }: any) => {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload;
@@ -65,22 +65,22 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
   let formatValue = (val: number) => '';
 
   if (activeChart === 'revenue') {
-    metricLabel = 'Revenue';
+    metricLabel = t ? (t('dashboard.revenue') || 'Revenue') : 'Revenue';
     metricColorClass = 'text-primary';
     getValue = (vals: any) => vals.revenue || 0;
     formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'orders') {
-    metricLabel = 'Sales';
+    metricLabel = t ? (t('dashboard.sales') || 'Sales') : 'Sales';
     metricColorClass = 'text-orange-600';
     getValue = (vals: any) => vals.orders || 0;
     formatValue = (val: number) => val.toLocaleString();
   } else if (activeChart === 'expense') {
-    metricLabel = 'Expense';
+    metricLabel = t ? (t('dashboard.expense') || 'Expense') : 'Expense';
     metricColorClass = 'text-red-600';
     getValue = (vals: any) => vals.expense || 0;
     formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
   } else if (activeChart === 'netIncome') {
-    metricLabel = 'Net Income';
+    metricLabel = t ? (t('dashboard.net_income') || 'Net Income') : 'Net Income';
     metricColorClass = 'text-green-600';
     getValue = (vals: any) => (vals.revenue || 0) - (vals.expense || 0);
     formatValue = (val: number) => `৳${Math.round(val).toLocaleString()}`;
@@ -99,7 +99,7 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b text-muted-foreground font-semibold">
-              <th className="py-1">Showroom</th>
+              <th className="py-1">{t ? (t('dashboard.showroom') || 'Showroom') : 'Showroom'}</th>
               <th className="py-1 text-right">{metricLabel}</th>
             </tr>
           </thead>
@@ -107,7 +107,7 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
             {activeShowroomsList.length === 0 ? (
               <tr>
                 <td colSpan={2} className="py-2 text-center text-muted-foreground italic">
-                  No {metricLabel.toLowerCase()} data
+                  {t ? (t('dashboard.no_data') || 'No data') : `No ${metricLabel.toLowerCase()} data`}
                 </td>
               </tr>
             ) : (
@@ -123,7 +123,7 @@ const CustomTooltip = ({ active, payload, label, activeChart }: any) => {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-double border-muted font-bold text-foreground bg-muted/30">
-              <td className="py-2 px-1">Total</td>
+              <td className="py-2 px-1">{t ? (t('dashboard.total') || 'Total') : 'Total'}</td>
               <td className={`py-2 text-right ${metricColorClass}`}>
                 {formatValue(
                   activeChart === 'revenue' ? data.revenue :
@@ -447,7 +447,7 @@ const [dateRange, setDateRange] = useState({
         {/* Title & Filters Row */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b pb-2 md:pb-4">
           <h2 className="hidden md:block text-xl md:text-3xl font-bold tracking-tight whitespace-nowrap">
-            {activeTab === 'report' ? 'Report' : activeTab === 'insight' ? 'Insight' : t("dashboard.overview")}
+            {activeTab === 'report' ? (t("sidebar.report") || 'Report') : activeTab === 'insight' ? (t("sidebar.insight") || 'Insight') : t("dashboard.overview")}
           </h2>
           {/* Mobile buttons */}
           <div className="flex items-center gap-2 w-full md:hidden">
@@ -462,7 +462,7 @@ const [dateRange, setDateRange] = useState({
                 className={`h-9 px-3 flex-1 ${showMobileFilters ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
               >
                 <Filter className="mr-1.5 h-4 w-4" />
-                <span className="text-xs font-bold">Filter</span>
+                <span className="text-xs font-bold">{t("dashboard.filter") || "Filter"}</span>
               </Button>
             )}
           </div>
@@ -474,15 +474,15 @@ const [dateRange, setDateRange] = useState({
               <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-lg border">
                 <div className="flex items-center gap-1 px-2 shrink-0">
                   <Store className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Showroom</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{t("dashboard.showroom") || "Showroom"}</span>
                 </div>
                 <select
                   value={selectedShowroom}
                   onChange={(e) => setSelectedShowroom(e.target.value)}
                   className="h-8 bg-transparent text-xs border-none outline-none cursor-pointer pr-2 font-medium"
                 >
-                  <option value="all">All Showrooms</option>
-                  <option value="online">🌐 Online / Central</option>
+                  <option value="all">{t("dashboard.all_showrooms") || "All Showrooms"}</option>
+                  <option value="online">{t("dashboard.online_central") || "🌐 Online / Central"}</option>
                   {showroomsList.map(s => (
                     <option key={s._id} value={s._id}>{s.name}</option>
                   ))}
@@ -495,7 +495,7 @@ const [dateRange, setDateRange] = useState({
               <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border">
                 <div className="flex items-center gap-1 px-2 shrink-0">
                   <Filter className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Range</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{t("dashboard.range") || "Range"}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Input
@@ -505,7 +505,7 @@ const [dateRange, setDateRange] = useState({
                     onChange={(e) => handleDateChange('from', e.target.value)}
                     max={format(new Date(), 'yyyy-MM-dd')}
                   />
-                  <span className="text-muted-foreground text-[10px] shrink-0">to</span>
+                  <span className="text-muted-foreground text-[10px] shrink-0">{t("dashboard.to") || "to"}</span>
                   <Input
                     type="date"
                     className="h-8 w-32 border-none bg-transparent focus-visible:ring-0 cursor-pointer text-xs p-1"
@@ -519,7 +519,7 @@ const [dateRange, setDateRange] = useState({
 
             {/* Refresh */}
             <Button variant="outline" size="sm" onClick={fetchStats} className="h-8 px-3 text-xs font-bold">
-              {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Refresh'}
+              {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (t("dashboard.refresh") || "Refresh")}
             </Button>
 
             {/* Active filter badge */}
@@ -527,8 +527,8 @@ const [dateRange, setDateRange] = useState({
               <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 <Store className="h-2.5 w-2.5" />
                 {selectedShowroom === 'online'
-                  ? '🌐 Online / Central'
-                  : showroomsList.find(s => s._id === selectedShowroom)?.name || 'Showroom'}
+                  ? (t("dashboard.online_central") || '🌐 Online / Central')
+                  : showroomsList.find(s => s._id === selectedShowroom)?.name || (t("dashboard.showroom") || 'Showroom')}
               </span>
             )}
           </div>
@@ -547,15 +547,15 @@ const [dateRange, setDateRange] = useState({
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground border-b pb-1">
                   <Store className="h-3 w-3" />
-                  <span>SHOWROOM FILTER</span>
+                  <span>{t("dashboard.showroom_filter") || "SHOWROOM FILTER"}</span>
                 </div>
                 <select
                   value={selectedShowroom}
                   onChange={(e) => setSelectedShowroom(e.target.value)}
                   className="h-9 w-full bg-background text-xs border rounded-md px-2 outline-none cursor-pointer font-medium"
                 >
-                  <option value="all">All Showrooms</option>
-                  <option value="online">🌐 Online / Central</option>
+                  <option value="all">{t("dashboard.all_showrooms") || "All Showrooms"}</option>
+                  <option value="online">{t("dashboard.online_central") || "🌐 Online / Central"}</option>
                   {showroomsList.map(s => (
                     <option key={s._id} value={s._id}>{s.name}</option>
                   ))}
@@ -565,11 +565,11 @@ const [dateRange, setDateRange] = useState({
             {activeTab !== 'cards' && (
               <>
                 <div className="flex items-center justify-between text-xs font-bold text-muted-foreground border-b pb-1">
-                  <span>DATE FILTER</span>
+                  <span>{t("dashboard.date_filter") || "DATE FILTER"}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground font-semibold">From</span>
+                    <span className="text-[10px] text-muted-foreground font-semibold">{t("dashboard.from") || "From"}</span>
                     <Input
                       type="date"
                       className="h-9 w-full bg-background text-xs"
@@ -579,7 +579,7 @@ const [dateRange, setDateRange] = useState({
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground font-semibold">To</span>
+                    <span className="text-[10px] text-muted-foreground font-semibold">{t("dashboard.to") || "To"}</span>
                     <Input
                       type="date"
                       className="h-9 w-full bg-background text-xs"
@@ -608,7 +608,7 @@ const [dateRange, setDateRange] = useState({
                 </span>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
-                Pending Orders
+                {t("dashboard.pending_orders")}
               </span>
             </div>
             {/* Desktop Layout */}
@@ -635,17 +635,17 @@ const [dateRange, setDateRange] = useState({
                   {stats?.pendingExpenseCount || 0}
                 </span>
                 <div className="text-xs font-bold text-red-600 leading-none">
-                  Total: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}
+                  {t("dashboard.total") || "Total"}: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}
                 </div>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
-                Pending Expenses
+                {t("dashboard.pending_expenses") || "Pending Expenses"}
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">Pending Expenses</CardTitle>
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.pending_expenses") || "Pending Expenses"}</CardTitle>
                 <Receipt className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
@@ -653,7 +653,7 @@ const [dateRange, setDateRange] = useState({
                   {stats?.pendingExpenseCount || 0}
                 </div>
                 <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-red-600 truncate">
-                  <span>Total: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}</span>
+                  <span>{t("dashboard.total") || "Total"}: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </div>
@@ -675,7 +675,7 @@ const [dateRange, setDateRange] = useState({
               </span>
             
               <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
-                <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
               </Button>
             </div>
             {/* Desktop Layout */}
@@ -689,10 +689,10 @@ const [dateRange, setDateRange] = useState({
                   ৳{Math.round(stats?.cashBalance || 0).toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {selectedShowroom === 'all' ? t("dashboard.physical_cash_on_hand") : selectedShowroom === 'online' ? 'Online/central cash flow' : 'Showroom net cash flow'}
+                  {selectedShowroom === 'all' ? t("dashboard.physical_cash_on_hand") : selectedShowroom === 'online' ? (t("dashboard.online_cash_flow") || 'Online/central cash flow') : (t("dashboard.showroom_cash_flow") || 'Showroom net cash flow')}
                 </p>
-                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
-                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
+                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
                 </Button>
               </CardContent>
             </div>
@@ -723,7 +723,7 @@ const [dateRange, setDateRange] = useState({
               </span>
             
               <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
-                <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
               </Button>
             </div>
             {/* Desktop Layout */}
@@ -746,11 +746,11 @@ const [dateRange, setDateRange] = useState({
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? 'Online/central bank flow' : 'Showroom net bank flow'}
+                    {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? (t("dashboard.online_bank_flow") || 'Online/central bank flow') : (t("dashboard.showroom_bank_flow") || 'Showroom net bank flow')}
                   </p>
                 )}
-                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
-                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
+                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
                 </Button>
               </CardContent>
             </div>
@@ -777,17 +777,17 @@ const [dateRange, setDateRange] = useState({
                 )}
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
-                MFS Balance
+                {t("dashboard.mfs_balance") || "MFS Balance"}
               </span>
             
               <Button size="sm" variant="outline" className="mt-2 h-7 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
-                <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
               </Button>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">MFS Balance</CardTitle>
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.mfs_balance") || "MFS Balance"}</CardTitle>
                 <Wallet className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
@@ -804,11 +804,11 @@ const [dateRange, setDateRange] = useState({
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground mt-1 truncate">
-                    Total MFS accounts balance
+                    {t("dashboard.all_mfs_balance") || "Total MFS accounts balance"}
                   </p>
                 )}
-                              <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
-                  <Plus className="h-3 w-3 mr-1" /> Add Balance
+                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
+                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
                 </Button>
               </CardContent>
             </div>
@@ -826,15 +826,15 @@ const [dateRange, setDateRange] = useState({
                 </span>
                 <div className="flex flex-col items-center gap-1 mt-1">
                   <div className="text-xs font-bold text-zinc-600 leading-none">
-                    Wholesaler: ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()}
-                    <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span>
+                    {t("dashboard.wholesalers") || "Wholesaler"}: ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()}
+                    <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span>
                   </div>
                   <div className="text-xs font-bold text-zinc-600 leading-none">
-                    General: ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()}
-                    <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span>
+                    {t("dashboard.general") || "General"}: ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()}
+                    <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span>
                   </div>
                   <div className="text-xs font-bold text-rose-600 leading-none mt-0.5">
-                    Total Matured: ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}
+                    {t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -853,9 +853,9 @@ const [dateRange, setDateRange] = useState({
                   ৳{Math.round(stats?.accountReceivable || 0).toLocaleString()}
                 </div>
                 <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
-                  <span>Wholesaler Due: ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span></span>
-                  <span>General Due: ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">(Matured: ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span></span>
-                  <span className="text-rose-600 mt-1 font-bold">Total Matured: ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}</span>
+                  <span>{t("dashboard.wholesaler_due") || "Wholesaler Due:"} ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span></span>
+                  <span>{t("dashboard.general_due") || "General Due:"} ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span></span>
+                  <span className="text-rose-600 mt-1 font-bold">{t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </div>
@@ -873,15 +873,15 @@ const [dateRange, setDateRange] = useState({
                 </span>
                 <div className="flex flex-col items-center gap-1 mt-1">
                   <div className="text-[11px] font-bold text-zinc-600 leading-none">
-                    Supplier: ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
-                    <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span>
+                    {t("sidebar.suppliers") || "Supplier"}: ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()}
+                    <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span>
                   </div>
                   <div className="text-[11px] font-bold text-zinc-600 leading-none">
-                    Loan: ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()}
-                    <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span>
+                    {t("sidebar.loan") || "Loan"}: ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()}
+                    <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span>
                   </div>
                   <div className="text-[11px] font-bold text-red-600 leading-none mt-0.5">
-                    Total Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}
+                    {t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -900,9 +900,9 @@ const [dateRange, setDateRange] = useState({
                   ৳{Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toLocaleString()}
                 </div>
                 <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
-                  <span>Supplier Due: ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span></span>
-                  <span>Business Loan: ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">(Matured: ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span></span>
-                  <span className="text-red-600 mt-1 font-bold">Total Matured: ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}</span>
+                  <span>{t("dashboard.supplier_due") || "Supplier Due:"} ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span></span>
+                  <span>{t("dashboard.business_loan") || "Business Loan:"} ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span></span>
+                  <span className="text-red-600 mt-1 font-bold">{t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </div>
@@ -920,20 +920,20 @@ const [dateRange, setDateRange] = useState({
                 </span>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
-                Total Suppliers
+                {t("dashboard.total_suppliers") || "Total Suppliers"}
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">Total Suppliers</CardTitle>
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.total_suppliers") || "Total Suppliers"}</CardTitle>
                 <Users className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 <div className="text-lg md:text-2xl font-extrabold text-primary">
                   {stats?.totalSuppliersCount || 0}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">Total registered suppliers</p>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.total_registered_suppliers") || "Total registered suppliers"}</p>
               </CardContent>
             </div>
           </Card>
@@ -949,7 +949,7 @@ const [dateRange, setDateRange] = useState({
                   {stats?.totalUsers || 0}
                 </span>
                 <div className="text-xs font-bold text-zinc-600 leading-none">
-                  Wholesaler: {stats?.wholesalersCount || 0} | General: {stats?.generalUsersCount || 0}
+                  {t("dashboard.wholesalers") || "Wholesaler"}: {stats?.wholesalersCount || 0} | {t("dashboard.general") || "General"}: {stats?.generalUsersCount || 0}
                 </div>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
@@ -965,7 +965,7 @@ const [dateRange, setDateRange] = useState({
               <CardContent className="p-6 pt-0">
                 <div className="text-lg md:text-2xl font-extrabold text-primary">{stats?.totalUsers || 0}</div>
                 <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-muted-foreground truncate">
-                  <span>Wholesalers: {stats?.wholesalersCount || 0}, General: {stats?.generalUsersCount || 0}</span>
+                  <span>{t("dashboard.wholesalers") || "Wholesalers"}: {stats?.wholesalersCount || 0}, {t("dashboard.general") || "General"}: {stats?.generalUsersCount || 0}</span>
                 </div>
               </CardContent>
             </div>
@@ -1012,7 +1012,7 @@ const [dateRange, setDateRange] = useState({
                   {stats?.expiringProductsCount || 0}
                 </span>
                 <span className="text-[9px] text-rose-600 font-bold leading-none">
-                  Expired: {stats?.expiredProductsCount || 0}
+                  {t("dashboard.expired") || "Expired"}: {stats?.expiredProductsCount || 0}
                 </span>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
@@ -1031,7 +1031,7 @@ const [dateRange, setDateRange] = useState({
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 truncate">
                   {t("dashboard.expiring_products")}
-                  <span className="text-rose-600 font-bold ml-2">(Expired: {stats?.expiredProductsCount || 0})</span>
+                  <span className="text-rose-600 font-bold ml-2">({t("dashboard.expired") || "Expired"}: {stats?.expiredProductsCount || 0})</span>
                 </p>
               </CardContent>
             </div>
@@ -1049,20 +1049,20 @@ const [dateRange, setDateRange] = useState({
                 </span>
               </div>
               <span className="text-sm font-bold text-zinc-800 leading-tight mt-auto">
-                Leave Requests
+                {t("dashboard.leave_requests") || "Leave Requests"}
               </span>
             </div>
             {/* Desktop Layout */}
             <div className="hidden sm:block">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">Leave Requests</CardTitle>
+                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.leave_requests") || "Leave Requests"}</CardTitle>
                 <CalendarClock className="h-4 w-4 text-primary shrink-0" />
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 <div className="text-lg md:text-2xl font-extrabold text-primary font-body">
                   {stats?.pendingLeavesCount || 0}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">Pending leave requests</p>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.pending_leave_requests") || "Pending leave requests"}</p>
               </CardContent>
             </div>
           </Card>
@@ -1087,7 +1087,10 @@ const [dateRange, setDateRange] = useState({
                     onClick={() => setActiveChart(key as any)}
                   >
                     <span className="text-[9px] sm:text-xs text-muted-foreground group-data-[active=true]:text-white/80 whitespace-nowrap">
-                      {chartConfig[key].label}
+                      {key === 'revenue' ? (t("dashboard.revenue") || 'Revenue') :
+                       key === 'orders' ? (t("dashboard.total_sales") || 'Total Sales') :
+                       key === 'expense' ? (t("dashboard.expense") || 'Expense') :
+                       (t("dashboard.net_income") || 'Net Income')}
                     </span>
                     <span className="text-xs sm:text-base md:text-2xl leading-none font-bold">
                       {key === 'orders' ? total[key].toLocaleString() : `৳${total[key].toLocaleString()}`}
@@ -1163,14 +1166,14 @@ const [dateRange, setDateRange] = useState({
                   />
                   <Tooltip
                     cursor={{ strokeDasharray: '3 3', opacity: 0.5 }}
-                    content={<CustomTooltip activeChart={activeChart} />}
+                    content={<CustomTooltip activeChart={activeChart} t={t} />}
                     isAnimationActive={false}
                   />
                   {/* Reference Line for Average */}
                   <ReferenceLine
                     y={total[activeChart] / (processedChartData?.length || 1)}
                     label={{
-                      value: 'Avg',
+                      value: t("dashboard.average") || 'Avg',
                       position: 'insideRight',
                       fill: activeChart === "revenue" ? 'var(--primary)' :
                         activeChart === "orders" ? '#fb923c' :

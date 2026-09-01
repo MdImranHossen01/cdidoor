@@ -53,14 +53,14 @@ export default function AdminTopbar() {
           </Button>
         )}
         <div className="font-bold text-lg truncate">
-          {getPageTitle(pathname)}
+          {getPageTitle(pathname, t)}
         </div>
       </div>
 
       {/* Mobile Center - Page Title */}
       <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none z-0">
         <div className="font-bold text-lg truncate px-12">
-          {getPageTitle(pathname)}
+          {getPageTitle(pathname, t)}
         </div>
       </div>
 

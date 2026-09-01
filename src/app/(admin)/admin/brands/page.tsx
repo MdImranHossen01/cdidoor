@@ -47,7 +47,6 @@ const brandSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   slug: z.string().optional(),
   image: z.string().optional(),
-  parentBrand: z.string().optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -67,7 +66,6 @@ export default function BrandsPage() {
       name: '',
       slug: '',
       image: '',
-      parentBrand: '',
       isActive: true,
     },
   });
@@ -95,10 +93,6 @@ export default function BrandsPage() {
   const onSubmit = async (values: BrandFormValues) => {
     setSubmitting(true);
     try {
-      const payload = {
-        ...values,
-        parentBrand: (values.parentBrand === 'none' || !values.parentBrand) ? null : values.parentBrand
-      };
       const url = editingBrand
         ? `/api/brands/${editingBrand._id}`
         : '/api/brands';
@@ -107,7 +101,7 @@ export default function BrandsPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(values),
       });
 
       if (response.ok) {
@@ -133,7 +127,6 @@ export default function BrandsPage() {
       name: brand.name,
       slug: brand.slug,
       image: brand.image || '',
-      parentBrand: brand.parentBrand?._id || brand.parentBrand || '',
       isActive: brand.isActive,
     });
     setOpen(true);
@@ -279,7 +272,6 @@ export default function BrandsPage() {
                 <TableHead className="w-[100px]">{t("brands.image")}</TableHead>
                 <TableHead>{t("brands.name")}</TableHead>
                 <TableHead>{t("brands.slug")}</TableHead>
-                <TableHead>{t("brands.parent")}</TableHead>
                 <TableHead>{t("brands.status")}</TableHead>
                 <TableHead className="text-right">{t("brands.actions")}</TableHead>
               </TableRow>
@@ -291,7 +283,6 @@ export default function BrandsPage() {
                     <TableCell><Skeleton className="h-10 w-10 rounded-md" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-32 rounded" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24 rounded" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-20 rounded" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -323,13 +314,6 @@ export default function BrandsPage() {
                     </TableCell>
                     <TableCell className="font-medium">{brand.name}</TableCell>
                     <TableCell>{brand.slug}</TableCell>
-                    <TableCell>
-                      {brand.parentBrand ? (
-                        <Badge variant="outline">{brand.parentBrand.name || 'Parent'}</Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
-                      )}
-                    </TableCell>
                     <TableCell>
                       <Badge variant={brand.isActive ? 'default' : 'secondary'}>
                         {brand.isActive ? t("brands.active") : t("brands.inactive")}
@@ -403,13 +387,6 @@ export default function BrandsPage() {
                   {brand.isActive ? t("brands.active") : t("brands.inactive")}
                 </Badge>
               </div>
-
-              {brand.parentBrand && (
-                <div className="flex items-center justify-between border-t border-border/30 pt-2 text-xs">
-                  <span className="text-muted-foreground">{t("brands.parent") || "Parent"}:</span>
-                  <Badge variant="outline">{brand.parentBrand.name || 'Parent'}</Badge>
-                </div>
-              )}
 
               <div className="flex items-center justify-end gap-2 border-t border-border/30 pt-2 mt-1">
                 <Button

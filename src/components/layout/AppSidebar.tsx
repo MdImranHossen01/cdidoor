@@ -61,10 +61,12 @@ const data = {
         },
         {
           title: "Report",
+          tKey: "sidebar.report",
           url: "/admin/dashboard/report",
         },
         {
           title: "Insight",
+          tKey: "sidebar.insight",
           url: "/admin/dashboard/insight",
         }
       ],
