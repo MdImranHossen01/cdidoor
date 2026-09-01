@@ -81,8 +81,20 @@ export async function PATCH(req: NextRequest) {
         if (status) updateObj.status = status;
         if (paymentStatus) updateObj.paymentStatus = paymentStatus;
 
+        const existingOrder = await Order.findById(id).session(dbSession);
+        if (!existingOrder) continue;
+
+        if (status === 'Cancelled' && existingOrder.status !== 'Cancelled') {
+          const { restockOrderItems } = await import('@/lib/orderStockHelper');
+          await restockOrderItems(existingOrder, dbSession);
+          updateObj.isSalesCounted = false;
+        } else if (existingOrder.status === 'Cancelled' && status && status !== 'Cancelled') {
+          const { deductOrderItems } = await import('@/lib/orderStockHelper');
+          await deductOrderItems(existingOrder, dbSession);
+        }
+
         let order;
-        if (becomesValid) {
+        if (becomesValid && status !== 'Cancelled') {
           // Atomic check-then-set for isSalesCounted to prevent race conditions
           order = await Order.findOneAndUpdate(
             { _id: id, isSalesCounted: { $ne: true } },

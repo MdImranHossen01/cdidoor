@@ -203,9 +203,19 @@ export async function PATCH(
         updateData.totalAmount = itemsTotal + finalDeliveryCharge;
       }
 
-      // 1. Handle Sales Counting logic (Atomic-like within transaction)
+      // 1. Handle Automatic Stock Restocking / Deduction on Status Change
+      if (status === 'Cancelled' && order.status !== 'Cancelled') {
+        const { restockOrderItems } = await import('@/lib/orderStockHelper');
+        await restockOrderItems(order, dbSession);
+        updateData.isSalesCounted = false;
+      } else if (order.status === 'Cancelled' && status && status !== 'Cancelled') {
+        const { deductOrderItems } = await import('@/lib/orderStockHelper');
+        await deductOrderItems(order, dbSession);
+      }
+
+      // 2. Handle Sales Counting logic (Atomic-like within transaction)
       const saleBecomingValid = ['Confirmed', 'Paid', 'Delivered'].includes(status || order.status);
-      if (saleBecomingValid && !order.isSalesCounted) {
+      if (saleBecomingValid && !order.isSalesCounted && (status !== 'Cancelled')) {
         const Product = (await import('@/models/Product')).default;
         for (const item of order.items) {
           await Product.updateOne(
@@ -337,11 +347,18 @@ export async function DELETE(
     }
 
     await connectToDatabase();
-    const deletedOrder = await Order.findOneAndDelete({ _id: slug });
+    const orderToDelete = await Order.findById(slug);
 
-    if (!deletedOrder) {
+    if (!orderToDelete) {
       return NextResponse.json({ message: 'Order not found' }, { status: 404 });
     }
+
+    if (orderToDelete.status !== 'Cancelled') {
+      const { restockOrderItems } = await import('@/lib/orderStockHelper');
+      await restockOrderItems(orderToDelete);
+    }
+
+    await Order.findByIdAndDelete(slug);
 
     return NextResponse.json({ message: 'Order deleted successfully' });
   } catch (error) {

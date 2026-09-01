@@ -1397,11 +1397,11 @@ const translations = {
     "accounts.edit": "Edit",
     "accounts.delete": "Delete",
 
-    "returns.search_title": "Search Invoice (Bill or Online Order)",
+    "returns.search_title": "Search Invoice (Bill or Delivered Online Order)",
     "returns.search_placeholder": "Enter Invoice No or Order ID (e.g., INV-12345, 63C8A2)",
     "returns.search_button": "Search",
     "returns.searching": "Searching...",
-    "returns.note": "Note: Products sold through a Client Bill or Online Order can be returned.",
+    "returns.note": "Note: Products sold through a Client Bill or Delivered Online Order can be returned. For undelivered orders, please cancel the order from the Orders list.",
 
     "store.nav.home": "Home",
     "store.nav.shop": "Shop",
@@ -1918,11 +1918,11 @@ const translations = {
     "accounts.edit": "এডিট",
     "accounts.delete": "ডিলিট",
 
-    "returns.search_title": "ইনভয়েস খুঁজুন (বিল অথবা অনলাইন অর্ডার)",
+    "returns.search_title": "ইনভয়েস খুঁজুন (বিল অথবা ডেলিভার্ড অনলাইন অর্ডার)",
     "returns.search_placeholder": "ইনভয়েস নং বা অর্ডার আইডি লিখুন (যেমন: INV-12345, 63C8A2)",
     "returns.search_button": "খুঁজুন",
     "returns.searching": "খোঁজা হচ্ছে...",
-    "returns.note": "দ্রষ্টব্য: কাস্টমার বিল বা অনলাইন অর্ডারের মাধ্যমে বিক্রি হওয়া পণ্য ফেরত দেওয়া যাবে।",
+    "returns.note": "দ্রষ্টব্য: কাস্টমার বিল বা ডেলিভার্ড হওয়া অনলাইন অর্ডারের পণ্য ফেরত দেওয়া যাবে। আন-ডেলিভার্ড অর্ডার বাতিল করতে অর্ডার লিস্ট থেকে Cancel Order করুন।",
     "products.title": "প্রোডাক্টস",
     "products.export": "এক্সপোর্ট",
     "products.export_all": "সব এক্সপোর্ট করুন",

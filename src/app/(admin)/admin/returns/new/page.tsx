@@ -65,8 +65,9 @@ export default function NewReturnPage() {
         const ordersList = (ordersData as any).orders || ordersData || [];
         const formattedOrders = (Array.isArray(ordersList) ? ordersList : []).slice(0, 5).map((o: any) => ({
           id: o.shortId || o._id,
-          label: `Order #${o.shortId || (o._id ? o._id.slice(-6) : '')} (${o.shippingAddress?.fullName || 'Online Order'})`,
-          type: 'order'
+          label: `Order #${o.shortId || (o._id ? o._id.slice(-6) : '')} [${o.status}] (${o.shippingAddress?.fullName || 'Online Order'})`,
+          type: 'order',
+          status: o.status
         }));
 
         setSuggestions([...formattedBills, ...formattedOrders]);
@@ -117,6 +118,18 @@ export default function NewReturnPage() {
         const ordersList = orderData.orders || orderData;
         if (ordersList && ordersList.length > 0) {
           const foundOrder = ordersList[0];
+
+          // Check if order is Delivered
+          if (foundOrder.status !== 'Delivered') {
+            if (foundOrder.status === 'Cancelled') {
+              toast.error(`Order #${foundOrder.shortId || foundOrder._id?.slice(-6)} is already Cancelled.`);
+            } else {
+              toast.error(`Only "Delivered" orders can be returned. Current status is "${foundOrder.status}". For undelivered orders, please cancel the order from the Orders list.`);
+            }
+            setSearching(false);
+            return;
+          }
+
           setOrder(foundOrder);
           const mappedItems = foundOrder.items.map((item: any) => ({
             ...item,
@@ -128,13 +141,13 @@ export default function NewReturnPage() {
             size: item.size
           }));
           setReturnItems(mappedItems);
-          toast.success('Online order found');
+          toast.success('Delivered online order found');
           setSearching(false);
           return;
         }
       }
 
-      toast.error('No bill or order found with this number');
+      toast.error('No bill or delivered order found with this number');
     } catch (error) {
       toast.error('Error finding invoice');
     } finally {

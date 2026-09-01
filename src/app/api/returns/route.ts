@@ -85,6 +85,9 @@ export async function POST(req: NextRequest) {
         if (!order) {
           throw new Error('Order not found');
         }
+        if (order.status !== 'Delivered') {
+          throw new Error(`Cannot return order with status "${order.status}". Only "Delivered" orders can be processed for product return. For undelivered orders, please cancel the order instead.`);
+        }
         customerName = order.shippingAddress?.fullName;
         phone = order.shippingAddress?.phone;
         showroom = order.showroom;
