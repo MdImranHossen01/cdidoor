@@ -28,10 +28,14 @@ export interface IBill extends Document {
   discountType: 'fixed' | 'percentage';
   discountValue: number;
   discount: number;
+  couponCode?: string;
+  couponDiscount?: number;
+  walletAmountUsed?: number;
   total: number;
   prevDue: number;
   gTotal: number;
   cashIn: number;
+  changeReturn?: number;
   currentBillDue: number;
   status: 'Paid' | 'Due';
   expectedReceivableDate?: Date;
@@ -78,10 +82,14 @@ const BillSchema: Schema<IBill> = new Schema(
     discountType: { type: String, enum: ['fixed', 'percentage'], default: 'fixed' },
     discountValue: { type: Number, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 },
+    couponCode: { type: String },
+    couponDiscount: { type: Number, default: 0, min: 0 },
+    walletAmountUsed: { type: Number, default: 0, min: 0 },
     total: { type: Number, required: true, min: 0 },
     prevDue: { type: Number, default: 0, min: 0 },
     gTotal: { type: Number, required: true, min: 0 },
     cashIn: { type: Number, default: 0, min: 0 },
+    changeReturn: { type: Number, default: 0, min: 0 },
     currentBillDue: { type: Number, default: 0, min: 0 },
     status: { type: String, enum: ['Paid', 'Due'], default: 'Due' },
     expectedReceivableDate: { type: Date },

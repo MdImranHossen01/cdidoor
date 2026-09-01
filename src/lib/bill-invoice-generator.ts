@@ -408,6 +408,18 @@ export async function generateBillPDF(bill: any, settings: any, mode: 'download'
                     <span>- ৳${Math.round(bill.discount)}</span>
                   </div>
                 ` : ''}
+                ${bill.couponCode && (bill.couponDiscount || 0) > 0 ? `
+                  <div class="total-row" style="color: var(--primary);">
+                    <span>Coupon (${bill.couponCode}):</span>
+                    <span>- ৳${Math.round(bill.couponDiscount).toLocaleString()}</span>
+                  </div>
+                ` : ''}
+                ${(bill.walletAmountUsed || 0) > 0 ? `
+                  <div class="total-row" style="color: var(--primary);">
+                    <span>Tokens Redeemed:</span>
+                    <span>- ৳${Math.round(bill.walletAmountUsed).toLocaleString()}</span>
+                  </div>
+                ` : ''}
                 <div class="total-row highlight">
                   <span>Total:</span>
                   <span>৳${Math.round(bill.total || 0)}</span>

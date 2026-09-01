@@ -38,6 +38,8 @@ import {
   MapPin,
   Phone,
   User,
+  Ticket,
+  Coins,
   CalendarDays,
   Hash,
   MoreHorizontal,
@@ -144,6 +146,21 @@ function ShowroomBillsContent() {
   const [cashIn, setCashIn] = useState<number>(0);
   const [expectedReceivableDate, setExpectedReceivableDate] = useState('');
 
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: 'fixed' | 'percentage';
+    discountValue: number;
+    discountAmount: number;
+  } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  // Token adjustment state
+  const [useTokens, setUseTokens] = useState<boolean>(false);
+  const [tokensToUse, setTokensToUse] = useState<number>(0);
+  const [customerTokens, setCustomerTokens] = useState<number>(0);
+
   // Product multi-select state
   const [productSearchTerm, setProductSearchTerm] = useState('');
   // Map of productId → variantId (null = base product, string = variant _id)
@@ -207,14 +224,75 @@ function ShowroomBillsContent() {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) {
+      toast.error('Please enter a coupon code');
+      return;
+    }
+    setCouponLoading(true);
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponInput.trim(), totalAmount: subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedCoupon({
+          code: data.code,
+          discountType: data.discountType,
+          discountValue: data.discountValue,
+          discountAmount: data.discountAmount,
+        });
+        toast.success(`Coupon "${data.code}" applied! (-৳${data.discountAmount})`);
+        setCouponInput('');
+      } else {
+        toast.error(data.message || 'Invalid coupon code');
+      }
+    } catch (err) {
+      toast.error('Failed to validate coupon');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info('Coupon removed');
+  };
+
   // Calculations
   const subtotal = billItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discount = discountType === 'percentage'
+  const manualDiscount = discountType === 'percentage'
     ? Math.round((subtotal * discountValue) / 100)
     : discountValue;
-  const total = Math.max(0, subtotal + deliveryCharge + serviceFee - discount);
+
+  let couponDiscountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === 'percentage') {
+      couponDiscountAmount = Math.floor(subtotal * (appliedCoupon.discountValue / 100));
+    } else {
+      couponDiscountAmount = appliedCoupon.discountValue;
+    }
+    couponDiscountAmount = Math.min(couponDiscountAmount, Math.max(0, subtotal - manualDiscount));
+  }
+
+  const totalDiscount = manualDiscount + couponDiscountAmount;
+  const totalBeforeTokens = Math.max(0, subtotal + deliveryCharge + serviceFee - totalDiscount);
+
+  const availableCustomerTokens = customerTokens;
+  const effectiveTokensUsed = useTokens
+    ? Math.min(
+        availableCustomerTokens,
+        totalBeforeTokens,
+        tokensToUse > 0 ? tokensToUse : availableCustomerTokens
+      )
+    : 0;
+
+  const total = Math.max(0, totalBeforeTokens - effectiveTokensUsed);
   const gTotal = total + prevDue;
   const currentBillDue = Math.max(0, gTotal - cashIn);
+  const changeReturn = Math.max(0, cashIn - gTotal);
   const calculatedStatus = currentBillDue <= 0 ? 'Paid' : 'Due';
 
   const validatePhone = (phone: string) => {
@@ -338,11 +416,15 @@ function ShowroomBillsContent() {
         serviceFee,
         discountType,
         discountValue,
-        discount,
+        discount: totalDiscount,
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        couponDiscount: couponDiscountAmount,
+        walletAmountUsed: effectiveTokensUsed,
         total,
         prevDue,
         gTotal,
         cashIn,
+        changeReturn,
         currentBillDue,
         status: calculatedStatus,
         expectedReceivableDate: calculatedStatus === 'Due' ? expectedReceivableDate : undefined,
@@ -1128,25 +1210,15 @@ function ShowroomBillsContent() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="prevDue">Previous Due (৳)</Label>
+                    <Label htmlFor="serviceFee">Service Fee (৳) <span className="text-muted-foreground font-normal text-xs">— Optional</span></Label>
                     <Input
-                      id="prevDue"
+                      id="serviceFee"
                       type="number"
-                      value={prevDue || ''}
-                      onChange={(e) => setPrevDue(Math.max(0, parseFloat(e.target.value) || 0))}
+                      value={serviceFee || ''}
+                      placeholder="0"
+                      onChange={(e) => setServiceFee(Math.max(0, parseFloat(e.target.value) || 0))}
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="serviceFee">Service Fee (৳) <span className="text-muted-foreground font-normal text-xs">— Optional</span></Label>
-                  <Input
-                    id="serviceFee"
-                    type="number"
-                    value={serviceFee || ''}
-                    placeholder="0"
-                    onChange={(e) => setServiceFee(Math.max(0, parseFloat(e.target.value) || 0))}
-                  />
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 items-end">
@@ -1172,6 +1244,90 @@ function ShowroomBillsContent() {
                     />
                   </div>
                 </div>
+
+                {/* Coupon Code Section */}
+                <div className="p-3.5 bg-card rounded-xl border border-border space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Ticket className="h-3.5 w-3.5 text-primary" /> Apply Coupon Code
+                  </Label>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white font-mono font-bold tracking-wider text-xs">
+                          {appliedCoupon.code}
+                        </Badge>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-300 text-xs">
+                          -৳{couponDiscountAmount.toLocaleString()} ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : 'Fixed'})
+                        </span>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={handleRemoveCoupon} className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        placeholder="Coupon code (e.g. SAVE10)"
+                        className="uppercase font-mono font-semibold text-sm"
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleApplyCoupon(); } }}
+                      />
+                      <Button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()} className="font-bold shrink-0">
+                        {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Apply'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Token Balance Redemption Section */}
+                {availableCustomerTokens > 0 && (
+                  <div className="p-3.5 bg-amber-500/5 rounded-xl border border-amber-500/20 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          id="useTokensShowroom"
+                          checked={useTokens}
+                          onChange={(e) => {
+                            setUseTokens(e.target.checked);
+                            if (e.target.checked && tokensToUse <= 0) {
+                              setTokensToUse(Math.min(availableCustomerTokens, totalBeforeTokens));
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <Label htmlFor="useTokensShowroom" className="font-bold text-sm cursor-pointer flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
+                          <Coins className="h-4 w-4 text-amber-500" />
+                          Redeem Token Balance
+                        </Label>
+                      </div>
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-300">
+                        Available: ৳{availableCustomerTokens.toLocaleString()}
+                      </span>
+                    </div>
+                    {useTokens && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Tokens to use:</span>
+                        <div className="relative w-36">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">৳</span>
+                          <Input
+                            type="number"
+                            value={tokensToUse || ''}
+                            onChange={(e) => setTokensToUse(Math.min(availableCustomerTokens, Math.max(0, parseFloat(e.target.value) || 0)))}
+                            placeholder={String(Math.min(availableCustomerTokens, totalBeforeTokens))}
+                            className="h-8 pl-6 pr-2 text-right font-bold text-xs bg-background"
+                            min="0"
+                            max={availableCustomerTokens}
+                          />
+                        </div>
+                        <span className="text-xs font-extrabold text-amber-700 dark:text-amber-300">
+                          -৳{effectiveTokensUsed.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {calculatedStatus === 'Due' && (
                   <div className="space-y-2 pt-1">
@@ -1211,22 +1367,54 @@ function ShowroomBillsContent() {
                     <span>+ ৳{serviceFee.toLocaleString()}</span>
                   </div>
                 )}
-                {discount > 0 && (
+                {manualDiscount > 0 && (
                   <div className="flex justify-between text-green-600 font-medium">
                     <span>Discount {discountType === 'percentage' && `(${discountValue}%)`}:</span>
-                    <span>- ৳{discount.toLocaleString()}</span>
+                    <span>- ৳{manualDiscount.toLocaleString()}</span>
+                  </div>
+                )}
+                {appliedCoupon && couponDiscountAmount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-700 dark:text-emerald-400 font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <Ticket className="h-3.5 w-3.5" />
+                      Coupon ({appliedCoupon.code}):
+                    </span>
+                    <span>- ৳{couponDiscountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+                {effectiveTokensUsed > 0 && (
+                  <div className="flex justify-between items-center text-amber-700 dark:text-amber-400 font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <Coins className="h-3.5 w-3.5" />
+                      Tokens Redeemed:
+                    </span>
+                    <span>- ৳{effectiveTokensUsed.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-2 font-bold text-base">
                   <span>Total Bill:</span>
                   <span>৳{total.toLocaleString()}</span>
                 </div>
-                {prevDue > 0 && (
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Previous Due:</span>
-                    <span>+ ৳{prevDue.toLocaleString()}</span>
+                
+                {/* Interactive Previous Due Row */}
+                <div className="flex items-center justify-between border-t pt-2.5 gap-3">
+                  <Label htmlFor="prevDue" className="font-semibold text-muted-foreground text-sm whitespace-nowrap cursor-pointer">
+                    Previous Due:
+                  </Label>
+                  <div className="relative w-36 sm:w-44">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-sm">৳</span>
+                    <Input
+                      id="prevDue"
+                      type="number"
+                      value={prevDue || ''}
+                      onChange={(e) => setPrevDue(Math.max(0, parseFloat(e.target.value) || 0))}
+                      placeholder="0"
+                      className="h-9 pl-7 pr-3 text-right font-semibold text-sm bg-background border-slate-200 focus-visible:ring-primary"
+                      min="0"
+                    />
                   </div>
-                )}
+                </div>
+
                 <div className="flex justify-between border-t pt-2 font-bold text-lg text-primary">
                   <span>Grand Total:</span>
                   <span>৳{gTotal.toLocaleString()}</span>

@@ -246,6 +246,18 @@ export async function printBillPOS(bill: any, settings: any, targetWindow?: Wind
                 <td class="text-right">- ৳${discount.toLocaleString()}</td>
               </tr>
             ` : ''}
+            ${bill.couponCode && (bill.couponDiscount || 0) > 0 ? `
+              <tr>
+                <td class="summary-label">Coupon (${bill.couponCode}):</td>
+                <td class="text-right">- ৳${Math.round(bill.couponDiscount).toLocaleString()}</td>
+              </tr>
+            ` : ''}
+            ${(bill.walletAmountUsed || 0) > 0 ? `
+              <tr>
+                <td class="summary-label">Tokens Used:</td>
+                <td class="text-right">- ৳${Math.round(bill.walletAmountUsed).toLocaleString()}</td>
+              </tr>
+            ` : ''}
             ${prevDue > 0 ? `
               <tr>
                 <td class="summary-label">Previous Due:</td>

@@ -70,10 +70,14 @@ export async function POST(req: NextRequest) {
       discountType,
       discountValue,
       discount,
+      couponCode,
+      couponDiscount,
+      walletAmountUsed,
       total,
       prevDue,
       gTotal,
       cashIn,
+      changeReturn,
       currentBillDue,
       status,
       expectedReceivableDate,
@@ -133,10 +137,14 @@ export async function POST(req: NextRequest) {
         discountType,
         discountValue,
         discount,
+        couponCode: couponCode ? couponCode.toUpperCase() : undefined,
+        couponDiscount: couponDiscount || 0,
+        walletAmountUsed: walletAmountUsed || 0,
         total,
         prevDue,
         gTotal,
         cashIn,
+        changeReturn: changeReturn || (cashIn > gTotal ? cashIn - gTotal : 0),
         currentBillDue,
         status,
         expectedReceivableDate: status === 'Due' && expectedReceivableDate ? new Date(expectedReceivableDate) : undefined,
@@ -227,6 +235,42 @@ export async function POST(req: NextRequest) {
       }
 
       await newBill.save({ session: dbSession });
+
+      // Deduct User Wallet Tokens if used
+      if (docType === 'bill' && walletAmountUsed > 0) {
+        try {
+          const User = (await import('@/models/User')).default;
+          const normalizedPhone = normalizePhoneNumber(clientPhone);
+          const userDoc = await User.findOne({
+            $or: [
+              ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
+              ...(clientEmail ? [{ email: clientEmail }] : [])
+            ]
+          }).session(dbSession);
+
+          if (userDoc && (userDoc.walletBalance || 0) > 0) {
+            const deductAmount = Math.min(userDoc.walletBalance, walletAmountUsed);
+            userDoc.walletBalance = Math.max(0, userDoc.walletBalance - deductAmount);
+            await userDoc.save({ session: dbSession });
+          }
+        } catch (walletErr) {
+          console.error('Error deducting wallet balance in bill creation:', walletErr);
+        }
+      }
+
+      // Increment Coupon usedCount if coupon code provided
+      if (docType === 'bill' && couponCode) {
+        try {
+          const Coupon = (await import('@/models/Coupon')).default;
+          await Coupon.findOneAndUpdate(
+            { code: couponCode.toUpperCase() },
+            { $inc: { usedCount: 1 } },
+            { session: dbSession }
+          );
+        } catch (couponErr) {
+          console.error('Error incrementing coupon usedCount:', couponErr);
+        }
+      }
 
     // Log to ledger if it is a final Bill (not offers/chalans)
     if (docType === 'bill') {

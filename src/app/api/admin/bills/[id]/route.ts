@@ -58,13 +58,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       items,
       subtotal,
       deliveryCharge,
+      serviceFee,
       discountType,
       discountValue,
       discount,
+      couponCode,
+      couponDiscount,
+      walletAmountUsed,
       total,
       prevDue,
       gTotal,
       cashIn,
+      changeReturn,
       currentBillDue,
       status,
       expectedReceivableDate,
@@ -83,13 +88,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (items !== undefined) bill.items = items;
     if (subtotal !== undefined) bill.subtotal = subtotal;
     if (deliveryCharge !== undefined) bill.deliveryCharge = deliveryCharge;
+    if (serviceFee !== undefined) bill.serviceFee = serviceFee;
     if (discountType !== undefined) bill.discountType = discountType;
     if (discountValue !== undefined) bill.discountValue = discountValue;
     if (discount !== undefined) bill.discount = discount;
+    if (couponCode !== undefined) bill.couponCode = couponCode ? couponCode.toUpperCase() : undefined;
+    if (couponDiscount !== undefined) bill.couponDiscount = couponDiscount;
+    if (walletAmountUsed !== undefined) bill.walletAmountUsed = walletAmountUsed;
     if (total !== undefined) bill.total = total;
     if (prevDue !== undefined) bill.prevDue = prevDue;
     if (gTotal !== undefined) bill.gTotal = gTotal;
     if (cashIn !== undefined) bill.cashIn = cashIn;
+    if (changeReturn !== undefined) bill.changeReturn = changeReturn;
     if (currentBillDue !== undefined) bill.currentBillDue = currentBillDue;
     if (status !== undefined) bill.status = status;
     if (documentType !== undefined) bill.documentType = documentType;
