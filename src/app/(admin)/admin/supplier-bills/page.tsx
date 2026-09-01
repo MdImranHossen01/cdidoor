@@ -315,6 +315,38 @@ function SupplierBillsContent() {
   const total = Math.max(0, subtotal - discountValue);
   const dueAmount = Math.max(0, total - paidAmount);
 
+  const bankAccounts = useMemo(() => {
+    return ledgerAccounts.filter(a => 
+      a.code !== 'CASH' && (
+        a.accountCategory === 'Bank' || 
+        a.accountCategory === 'bank' || 
+        a.bankAccountType || 
+        a.branchName ||
+        a.code?.toLowerCase().includes('bank')
+      )
+    );
+  }, [ledgerAccounts]);
+
+  const mfsAccounts = useMemo(() => {
+    return ledgerAccounts.filter(a => 
+      a.code !== 'CASH' && (
+        a.accountCategory === 'MFS' || 
+        a.accountCategory === 'mfs' || 
+        a.mfsProvider || 
+        a.mfsType ||
+        a.code?.toLowerCase().includes('mfs')
+      )
+    );
+  }, [ledgerAccounts]);
+
+  const otherAccounts = useMemo(() => {
+    return ledgerAccounts.filter(a => 
+      a.code !== 'CASH' && 
+      !bankAccounts.some(b => b._id === a._id) && 
+      !mfsAccounts.some(m => m._id === a._id)
+    );
+  }, [ledgerAccounts, bankAccounts, mfsAccounts]);
+
   const openCreateDialog = () => {
     setSelectedSupplierId(suppliers[0]?._id || '');
     setBillDate(format(new Date(), 'yyyy-MM-dd'));
@@ -325,6 +357,7 @@ function SupplierBillsContent() {
     setPaymentAccountId('');
     setExpectedPaymentDate('');
     setEditingBill(null);
+    fetchLedgerAccounts();
     setIsCreateOpen(true);
   };
 
@@ -972,64 +1005,80 @@ function SupplierBillsContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="paymentMethod">{t("supplier_bills.payment_method")}</Label>
+                  <Label htmlFor="paymentAccountSelect">{t("supplier_bills.payment_method") || "Payment Account / Method"}</Label>
                   <select
-                    id="paymentMethod"
-                    value={paymentMethod}
+                    id="paymentAccountSelect"
+                    value={
+                      paymentMethod === 'Credit'
+                        ? 'CREDIT'
+                        : paymentAccountId
+                          ? `ACCOUNT_${paymentAccountId}`
+                          : 'CASH'
+                    }
                     onChange={(e: any) => {
-                      setPaymentMethod(e.target.value);
-                      if (e.target.value !== 'Bank' && e.target.value !== 'MFS') {
+                      const val = e.target.value;
+                      if (val === 'CASH') {
+                        setPaymentMethod('Cash');
                         setPaymentAccountId('');
+                      } else if (val === 'CREDIT') {
+                        setPaymentMethod('Credit');
+                        setPaymentAccountId('');
+                      } else if (val.startsWith('ACCOUNT_')) {
+                        const accId = val.replace('ACCOUNT_', '');
+                        const selectedAcc = ledgerAccounts.find(a => a._id === accId);
+                        setPaymentAccountId(accId);
+                        if (
+                          selectedAcc?.accountCategory === 'MFS' ||
+                          selectedAcc?.accountCategory === 'mfs' ||
+                          selectedAcc?.mfsProvider
+                        ) {
+                          setPaymentMethod('MFS');
+                        } else {
+                          setPaymentMethod('Bank');
+                        }
                       }
                     }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <option value="Cash">{t("supplier_bills.cash")}</option>
-                    <option value="Bank">{t("supplier_bills.bank")}</option>
-                    <option value="MFS">MFS</option>
-                    <option value="Credit">Credit</option>
+                    <option value="CASH">💵 Cash (হাতে নগদ - Cash on Hand)</option>
+
+                    {bankAccounts.length > 0 && (
+                      <optgroup label="🏦 Bank Accounts (ব্যাংক একাউন্টসমূহ)">
+                        {bankAccounts.map((a) => (
+                          <option key={a._id} value={`ACCOUNT_${a._id}`}>
+                            {a.name} {a.accountNo ? `(A/C: ${a.accountNo})` : ''} {a.branchName ? `[${a.branchName}]` : ''} - ৳{(a.currentBalance || 0).toLocaleString()}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {mfsAccounts.length > 0 && (
+                      <optgroup label="📱 MFS Accounts (মোবাইল ব্যাংকিং)">
+                        {mfsAccounts.map((a) => (
+                          <option key={a._id} value={`ACCOUNT_${a._id}`}>
+                            {a.mfsProvider ? `${a.mfsProvider} ` : ''}{a.name} {a.accountNo ? `(${a.accountNo})` : ''} {a.mfsType ? `[${a.mfsType}]` : ''} - ৳{(a.currentBalance || 0).toLocaleString()}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {otherAccounts.length > 0 && (
+                      <optgroup label="📂 Other Accounts (অন্যান্য একাউন্ট)">
+                        {otherAccounts.map((a) => (
+                          <option key={a._id} value={`ACCOUNT_${a._id}`}>
+                            {a.name} {a.accountNo ? `(${a.accountNo})` : ''} - ৳{(a.currentBalance || 0).toLocaleString()}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    <option value="CREDIT">📋 Credit / Due (সম্পূর্ণ বা আংশিক বাকি)</option>
                   </select>
                 </div>
 
-                {paymentMethod === 'Bank' && (
-                  <div>
-                    <Label htmlFor="bankAccount">Select Bank Account</Label>
-                    <select
-                      id="bankAccount"
-                      value={paymentAccountId}
-                      onChange={(e) => setPaymentAccountId(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      required
-                    >
-                      <option value="">-- Select Bank --</option>
-                      {ledgerAccounts.filter(a => a.accountCategory === 'Bank').map(a => (
-                        <option key={a._id} value={a._id}>{a.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {paymentMethod === 'MFS' && (
-                  <div>
-                    <Label htmlFor="mfsAccount">Select MFS Account</Label>
-                    <select
-                      id="mfsAccount"
-                      value={paymentAccountId}
-                      onChange={(e) => setPaymentAccountId(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      required
-                    >
-                      <option value="">-- Select MFS --</option>
-                      {ledgerAccounts.filter(a => a.accountCategory === 'MFS').map(a => (
-                        <option key={a._id} value={a._id}>{a.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
                 {paymentMethod === 'Credit' && (
                   <div>
-                    <Label htmlFor="expectedPaymentDate">Expected Payment Date</Label>
+                    <Label htmlFor="expectedPaymentDate">Expected Payment Date (পরিশোধের সম্ভাব্য তারিখ)</Label>
                     <Input
                       id="expectedPaymentDate"
                       type="date"

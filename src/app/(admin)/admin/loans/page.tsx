@@ -78,10 +78,10 @@ export default function AllLoansPage() {
 
   const fetchLedgerAccounts = async () => {
     try {
-      const res = await fetch('/api/admin/ledger/accounts');
+      const res = await fetch('/api/accounts');
       if (res.ok) {
         const data = await res.json();
-        setLedgerAccounts(data.accounts || []);
+        setLedgerAccounts(Array.isArray(data) ? data : (data.accounts || []));
       }
     } catch (error) {
       console.error('Error fetching ledger accounts:', error);
@@ -333,15 +333,19 @@ export default function AllLoansPage() {
     </div>
 
       {/* Create Modal */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+      <Dialog open={isCreateOpen} onOpenChange={(open) => {
+        setIsCreateOpen(open);
+        if (open) fetchLedgerAccounts();
+      }}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Business Loan</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleCreate} className="space-y-4">
-            <div>
-              <Label>Select Lender / Provider *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="lenderSelect" className="text-xs font-semibold text-foreground">Select Lender / Provider *</Label>
               <select
+                id="lenderSelect"
                 value={selectedProviderId}
                 onChange={e => setSelectedProviderId(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -355,75 +359,80 @@ export default function AllLoansPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Loan Amount (৳) *</Label>
-                <Input type="number" min="1" required value={amount || ''} onChange={e => setAmount(Number(e.target.value))} />
+              <div className="space-y-1.5">
+                <Label htmlFor="loanAmount" className="text-xs font-semibold text-foreground">Loan Amount (৳) *</Label>
+                <Input id="loanAmount" type="number" min="1" required value={amount || ''} onChange={e => setAmount(Number(e.target.value))} />
               </div>
-              <div>
-                <Label>Interest Amount (৳)</Label>
-                <Input type="number" min="0" value={interestAmount || ''} onChange={e => setInterestAmount(Number(e.target.value))} />
+              <div className="space-y-1.5">
+                <Label htmlFor="interestAmount" className="text-xs font-semibold text-foreground">Interest Amount (৳)</Label>
+                <Input id="interestAmount" type="number" min="0" value={interestAmount || ''} onChange={e => setInterestAmount(Number(e.target.value))} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Repayment Type</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="repaymentType" className="text-xs font-semibold text-foreground">Repayment Type</Label>
                 <select
+                  id="repaymentType"
                   value={repaymentType}
                   onChange={e => setRepaymentType(e.target.value as any)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="One-time">One-time</option>
                   <option value="Installment">Installment</option>
                 </select>
               </div>
-              <div>
-                <Label>Loan Date</Label>
-                <Input type="date" required value={date} onChange={e => setDate(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label htmlFor="loanDate" className="text-xs font-semibold text-foreground">Loan Date</Label>
+                <Input id="loanDate" type="date" required value={date} onChange={e => setDate(e.target.value)} />
               </div>
             </div>
 
             {repaymentType === 'One-time' ? (
-              <div>
-                <Label>Expected Repayment Date</Label>
-                <Input type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label htmlFor="expRepayDate" className="text-xs font-semibold text-foreground">Expected Repayment Date</Label>
+                <Input id="expRepayDate" type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
               </div>
             ) : (
               <div className="space-y-4 border-t pt-3">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Installment Count (Months)</Label>
-                    <Input type="number" min="1" required value={installmentCount} onChange={e => setInstallmentCount(Number(e.target.value))} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instCount" className="text-xs font-semibold text-foreground">Installment Count (Months)</Label>
+                    <Input id="instCount" type="number" min="1" required value={installmentCount} onChange={e => setInstallmentCount(Number(e.target.value))} />
                   </div>
-                  <div>
-                    <Label>Installment Amount (৳)</Label>
-                    <Input type="number" min="1" required value={installmentAmount} onChange={e => setInstallmentAmount(Number(e.target.value))} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instAmount" className="text-xs font-semibold text-foreground">Installment Amount (৳)</Label>
+                    <Input id="instAmount" type="number" min="1" required value={installmentAmount} onChange={e => setInstallmentAmount(Number(e.target.value))} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Day of Month (1-31)</Label>
-                    <Input type="number" min="1" max="31" required value={installmentDayOfMonth} onChange={e => setInstallmentDayOfMonth(Number(e.target.value))} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instDay" className="text-xs font-semibold text-foreground">Day of Month (1-31)</Label>
+                    <Input id="instDay" type="number" min="1" max="31" required value={installmentDayOfMonth} onChange={e => setInstallmentDayOfMonth(Number(e.target.value))} />
                   </div>
-                  <div>
-                    <Label>Final Maturity Date</Label>
-                    <Input type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="maturityDate" className="text-xs font-semibold text-foreground">Final Maturity Date</Label>
+                    <Input id="maturityDate" type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
                   </div>
                 </div>
               </div>
             )}
 
-            <div>
-              <Label>Receiving Account (Where money is deposited) *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="receivingAccount" className="text-xs font-semibold text-foreground">Receiving Account (Where money is deposited) *</Label>
               <select
+                id="receivingAccount"
                 value={receivingAccountId}
                 onChange={e => setReceivingAccountId(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 required
               >
-                <option value="">-- Select Account --</option>
+                <option value="">-- Select Receiving Account --</option>
                 {ledgerAccounts.map(a => (
-                  <option key={a._id} value={a._id}>{a.name} ({a.accountCategory || 'General'})</option>
+                  <option key={a._id} value={a._id}>
+                    {a.code === 'CASH' ? '💵 ' : a.accountCategory === 'MFS' ? '📱 ' : '🏦 '}
+                    {a.name} {a.accountNo ? `(${a.accountNo})` : ''} - ৳{(a.currentBalance || 0).toLocaleString()}
+                  </option>
                 ))}
               </select>
             </div>
@@ -437,7 +446,10 @@ export default function AllLoansPage() {
       </Dialog>
 
       {/* Payment Modal */}
-      <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
+      <Dialog open={isPaymentOpen} onOpenChange={(open) => {
+        setIsPaymentOpen(open);
+        if (open) fetchLedgerAccounts();
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Make Loan Repayment</DialogTitle>
@@ -448,13 +460,14 @@ export default function AllLoansPage() {
                 <p><strong>Lender:</strong> {selectedLoan.lenderId?.name || selectedLoan.lenderName}</p>
                 <p><strong>Due Amount:</strong> ৳{selectedLoan.dueAmount.toLocaleString()}</p>
               </div>
-              <div>
-                <Label>Payment Amount (৳)</Label>
-                <Input type="number" min="1" max={selectedLoan.dueAmount} required value={paymentAmount || ''} onChange={e => setPaymentAmount(Number(e.target.value))} />
+              <div className="space-y-1.5">
+                <Label htmlFor="repayAmount" className="text-xs font-semibold text-foreground">Payment Amount (৳)</Label>
+                <Input id="repayAmount" type="number" min="1" max={selectedLoan.dueAmount} required value={paymentAmount || ''} onChange={e => setPaymentAmount(Number(e.target.value))} />
               </div>
-              <div>
-                <Label>Payment From Account</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="paymentFromAccount" className="text-xs font-semibold text-foreground">Payment From Account</Label>
                 <select
+                  id="paymentFromAccount"
                   value={paymentAccountId}
                   onChange={e => setPaymentAccountId(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -462,7 +475,10 @@ export default function AllLoansPage() {
                 >
                   <option value="">-- Select Account --</option>
                   {ledgerAccounts.map(a => (
-                    <option key={a._id} value={a._id}>{a.name} ({a.accountCategory || 'General'})</option>
+                    <option key={a._id} value={a._id}>
+                      {a.code === 'CASH' ? '💵 ' : a.accountCategory === 'MFS' ? '📱 ' : '🏦 '}
+                      {a.name} {a.accountNo ? `(${a.accountNo})` : ''} - ৳{(a.currentBalance || 0).toLocaleString()}
+                    </option>
                   ))}
                 </select>
               </div>
