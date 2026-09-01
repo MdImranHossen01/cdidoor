@@ -1510,9 +1510,39 @@ const [dateRange, setDateRange] = useState({
                   </select>
                 </div>
                 
-                <div className="space-y-1.5">
-                  <Label>Amount Received (৳)</Label>
-                  <Input type="number" required min="1" value={loanAmount || ''} onChange={e => setLoanAmount(Number(e.target.value))} />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Loan Amount (৳) *</Label>
+                    <Input 
+                      type="number" 
+                      required 
+                      min="1" 
+                      value={loanAmount || ''} 
+                      onChange={e => {
+                        const val = e.target.value ? Number(e.target.value) : '';
+                        setLoanAmount(val);
+                        if (repaymentType === 'One-time') {
+                          const interest = (Number(totalRepaymentAmount) > Number(loanAmount)) ? (Number(totalRepaymentAmount) - Number(loanAmount)) : 0;
+                          if (val) setTotalRepaymentAmount(Number(val) + Number(interest));
+                        }
+                      }} 
+                    />
+                  </div>
+
+                  {repaymentType === 'One-time' && (
+                    <div className="space-y-1.5">
+                      <Label>Interest Amount (৳)</Label>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        value={loanAmount && totalRepaymentAmount ? Math.max(0, Number(totalRepaymentAmount) - Number(loanAmount)) : ''} 
+                        onChange={e => {
+                          const interest = e.target.value ? Number(e.target.value) : 0;
+                          setTotalRepaymentAmount(Number(loanAmount || 0) + Number(interest));
+                        }} 
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
@@ -1535,40 +1565,56 @@ const [dateRange, setDateRange] = useState({
                     </div>
                     <div className="space-y-1.5">
                       <Label>Total Repayment Amount (৳)</Label>
-                      <Input type="number" required min={loanAmount ? Number(loanAmount) : 1} value={totalRepaymentAmount || ''} onChange={e => setTotalRepaymentAmount(Number(e.target.value))} />
+                      <Input 
+                        type="number" 
+                        required 
+                        min={loanAmount ? Number(loanAmount) : 1} 
+                        value={totalRepaymentAmount || ''} 
+                        onChange={e => setTotalRepaymentAmount(e.target.value ? Number(e.target.value) : '')} 
+                      />
                       {Number(totalRepaymentAmount) > Number(loanAmount) && (
-                        <p className="text-xs text-rose-500 mt-1">Interest: ৳{(Number(totalRepaymentAmount) - Number(loanAmount)).toLocaleString()}</p>
+                        <p className="text-xs text-rose-500 mt-1 font-medium">Interest: ৳{(Number(totalRepaymentAmount) - Number(loanAmount)).toLocaleString()}</p>
                       )}
                     </div>
                   </>
                 )}
 
                 {repaymentType === 'Installment' && (
-                  <div className="space-y-3 bg-slate-50 p-3 rounded-md">
-                    <div className="space-y-1.5">
-                      <Label>Number of Installments</Label>
-                      <Input type="number" required min="1" value={installmentCount || ''} onChange={e => {
-                        setInstallmentCount(Number(e.target.value));
-                        if (e.target.value && installmentAmount) {
-                          setTotalRepaymentAmount(Number(e.target.value) * Number(installmentAmount));
-                        }
-                      }} />
+                  <div className="space-y-3 bg-slate-50 dark:bg-muted/40 p-3 rounded-md border">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label>Installment Count (Months)</Label>
+                        <Input type="number" required min="1" value={installmentCount || ''} onChange={e => {
+                          const count = e.target.value ? Number(e.target.value) : '';
+                          setInstallmentCount(count);
+                          if (count && installmentAmount) {
+                            setTotalRepaymentAmount(Number(count) * Number(installmentAmount));
+                          }
+                        }} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Installment Amount (৳)</Label>
+                        <Input type="number" required min="1" value={installmentAmount || ''} onChange={e => {
+                          const instAmt = e.target.value ? Number(e.target.value) : '';
+                          setInstallmentAmount(instAmt);
+                          if (instAmt && installmentCount) {
+                            setTotalRepaymentAmount(Number(installmentCount) * Number(instAmt));
+                          }
+                        }} />
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label>Installment Amount (৳)</Label>
-                      <Input type="number" required min="1" value={installmentAmount || ''} onChange={e => {
-                        setInstallmentAmount(Number(e.target.value));
-                        if (e.target.value && installmentCount) {
-                          setTotalRepaymentAmount(Number(e.target.value) * Number(installmentCount));
-                        }
-                      }} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>Monthly Installment Date (1-31)</Label>
-                      <Input type="number" required min="1" max="31" value={installmentDayOfMonth || ''} onChange={e => setInstallmentDayOfMonth(Number(e.target.value))} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label>Day of Month (1-31)</Label>
+                        <Input type="number" required min="1" max="31" value={installmentDayOfMonth || ''} onChange={e => setInstallmentDayOfMonth(e.target.value ? Number(e.target.value) : '')} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Final Maturity Date</Label>
+                        <Input type="date" required value={expectedRepaymentDate} onChange={e => setExpectedRepaymentDate(e.target.value)} />
+                      </div>
                     </div>
                     {Number(totalRepaymentAmount) > 0 && (
-                      <div className="pt-2 border-t font-medium">
+                      <div className="pt-2 border-t font-medium text-sm">
                         Total Repayment: ৳{Number(totalRepaymentAmount).toLocaleString()}
                         {Number(totalRepaymentAmount) > Number(loanAmount) && (
                           <span className="text-rose-500 ml-2">(Interest: ৳{(Number(totalRepaymentAmount) - Number(loanAmount)).toLocaleString()})</span>
