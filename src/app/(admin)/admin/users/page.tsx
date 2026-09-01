@@ -22,6 +22,7 @@ import {
   ShieldAlert,
   Calendar,
   Phone,
+  Mail,
   MapPin,
   ShoppingBag,
   CreditCard,
@@ -392,21 +393,25 @@ function UsersContent() {
                           <UserIcon className="h-5 w-5" />
                         </div>
                       )}
-                      <div className="flex flex-col">
+                      <div className="flex flex-col text-left">
                         <button
                           onClick={() => openUserDetails(user)}
-                          className="font-semibold text-slate-900 hover:text-primary transition-colors text-left"
+                          className="font-bold text-slate-900 hover:text-primary transition-colors text-left text-sm"
                         >
                           {user.name}
                         </button>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 mt-1 text-slate-600 font-normal text-xs">
-                          {user.email && (
-                            <span className="truncate">{user.email}</span>
-                          )}
-                          {user.phone && (
-                            <span className="text-slate-500 font-medium">{user.phone}</span>
-                          )}
-                        </div>
+                        {user.phone && (
+                          <div className="flex items-center gap-1 text-slate-600 font-medium text-xs mt-0.5">
+                            <Phone className="h-3 w-3 text-slate-400 shrink-0" />
+                            <span>{user.phone}</span>
+                          </div>
+                        )}
+                        {user.email && (
+                          <div className="flex items-center gap-1 text-slate-500 font-normal text-xs mt-0.5">
+                            <Mail className="h-3 w-3 text-slate-400 shrink-0" />
+                            <span className="truncate max-w-[240px]">{user.email}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -561,14 +566,25 @@ function UsersContent() {
                       <UserIcon className="h-5.5 w-5.5" />
                     </div>
                   )}
-                  <div>
+                  <div className="flex flex-col text-left">
                     <button
                       onClick={() => openUserDetails(user)}
                       className="font-bold text-base text-slate-900 hover:underline text-left block"
                     >
                       {user.name}
                     </button>
-                    <span className="text-xs text-muted-foreground block truncate max-w-[200px] mt-0.5">{user.email}</span>
+                    {user.phone && (
+                      <div className="flex items-center gap-1 text-slate-600 font-medium text-xs mt-0.5">
+                        <Phone className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span>{user.phone}</span>
+                      </div>
+                    )}
+                    {user.email && (
+                      <div className="flex items-center gap-1 text-slate-500 font-normal text-xs mt-0.5">
+                        <Mail className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span className="truncate max-w-[180px]">{user.email}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

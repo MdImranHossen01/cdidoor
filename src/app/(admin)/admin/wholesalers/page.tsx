@@ -397,20 +397,20 @@ export default function AdminWholesalersPage() {
                                   {w.name ? w.name.charAt(0).toUpperCase() : 'W'}
                                 </div>
                               )}
-                              <div className="flex flex-col">
-                                <span className="text-zinc-950 font-bold">{w.name}</span>
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1 text-zinc-600 font-normal text-xs">
-                                  <div className="flex items-center gap-1">
-                                    <Mail className="h-3.5 w-3.5" />
+                              <div className="flex flex-col text-left">
+                                <span className="text-zinc-950 font-bold text-sm">{w.name}</span>
+                                {w.phone && (
+                                  <div className="flex items-center gap-1 text-zinc-600 font-medium text-xs mt-0.5">
+                                    <Phone className="h-3 w-3 text-zinc-400 shrink-0" />
+                                    <span>{w.phone}</span>
+                                  </div>
+                                )}
+                                {w.email && (
+                                  <div className="flex items-center gap-1 text-zinc-500 font-normal text-xs mt-0.5">
+                                    <Mail className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                                     <span>{w.email}</span>
                                   </div>
-                                  {w.phone && (
-                                    <div className="flex items-center gap-1 text-zinc-500">
-                                      <Phone className="h-3 w-3" />
-                                      <span>{w.phone}</span>
-                                    </div>
-                                  )}
-                                </div>
+                                )}
                                 <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                                   {w.nidImage && (
                                     <a href={w.nidImage} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
