@@ -623,7 +623,8 @@ export async function GET(req: NextRequest) {
         expiringProductsCount,
         expiredProductsCount,
         pendingLeavesCount,
-        isShowroomFiltered: !!isShowroomFiltered
+        isShowroomFiltered: !!isShowroomFiltered,
+        ledgerAccounts: ledgerAccounts || []
       },
       recentOrders,
       lowStockProducts,
