@@ -599,272 +599,272 @@ const [dateRange, setDateRange] = useState({
       </div>
 
       {/* Dashboard Overview Cards */}
-      <div className={`${activeTab === 'cards' ? 'block' : 'hidden'} ${showMobileFilters ? '!mt-3 md:!mt-6' : '!mt-[1px] md:!mt-6'}`}>
+      <div className={`${activeTab === 'cards' ? 'block' : 'hidden'} ${showMobileFilters ? '!mt-3 md:!mt-6' : '!mt-[1px] md:!mt-6'} space-y-4 pb-12`}>
         
-        {/* MOBILE VIEW (DSB POS mini-box card layout) */}
-        <div className="flex flex-col gap-2.5 sm:hidden pb-12">
+        {/* Main Grid for Overview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
 
-          {/* 3. Customer */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs overflow-hidden">
-            <div className="flex items-center px-3 py-2 min-h-[55px]">
+          {/* 1. Customer */}
+          <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden flex flex-col justify-center">
+            <div className="flex items-center px-4 py-3 min-h-[58px]">
               <div className="w-12 h-10 flex items-center justify-center shrink-0 mr-3">
                 <div className="flex items-center -space-x-1.5">
-                  <div className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[8px] text-white" />
-                  <div className="w-6 h-6 rounded-full bg-sky-500 border-2 border-white flex items-center justify-center text-[9px] text-white z-10" />
-                  <div className="w-5 h-5 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center text-[8px] text-white" />
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 border-2 border-background flex items-center justify-center text-[8px] text-white" />
+                  <div className="w-6 h-6 rounded-full bg-sky-500 border-2 border-background flex items-center justify-center text-[9px] text-white z-10" />
+                  <div className="w-5 h-5 rounded-full bg-amber-500 border-2 border-background flex items-center justify-center text-[8px] text-white" />
                 </div>
               </div>
               <div className="flex-1 text-base">
                 <Link href="/admin/users" className="hover:underline flex flex-col">
                   <div>
-                    <b className="text-[#0066cc]">কাস্টমার:</b> <b className="text-gray-900 ml-1.5">{stats?.totalUsers || 0}</b>
+                    <b className="text-[#0066cc] dark:text-sky-400">কাস্টমার:</b> <b className="text-foreground ml-1.5">{stats?.totalUsers || 0}</b>
                   </div>
-                  <div className="text-xs text-gray-600 font-semibold mt-0.5">
-                    পাইকারি: <span className="text-[#0066cc] font-bold">{stats?.wholesalersCount || 0}</span> | সাধারণ: <span className="text-[#2e7d32] font-bold">{stats?.generalUsersCount || 0}</span>
+                  <div className="text-xs text-muted-foreground font-semibold mt-0.5">
+                    পাইকারি: <span className="text-[#0066cc] dark:text-sky-400 font-bold">{stats?.wholesalersCount || 0}</span> | সাধারণ: <span className="text-[#2e7d32] dark:text-emerald-400 font-bold">{stats?.generalUsersCount || 0}</span>
                   </div>
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* 4. Supplier */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs overflow-hidden">
-            <div className="flex items-center px-3 py-2.5 min-h-[55px]">
+          {/* 2. Supplier */}
+          <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden flex flex-col justify-center">
+            <div className="flex items-center px-4 py-3 min-h-[58px]">
               <div className="w-12 h-10 flex items-center justify-center shrink-0 mr-3">
                 <div className="flex items-center -space-x-1.5">
-                  <div className="w-5 h-5 rounded-full bg-teal-600 border-2 border-white" />
-                  <div className="w-6 h-6 rounded-full bg-cyan-700 border-2 border-white z-10" />
-                  <div className="w-5 h-5 rounded-full bg-teal-600 border-2 border-white" />
+                  <div className="w-5 h-5 rounded-full bg-teal-600 border-2 border-background" />
+                  <div className="w-6 h-6 rounded-full bg-cyan-700 border-2 border-background z-10" />
+                  <div className="w-5 h-5 rounded-full bg-teal-600 border-2 border-background" />
                 </div>
               </div>
               <div className="flex-1 text-base">
                 <Link href="/admin/suppliers" className="hover:underline">
-                  <b className="text-[#0066cc]">সাপ্লাইয়ার:</b> <b className="text-gray-900 ml-1.5">{stats?.totalSuppliersCount || 0}</b>
+                  <b className="text-[#0066cc] dark:text-sky-400">সাপ্লাইয়ার:</b> <b className="text-foreground ml-1.5">{stats?.totalSuppliersCount || 0}</b>
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* 5. Sales (বিক্রয়, পেইড, বাকি) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 3. Sales (বিক্রয়, পেইড, বাকি) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <table className="w-full text-left font-bold text-sm leading-relaxed">
               <tbody>
-                <tr className="text-[#2e7d32]">
+                <tr className="text-[#2e7d32] dark:text-emerald-500">
                   <th className="w-16 font-bold py-0.5">বিক্রয়</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(total.revenue || stats?.totalRevenue || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(total.revenue || stats?.totalRevenue || 0).toFixed(2)}</span></th>
                 </tr>
-                <tr className="text-[#0066cc]">
+                <tr className="text-[#0066cc] dark:text-sky-400">
                   <th className="w-16 font-bold py-0.5">পেইড</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round((total.revenue || stats?.totalRevenue || 0) - (stats?.accountReceivable || 0)).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round((total.revenue || stats?.totalRevenue || 0) - (stats?.accountReceivable || 0)).toFixed(2)}</span></th>
                 </tr>
-                <tr className="text-[#d32f2f]">
+                <tr className="text-[#d32f2f] dark:text-rose-500">
                   <th className="w-16 font-bold py-0.5">বাকি</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.accountReceivable || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.accountReceivable || 0).toFixed(2)}</span></th>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* 6. Collection (বাকি আদায়, কিস্তি আদায়, অগ্রীম আদায়) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 4. Collection (বাকি আদায়, কিস্তি আদায়, অগ্রীম আদায়) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <table className="w-full text-left font-bold text-sm leading-relaxed">
               <tbody>
-                <tr className="text-[#0066cc]">
+                <tr className="text-[#0066cc] dark:text-sky-400">
                   <th className="w-24 font-bold py-0.5">বাকি আদায়</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.cashBalance || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.cashBalance || 0).toFixed(2)}</span></th>
                 </tr>
-                <tr className="text-[#d32f2f]">
+                <tr className="text-[#d32f2f] dark:text-rose-500">
                   <th className="w-24 font-bold py-0.5">কিস্তি আদায়</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. 0.00</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. 0.00</span></th>
                 </tr>
-                <tr className="text-[#2e7d32]">
+                <tr className="text-[#2e7d32] dark:text-emerald-500">
                   <th className="w-24 font-bold py-0.5">অগ্রীম আদায়</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. 0.00</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. 0.00</span></th>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* 7. Expense (খরচ: মোট, পেইড) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 5. Expense (খরচ: মোট, পেইড) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <table className="w-full text-left font-bold text-sm leading-relaxed">
               <tbody>
                 <tr>
-                  <th colSpan={2} className="font-bold text-gray-900 pb-1 text-base">খরচ</th>
+                  <th colSpan={2} className="font-bold text-foreground pb-1 text-base">খরচ</th>
                 </tr>
-                <tr className="text-[#2e7d32]">
+                <tr className="text-[#2e7d32] dark:text-emerald-500">
                   <th className="w-16 font-bold py-0.5">মোট</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.pendingExpenseTotal || total.expense || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.pendingExpenseTotal || total.expense || 0).toFixed(2)}</span></th>
                 </tr>
-                <tr className="text-[#0066cc]">
+                <tr className="text-[#0066cc] dark:text-sky-400">
                   <th className="w-16 font-bold py-0.5">পেইড</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.pendingExpenseTotal || total.expense || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.pendingExpenseTotal || total.expense || 0).toFixed(2)}</span></th>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* 8. Purchase (মালক্রয়: মোট, পেইড) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 6. Purchase (মালক্রয়: মোট, পেইড) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <table className="w-full text-left font-bold text-sm leading-relaxed">
               <tbody>
                 <tr>
-                  <th colSpan={2} className="font-bold text-gray-900 pb-1 text-base">মালক্রয়</th>
+                  <th colSpan={2} className="font-bold text-foreground pb-1 text-base">মালক্রয়</th>
                 </tr>
-                <tr className="text-[#2e7d32]">
+                <tr className="text-[#2e7d32] dark:text-emerald-500">
                   <th className="w-16 font-bold py-0.5">মোট</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.supplierPayable || 0).toFixed(2)}</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.supplierPayable || 0).toFixed(2)}</span></th>
                 </tr>
-                <tr className="text-[#0066cc]">
+                <tr className="text-[#0066cc] dark:text-sky-400">
                   <th className="w-16 font-bold py-0.5">পেইড</th>
-                  <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. 0.00</span></th>
+                  <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. 0.00</span></th>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* 9. Accounts Receivable (পাওনা টেবিল) */}
-          <Link href="/admin/ledger/receivable" className="block bg-white rounded border border-gray-200 shadow-xs p-3 hover:border-gray-300">
+          {/* 7. Accounts Receivable (পাওনা টেবিল) */}
+          <Link href="/admin/ledger/receivable" className="block bg-card rounded-lg border border-border shadow-xs p-3.5 hover:border-primary/50 transition-colors">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
                   <tr>
-                    <th colSpan={2} className="font-bold text-gray-900 pb-1 text-base">পাওনা (Accounts Receivable)</th>
+                    <th colSpan={2} className="font-bold text-foreground pb-1 text-base">পাওনা (Accounts Receivable)</th>
                   </tr>
-                  <tr className="text-[#2e7d32]">
+                  <tr className="text-[#2e7d32] dark:text-emerald-500">
                     <th className="w-24 font-bold py-0.5">মোট পাওনা</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.accountReceivable || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.accountReceivable || 0).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-24 font-bold py-0.5">পাইকারি</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.totalWholesalerDue || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.totalWholesalerDue || 0).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-24 font-bold py-0.5">সাধারণ</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.totalBillDue || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.totalBillDue || 0).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#d32f2f]">
+                  <tr className="text-[#d32f2f] dark:text-rose-500">
                     <th className="w-24 font-bold py-0.5">মেয়াদোত্তীর্ণ</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.maturedReceivable || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.maturedReceivable || 0).toFixed(2)}</span></th>
                   </tr>
                 </tbody>
               </table>
             </div>
           </Link>
 
-          {/* 10. Accounts Payable (দেনা টেবিল) */}
-          <Link href="/admin/ledger/payable" className="block bg-white rounded border border-gray-200 shadow-xs p-3 hover:border-gray-300">
+          {/* 8. Accounts Payable (দেনা টেবিল) */}
+          <Link href="/admin/ledger/payable" className="block bg-card rounded-lg border border-border shadow-xs p-3.5 hover:border-primary/50 transition-colors">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
                   <tr>
-                    <th colSpan={2} className="font-bold text-gray-900 pb-1 text-base">দেনা (Accounts Payable)</th>
+                    <th colSpan={2} className="font-bold text-foreground pb-1 text-base">দেনা (Accounts Payable)</th>
                   </tr>
-                  <tr className="text-[#2e7d32]">
+                  <tr className="text-[#2e7d32] dark:text-emerald-500">
                     <th className="w-24 font-bold py-0.5">মোট দেনা</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-24 font-bold py-0.5">সাপ্লাইয়ার</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.supplierPayable || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.supplierPayable || 0).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-24 font-bold py-0.5">ঋণ</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.businessLoanPayable || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.businessLoanPayable || 0).toFixed(2)}</span></th>
                   </tr>
-                  <tr className="text-[#d32f2f]">
+                  <tr className="text-[#d32f2f] dark:text-rose-500">
                     <th className="w-24 font-bold py-0.5">মেয়াদোত্তীর্ণ</th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.maturedPayable || 0).toFixed(2)}</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.maturedPayable || 0).toFixed(2)}</span></th>
                   </tr>
                 </tbody>
               </table>
             </div>
           </Link>
 
-          {/* 11. Pending Orders & Pending Expenses (টেবিল স্টাইল) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 9. Pending Orders & Pending Expenses (টেবিল স্টাইল) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/orders" className="hover:underline text-[#0066cc]">পেন্ডিং অর্ডার</Link>
+                      <Link href="/admin/orders" className="hover:underline text-[#0066cc] dark:text-sky-400">পেন্ডিং অর্ডার</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{stats?.pendingOrdersCount || 0} টি</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{stats?.pendingOrdersCount || 0} টি</span></th>
                   </tr>
-                  <tr className="text-[#d32f2f]">
+                  <tr className="text-[#d32f2f] dark:text-rose-500">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/expenses-incomes?type=expense&status=Pending" className="hover:underline text-[#d32f2f]">পেন্ডিং খরচ</Link>
+                      <Link href="/admin/expenses-incomes?type=expense&status=Pending" className="hover:underline text-[#d32f2f] dark:text-rose-500">পেন্ডিং খরচ</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{stats?.pendingExpenseCount || 0} টি (TK. {Math.round(stats?.pendingExpenseTotal || 0).toFixed(2)})</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{stats?.pendingExpenseCount || 0} টি (TK. {Math.round(stats?.pendingExpenseTotal || 0).toFixed(2)})</span></th>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* 12. Alerts (স্টক অ্যালার্ট ও মেয়াদোত্তীর্ণ) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 10. Alerts (স্টক অ্যালার্ট ও মেয়াদোত্তীর্ণ) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
-                  <tr className="text-[#d32f2f]">
+                  <tr className="text-[#d32f2f] dark:text-rose-500">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/low-stock" className="hover:underline text-[#d32f2f]">স্টক অ্যালার্ট</Link>
+                      <Link href="/admin/low-stock" className="hover:underline text-[#d32f2f] dark:text-rose-500">স্টক অ্যালার্ট</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{lowStockProducts?.length || 0} টি আইটেম</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{lowStockProducts?.length || 0} টি আইটেম</span></th>
                   </tr>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/upcoming-expiry" className="hover:underline text-[#0066cc]">মেয়াদোত্তীর্ণ</Link>
+                      <Link href="/admin/upcoming-expiry" className="hover:underline text-[#0066cc] dark:text-sky-400">মেয়াদোত্তীর্ণ</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{stats?.expiringProductsCount || 0} টি (মেয়াদোত্তীর্ণ: {stats?.expiredProductsCount || 0})</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{stats?.expiringProductsCount || 0} টি (মেয়াদোত্তীর্ণ: {stats?.expiredProductsCount || 0})</span></th>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* 13. Tasks & Leaves (চলমান কাজ ও ছুটির আবেদন) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 11. Tasks & Leaves (চলমান কাজ ও ছুটির আবেদন) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/employees/tasks" className="hover:underline text-[#0066cc]">চলমান কাজ</Link>
+                      <Link href="/admin/employees/tasks" className="hover:underline text-[#0066cc] dark:text-sky-400">চলমান কাজ</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{stats?.runningAssignedTasks || 0} টি</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{stats?.runningAssignedTasks || 0} টি</span></th>
                   </tr>
-                  <tr className="text-[#2e7d32]">
+                  <tr className="text-[#2e7d32] dark:text-emerald-500">
                     <th className="w-28 font-bold py-0.5">
-                      <Link href="/admin/employees/leaves" className="hover:underline text-[#2e7d32]">ছুটির আবেদন</Link>
+                      <Link href="/admin/employees/leaves" className="hover:underline text-[#2e7d32] dark:text-emerald-500">ছুটির আবেদন</Link>
                     </th>
-                    <th className="font-bold py-0.5">: <span className="currency font-normal text-gray-800">{stats?.pendingLeavesCount || 0} টি</span></th>
+                    <th className="font-bold py-0.5">: <span className="currency font-normal text-foreground">{stats?.pendingLeavesCount || 0} টি</span></th>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* 14. Cash, Bank, and MFS Accounts (ব্যালেন্স হিসাব টেবিল) */}
-          <div className="bg-white rounded border border-gray-200 shadow-xs p-3">
+          {/* 12. Cash, Bank, and MFS Accounts (ব্যালেন্স হিসাব টেবিল) */}
+          <div className="bg-card rounded-lg border border-border shadow-xs p-3.5 flex flex-col justify-center">
             <div className="mini-body">
               <table className="w-full text-left font-bold text-sm leading-relaxed">
                 <tbody>
                   <tr>
-                    <th colSpan={2} className="font-bold text-gray-900 pb-1 text-base">অ্যাকাউন্ট ব্যালেন্স</th>
+                    <th colSpan={2} className="font-bold text-foreground pb-1 text-base">অ্যাকাউন্ট ব্যালেন্স</th>
                   </tr>
                   {/* Cash */}
-                  <tr className="text-[#2e7d32]">
+                  <tr className="text-[#2e7d32] dark:text-emerald-500">
                     <th className="w-24 font-bold py-0.5">ক্যাশ</th>
                     <th className="font-bold py-0.5">
                       <div className="flex items-center justify-between">
-                        <span>: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.cashBalance || 0).toFixed(2)}</span></span>
+                        <span>: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.cashBalance || 0).toFixed(2)}</span></span>
                         <button
                           type="button"
                           onClick={(e) => openAddBalance(e, 'Cash')}
-                          className="text-[10px] bg-primary text-white px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
+                          className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
                         >
                           + অ্যাড
                         </button>
@@ -873,21 +873,21 @@ const [dateRange, setDateRange] = useState({
                   </tr>
 
                   {/* Bank */}
-                  <tr className="text-[#0066cc]">
+                  <tr className="text-[#0066cc] dark:text-sky-400">
                     <th className="w-24 font-bold py-0.5">ব্যাংক</th>
                     <th className="font-bold py-0.5">
                       <div className="flex items-center justify-between">
-                        <span>: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.bankBalance || 0).toFixed(2)}</span></span>
+                        <span>: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.bankBalance || 0).toFixed(2)}</span></span>
                         <button
                           type="button"
                           onClick={(e) => openAddBalance(e, 'Bank')}
-                          className="text-[10px] bg-primary text-white px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
+                          className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
                         >
                           + অ্যাড
                         </button>
                       </div>
                       {stats?.bankBalancesList?.length > 0 && (
-                        <div className="text-[11px] font-normal text-gray-600 pl-2">
+                        <div className="text-[11px] font-normal text-muted-foreground pl-2 mt-0.5">
                           {stats.bankBalancesList.map((b: any, idx: number) => (
                             <div key={idx}>• {b.name}: TK. {Math.round(b.balance || 0).toFixed(2)}</div>
                           ))}
@@ -897,21 +897,21 @@ const [dateRange, setDateRange] = useState({
                   </tr>
 
                   {/* MFS */}
-                  <tr className="text-[#d32f2f]">
+                  <tr className="text-[#d32f2f] dark:text-rose-500">
                     <th className="w-24 font-bold py-0.5">এমএফএস</th>
                     <th className="font-bold py-0.5">
                       <div className="flex items-center justify-between">
-                        <span>: <span className="currency font-normal text-gray-800">TK. {Math.round(stats?.mfsBalanceTotal || 0).toFixed(2)}</span></span>
+                        <span>: <span className="currency font-normal text-foreground">TK. {Math.round(stats?.mfsBalanceTotal || 0).toFixed(2)}</span></span>
                         <button
                           type="button"
                           onClick={(e) => openAddBalance(e, 'MFS')}
-                          className="text-[10px] bg-primary text-white px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
+                          className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded font-bold hover:bg-primary/90 cursor-pointer ml-2"
                         >
                           + অ্যাড
                         </button>
                       </div>
                       {stats?.mfsBalancesList?.length > 0 && (
-                        <div className="text-[11px] font-normal text-gray-600 pl-2">
+                        <div className="text-[11px] font-normal text-muted-foreground pl-2 mt-0.5">
                           {stats.mfsBalancesList.map((b: any, idx: number) => (
                             <div key={idx}>• {b.name}: TK. {Math.round(b.balance || 0).toFixed(2)}</div>
                           ))}
@@ -923,8 +923,11 @@ const [dateRange, setDateRange] = useState({
               </table>
             </div>
           </div>
+        </div>
 
-          {/* 15. সম্পদ (Assets) Card */}
+        {/* Assets & Liabilities Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
+          {/* সম্পদ (Assets) Card */}
           {(() => {
             const stockVal = stats?.totalStockPurchaseValue || 0;
             const custDue = stats?.accountReceivable || 0;
@@ -932,30 +935,30 @@ const [dateRange, setDateRange] = useState({
             const totalAsset = stockVal + custDue + totalAccBalance;
 
             return (
-              <div className="bg-white rounded border border-gray-200 shadow-xs overflow-hidden">
+              <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden">
                 {/* Header */}
-                <div className="bg-[#b3e5fc] py-1.5 px-3 text-center border-b border-[#81d4fa]">
-                  <span className="text-[#0288d1] font-bold text-base">সম্পদ</span>
+                <div className="bg-sky-100 dark:bg-sky-950/50 py-2 px-4 text-center border-b border-sky-200 dark:border-sky-800">
+                  <span className="text-sky-700 dark:text-sky-300 font-bold text-base">সম্পদ</span>
                 </div>
                 {/* Body Table */}
-                <div className="p-3">
-                  <table className="w-full text-left text-sm leading-relaxed text-gray-900">
+                <div className="p-4">
+                  <table className="w-full text-left text-sm leading-relaxed text-foreground">
                     <tbody>
                       <tr>
-                        <th className="font-bold py-1 w-44">আইটেম স্টক ক্রয় মূল্য</th>
-                        <th className="font-normal py-1">: TK. {stockVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">আইটেম স্টক ক্রয় মূল্য</th>
+                        <th className="font-medium py-1.5">: TK. {stockVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                       <tr>
-                        <th className="font-bold py-1 w-44">কাস্টমারের বাকি</th>
-                        <th className="font-normal py-1">: TK. {custDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">কাস্টমারের বাকি</th>
+                        <th className="font-medium py-1.5">: TK. {custDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                       <tr>
-                        <th className="font-bold py-1 w-44">মোট অ্যাকাউন্ট ব্যালেন্স</th>
-                        <th className="font-normal py-1">: TK. {totalAccBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">মোট অ্যাকাউন্ট ব্যালেন্স</th>
+                        <th className="font-medium py-1.5">: TK. {totalAccBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
-                      <tr className="border-t border-gray-200">
-                        <th className="font-bold py-1.5 w-44 text-base">মোট</th>
-                        <th className="font-bold py-1.5 text-base">: TK. {totalAsset.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                      <tr className="border-t border-border pt-1">
+                        <th className="font-bold py-2 w-48 text-base">মোট</th>
+                        <th className="font-bold py-2 text-base text-primary">: TK. {totalAsset.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                     </tbody>
                   </table>
@@ -964,7 +967,7 @@ const [dateRange, setDateRange] = useState({
             );
           })()}
 
-          {/* 16. দায় (Liabilities) Card */}
+          {/* দায় (Liabilities) Card */}
           {(() => {
             const suppDue = stats?.supplierPayable || 0;
             const expDue = stats?.pendingExpenseTotal || 0;
@@ -972,30 +975,30 @@ const [dateRange, setDateRange] = useState({
             const totalLiability = suppDue + expDue + custAdv;
 
             return (
-              <div className="bg-white rounded border border-gray-200 shadow-xs overflow-hidden">
+              <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden">
                 {/* Header */}
-                <div className="bg-[#b3e5fc] py-1.5 px-3 text-center border-b border-[#81d4fa]">
-                  <span className="text-[#e53935] font-bold text-base">দায়</span>
+                <div className="bg-rose-100 dark:bg-rose-950/50 py-2 px-4 text-center border-b border-rose-200 dark:border-rose-800">
+                  <span className="text-rose-700 dark:text-rose-300 font-bold text-base">দায়</span>
                 </div>
                 {/* Body Table */}
-                <div className="p-3">
-                  <table className="w-full text-left text-sm leading-relaxed text-gray-900">
+                <div className="p-4">
+                  <table className="w-full text-left text-sm leading-relaxed text-foreground">
                     <tbody>
                       <tr>
-                        <th className="font-bold py-1 w-44">সাপ্লাইয়ার বাকি</th>
-                        <th className="font-normal py-1">: TK. {suppDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">সাপ্লাইয়ার বাকি</th>
+                        <th className="font-medium py-1.5">: TK. {suppDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                       <tr>
-                        <th className="font-bold py-1 w-44">খরচ বাকি</th>
-                        <th className="font-normal py-1">: TK. {expDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">খরচ বাকি</th>
+                        <th className="font-medium py-1.5">: TK. {expDue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                       <tr>
-                        <th className="font-bold py-1 w-44">কাস্টমার অ্যাডভান্স</th>
-                        <th className="font-normal py-1">: TK. {custAdv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                        <th className="font-bold py-1.5 w-48 text-muted-foreground">কাস্টমার অ্যাডভান্স</th>
+                        <th className="font-medium py-1.5">: TK. {custAdv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
-                      <tr className="border-t border-gray-200">
-                        <th className="font-bold py-1.5 w-44 text-base">মোট</th>
-                        <th className="font-bold py-1.5 text-base">: TK. {totalLiability.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
+                      <tr className="border-t border-border pt-1">
+                        <th className="font-bold py-2 w-48 text-base">মোট</th>
+                        <th className="font-bold py-2 text-base text-rose-600 dark:text-rose-400">: TK. {totalLiability.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</th>
                       </tr>
                     </tbody>
                   </table>
@@ -1003,389 +1006,147 @@ const [dateRange, setDateRange] = useState({
               </div>
             );
           })()}
+        </div>
 
-          {/* 17. শেষ ৭ দিনের পরিসংখ্যান (Last 7 Days Stats Table Card) */}
-          {(() => {
-            // Ensure 7 days are always available
-            let daysList = last7DaysStats;
-            if (!daysList || daysList.length === 0) {
-              daysList = [];
-              for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dDay = d.getDate().toString().padStart(2, '0');
-                const dMonth = d.toLocaleString('en-US', { month: 'short' });
-                const dYear = d.getFullYear();
-                daysList.push({
-                  date: `${dYear}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${dDay}`,
-                  displayDate: `${dDay}-${dMonth}-${dYear}`,
-                  sale: 0,
-                  salePayment: 0,
-                  purchase: 0,
-                  purchasePayment: 0,
-                  expense: 0,
-                  expensePayment: 0,
-                  dueCollection: 0,
-                  advanceCollection: 0
-                });
-              }
+        {/* শেষ ৭ দিনের পরিসংখ্যান (Last 7 Days Stats Table Card) */}
+        {(() => {
+          let daysList = last7DaysStats;
+          if (!daysList || daysList.length === 0) {
+            daysList = [];
+            for (let i = 6; i >= 0; i--) {
+              const d = new Date();
+              d.setDate(d.getDate() - i);
+              const dDay = d.getDate().toString().padStart(2, '0');
+              const dMonth = d.toLocaleString('en-US', { month: 'short' });
+              const dYear = d.getFullYear();
+              daysList.push({
+                date: `${dYear}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${dDay}`,
+                displayDate: `${dDay}-${dMonth}-${dYear}`,
+                sale: 0,
+                salePayment: 0,
+                purchase: 0,
+                purchasePayment: 0,
+                expense: 0,
+                expensePayment: 0,
+                dueCollection: 0,
+                advanceCollection: 0
+              });
             }
+          }
 
-            return (
-              <div className="bg-white rounded border border-gray-200 shadow-xs overflow-hidden">
-                {/* Header */}
-                <div className="bg-[#b3e5fc] py-1.5 px-3 text-center border-b border-[#81d4fa]">
-                  <span className="text-[#0288d1] font-bold text-base">শেষ ৭ দিনের পরিসংখ্যান</span>
-                </div>
-
-                {/* Scrollable Table */}
-                <div className="overflow-x-auto p-2">
-                  <table className="w-full min-w-[520px] border-collapse text-center text-xs">
-                    <thead>
-                      <tr className="border-b border-gray-200 bg-white">
-                        <th className="p-2 font-bold text-gray-900 text-left border-r border-gray-200 min-w-[110px]">
-                          বিবরণ
-                        </th>
-                        {daysList.map((day: any, idx: number) => {
-                          const parts = (day.displayDate || '').split('-');
-                          return (
-                            <th key={idx} className="p-1.5 font-bold text-gray-900 border-r last:border-r-0 border-gray-200 min-w-[65px]">
-                              <div>{parts[0]}</div>
-                              <div>{parts[1]}</div>
-                              <div>{parts[2]}</div>
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 font-bold">
-                      {/* বিক্রয় */}
-                      <tr className="bg-gray-50/50">
-                        <td className="p-2 text-left text-[#2e7d32] border-r border-gray-200 font-bold">বিক্রয়</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#2e7d32] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.sale || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* পেইড */}
-                      <tr>
-                        <td className="p-2 text-left text-gray-900 border-r border-gray-200 font-bold">পেইড</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-gray-900 border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.salePayment || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* মালক্রয় */}
-                      <tr className="bg-gray-50/50">
-                        <td className="p-2 text-left text-[#0066cc] border-r border-gray-200 font-bold">মালক্রয়</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#0066cc] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.purchase || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* মালক্রয় পেমেন্ট */}
-                      <tr>
-                        <td className="p-2 text-left text-[#0066cc] border-r border-gray-200 font-bold">মালক্রয় পেমেন্ট</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#0066cc] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.purchasePayment || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* খরচ */}
-                      <tr className="bg-gray-50/50">
-                        <td className="p-2 text-left text-[#d32f2f] border-r border-gray-200 font-bold">খরচ</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#d32f2f] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.expense || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* খরচ পেমেন্ট */}
-                      <tr>
-                        <td className="p-2 text-left text-[#0066cc] border-r border-gray-200 font-bold">খরচ পেমেন্ট</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#0066cc] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.expensePayment || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* বাকি কালেকশন */}
-                      <tr className="bg-gray-50/50">
-                        <td className="p-2 text-left text-[#0066cc] border-r border-gray-200 font-bold">বাকি কালেকশন</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#0066cc] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.dueCollection || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-
-                      {/* অ্যাডভান্স কালেকশন */}
-                      <tr className="bg-gray-50/50">
-                        <td className="p-2 text-left text-[#2e7d32] border-r border-gray-200 font-bold">অ্যাডভান্স কালেকশন</td>
-                        {daysList.map((day: any, idx: number) => (
-                          <td key={idx} className="p-1.5 text-[#2e7d32] border-r last:border-r-0 border-gray-200 font-semibold">
-                            {(day.advanceCollection || 0).toFixed(2)}
-                          </td>
-                        ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          return (
+            <div className="bg-card rounded-lg border border-border shadow-xs overflow-hidden">
+              {/* Header */}
+              <div className="bg-sky-100 dark:bg-sky-950/50 py-2 px-4 text-center border-b border-sky-200 dark:border-sky-800">
+                <span className="text-sky-700 dark:text-sky-300 font-bold text-base">শেষ ৭ দিনের পরিসংখ্যান</span>
               </div>
-            );
-          })()}
-        </div>
 
-        {/* DESKTOP VIEW (Preserve full grid layout) */}
-        <div className="hidden sm:grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Pending Orders Card */}
-          <Link href="/admin/orders" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.pending_orders")}</CardTitle>
-                <Clock className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">{stats?.pendingOrdersCount || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.requires_attention")}</p>
-              </CardContent>
-            </Card>
-          </Link>
+              {/* Scrollable Table */}
+              <div className="overflow-x-auto p-3">
+                <table className="w-full min-w-[600px] border-collapse text-center text-xs md:text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40">
+                      <th className="p-2.5 font-bold text-foreground text-left border-r border-border min-w-[130px]">
+                        বিবরণ
+                      </th>
+                      {daysList.map((day: any, idx: number) => {
+                        const parts = (day.displayDate || '').split('-');
+                        return (
+                          <th key={idx} className="p-2 font-bold text-foreground border-r last:border-r-0 border-border min-w-[75px]">
+                            <div>{parts[0]}</div>
+                            <div className="text-[11px] text-muted-foreground">{parts[1]}</div>
+                            <div className="text-[10px] text-muted-foreground font-normal">{parts[2]}</div>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border font-medium">
+                    {/* বিক্রয় */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#2e7d32] dark:text-emerald-500 border-r border-border font-bold">বিক্রয়</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#2e7d32] dark:text-emerald-500 border-r last:border-r-0 border-border font-semibold">
+                          {(day.sale || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Pending Expenses */}
-          <Link href="/admin/expenses-incomes?type=expense&status=Pending" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.pending_expenses") || "Pending Expenses"}</CardTitle>
-                <Receipt className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  {stats?.pendingExpenseCount || 0}
-                </div>
-                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-red-600 truncate">
-                  <span>{t("dashboard.total") || "Total"}: ৳{Math.round(stats?.pendingExpenseTotal || 0).toLocaleString()}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* পেইড */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-foreground border-r border-border font-bold">পেইড</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-foreground border-r last:border-r-0 border-border font-semibold">
+                          {(day.salePayment || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Cash Balance */}
-          <Link href="/admin/ledger" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.cash_balance")}</CardTitle>
-                <Wallet className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.cashBalance || 0).toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {selectedShowroom === 'all' ? t("dashboard.physical_cash_on_hand") : selectedShowroom === 'online' ? (t("dashboard.online_cash_flow") || 'Online/central cash flow') : (t("dashboard.showroom_cash_flow") || 'Showroom net cash flow')}
-                </p>
-                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Cash')}>
-                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* মালক্রয় */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#0066cc] dark:text-sky-400 border-r border-border font-bold">মালক্রয়</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#0066cc] dark:text-sky-400 border-r last:border-r-0 border-border font-semibold">
+                          {(day.purchase || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Bank Balance */}
-          <Link href="/admin/ledger" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.bank_balance")}</CardTitle>
-                <Landmark className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-xl md:text-3xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.bankBalance || 0).toLocaleString()}
-                </div>
-                {stats?.bankBalancesList?.length > 0 ? (
-                  <div className="flex flex-col gap-1 mt-2">
-                    {stats.bankBalancesList.map((b: any, idx: number) => (
-                      <span key={idx} className="text-xs font-semibold text-zinc-600">
-                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {selectedShowroom === 'all' ? t("dashboard.liquid_bank_accounts") : selectedShowroom === 'online' ? (t("dashboard.online_bank_flow") || 'Online/central bank flow') : (t("dashboard.showroom_bank_flow") || 'Showroom net bank flow')}
-                  </p>
-                )}
-                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'Bank')}>
-                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* মালক্রয় পেমেন্ট */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#0066cc] dark:text-sky-400 border-r border-border font-bold">মালক্রয় পেমেন্ট</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#0066cc] dark:text-sky-400 border-r last:border-r-0 border-border font-semibold">
+                          {(day.purchasePayment || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* MFS Balance */}
-          <Link href="/admin/ledger" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.mfs_balance") || "MFS Balance"}</CardTitle>
-                <Wallet className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-xl md:text-3xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.mfsBalanceTotal || 0).toLocaleString()}
-                </div>
-                {stats?.mfsBalancesList?.length > 0 ? (
-                  <div className="flex flex-col gap-1 mt-2">
-                    {stats.mfsBalancesList.map((b: any, idx: number) => (
-                      <span key={idx} className="text-xs font-semibold text-zinc-600">
-                        {b.name}: ৳{Math.round(b.balance || 0).toLocaleString()}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {t("dashboard.all_mfs_balance") || "Total MFS accounts balance"}
-                  </p>
-                )}
-                <Button size="sm" variant="outline" className="mt-4 h-8 px-6 bg-primary text-primary-foreground hover:bg-primary/90 mx-auto flex items-center justify-center" onClick={(e) => openAddBalance(e, 'MFS')}>
-                  <Plus className="h-3 w-3 mr-1" /> {t("dashboard.add_balance") || "Add Balance"}
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* খরচ */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#d32f2f] dark:text-rose-500 border-r border-border font-bold">খরচ</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#d32f2f] dark:text-rose-500 border-r last:border-r-0 border-border font-semibold">
+                          {(day.expense || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Account Receivable */}
-          <Link href="/admin/ledger/receivable" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.accounts_receivable")}</CardTitle>
-                <ArrowUpRight className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round(stats?.accountReceivable || 0).toLocaleString()}
-                </div>
-                <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
-                  <span>{t("dashboard.wholesaler_due") || "Wholesaler Due:"} ৳{Math.round(stats?.totalWholesalerDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedWholesalerDue || 0).toLocaleString()})</span></span>
-                  <span>{t("dashboard.general_due") || "General Due:"} ৳{Math.round(stats?.totalBillDue || 0).toLocaleString()} <span className="text-rose-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedGeneralDue || 0).toLocaleString()})</span></span>
-                  <span className="text-rose-600 mt-1 font-bold">{t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedReceivable || 0).toLocaleString()}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* খরচ পেমেন্ট */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#0066cc] dark:text-sky-400 border-r border-border font-bold">খরচ পেমেন্ট</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#0066cc] dark:text-sky-400 border-r last:border-r-0 border-border font-semibold">
+                          {(day.expensePayment || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Supplier Account Payable */}
-          <Link href="/admin/ledger/payable" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.accounts_payable")}</CardTitle>
-                <ArrowDownLeft className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  ৳{Math.round((stats?.supplierPayable || 0) + (stats?.businessLoanPayable || 0)).toLocaleString()}
-                </div>
-                <div className="flex flex-col gap-1 mt-1 text-xs font-semibold text-zinc-600 truncate">
-                  <span>{t("dashboard.supplier_due") || "Supplier Due:"} ৳{Math.round(stats?.supplierPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedSupplierPayable || 0).toLocaleString()})</span></span>
-                  <span>{t("dashboard.business_loan") || "Business Loan:"} ৳{Math.round(stats?.businessLoanPayable || 0).toLocaleString()} <span className="text-red-600 ml-1">({t("dashboard.matured") || "Matured:"} ৳{Math.round(stats?.maturedBusinessLoan || 0).toLocaleString()})</span></span>
-                  <span className="text-red-600 mt-1 font-bold">{t("dashboard.total_matured") || "Total Matured:"} ৳{Math.round(stats?.maturedPayable || 0).toLocaleString()}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                    {/* বাকি কালেকশন */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#0066cc] dark:text-sky-400 border-r border-border font-bold">বাকি কালেকশন</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#0066cc] dark:text-sky-400 border-r last:border-r-0 border-border font-semibold">
+                          {(day.dueCollection || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
 
-          {/* Total Suppliers */}
-          <Link href="/admin/suppliers" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.total_suppliers") || "Total Suppliers"}</CardTitle>
-                <Users className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  {stats?.totalSuppliersCount || 0}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.total_registered_suppliers") || "Total registered suppliers"}</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Total Customers Card */}
-          <Link href="/admin/users" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.total_customers")}</CardTitle>
-                <Users className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">{stats?.totalUsers || 0}</div>
-                <div className="flex items-center gap-1 mt-1 text-xs font-semibold text-muted-foreground truncate">
-                  <span>{t("dashboard.wholesalers") || "Wholesalers"}: {stats?.wholesalersCount || 0}, {t("dashboard.general") || "General"}: {stats?.generalUsersCount || 0}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Running Assigned Tasks */}
-          <Link href="/admin/employees/tasks" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.running_tasks")}</CardTitle>
-                <Briefcase className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  {stats?.runningAssignedTasks || 0}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.active_pending_tasks")}</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Expire Alert Card */}
-          <Link href="/admin/upcoming-expiry" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.expire_alert")}</CardTitle>
-                <CalendarClock className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary">
-                  {stats?.expiringProductsCount || 0}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {t("dashboard.expiring_products")}
-                  <span className="text-rose-600 font-bold ml-2">({t("dashboard.expired") || "Expired"}: {stats?.expiredProductsCount || 0})</span>
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Pending Leaves Card */}
-          <Link href="/admin/employees/leaves" className="block transition-transform hover:scale-[1.02] active:scale-95">
-            <Card className="bg-primary/5 border-primary/10 border-l-2 border-l-primary relative overflow-hidden group h-full shadow-sm hover:shadow transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
-                <CardTitle className="text-sm font-semibold leading-tight">{t("dashboard.leave_requests") || "Leave Requests"}</CardTitle>
-                <CalendarClock className="h-4 w-4 text-primary shrink-0" />
-              </CardHeader>
-              <CardContent className="p-6 pt-0">
-                <div className="text-lg md:text-2xl font-extrabold text-primary font-body">
-                  {stats?.pendingLeavesCount || 0}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">{t("dashboard.pending_leave_requests") || "Pending leave requests"}</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+                    {/* অ্যাডভান্স কালেকশন */}
+                    <tr className="hover:bg-muted/20">
+                      <td className="p-2.5 text-left text-[#2e7d32] dark:text-emerald-500 border-r border-border font-bold">অ্যাডভান্স কালেকশন</td>
+                      {daysList.map((day: any, idx: number) => (
+                        <td key={idx} className="p-2 text-[#2e7d32] dark:text-emerald-500 border-r last:border-r-0 border-border font-semibold">
+                          {(day.advanceCollection || 0).toFixed(2)}
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
       </div>
   
       {/* Add Balance Modal */}
