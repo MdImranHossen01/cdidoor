@@ -8,6 +8,7 @@ import Product from '@/models/Product';
 import Expense from '@/models/Expense';
 import Showroom from '@/models/Showroom';
 import Leave from '@/models/Leave';
+import SupplierBill from '@/models/SupplierBill';
 import mongoose from 'mongoose';
 
 export async function GET(req: NextRequest) {
@@ -468,7 +469,6 @@ export async function GET(req: NextRequest) {
     const accountReceivable = totalWholesalerDue + totalBillDue;
     const maturedReceivable = Math.min(maturedReceivableRaw + maturedBillDueRaw, accountReceivable);
     
-    const SupplierBill = (await import('@/models/SupplierBill')).default;
     const dueSupplierBills = await SupplierBill.find({ status: 'Due', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) }).lean() as any[];
     supplierPayable = dueSupplierBills.reduce((sum: number, b: any) => sum + (b.dueAmount || 0), 0);
     const maturedSupplierPayableRaw = dueSupplierBills.reduce((sum: number, b: any) => {
@@ -529,6 +529,22 @@ export async function GET(req: NextRequest) {
     const Supplier = (await import('@/models/Supplier')).default;
     const totalSuppliersCount = await Supplier.countDocuments();
 
+    // Fetch total stock purchase value (আইটেম স্টক ক্রয় মূল্য)
+    const allProducts = await Product.find({ deletedAt: null }).select('stock purchasePrice variants').lean() as any[];
+    const totalStockPurchaseValue = allProducts.reduce((sum: number, p: any) => {
+      let productVal = 0;
+      if (p.variants && p.variants.length > 0) {
+        productVal = p.variants.reduce((vSum: number, v: any) => vSum + ((v.stock || 0) * (v.purchasePrice || p.purchasePrice || 0)), 0);
+      } else {
+        productVal = (p.stock || 0) * (p.purchasePrice || 0);
+      }
+      return sum + productVal;
+    }, 0);
+
+    // Fetch total customer advance (কাস্টমার অ্যাডভান্স)
+    const customerAdvanceAccount = ledgerAccounts.find((a: any) => a.code === 'CUSTOMER_ADVANCE' || a.name?.toLowerCase().includes('advance'));
+    const totalCustomerAdvance = customerAdvanceAccount ? Math.abs(customerAdvanceAccount.currentBalance || 0) : 0;
+
     // Fetch expiring products in the next 30 days
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
@@ -569,6 +585,75 @@ export async function GET(req: NextRequest) {
         }
       ]
     });
+
+    // Fetch Last 7 Days Daily Breakdown for Mobile Overview
+    const last7DaysStats = [];
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const sevenDaysOrders = await Order.find({
+      createdAt: { $gte: sevenDaysAgo },
+      deletedAt: null,
+      status: { $nin: ['Cancelled'] }
+    }).select('totalAmount paidAmount paymentMethod createdAt').lean() as any[];
+
+    const sevenDaysExpenses = await Expense.find({
+      date: { $gte: sevenDaysAgo },
+      status: 'Approved'
+    }).select('amount type status date').lean() as any[];
+
+    const sevenDaysSupplierBills = await SupplierBill.find({
+      createdAt: { $gte: sevenDaysAgo }
+    }).select('totalAmount paidAmount createdAt').lean() as any[];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dDay = d.getDate().toString().padStart(2, '0');
+      const dMonth = d.toLocaleString('en-US', { month: 'short' });
+      const dYear = d.getFullYear();
+      const displayDate = `${dDay}-${dMonth}-${dYear}`;
+      const dateKey = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${dDay}`;
+
+      const dayOrders = sevenDaysOrders.filter(o => {
+        if (!o.createdAt) return false;
+        const oDate = new Date(o.createdAt);
+        return oDate.getFullYear() === d.getFullYear() && oDate.getMonth() === d.getMonth() && oDate.getDate() === d.getDate();
+      });
+      const dayExpenses = sevenDaysExpenses.filter(e => {
+        if (!e.date) return false;
+        const eDate = new Date(e.date);
+        return eDate.getFullYear() === d.getFullYear() && eDate.getMonth() === d.getMonth() && eDate.getDate() === d.getDate() && e.type === 'expense';
+      });
+      const daySupplierBills = sevenDaysSupplierBills.filter(s => {
+        if (!s.createdAt) return false;
+        const sDate = new Date(s.createdAt);
+        return sDate.getFullYear() === d.getFullYear() && sDate.getMonth() === d.getMonth() && sDate.getDate() === d.getDate();
+      });
+
+      const sale = dayOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      const salePayment = dayOrders.reduce((sum, o) => sum + (o.paidAmount || (o.paymentMethod !== 'Credit' ? o.totalAmount : 0) || 0), 0);
+      const purchase = daySupplierBills.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      const purchasePayment = daySupplierBills.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+      const expense = dayExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const expensePayment = expense;
+      const dueCollection = dayOrders.filter(o => o.paymentMethod === 'Credit').reduce((sum, o) => sum + (o.paidAmount || 0), 0);
+      const advanceCollection = 0;
+
+      last7DaysStats.push({
+        date: dateKey,
+        displayDate,
+        sale,
+        salePayment,
+        purchase,
+        purchasePayment,
+        expense,
+        expensePayment,
+        dueCollection,
+        advanceCollection
+      });
+    }
 
     const wholesalerDuesMap: Record<string, any> = {};
     for (const order of creditOrders) {
@@ -627,6 +712,8 @@ export async function GET(req: NextRequest) {
         expiringProductsCount,
         expiredProductsCount,
         pendingLeavesCount,
+        totalStockPurchaseValue: totalStockPurchaseValue || 0,
+        totalCustomerAdvance: totalCustomerAdvance || 0,
         isShowroomFiltered: !!isShowroomFiltered,
         ledgerAccounts: ledgerAccounts || [],
         loanProviders: loanProviders || []
@@ -636,6 +723,7 @@ export async function GET(req: NextRequest) {
       topSellingProducts,
       topCustomers,
       chartData,
+      last7DaysStats,
       wholesalersDueList,
       showrooms: allShowrooms
     });

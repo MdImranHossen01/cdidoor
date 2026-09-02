@@ -30,13 +30,21 @@ export default function AdminTopbar() {
   const { data: session } = useSession();
   const { t } = useLanguage();
   const pathname = usePathname();
-  const { open, toggleSidebar } = useSidebar();
+  const { open, toggleSidebar, setOpenMobile, openMobile } = useSidebar();
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6 justify-between">
-      {/* Mobile Left - Language Toggle */}
-      <div className="flex items-center md:hidden z-10 -ml-2">
-        <LanguageToggle />
+      {/* Mobile Left - Hamburger Menu */}
+      <div className="flex items-center md:hidden z-10 -ml-1">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setOpenMobile(!openMobile)}
+          className="h-9 w-9 rounded-md border-border shadow-xs hover:bg-muted"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* Desktop Left - Hamburger (only when sidebar is closed) + Page Title */}
@@ -59,7 +67,7 @@ export default function AdminTopbar() {
 
       {/* Mobile Center - Page Title */}
       <div className="absolute inset-0 flex items-center justify-center md:hidden pointer-events-none z-0">
-        <div className="font-bold text-lg truncate px-12">
+        <div className="font-bold text-lg truncate px-14">
           {getPageTitle(pathname, t)}
         </div>
       </div>

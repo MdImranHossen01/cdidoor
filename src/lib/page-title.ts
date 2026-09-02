@@ -1,7 +1,5 @@
 const routeTranslationMap: Record<string, string> = {
   '/admin/dashboard': 'sidebar.dashboard',
-  '/admin/dashboard/report': 'sidebar.report',
-  '/admin/dashboard/insight': 'sidebar.insight',
   '/admin/products': 'sidebar.all_products',
   '/admin/products/new': 'sidebar.add_product',
   '/admin/upcoming-expiry': 'sidebar.upcoming_expire',
@@ -18,6 +16,7 @@ const routeTranslationMap: Record<string, string> = {
   '/admin/bills/create': 'sidebar.create_invoice',
   '/admin/suppliers': 'sidebar.suppliers_vendors',
   '/admin/supplier-bills': 'sidebar.supplier_bills',
+  '/admin/supplier-bills/create': 'sidebar.add_purchase',
   '/admin/loans': 'sidebar.all_loans',
   '/admin/loans/providers': 'sidebar.all_loan_providers',
   '/admin/loans/providers/new': 'sidebar.add_loan_provider',

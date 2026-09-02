@@ -4,22 +4,24 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  ChevronRight,
-  LayoutDashboard,
-  ShoppingBag,
-
-  FileText,
+  Home,
+  Globe,
+  ShoppingCart,
   Users,
-  Image as ImageIcon,
-  Settings,
-  Store,
-  Mail,
-  CreditCard,
+  HandCoins,
+  PackagePlus,
   RotateCcw,
-  Truck,
+  FileText,
+  CalendarClock,
+  Barcode,
+  MessageSquare,
+  Receipt,
   Landmark,
+  FileSpreadsheet,
+  UserCheck,
+  Settings,
+  ChevronRight,
   X,
-  Briefcase,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/ui/logo"
@@ -33,7 +35,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -48,34 +49,195 @@ import {
 const data = {
   navMain: [
     {
-      title: "Dashboard",
-      tKey: "sidebar.dashboard",
+      title: "Home",
+      tKey: "sidebar.home",
       url: "/admin/dashboard",
-      icon: LayoutDashboard,
-      isActive: true,
+      icon: Home,
+      items: [],
+    },
+    {
+      title: "eCommerce",
+      tKey: "sidebar.ecommerce",
+      url: "#",
+      icon: Globe,
       items: [
         {
-          title: "Overview",
-          tKey: "sidebar.overview",
-          url: "/admin/dashboard",
+          title: "Abandoned Carts",
+          tKey: "sidebar.abandoned_carts",
+          url: "/admin/abandoned-carts",
         },
         {
-          title: "Report",
-          tKey: "sidebar.report",
-          url: "/admin/dashboard/report",
+          title: "eCommerce Sale List",
+          tKey: "sidebar.ecommerce_sale_list",
+          url: "/admin/orders",
         },
-        {
-          title: "Insight",
-          tKey: "sidebar.insight",
-          url: "/admin/dashboard/insight",
-        }
       ],
     },
     {
-      title: "Product Management",
-      tKey: "sidebar.product_management",
+      title: "Sales",
+      tKey: "sidebar.sales",
       url: "#",
-      icon: ShoppingBag,
+      icon: ShoppingCart,
+      items: [
+        {
+          title: "Add Sale",
+          tKey: "sidebar.add_sale",
+          url: "/admin/bills/create",
+        },
+        {
+          title: "Sale List",
+          tKey: "sidebar.sale_list",
+          url: "/admin/bills",
+        },
+        {
+          title: "Add Quotation",
+          tKey: "sidebar.add_quotation",
+          url: "/admin/offers/new",
+        },
+        {
+          title: "Quotation List",
+          tKey: "sidebar.quotation_list",
+          url: "/admin/offers",
+        },
+        {
+          title: "Sales Delete Log",
+          tKey: "sidebar.sales_delete_log",
+          url: "/admin/orders?status=deleted",
+        },
+        {
+          title: "Delivery Challans",
+          tKey: "sidebar.delivery_challans",
+          url: "/admin/chalans",
+        },
+      ],
+    },
+    {
+      title: "Contacts",
+      tKey: "sidebar.contacts",
+      url: "#",
+      icon: Users,
+      items: [
+        {
+          title: "Customer Bulk Add",
+          tKey: "sidebar.customer_bulk_add",
+          url: "/admin/users?action=bulk-add",
+        },
+        {
+          title: "Customer List",
+          tKey: "sidebar.customer_list",
+          url: "/admin/users",
+        },
+        {
+          title: "Customer Group",
+          tKey: "sidebar.customer_group",
+          url: "/admin/users?tab=groups",
+        },
+        {
+          title: "Area List",
+          tKey: "sidebar.area_list",
+          url: "/admin/areas",
+        },
+        {
+          title: "Supplier Bulk Add",
+          tKey: "sidebar.supplier_bulk_add",
+          url: "/admin/suppliers?action=bulk-add",
+        },
+        {
+          title: "Supplier List",
+          tKey: "sidebar.supplier_list",
+          url: "/admin/suppliers",
+        },
+        {
+          title: "Staff List",
+          tKey: "sidebar.staff_list",
+          url: "/admin/employees",
+        },
+        {
+          title: "Agent List",
+          tKey: "sidebar.agent_list",
+          url: "/admin/wholesalers",
+        },
+      ],
+    },
+    {
+      title: "Installment",
+      tKey: "sidebar.installment",
+      url: "#",
+      icon: HandCoins,
+      items: [
+        {
+          title: "Installment List",
+          tKey: "sidebar.installment_list",
+          url: "/admin/loans",
+        },
+        {
+          title: "Today's Installment",
+          tKey: "sidebar.today_installment",
+          url: "/admin/loans?filter=today",
+        },
+        {
+          title: "Upcoming Installment",
+          tKey: "sidebar.upcoming_installment",
+          url: "/admin/loans/upcoming",
+        },
+        {
+          title: "Overdue Installment",
+          tKey: "sidebar.overdue_installment",
+          url: "/admin/loans?filter=overdue",
+        },
+        {
+          title: "All Loan Providers",
+          tKey: "sidebar.all_loan_providers",
+          url: "/admin/loans/providers",
+        },
+      ],
+    },
+    {
+      title: "Purchases",
+      tKey: "sidebar.purchases",
+      url: "#",
+      icon: PackagePlus,
+      items: [
+        {
+          title: "Add Purchase",
+          tKey: "sidebar.add_purchase",
+          url: "/admin/supplier-bills/create",
+        },
+        {
+          title: "Purchase List",
+          tKey: "sidebar.purchase_list",
+          url: "/admin/supplier-bills",
+        },
+        {
+          title: "Suppliers / Vendors",
+          tKey: "sidebar.suppliers_vendors",
+          url: "/admin/suppliers",
+        },
+      ],
+    },
+    {
+      title: "Return",
+      tKey: "sidebar.product_return",
+      url: "#",
+      icon: RotateCcw,
+      items: [
+        {
+          title: "Add Sale Return",
+          tKey: "sidebar.add_sale_return",
+          url: "/admin/returns/new",
+        },
+        {
+          title: "Sale Return List",
+          tKey: "sidebar.sale_return_list",
+          url: "/admin/returns",
+        },
+      ],
+    },
+    {
+      title: "Items",
+      tKey: "sidebar.items",
+      url: "#",
+      icon: FileText,
       items: [
         {
           title: "All Products",
@@ -86,16 +248,6 @@ const data = {
           title: "Add Product",
           tKey: "sidebar.add_product",
           url: "/admin/products/new",
-        },
-        {
-          title: "Upcoming Expire",
-          tKey: "sidebar.upcoming_expire",
-          url: "/admin/upcoming-expiry",
-        },
-        {
-          title: "Low Stock",
-          tKey: "sidebar.low_stock",
-          url: "/admin/low-stock",
         },
         {
           title: "Categories",
@@ -110,123 +262,55 @@ const data = {
       ],
     },
     {
-      title: "Product Return",
-      tKey: "sidebar.product_return",
+      title: "Expiry Dates",
+      tKey: "sidebar.expiry_dates",
       url: "#",
-      icon: RotateCcw,
+      icon: CalendarClock,
       items: [
         {
-          title: "New Return",
-          tKey: "sidebar.new_return",
-          url: "/admin/returns/new",
+          title: "Upcoming Expire",
+          tKey: "sidebar.upcoming_expire",
+          url: "/admin/upcoming-expiry",
         },
         {
-          title: "Return List",
-          tKey: "sidebar.return_list",
-          url: "/admin/returns",
+          title: "Low Stock",
+          tKey: "sidebar.low_stock",
+          url: "/admin/low-stock",
         },
       ],
     },
     {
-      title: "Sales & Orders",
-      tKey: "sidebar.sales_orders",
+      title: "Label Print",
+      tKey: "sidebar.label_print",
       url: "#",
-      icon: FileText,
+      icon: Barcode,
       items: [
         {
-          title: "All Orders",
-          tKey: "sidebar.all_orders",
-          url: "/admin/orders",
-        },
-        {
-          title: "Abandoned Carts",
-          tKey: "sidebar.abandoned_carts",
-          url: "/admin/abandoned-carts",
-        },
-        {
-          title: "Offers / Quotations",
-          tKey: "sidebar.offers_quotations",
-          url: "/admin/offers",
-        },
-        {
-          title: "Delivery Challans",
-          tKey: "sidebar.delivery_challans",
-          url: "/admin/chalans",
-        },
-        {
-          title: "Client Bills",
-          tKey: "sidebar.client_bills",
-          url: "/admin/bills",
-        },
-        {
-          title: "Create Invoice",
-          tKey: "sidebar.create_invoice",
-          url: "/admin/bills/create",
+          title: "All Products",
+          tKey: "sidebar.all_products",
+          url: "/admin/products",
         },
       ],
     },
     {
-      title: "Suppliers & Purchases",
-      tKey: "sidebar.suppliers",
+      title: "SMS",
+      tKey: "sidebar.sms",
       url: "#",
-      icon: Truck,
+      icon: MessageSquare,
       items: [
         {
-          title: "Suppliers / Vendors",
-          tKey: "sidebar.suppliers_vendors",
-          url: "/admin/suppliers",
-        },
-        {
-          title: "Supplier Bills",
-          tKey: "sidebar.supplier_bills",
-          url: "/admin/supplier-bills",
+          title: "Subscribers",
+          tKey: "sidebar.subscribers",
+          url: "/admin/subscribers",
         },
       ],
     },
     {
-      title: "Loan",
-      tKey: "sidebar.loan",
+      title: "Expenses",
+      tKey: "sidebar.expenses",
       url: "#",
-      icon: Landmark,
+      icon: Receipt,
       items: [
-        {
-          title: "Add Loan Provider",
-          tKey: "sidebar.add_loan_provider",
-          url: "/admin/loans/providers/new",
-        },
-        {
-          title: "All Loan Providers",
-          tKey: "sidebar.all_loan_providers",
-          url: "/admin/loans/providers",
-        },
-        {
-          title: "All Loans",
-          tKey: "sidebar.all_loans",
-          url: "/admin/loans",
-        },
-        {
-          title: "Upcoming Payable",
-          tKey: "sidebar.upcoming_payable",
-          url: "/admin/loans/upcoming",
-        },
-      ],
-    },
-    {
-      title: "Ledger & Accounting",
-      tKey: "sidebar.ledger_accounting",
-      url: "#",
-      icon: CreditCard,
-      items: [
-        {
-          title: "All Accounts",
-          tKey: "sidebar.all_accounts",
-          url: "/admin/accounts",
-        },
-        {
-          title: "Add Account",
-          tKey: "sidebar.add_account",
-          url: "/admin/accounts/new",
-        },
         {
           title: "Expenses & Incomes",
           tKey: "sidebar.expenses_incomes",
@@ -242,76 +326,165 @@ const data = {
           tKey: "sidebar.add_category",
           url: "/admin/expenses-incomes/categories",
         },
-
+      ],
+    },
+    {
+      title: "Accounts",
+      tKey: "sidebar.accounts",
+      url: "#",
+      icon: Landmark,
+      items: [
+        {
+          title: "All Accounts",
+          tKey: "sidebar.all_accounts",
+          url: "/admin/accounts",
+        },
+        {
+          title: "Add Account",
+          tKey: "sidebar.add_account",
+          url: "/admin/accounts/new",
+        },
         {
           title: "Accounts Ledger",
           tKey: "sidebar.accounts_ledger",
-          url: "/admin/ledger"
+          url: "/admin/ledger",
         },
         {
           title: "Account Receivable",
           tKey: "sidebar.account_receivable",
-          url: "/admin/ledger/receivable"
+          url: "/admin/ledger/receivable",
         },
         {
           title: "Account Payable",
           tKey: "sidebar.account_payable",
-          url: "/admin/ledger/payable"
+          url: "/admin/ledger/payable",
         },
       ],
     },
     {
-      title: "Showrooms",
-      tKey: "sidebar.showrooms",
+      title: "Reports",
+      tKey: "sidebar.reports",
       url: "#",
-      icon: Store,
+      icon: FileSpreadsheet,
       items: [
         {
-          title: "Showrooms",
-          tKey: "sidebar.showrooms",
-          url: "/admin/showrooms",
+          title: "Due Customer List",
+          tKey: "sidebar.due_customer_list",
+          url: "/admin/bills?filter=due",
         },
         {
-          title: "Add Showroom",
-          tKey: "sidebar.add_showroom",
-          url: "/admin/showrooms?action=add",
-        }
+          title: "Due Supplier List",
+          tKey: "sidebar.due_supplier_list",
+          url: "/admin/supplier-bills?filter=due",
+        },
+        {
+          title: "Customer Payment",
+          tKey: "sidebar.customer_payment_report",
+          url: "/admin/ledger/receivable",
+        },
+        {
+          title: "Supplier Payment",
+          tKey: "sidebar.supplier_payment_report",
+          url: "/admin/ledger/payable",
+        },
+        {
+          title: "Item Stock Alert",
+          tKey: "sidebar.item_stock_alert",
+          url: "/admin/low-stock",
+        },
+        {
+          title: "Stock Add/Remove (Manual)",
+          tKey: "sidebar.manual_stock_adjust",
+          url: "/admin/products?action=stock-adjust",
+        },
+        {
+          title: "Item Stock Report",
+          tKey: "sidebar.item_stock_report",
+          url: "/admin/products?view=stock",
+        },
+        {
+          title: "Damage Add/Remove Report",
+          tKey: "sidebar.damage_stock_adjust",
+          url: "/admin/returns?type=damage",
+        },
+        {
+          title: "Damage Item Report",
+          tKey: "sidebar.damage_item_report",
+          url: "/admin/returns?type=damage-list",
+        },
+        {
+          title: "Item Purchase Report",
+          tKey: "sidebar.item_purchase_report",
+          url: "/admin/supplier-bills?view=items",
+        },
+        {
+          title: "Purchase Report",
+          tKey: "sidebar.purchase_report",
+          url: "/admin/supplier-bills",
+        },
+        {
+          title: "Sales Report",
+          tKey: "sidebar.sales_report",
+          url: "/admin/orders",
+        },
+        {
+          title: "Item Sales Return Report",
+          tKey: "sidebar.item_sales_return_report",
+          url: "/admin/returns?view=items",
+        },
+        {
+          title: "Supplier Item Report",
+          tKey: "sidebar.supplier_item_report",
+          url: "/admin/suppliers?view=items",
+        },
+        {
+          title: "Customer Sales Item Report",
+          tKey: "sidebar.customer_sales_item_report",
+          url: "/admin/orders?view=customer-items",
+        },
+        {
+          title: "Staff Sales Item Report",
+          tKey: "sidebar.staff_sales_item_report",
+          url: "/admin/orders?view=staff-items",
+        },
+        {
+          title: "Staff Sales Report",
+          tKey: "sidebar.staff_sales_report",
+          url: "/admin/employees?tab=sales",
+        },
+        {
+          title: "Staff Monthly Sales Report",
+          tKey: "sidebar.staff_monthly_sales_report",
+          url: "/admin/employees?tab=monthly-sales",
+        },
+        {
+          title: "Staff Brand Report",
+          tKey: "sidebar.staff_brand_report",
+          url: "/admin/employees?tab=brand-sales",
+        },
+        {
+          title: "Agent Commission Report",
+          tKey: "sidebar.agent_commission_report",
+          url: "/admin/wholesalers?tab=commission",
+        },
+        {
+          title: "Expense Report",
+          tKey: "sidebar.expense_report",
+          url: "/admin/expenses-incomes",
+        },
       ],
     },
     {
-      title: "Customer Management",
-      tKey: "sidebar.customer_management",
+      title: "Admin Users",
+      tKey: "sidebar.admin_users",
       url: "#",
-      icon: Users,
+      icon: UserCheck,
       items: [
-        {
-          title: "All Users",
-          tKey: "sidebar.all_users",
-          url: "/admin/users"
-        },
         {
           title: "System Users",
           tKey: "sidebar.system_users",
-          url: "/admin/system-users"
+          url: "/admin/system-users",
         },
-        {
-          title: "Wholesalers",
-          tKey: "sidebar.wholesalers",
-          url: "/admin/wholesalers",
-        },
-        {
-          title: "Areas",
-          tKey: "sidebar.areas",
-          url: "/admin/areas",
-        },
-      ],
-    },
-    {
-      title: "Employee Management",
-      tKey: "sidebar.employee_management",
-      url: "#",
-      icon: Briefcase,
-      items: [
         {
           title: "Employees",
           tKey: "sidebar.employees",
@@ -327,14 +500,39 @@ const data = {
           tKey: "sidebar.showroom_managers",
           url: "/admin/showroom-managers",
         },
+        {
+          title: "Showrooms",
+          tKey: "sidebar.showrooms",
+          url: "/admin/showrooms",
+        },
       ],
     },
     {
-      title: "CMS Manager",
-      tKey: "sidebar.cms_manager",
+      title: "Settings",
+      tKey: "sidebar.settings",
       url: "#",
-      icon: ImageIcon,
+      icon: Settings,
       items: [
+        {
+          title: "General Settings",
+          tKey: "sidebar.general_settings",
+          url: "/admin/settings",
+        },
+        {
+          title: "Profile",
+          tKey: "sidebar.profile",
+          url: "/admin/settings/profile",
+        },
+        {
+          title: "Coupons",
+          tKey: "sidebar.coupons",
+          url: "/admin/coupons",
+        },
+        {
+          title: "Marketing Settings",
+          tKey: "sidebar.marketing_settings",
+          url: "/admin/marketing",
+        },
         {
           title: "Banners",
           tKey: "sidebar.banners",
@@ -355,63 +553,16 @@ const data = {
           tKey: "sidebar.faqs",
           url: "/admin/cms/faqs",
         },
-      ],
-    },
-    {
-      title: "Blogs",
-      tKey: "sidebar.blogs",
-      url: "#",
-      icon: FileText,
-      items: [
         {
           title: "Manage Blog",
           tKey: "sidebar.manage_blog",
           url: "/admin/blogs",
         },
         {
-          title: "Add New Blog",
-          tKey: "sidebar.add_new_blog",
-          url: "/admin/blogs/new",
-        },
-      ],
-    },
-    {
-      title: "System Settings",
-      tKey: "sidebar.system_settings",
-      url: "#",
-      icon: Settings,
-      items: [
-        {
-          title: "Coupons",
-          tKey: "sidebar.coupons",
-          url: "/admin/coupons",
-        },
-        {
-          title: "General Settings",
-          tKey: "sidebar.general_settings",
-          url: "/admin/settings",
-        },
-        {
-          title: "Profile",
-          tKey: "sidebar.profile",
-          url: "/admin/settings/profile",
-        },
-        {
-          title: "Marketing Settings",
-          tKey: "sidebar.marketing_settings",
-          url: "/admin/marketing",
-        },
-        {
-          title: "Subscribers",
-          tKey: "sidebar.subscribers",
-          url: "/admin/subscribers",
-          icon: Mail,
-        },
-        {
           title: "Infrastructure & Marketing",
           tKey: "sidebar.infrastructure_marketing",
           url: "/admin/system-design",
-          superOnly: true
+          superOnly: true,
         },
       ],
     },
@@ -443,7 +594,7 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
       }
       return true;
     })
-  })).filter(item => item.items.length > 0);
+  })).filter(item => item.items.length > 0 || (item.url && item.url !== '#'));
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -467,6 +618,22 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
     <SidebarGroup>
       <SidebarMenu>
         {filteredItems.map((item) => {
+          if (!item.items || item.items.length === 0) {
+            const isActive = pathname === item.url;
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  render={<Link href={item.url} onClick={(e) => handleItemClick(e, item.url)} />}
+                  tooltip={t(item.tKey as string) || item.title}
+                  isActive={isActive}
+                >
+                  {item.icon && <item.icon />}
+                  <span>{t(item.tKey as string) || item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          }
+
           const isParentActive =
             item.items.some(
               (subItem) =>
@@ -522,30 +689,90 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
   )
 }
 
+import { User, LogOut } from "lucide-react"
+import { signOut } from "next-auth/react"
+import Image from "next/image"
+import { LanguageToggle } from "@/components/layout/LanguageToggle"
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const role = (session?.user as any)?.role
+  const { t } = useLanguage()
 
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, isMobile, setOpenMobile } = useSidebar()
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="border-b h-14 lg:h-[60px] px-4 flex items-center relative">
-        <Logo textClassName="text-sm md:text-base font-black tracking-wide whitespace-nowrap" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="hidden md:flex absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl-md"
-          aria-label="Close sidebar"
-        >
-          <X className="h-3.5 w-3.5" />
-        </Button>
+      <SidebarHeader className="border-b p-0 flex flex-col gap-0 bg-primary/10">
+        <div className="h-12 px-4 flex items-center justify-between border-b bg-primary text-primary-foreground">
+          <Logo textClassName="text-base font-black tracking-wide whitespace-nowrap text-primary-foreground" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={isMobile ? () => setOpenMobile(false) : toggleSidebar}
+            className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20"
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* User profile & ID badge section (matching screenshot) */}
+        <div className="flex items-center gap-3 p-3 bg-background/50 border-b">
+          <div className="h-12 w-12 rounded-full overflow-hidden border border-border shrink-0 bg-muted flex items-center justify-center">
+            {session?.user?.image ? (
+              <Image
+                src={session.user.image}
+                alt={session.user.name || "User"}
+                width={48}
+                height={48}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <User className="h-6 w-6 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold truncate leading-tight">
+              {session?.user?.name || session?.user?.email || "demo@user"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {session?.user?.email || "কাস্টমার আইডি: 6051"}
+            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <LanguageToggle />
+            </div>
+          </div>
+        </div>
       </SidebarHeader>
+
       <SidebarContent className="gap-0">
         <NavMain items={data.navMain} pathname={pathname} role={role} />
       </SidebarContent>
+
+      {/* Sidebar Footer with Profile, Logout and Version */}
+      <div className="border-t p-3 bg-background/50 flex flex-col gap-2">
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/admin/settings/profile"
+            className="flex items-center justify-center h-9 px-4 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
+            title="Profile"
+          >
+            <User className="h-4 w-4" />
+          </Link>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="flex items-center justify-center h-9 px-4 rounded bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-sm"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="text-center text-xs text-muted-foreground">
+          {t("sidebar.system_version") || "ভার্সন"}: 2.2.0
+        </div>
+      </div>
       <SidebarRail />
     </Sidebar>
   )

@@ -49,10 +49,11 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 
 interface TransactionFormProps {
   initialData?: any;
+  defaultType?: 'expense' | 'income';
   onSuccess: (wasEdit: boolean) => void;
 }
 
-export function TransactionForm({ initialData, onSuccess }: TransactionFormProps) {
+export function TransactionForm({ initialData, defaultType, onSuccess }: TransactionFormProps) {
   const searchParams = useSearchParams();
   const presetType = searchParams.get('type') as 'expense' | 'income' | null;
   const presetAccountCode = searchParams.get('accountCode') as 'CASH' | null;
@@ -160,7 +161,7 @@ export function TransactionForm({ initialData, onSuccess }: TransactionFormProps
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
-      type: initialData?.type || presetType || 'expense',
+      type: initialData?.type || defaultType || presetType || 'expense',
       title: initialData?.title || '',
       amount: initialData?.amount !== undefined ? initialData.amount : '',
       category: initialData?.category || presetCategory || '',

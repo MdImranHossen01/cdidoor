@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard,
-  BookOpen,
+  Home,
   Plus,
+  FileText,
+  HandCoins,
   Receipt,
-  Menu,
-  ShoppingBag,
-  FilePlus,
+  Package,
+  ShoppingCart,
+  Landmark,
 } from 'lucide-react';
-import { useSidebar } from '@/components/ui/sidebar';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Dialog,
   DialogContent,
@@ -24,127 +25,194 @@ import { TransactionForm } from '@/components/admin/TransactionForm';
 export function MobileBottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setOpenMobile, openMobile } = useSidebar();
+  const { t } = useLanguage();
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<'income' | 'expense'>('income');
 
-  const navItems = [
+  const topRowItems = [
     {
-      label: 'ড্যাশবোর্ড',
-      enLabel: 'Dashboard',
-      icon: LayoutDashboard,
+      title: 'হোম',
+      labelKey: 'bottomnav.home',
+      fallback: 'হোম',
+      icon: Home,
       href: '/admin/dashboard',
     },
     {
-      label: 'টালি',
-      enLabel: 'Tally/Ledger',
-      icon: BookOpen,
-      href: '/admin/ledger',
-    },
-    {
-      label: 'অর্ডারসমূহ',
-      enLabel: 'Orders',
-      icon: ShoppingBag,
-      href: '/admin/orders',
-    },
-  ];
-
-  const rightNavItems = [
-    {
-      label: 'ইনভয়েস',
-      enLabel: 'Invoices',
-      icon: FilePlus,
+      title: 'অ্যাড বিক্রয়',
+      labelKey: 'bottomnav.sale',
+      fallback: 'বিক্রয়',
+      icon: Plus,
       href: '/admin/bills/create',
     },
     {
-      label: 'ক্যাশবক্স',
-      enLabel: 'Cashbook',
-      icon: Receipt,
-      href: '/admin/expenses-incomes',
+      title: 'বিক্রয় তালিকা',
+      labelKey: 'bottomnav.sale_list',
+      fallback: 'বিক্রয় তালিকা',
+      icon: FileText,
+      href: '/admin/orders',
+    },
+    {
+      title: 'পেমেন্ট রিসিভ',
+      labelKey: 'bottomnav.received',
+      fallback: 'রিসিভ',
+      icon: HandCoins,
+      onClick: () => {
+        setTransactionType('income');
+        setIsTransactionDialogOpen(true);
+      },
+    },
+    {
+      title: 'পেমেন্ট',
+      labelKey: 'bottomnav.payment',
+      fallback: 'পেমেন্ট',
+      icon: HandCoins,
+      onClick: () => {
+        setTransactionType('expense');
+        setIsTransactionDialogOpen(true);
+      },
     },
   ];
 
+  const bottomRowItems = [
+    {
+      title: 'খরচ অ্যাড',
+      labelKey: 'bottomnav.expense',
+      fallback: 'খরচ',
+      icon: Plus,
+      onClick: () => {
+        setTransactionType('expense');
+        setIsTransactionDialogOpen(true);
+      },
+    },
+    {
+      title: 'স্টক',
+      labelKey: 'bottomnav.stock',
+      fallback: 'স্টক',
+      icon: Plus,
+      href: '/admin/products/new',
+    },
+    {
+      title: 'এ্যাড ক্রয়',
+      labelKey: 'bottomnav.purchase',
+      fallback: 'মালক্রয়',
+      icon: Plus,
+      href: '/admin/supplier-bills/create',
+    },
+    {
+      title: 'অ্যাকাউন্ট',
+      labelKey: 'sidebar.accounts',
+      fallback: 'অ্যাকাউন্ট',
+      icon: Landmark,
+      href: '/admin/accounts',
+    },
+  ];
+
+  const renderItem = (item: any, idx: number) => {
+    const Icon = item.icon;
+    const label = t(item.labelKey) || item.fallback;
+    const isActive =
+      item.href &&
+      (pathname === item.href ||
+        (item.href !== '/admin/dashboard' && pathname.startsWith(item.href)));
+
+    const linkClass = `inline-flex flex-col items-center justify-center px-1 py-1 no-underline text-center transition-colors rounded ${
+      isActive
+        ? 'bg-white font-bold shadow-xs'
+        : 'text-white hover:bg-white/20'
+    }`;
+
+    if (item.href) {
+      return (
+        <li key={idx} className="inline-block flex-1 max-w-[70px]">
+          <Link
+            href={item.href}
+            title={item.title}
+            className={`${linkClass} w-full`}
+            style={{
+              color: isActive ? '#009688' : '#ffffff',
+            }}
+          >
+            <Icon
+              className="h-4 w-4 mb-0.5 shrink-0"
+              style={{ color: isActive ? '#009688' : '#ffffff' }}
+            />
+            <span
+              className="text-[11px] leading-tight whitespace-nowrap"
+              style={{ color: isActive ? '#009688' : '#ffffff' }}
+            >
+              {label}
+            </span>
+          </Link>
+        </li>
+      );
+    }
+
+    return (
+      <li key={idx} className="inline-block flex-1 max-w-[70px]">
+        <button
+          type="button"
+          title={item.title}
+          onClick={item.onClick}
+          className={`${linkClass} border-0 cursor-pointer w-full`}
+          style={{
+            color: '#ffffff',
+          }}
+        >
+          <Icon
+            className="h-4 w-4 mb-0.5 shrink-0"
+            style={{ color: '#ffffff' }}
+          />
+          <span
+            className="text-[11px] leading-tight whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+          >
+            {label}
+          </span>
+        </button>
+      </li>
+    );
+  };
+
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-lg border-t border-border md:hidden flex justify-between items-center h-16 px-4 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        {/* Left side items */}
-        <div className="flex justify-around items-center w-5/12">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-label={item.enLabel}
-                className={`flex flex-col items-center justify-center w-12 transition-all ${
-                  isActive
-                    ? 'text-primary scale-105 font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="h-6 w-6" />
-              </Link>
-            );
-          })}
-        </div>
+      <div
+        className="fixed md:hidden z-40 bg-[#009688] text-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] select-none text-center"
+        style={{
+          left: '8px',
+          right: '8px',
+          bottom: '8px',
+          borderRadius: '8px',
+          padding: '4px 2px',
+        }}
+      >
+        {/* Row 1: 5 items (হোম, বিক্রয়, বিক্রয় তালিকা, রিসিভ, পেমেন্ট) */}
+        <ul className="flex items-center justify-around p-0 m-0 list-none text-center w-full">
+          {topRowItems.map((item, idx) => renderItem(item, idx))}
+        </ul>
 
-        {/* Floating Center Button */}
-        <div className="absolute left-1/2 bottom-2 -translate-x-1/2 flex flex-col items-center z-50">
-          <button
-            onClick={() => setIsTransactionDialogOpen(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:bg-primary/95 transition-transform active:scale-90 border-4 border-background"
-            aria-label="Add Transaction"
-          >
-            <Plus className="h-6 w-6 stroke-[3]" />
-          </button>
-        </div>
-
-        {/* Right side items */}
-        <div className="flex justify-around items-center w-5/12 ml-auto">
-          {rightNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-label={item.enLabel}
-                className={`flex flex-col items-center justify-center w-12 transition-all ${
-                  isActive
-                    ? 'text-primary scale-105 font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="h-6 w-6" />
-              </Link>
-            );
-          })}
-
-          {/* Sidebar Menu Toggle */}
-          <button
-            onClick={() => setOpenMobile(!openMobile)}
-            aria-label="Toggle Navigation Menu"
-            className={`flex flex-col items-center justify-center w-12 transition-all ${
-              openMobile ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-        </div>
+        {/* Row 2: 4 items (খরচ, স্টক, মালক্রয়, অ্যাকাউন্ট) */}
+        <ul className="flex items-center justify-around p-0 mt-0.5 mb-0 list-none text-center w-full">
+          {bottomRowItems.map((item, idx) => renderItem(item, idx + 10))}
+        </ul>
       </div>
 
       <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
         <DialogContent className="sm:max-w-md bg-background border shadow-lg rounded-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Add Transaction</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              {transactionType === 'income' ? 'Add Income / Receive' : 'Add Expense / Payment'}
+            </DialogTitle>
           </DialogHeader>
-          <TransactionForm onSuccess={() => {
-            setIsTransactionDialogOpen(false);
-            router.refresh();
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new Event('refresh-dashboard'));
-            }
-          }} />
+          <TransactionForm
+            defaultType={transactionType}
+            onSuccess={() => {
+              setIsTransactionDialogOpen(false);
+              router.refresh();
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('refresh-dashboard'));
+              }
+            }}
+          />
         </DialogContent>
       </Dialog>
     </>
