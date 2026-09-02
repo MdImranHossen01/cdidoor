@@ -80,24 +80,64 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Invalid JSON request body' }, { status: 400 });
     }
 
-    const { name, slug, description, sku, categories, tags, images, attributes, variants, isFeatured, isNewArrival, isPublished, discountRate, wholesalePrice, wholesaleSalePrice, purchasePrice, showroomStocks, brand, showroomPrice, batches } = body;
-    let { price, salePrice, stock } = body;
+    const { name, slug, description, sku, categories, tags, images, attributes, variants, isFeatured, isNewArrival, isPublished, discountRate, wholesalePrice, wholesaleSalePrice, purchasePrice, showroomStocks, brand, showroomPrice, batches, price, salePrice, stock } = body;
+    // Coerce variant numeric fields and whitelist properties
+    const coercedVariants = (variants || []).map((v: any) => ({
+      _id: v._id || v.id,
+      color: v.color,
+      size: v.size,
+      sku: v.sku,
+      image: v.image,
+      images: Array.isArray(v.images) ? v.images : (v.image ? [v.image] : []),
+      price: Number.isFinite(parseFloat(v.price)) ? parseFloat(v.price) : 0,
+      salePrice: Number.isFinite(parseFloat(v.salePrice)) ? parseFloat(v.salePrice) : undefined,
+      purchasePrice: Number.isFinite(parseFloat(v.purchasePrice)) ? parseFloat(v.purchasePrice) : undefined,
+      wholesaleSalePrice: Number.isFinite(parseFloat(v.wholesaleSalePrice)) ? parseFloat(v.wholesaleSalePrice) : undefined,
+      showroomPrice: Number.isFinite(parseFloat(v.showroomPrice)) ? parseFloat(v.showroomPrice) : undefined,
+      stock: Number.isFinite(parseInt(v.stock, 10)) ? parseInt(v.stock, 10) : 0,
+      discountRate: Number.isFinite(parseFloat(v.discountRate)) ? parseFloat(v.discountRate) : undefined,
+    }));
 
-    // Numeric validation and coercion
+    const hasVariants = coercedVariants.length > 0;
+    const firstVariant = hasVariants ? coercedVariants[0] : null;
+
+    // Numeric validation and coercion with fallback from variants
     const rawPrice = parseFloat(price);
-    const parsedPrice = Number.isFinite(rawPrice) ? rawPrice : 0;
+    let parsedPrice = Number.isFinite(rawPrice) ? rawPrice : 0;
+    if ((!parsedPrice || parsedPrice <= 0) && firstVariant?.price) {
+      parsedPrice = firstVariant.price;
+    }
 
     const rawSalePrice = parseFloat(salePrice);
-    const parsedSalePrice = Number.isFinite(rawSalePrice) ? rawSalePrice : undefined;
+    let parsedSalePrice = Number.isFinite(rawSalePrice) ? rawSalePrice : undefined;
+    if (parsedSalePrice === undefined && firstVariant?.salePrice) {
+      parsedSalePrice = firstVariant.salePrice;
+    }
 
     const rawStock = parseInt(stock, 10);
-    const parsedStock = Number.isFinite(rawStock) ? rawStock : 0;
+    let parsedStock = Number.isFinite(rawStock) ? rawStock : 0;
+    if (parsedStock === 0 && hasVariants) {
+      parsedStock = coercedVariants.reduce((sum: number, v: any) => sum + (v.stock || 0), 0);
+    }
+
+    let resolvedSku = (sku || '').trim();
+    if (!resolvedSku && firstVariant?.sku) {
+      resolvedSku = firstVariant.sku;
+    } else if (!resolvedSku && slug) {
+      resolvedSku = `${slug.toUpperCase()}-MAIN`;
+    }
+
+    let resolvedImages = Array.isArray(images) ? images : [];
+    if (resolvedImages.length === 0 && hasVariants) {
+      const allVariantImages = coercedVariants.flatMap((v: any) => (v.images && v.images.length > 0 ? v.images : (v.image ? [v.image] : []))).filter(Boolean);
+      resolvedImages = Array.from(new Set(allVariantImages));
+    }
 
     const rawDiscountRate = parseFloat(discountRate);
     const parsedDiscountRate = Number.isFinite(rawDiscountRate) ? rawDiscountRate : undefined;
 
     // Validate required fields and price
-    if (!name || !slug || !description || !sku || isNaN(parsedPrice) || parsedPrice <= 0) {
+    if (!name || !slug || !description || !resolvedSku || isNaN(parsedPrice) || parsedPrice <= 0) {
       return NextResponse.json({
         message: 'Invalid or missing required fields. Price must be a positive number.'
       }, { status: 400 });
@@ -111,20 +151,6 @@ export async function POST(req: NextRequest) {
         }, { status: 400 });
       }
     }
-
-    // Coerce variant numeric fields and whitelist properties
-    const coercedVariants = (variants || []).map((v: any) => ({
-      _id: v._id || v.id,
-      color: v.color,
-      size: v.size,
-      sku: v.sku,
-      image: v.image,
-      price: Number.isFinite(parseFloat(v.price)) ? parseFloat(v.price) : 0,
-      salePrice: Number.isFinite(parseFloat(v.salePrice)) ? parseFloat(v.salePrice) : undefined,
-      showroomPrice: Number.isFinite(parseFloat(v.showroomPrice)) ? parseFloat(v.showroomPrice) : undefined,
-      stock: Number.isFinite(parseInt(v.stock, 10)) ? parseInt(v.stock, 10) : 0,
-      discountRate: Number.isFinite(parseFloat(v.discountRate)) ? parseFloat(v.discountRate) : undefined,
-    }));
 
     // Coerce batch fields
     const coercedBatches = (batches || []).map((b: any) => ({
@@ -157,11 +183,11 @@ export async function POST(req: NextRequest) {
           purchasePrice: Number.isFinite(parseFloat(purchasePrice)) ? parseFloat(purchasePrice) : undefined,
           showroomPrice: Number.isFinite(parseFloat(showroomPrice)) ? parseFloat(showroomPrice) : undefined,
           discountRate: parsedDiscountRate,
-          sku,
+          sku: resolvedSku,
           stock: parsedStock,
           categories: categories || [],
           tags: tags || [],
-          images: images || [],
+          images: resolvedImages,
           attributes: attributes || [],
           variants: coercedVariants,
           batches: coercedBatches,

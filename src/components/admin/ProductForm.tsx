@@ -47,15 +47,15 @@ const productSchema = z.object({
   name: z.string().min(3, 'Name is required'),
   slug: z.string().min(3, 'Slug is required'),
   description: z.string().min(10, 'Description is required'),
-  price: z.union([z.coerce.number().positive('Price must be greater than zero'), z.literal('')]),
+  price: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
   purchasePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
   discountRate: z.union([z.coerce.number().min(0).max(100), z.literal('')]).optional(),
   salePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
   wholesaleSalePrice: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
-  sku: z.string().min(3, 'SKU is required'),
-  stock: z.union([z.coerce.number().int().min(0, 'Stock must be at least 0'), z.literal('')]),
+  sku: z.string().optional(),
+  stock: z.union([z.coerce.number().int().min(0, 'Stock must be at least 0'), z.literal('')]).optional(),
   categories: z.array(z.string()).min(1, 'Select at least one category'),
-  images: z.array(z.string()).min(1, 'Upload at least one image'),
+  images: z.array(z.string()).default([]),
   isFeatured: z.boolean(),
   isNewArrival: z.boolean(),
   isFlashSale: z.boolean().optional(),
@@ -83,6 +83,32 @@ const productSchema = z.object({
       sku: z.string().optional(),
     })).default([]),
   })).default([]),
+}).superRefine((data, ctx) => {
+  const hasVariants = data.variants && data.variants.some((v: any) => (v.sizes && v.sizes.length > 0) || (v.images && v.images.length > 0));
+  
+  if (!hasVariants) {
+    if (!data.price || Number(data.price) <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['price'],
+        message: 'Price must be greater than zero',
+      });
+    }
+    if (!data.sku || data.sku.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['sku'],
+        message: 'SKU is required',
+      });
+    }
+    if (!data.images || data.images.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['images'],
+        message: 'Upload at least one image',
+      });
+    }
+  }
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -263,17 +289,51 @@ export function ProductForm({ initialData }: ProductFormProps) {
       }]
       : [];
 
+    // Fallbacks from variants if main fields are omitted
+    const hasVariants = flatVariants.length > 0;
+    const firstVariant = hasVariants ? flatVariants[0] : null;
+
+    let derivedPrice = values.price === '' ? 0 : Number(values.price);
+    if ((!derivedPrice || derivedPrice <= 0) && firstVariant?.price) {
+      derivedPrice = Number(firstVariant.price);
+    }
+
+    let derivedSalePrice = values.salePrice === '' ? undefined : Number(values.salePrice);
+    if (derivedSalePrice === undefined && firstVariant?.salePrice) {
+      derivedSalePrice = Number(firstVariant.salePrice);
+    }
+
+    let derivedStock = values.stock === '' ? 0 : Number(values.stock);
+    if (derivedStock === 0 && hasVariants) {
+      derivedStock = flatVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+    }
+
+    let derivedSku = values.sku?.trim() || '';
+    if (!derivedSku && firstVariant?.sku) {
+      derivedSku = firstVariant.sku;
+    } else if (!derivedSku && values.slug) {
+      derivedSku = `${values.slug.toUpperCase()}-MAIN`;
+    }
+
+    let derivedImages = values.images || [];
+    if (derivedImages.length === 0 && hasVariants) {
+      const allVariantImages = flatVariants.flatMap((v) => (v.images && v.images.length > 0 ? v.images : (v.image ? [v.image] : []))).filter(Boolean);
+      derivedImages = Array.from(new Set(allVariantImages));
+    }
+
     const cleanValues = {
       ...values,
+      sku: derivedSku,
+      images: derivedImages,
       brand: values.brand || undefined,
       batches,
-      price: values.price === '' ? 0 : Number(values.price),
-      purchasePrice: values.purchasePrice === '' ? undefined : Number(values.purchasePrice),
-      salePrice: values.salePrice === '' ? undefined : Number(values.salePrice),
-      wholesaleSalePrice: values.wholesaleSalePrice === '' ? undefined : Number(values.wholesaleSalePrice),
-      showroomPrice: values.showroomPrice === '' ? undefined : Number(values.showroomPrice),
+      price: derivedPrice,
+      purchasePrice: values.purchasePrice === '' ? (firstVariant?.purchasePrice ? Number(firstVariant.purchasePrice) : undefined) : Number(values.purchasePrice),
+      salePrice: derivedSalePrice,
+      wholesaleSalePrice: values.wholesaleSalePrice === '' ? (firstVariant?.wholesaleSalePrice ? Number(firstVariant.wholesaleSalePrice) : undefined) : Number(values.wholesaleSalePrice),
+      showroomPrice: values.showroomPrice === '' ? (firstVariant?.showroomPrice ? Number(firstVariant.showroomPrice) : undefined) : Number(values.showroomPrice),
       discountRate: values.discountRate === '' || isNaN(Number(values.discountRate)) ? undefined : Number(values.discountRate),
-      stock: values.stock === '' ? 0 : Number(values.stock),
+      stock: derivedStock,
       variants: flatVariants,
     };
 
