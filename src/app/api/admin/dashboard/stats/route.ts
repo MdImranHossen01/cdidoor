@@ -73,40 +73,395 @@ export async function GET(req: NextRequest) {
         ? onlineOrderFilter
         : {};
 
-    // Fetch all showrooms for the response
-    const allShowrooms = await Showroom.find({}).select('_id name').lean();
+    // Run ALL independent heavy queries concurrently with Promise.all
+    const [
+      allShowrooms,
+      revenueStats,
+      expenseStats,
+      incomeStats,
+      generalUsersCount,
+      wholesalersCount,
+      pendingOrdersCount,
+      pendingLeavesCount,
+      recentOrders,
+      lowStockProducts,
+      activeSubscribers,
+      totalWalletBalanceResult,
+      topSellingProducts,
+      topCustomers,
+      allUsersWithOrders,
+      showrooms,
+      ordersData,
+      expensesIncomesData,
+      creditOrders,
+      dueBills,
+      ledgerAccounts,
+      loanProviders,
+      dueSupplierBills,
+      activeBusinessLoans,
+      tasksList,
+      pendingExpensesList,
+      totalSuppliersCount,
+      stockValueResult,
+      expiringProductsCount,
+      expiredProductsCount,
+      sevenDaysOrders,
+      sevenDaysExpenses,
+      sevenDaysSupplierBills
+    ] = await Promise.all([
+      // 0. All Showrooms
+      Showroom.find({}).select('_id name').lean(),
 
-    // 1 & 2. Total Revenue, COGS, and Sales Count (Delivered Orders)
-    const revenueStats = await Order.aggregate([
-      {
-        $match: {
-          status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
-          createdAt: { $gte: startDate, $lte: endDate },
-          deletedAt: null,
-          ...orderShowroomFilter
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: '$totalAmount' },
-          totalDeliveryCharge: { $sum: '$deliveryCharge' },
-          salesCount: { $sum: 1 },
-          totalCOGS: {
-            $sum: {
+      // 1. Revenue stats
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
+            createdAt: { $gte: startDate, $lte: endDate },
+            deletedAt: null,
+            ...orderShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$totalAmount' },
+            totalDeliveryCharge: { $sum: '$deliveryCharge' },
+            salesCount: { $sum: 1 },
+            totalCOGS: {
               $sum: {
-                $map: {
-                  input: '$items',
-                  as: 'item',
-                  in: { $multiply: ['$$item.quantity', { $ifNull: ['$$item.purchasePrice', 0] }] }
+                $sum: {
+                  $map: {
+                    input: '$items',
+                    as: 'item',
+                    in: { $multiply: ['$$item.quantity', { $ifNull: ['$$item.purchasePrice', 0] }] }
+                  }
                 }
               }
             }
           }
         }
-      }
+      ]),
+
+      // 2. Expense stats
+      Expense.aggregate([
+        {
+          $match: {
+            date: { $gte: startDate, $lte: endDate },
+            type: { $ne: 'income' },
+            status: 'Approved',
+            ...expenseShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalExpenses: { $sum: '$amount' }
+          }
+        }
+      ]),
+
+      // 3. Income stats
+      Expense.aggregate([
+        {
+          $match: {
+            date: { $gte: startDate, $lte: endDate },
+            type: 'income',
+            status: 'Approved',
+            ...expenseShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalIncomes: { $sum: '$amount' }
+          }
+        }
+      ]),
+
+      // 4. Users count
+      User.countDocuments({ role: 'user' }),
+      User.countDocuments({ role: 'wholesaler' }),
+
+      // 5. Pending Orders
+      Order.countDocuments({ status: 'Order Placed', deletedAt: null, ...orderShowroomFilter }),
+
+      // 6. Pending Leaves
+      Leave.countDocuments({ status: 'Pending' }),
+
+      // 7. Recent Orders
+      Order.find({ deletedAt: null, ...orderShowroomFilter })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('shortId slug totalAmount status createdAt user')
+        .populate('user', 'name email')
+        .lean(),
+
+      // 8. Low stock
+      Product.find({ stock: { $lt: 5 }, deletedAt: null })
+        .limit(5)
+        .select('name stock price')
+        .lean(),
+
+      // 9. Loyalty
+      User.countDocuments({ isSubscriptionActive: true }),
+      User.aggregate([{ $group: { _id: null, total: { $sum: '$walletBalance' } } }]),
+
+      // 10. Top Selling Products
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
+            createdAt: { $gte: startDate, $lte: endDate },
+            deletedAt: null,
+            ...orderShowroomFilter
+          }
+        },
+        { $unwind: '$items' },
+        {
+          $group: {
+            _id: '$items.name',
+            revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
+            quantity: { $sum: '$items.quantity' }
+          }
+        },
+        { $sort: { revenue: -1 } },
+        { $limit: 5 }
+      ]),
+
+      // 11. Top Customers
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
+            createdAt: { $gte: startDate, $lte: endDate },
+            deletedAt: null,
+            ...orderShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: '$user',
+            totalSpend: { $sum: '$totalAmount' },
+            orderCount: { $sum: 1 }
+          }
+        },
+        { $sort: { totalSpend: -1 } },
+        { $limit: 5 },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'userData'
+          }
+        },
+        { $unwind: '$userData' },
+        {
+          $project: {
+            name: '$userData.name',
+            email: '$userData.email',
+            totalSpend: 1,
+            orderCount: 1
+          }
+        }
+      ]),
+
+      // 12. New vs Returning users
+      Order.aggregate([
+        {
+          $match: {
+            deletedAt: null,
+            createdAt: { $gte: startDate, $lte: endDate },
+            ...orderShowroomFilter
+          }
+        },
+        { $group: { _id: '$user', count: { $sum: 1 } } }
+      ]),
+
+      // 13. Showrooms list for chart mapping
+      Showroom.find({}).select('_id name').lean(),
+
+      // 14. Chart Orders data
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
+            createdAt: { $gte: startDate, $lte: endDate },
+            deletedAt: null,
+            ...orderShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: {
+              date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+              showroom: '$showroom'
+            },
+            revenue: { $sum: '$totalAmount' },
+            orders: { $sum: 1 }
+          }
+        }
+      ]),
+
+      // 15. Chart Expenses / Incomes data
+      Expense.aggregate([
+        {
+          $match: {
+            date: { $gte: startDate, $lte: endDate },
+            status: 'Approved',
+            ...expenseShowroomFilter
+          }
+        },
+        {
+          $group: {
+            _id: {
+              date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+              showroom: '$showroom',
+              type: '$type'
+            },
+            amount: { $sum: '$amount' }
+          }
+        }
+      ]),
+
+      // 16. Credit Orders
+      Order.find({
+        paymentMethod: 'Credit',
+        paymentStatus: { $ne: 'Paid' },
+        status: { $nin: ['Cancelled', 'Order Placed'] },
+        deletedAt: null,
+        ...orderShowroomFilter
+      }).populate('user', 'name email phone').lean(),
+
+      // 17. Due Bills
+      (async () => {
+        const Bill = (await import('@/models/Bill')).default;
+        const billQuery: any = { documentType: 'bill', status: 'Due' };
+        if (isShowroomFiltered) billQuery.showroom = showroomObjId;
+        return Bill.find(billQuery).select('currentBillDue expectedReceivableDate').lean();
+      })(),
+
+      // 18. Ledger Accounts
+      (async () => {
+        const LedgerAccount = (await import('@/models/LedgerAccount')).default;
+        return LedgerAccount.find().lean();
+      })(),
+
+      // 19. Loan Providers
+      (async () => {
+        const LoanProvider = (await import('@/models/LoanProvider')).default;
+        return LoanProvider.find({}).sort({ name: 1 }).lean();
+      })(),
+
+      // 20. Due Supplier Bills
+      SupplierBill.find({ status: 'Due', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) })
+        .select('dueAmount expectedPaymentDate')
+        .lean(),
+
+      // 21. Active Business Loans
+      (async () => {
+        const BusinessLoan = (await import('@/models/BusinessLoan')).default;
+        return BusinessLoan.find({ status: 'Active' }).lean();
+      })(),
+
+      // 22. Tasks
+      (async () => {
+        const Task = (await import('@/models/Task')).default;
+        return Task.find({ status: 'Pending' }).select('_id status').lean();
+      })(),
+
+      // 23. Pending Expenses
+      Expense.find({ type: 'expense', status: 'Pending', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) })
+        .select('amount')
+        .lean(),
+
+      // 24. Total Suppliers
+      (async () => {
+        const Supplier = (await import('@/models/Supplier')).default;
+        return Supplier.countDocuments();
+      })(),
+
+      // 25. Stock Purchase Value via MongoDB aggregation pipeline (Super Fast, No memory hogging)
+      Product.aggregate([
+        { $match: { deletedAt: null } },
+        {
+          $project: {
+            productVal: {
+              $cond: [
+                { $gt: [{ $size: { $ifNull: ['$variants', []] } }, 0] },
+                {
+                  $sum: {
+                    $map: {
+                      input: '$variants',
+                      as: 'v',
+                      in: {
+                        $multiply: [
+                          { $ifNull: ['$$v.stock', 0] },
+                          { $ifNull: ['$$v.purchasePrice', { $ifNull: ['$purchasePrice', 0] }] }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  $multiply: [
+                    { $ifNull: ['$stock', 0] },
+                    { $ifNull: ['$purchasePrice', 0] }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalStockValue: { $sum: '$productVal' }
+          }
+        }
+      ]),
+
+      // 26. Expiring Products
+      (() => {
+        const thirtyDays = new Date();
+        thirtyDays.setDate(thirtyDays.getDate() + 30);
+        return Product.countDocuments({
+          $or: [
+            { batches: { $elemMatch: { expiryDate: { $gte: new Date(), $lte: thirtyDays } } } },
+            { 'variants.batches': { $elemMatch: { expiryDate: { $gte: new Date(), $lte: thirtyDays } } } }
+          ]
+        });
+      })(),
+
+      // 27. Expired Products
+      Product.countDocuments({
+        $or: [
+          { batches: { $elemMatch: { expiryDate: { $lt: new Date() } } } },
+          { 'variants.batches': { $elemMatch: { expiryDate: { $lt: new Date() } } } }
+        ]
+      }),
+
+      // 28. Last 7 Days Orders
+      Order.find({
+        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        deletedAt: null,
+        status: { $nin: ['Cancelled'] }
+      }).select('totalAmount paidAmount paymentMethod createdAt').lean(),
+
+      // 29. Last 7 Days Expenses
+      Expense.find({
+        date: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        status: 'Approved'
+      }).select('amount type status date').lean(),
+
+      // 30. Last 7 Days Supplier Bills
+      SupplierBill.find({
+        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+      }).select('totalAmount paidAmount createdAt').lean()
     ]);
 
+    // Financial summaries
     const {
       totalRevenue = 0,
       totalDeliveryCharge = 0,
@@ -114,188 +469,23 @@ export async function GET(req: NextRequest) {
       totalCOGS = 0
     } = revenueStats[0] || {};
 
-    // 3. Expenses & Incomes
-    const expenseStats = await Expense.aggregate([
-      {
-        $match: {
-          date: { $gte: startDate, $lte: endDate },
-          type: { $ne: 'income' },
-          status: 'Approved',
-          ...expenseShowroomFilter
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalExpenses: { $sum: '$amount' }
-        }
-      }
-    ]);
     const totalExpenses = expenseStats[0]?.totalExpenses || 0;
-
-    const incomeStats = await Expense.aggregate([
-      {
-        $match: {
-          date: { $gte: startDate, $lte: endDate },
-          type: 'income',
-          status: 'Approved',
-          ...expenseShowroomFilter
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalIncomes: { $sum: '$amount' }
-        }
-      }
-    ]);
     const totalIncomes = incomeStats[0]?.totalIncomes || 0;
-
-    // 4. Calculations
     const grossProfit = totalRevenue - totalCOGS - totalDeliveryCharge;
     const netProfit = grossProfit + totalIncomes - totalExpenses;
-
-    // 5. Total Customers (Users and Wholesalers)
-    const generalUsersCount = await User.countDocuments({ role: 'user' });
-    const wholesalersCount = await User.countDocuments({ role: 'wholesaler' });
     const totalUsers = generalUsersCount + wholesalersCount;
-
-    // 6. Pending Orders (Total, not date filtered)
-    const pendingOrdersCount = await Order.countDocuments({ status: 'Order Placed', deletedAt: null, ...orderShowroomFilter });
-
-    // Pending leaves
-    const pendingLeavesCount = await Leave.countDocuments({ status: 'Pending' });
-
-
-    // 7. Recent Orders
-    const recentOrders = await Order.find({ deletedAt: null })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('slug totalAmount status createdAt')
-      .populate('user', 'name email');
-
-    // 8. Low Stock Products
-    const lowStockProducts = await Product.find({ stock: { $lt: 5 } })
-      .limit(5)
-      .select('name stock price');
-
-    // 9. Loyalty Stats
-    const activeSubscribers = await User.countDocuments({ isSubscriptionActive: true });
-    const totalWalletBalanceResult = await User.aggregate([
-      { $group: { _id: null, total: { $sum: '$walletBalance' } } }
-    ]);
     const totalWalletTokens = totalWalletBalanceResult[0]?.total || 0;
 
-    // 10. Top Selling Products
-    const topSellingProducts = await Order.aggregate([
-      { $match: { status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] }, createdAt: { $gte: startDate, $lte: endDate }, deletedAt: null, ...orderShowroomFilter } },
-      { $unwind: '$items' },
-      {
-        $group: {
-          _id: '$items.name',
-          revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
-          quantity: { $sum: '$items.quantity' }
-        }
-      },
-      { $sort: { revenue: -1 } },
-      { $limit: 5 }
-    ]);
+    const returningUsersCount = allUsersWithOrders.filter((u: any) => u.count > 1).length;
+    const newUsersCount = allUsersWithOrders.filter((u: any) => u.count === 1).length;
 
-    // 11. Top Customers
-    const topCustomers = await Order.aggregate([
-      { $match: { status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] }, createdAt: { $gte: startDate, $lte: endDate }, deletedAt: null, ...orderShowroomFilter } },
-      {
-        $group: {
-          _id: '$user',
-          totalSpend: { $sum: '$totalAmount' },
-          orderCount: { $sum: 1 }
-        }
-      },
-      { $sort: { totalSpend: -1 } },
-      { $limit: 5 },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'userData'
-        }
-      },
-      { $unwind: '$userData' },
-      {
-        $project: {
-          name: '$userData.name',
-          email: '$userData.email',
-          totalSpend: 1,
-          orderCount: 1
-        }
-      }
-    ]);
-
-
-
-    // 13. New vs Returning (Sample simplified logic)
-    const allUsersWithOrders = await Order.aggregate([
-      {
-        $match: {
-          deletedAt: null,
-          createdAt: { $gte: startDate, $lte: endDate },
-          ...orderShowroomFilter
-        }
-      },
-      { $group: { _id: '$user', count: { $sum: 1 } } }
-    ]);
-    const returningUsersCount = allUsersWithOrders.filter(u => u.count > 1).length;
-    const newUsersCount = allUsersWithOrders.filter(u => u.count === 1).length;
-
-    // 14. Chart Data & Simple Forecast
-    const showrooms = await Showroom.find({}).lean();
+    // Showroom mapping
     const showroomMap: Record<string, string> = {};
     showrooms.forEach((s: any) => {
       showroomMap[s._id.toString()] = s.name;
     });
 
-    const ordersData = await Order.aggregate([
-      {
-        $match: {
-          status: { $in: ['Paid', 'Confirmed', 'Ready for Delivery', 'Released for Delivery', 'Delivered'] },
-          createdAt: { $gte: startDate, $lte: endDate },
-          deletedAt: null,
-          ...orderShowroomFilter
-        }
-      },
-      {
-        $group: {
-          _id: {
-            date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-            showroom: '$showroom'
-          },
-          revenue: { $sum: '$totalAmount' },
-          orders: { $sum: 1 }
-        }
-      }
-    ]);
-
-    const expensesIncomesData = await Expense.aggregate([
-      {
-        $match: {
-          date: { $gte: startDate, $lte: endDate },
-          status: 'Approved',
-          ...expenseShowroomFilter
-        }
-      },
-      {
-        $group: {
-          _id: {
-            date: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
-            showroom: '$showroom',
-            type: '$type'
-          },
-          amount: { $sum: '$amount' }
-        }
-      }
-    ]);
-
+    // Chart Data build
     const mergedData: Record<string, any> = {};
     const dayMs = 24 * 60 * 60 * 1000;
     const days = Math.floor((endDate.getTime() - startDate.getTime()) / dayMs);
@@ -315,10 +505,8 @@ export async function GET(req: NextRequest) {
     ordersData.forEach((item: any) => {
       const dateStr = item._id.date;
       if (!mergedData[dateStr]) return;
-      
       const showroomId = item._id.showroom ? item._id.showroom.toString() : null;
       const showroomName = showroomId ? (showroomMap[showroomId] || 'Unknown Showroom') : 'Direct/Online';
-      
       const revenue = item.revenue || 0;
       const orders = item.orders || 0;
 
@@ -335,10 +523,8 @@ export async function GET(req: NextRequest) {
     expensesIncomesData.forEach((item: any) => {
       const dateStr = item._id.date;
       if (!mergedData[dateStr]) return;
-
       const showroomId = item._id.showroom ? item._id.showroom.toString() : null;
       const showroomName = showroomId ? (showroomMap[showroomId] || 'Unknown Showroom') : 'Head Office';
-
       const amount = item.amount || 0;
       const isIncome = item._id.type === 'income';
 
@@ -360,18 +546,7 @@ export async function GET(req: NextRequest) {
 
     const chartData = Object.values(mergedData).sort((a: any, b: any) => a.date.localeCompare(b.date));
 
-
-
-    // Calculate credit receivables
-    const creditOrderQuery: any = {
-      paymentMethod: 'Credit',
-      paymentStatus: { $ne: 'Paid' },
-      status: { $nin: ['Cancelled', 'Order Placed'] },
-      deletedAt: null,
-      ...orderShowroomFilter
-    };
-    const creditOrders = await Order.find(creditOrderQuery).populate('user', 'name email phone').lean() as any[];
-
+    // Wholesaler dues & Receivables
     const totalWholesalerDue = creditOrders.reduce((sum: number, o: any) => {
       const outstanding = (o.totalAmount || 0) - (o.couponDiscountAmount || 0) - (o.walletAmountUsed || 0);
       return sum + outstanding;
@@ -386,10 +561,6 @@ export async function GET(req: NextRequest) {
       return sum;
     }, 0);
 
-    const Bill = (await import('@/models/Bill')).default;
-    const billQuery: any = { documentType: 'bill', status: 'Due' };
-    if (isShowroomFiltered) billQuery.showroom = showroomObjId;
-    const dueBills = await Bill.find(billQuery).lean() as any[];
     const totalBillDue = dueBills.reduce((sum: number, b: any) => sum + (b.currentBillDue || 0), 0);
     const maturedBillDueRaw = dueBills.reduce((sum: number, b: any) => {
       if (b.expectedReceivableDate && new Date(b.expectedReceivableDate) < todayDate) {
@@ -398,15 +569,6 @@ export async function GET(req: NextRequest) {
       return sum;
     }, 0);
 
-    // Fetch Ledger balances
-    const LedgerAccount = (await import('@/models/LedgerAccount')).default;
-    const LedgerTransaction = (await import('@/models/LedgerTransaction')).default;
-    const ledgerAccounts = await LedgerAccount.find().lean() as any[];
-    
-    // Fetch Loan Providers
-    const LoanProvider = (await import('@/models/LoanProvider')).default;
-    const loanProviders = await LoanProvider.find({}).sort({ name: 1 }).lean() as any[];
-
     const cashAccount = ledgerAccounts.find((a: any) => a.code === 'CASH');
     const apAccount = ledgerAccounts.find((a: any) => a.code === 'AP');
     const bankAccounts = ledgerAccounts.filter((a: any) => a.accountCategory === 'Bank' && a.code !== 'BANK');
@@ -414,12 +576,13 @@ export async function GET(req: NextRequest) {
 
     let cashBalance = cashAccount ? cashAccount.currentBalance : 0;
     let supplierPayable = apAccount ? apAccount.currentBalance : 0;
-    
-    const bankBalancesList = bankAccounts.map(a => ({ id: String(a._id), name: a.name, balance: a.currentBalance }));
-    const mfsBalancesList = mfsAccounts.map(a => ({ id: String(a._id), name: a.name, balance: a.currentBalance }));
 
-    // If showroom is filtered, compute per-showroom balances from ledger transactions
+    const bankBalancesList = bankAccounts.map((a: any) => ({ id: String(a._id), name: a.name, balance: a.currentBalance }));
+    const mfsBalancesList = mfsAccounts.map((a: any) => ({ id: String(a._id), name: a.name, balance: a.currentBalance }));
+
+    // Showroom-specific ledger filtering if required
     if (isShowroomFiltered) {
+      const LedgerTransaction = (await import('@/models/LedgerTransaction')).default;
       const accountIdsToFetch = [];
       if (cashAccount) accountIdsToFetch.push(cashAccount._id);
       if (apAccount) accountIdsToFetch.push(apAccount._id);
@@ -448,28 +611,26 @@ export async function GET(req: NextRequest) {
       }
       if (apAccount) {
         const apRes = txMap.get(String(apAccount._id));
-        supplierPayable = apRes ? apRes.creditSum - apRes.debitSum : 0; // AP is a liability
+        supplierPayable = apRes ? apRes.creditSum - apRes.debitSum : 0;
       }
-      
-      bankBalancesList.forEach(b => {
+
+      bankBalancesList.forEach((b: any) => {
         const res = txMap.get(b.id);
         b.balance = res ? res.debitSum - res.creditSum : 0;
       });
-      
-      mfsBalancesList.forEach(m => {
+
+      mfsBalancesList.forEach((m: any) => {
         const res = txMap.get(m.id);
         m.balance = res ? res.debitSum - res.creditSum : 0;
       });
     }
 
-    const bankBalance = bankBalancesList.reduce((sum, b) => sum + b.balance, 0);
-    const mfsBalanceTotal = mfsBalancesList.reduce((sum, m) => sum + m.balance, 0);
+    const bankBalance = bankBalancesList.reduce((sum: number, b: any) => sum + b.balance, 0);
+    const mfsBalanceTotal = mfsBalancesList.reduce((sum: number, m: any) => sum + m.balance, 0);
 
-    // Calculate account payable correctly from SupplierBill instead of just AP ledger balance, and calculate Matured Supplier Bills
     const accountReceivable = totalWholesalerDue + totalBillDue;
     const maturedReceivable = Math.min(maturedReceivableRaw + maturedBillDueRaw, accountReceivable);
-    
-    const dueSupplierBills = await SupplierBill.find({ status: 'Due', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) }).lean() as any[];
+
     supplierPayable = dueSupplierBills.reduce((sum: number, b: any) => sum + (b.dueAmount || 0), 0);
     const maturedSupplierPayableRaw = dueSupplierBills.reduce((sum: number, b: any) => {
       if (b.expectedPaymentDate && new Date(b.expectedPaymentDate) < todayDate) {
@@ -478,9 +639,6 @@ export async function GET(req: NextRequest) {
       return sum;
     }, 0);
 
-    // Fetch Business Loans
-    const BusinessLoan = (await import('@/models/BusinessLoan')).default;
-    const activeBusinessLoans = await BusinessLoan.find({ status: 'Active' }).lean() as any[];
     const businessLoanPayable = activeBusinessLoans.reduce((sum: number, l: any) => sum + (l.dueAmount || 0), 0);
     const maturedBusinessLoanRaw = activeBusinessLoans.reduce((sum: number, l: any) => {
       let maturedAmount = 0;
@@ -489,17 +647,11 @@ export async function GET(req: NextRequest) {
           const loanStartDate = new Date(l.date);
           const currentYear = todayDate.getFullYear();
           const currentMonth = todayDate.getMonth();
-          
-          let passedInstallments = 0;
-          
-          // Count passed installments (months since start date where current date is >= installmentDayOfMonth)
-          // A simple approximation: diff in months
           let diffMonths = (currentYear - loanStartDate.getFullYear()) * 12 + (currentMonth - loanStartDate.getMonth());
           if (todayDate.getDate() < l.installmentDayOfMonth) {
             diffMonths--;
           }
-          passedInstallments = Math.max(0, diffMonths);
-
+          const passedInstallments = Math.max(0, diffMonths);
           const expectedPaid = passedInstallments * l.installmentAmount;
           maturedAmount = Math.max(0, expectedPaid - (l.paidAmount || 0));
         }
@@ -512,101 +664,16 @@ export async function GET(req: NextRequest) {
     }, 0);
 
     const maturedPayable = maturedSupplierPayableRaw + maturedBusinessLoanRaw;
-
-    // Fetch employee dashboard stats
-    const Task = (await import('@/models/Task')).default;
-    const tasksList = await Task.find().lean() as any[];
-
-    // Calculate running assigned tasks (count of pending tasks)
-    const runningAssignedTasks = tasksList.filter((t: any) => t.status === 'Pending').length;
-
-    // Fetch pending expenses
-    const pendingExpensesList = await Expense.find({ type: 'expense', status: 'Pending', ...(isShowroomFiltered ? { showroom: showroomObjId } : {}) }).lean() as any[];
+    const runningAssignedTasks = tasksList.length;
     const pendingExpenseCount = pendingExpensesList.length;
     const pendingExpenseTotal = pendingExpensesList.reduce((sum: number, exp: any) => sum + (exp.amount || 0), 0);
 
-    // Fetch total suppliers
-    const Supplier = (await import('@/models/Supplier')).default;
-    const totalSuppliersCount = await Supplier.countDocuments();
-
-    // Fetch total stock purchase value (আইটেম স্টক ক্রয় মূল্য)
-    const allProducts = await Product.find({ deletedAt: null }).select('stock purchasePrice variants').lean() as any[];
-    const totalStockPurchaseValue = allProducts.reduce((sum: number, p: any) => {
-      let productVal = 0;
-      if (p.variants && p.variants.length > 0) {
-        productVal = p.variants.reduce((vSum: number, v: any) => vSum + ((v.stock || 0) * (v.purchasePrice || p.purchasePrice || 0)), 0);
-      } else {
-        productVal = (p.stock || 0) * (p.purchasePrice || 0);
-      }
-      return sum + productVal;
-    }, 0);
-
-    // Fetch total customer advance (কাস্টমার অ্যাডভান্স)
+    const totalStockPurchaseValue = stockValueResult[0]?.totalStockValue || 0;
     const customerAdvanceAccount = ledgerAccounts.find((a: any) => a.code === 'CUSTOMER_ADVANCE' || a.name?.toLowerCase().includes('advance'));
     const totalCustomerAdvance = customerAdvanceAccount ? Math.abs(customerAdvanceAccount.currentBalance || 0) : 0;
 
-    // Fetch expiring products in the next 30 days
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    const expiringProductsCount = await Product.countDocuments({
-      $or: [
-        {
-          batches: {
-            $elemMatch: {
-              expiryDate: { $gte: new Date(), $lte: thirtyDaysFromNow }
-            }
-          }
-        },
-        {
-          'variants.batches': {
-            $elemMatch: {
-              expiryDate: { $gte: new Date(), $lte: thirtyDaysFromNow }
-            }
-          }
-        }
-      ]
-    });
-
-    const expiredProductsCount = await Product.countDocuments({
-      $or: [
-        {
-          batches: {
-            $elemMatch: {
-              expiryDate: { $lt: new Date() }
-            }
-          }
-        },
-        {
-          'variants.batches': {
-            $elemMatch: {
-              expiryDate: { $lt: new Date() }
-            }
-          }
-        }
-      ]
-    });
-
-    // Fetch Last 7 Days Daily Breakdown for Mobile Overview
+    // 7 Days Daily Breakdown
     const last7DaysStats = [];
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
-
-    const sevenDaysOrders = await Order.find({
-      createdAt: { $gte: sevenDaysAgo },
-      deletedAt: null,
-      status: { $nin: ['Cancelled'] }
-    }).select('totalAmount paidAmount paymentMethod createdAt').lean() as any[];
-
-    const sevenDaysExpenses = await Expense.find({
-      date: { $gte: sevenDaysAgo },
-      status: 'Approved'
-    }).select('amount type status date').lean() as any[];
-
-    const sevenDaysSupplierBills = await SupplierBill.find({
-      createdAt: { $gte: sevenDaysAgo }
-    }).select('totalAmount paidAmount createdAt').lean() as any[];
-
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -616,29 +683,29 @@ export async function GET(req: NextRequest) {
       const displayDate = `${dDay}-${dMonth}-${dYear}`;
       const dateKey = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${dDay}`;
 
-      const dayOrders = sevenDaysOrders.filter(o => {
+      const dayOrders = sevenDaysOrders.filter((o: any) => {
         if (!o.createdAt) return false;
         const oDate = new Date(o.createdAt);
         return oDate.getFullYear() === d.getFullYear() && oDate.getMonth() === d.getMonth() && oDate.getDate() === d.getDate();
       });
-      const dayExpenses = sevenDaysExpenses.filter(e => {
+      const dayExpenses = sevenDaysExpenses.filter((e: any) => {
         if (!e.date) return false;
         const eDate = new Date(e.date);
         return eDate.getFullYear() === d.getFullYear() && eDate.getMonth() === d.getMonth() && eDate.getDate() === d.getDate() && e.type === 'expense';
       });
-      const daySupplierBills = sevenDaysSupplierBills.filter(s => {
+      const daySupplierBills = sevenDaysSupplierBills.filter((s: any) => {
         if (!s.createdAt) return false;
         const sDate = new Date(s.createdAt);
         return sDate.getFullYear() === d.getFullYear() && sDate.getMonth() === d.getMonth() && sDate.getDate() === d.getDate();
       });
 
-      const sale = dayOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-      const salePayment = dayOrders.reduce((sum, o) => sum + (o.paidAmount || (o.paymentMethod !== 'Credit' ? o.totalAmount : 0) || 0), 0);
-      const purchase = daySupplierBills.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
-      const purchasePayment = daySupplierBills.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
-      const expense = dayExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const sale = dayOrders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0);
+      const salePayment = dayOrders.reduce((sum: number, o: any) => sum + (o.paidAmount || (o.paymentMethod !== 'Credit' ? o.totalAmount : 0) || 0), 0);
+      const purchase = daySupplierBills.reduce((sum: number, s: any) => sum + (s.totalAmount || 0), 0);
+      const purchasePayment = daySupplierBills.reduce((sum: number, s: any) => sum + (s.paidAmount || 0), 0);
+      const expense = dayExpenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
       const expensePayment = expense;
-      const dueCollection = dayOrders.filter(o => o.paymentMethod === 'Credit').reduce((sum, o) => sum + (o.paidAmount || 0), 0);
+      const dueCollection = dayOrders.filter((o: any) => o.paymentMethod === 'Credit').reduce((sum: number, o: any) => sum + (o.paidAmount || 0), 0);
       const advanceCollection = 0;
 
       last7DaysStats.push({
@@ -712,8 +779,8 @@ export async function GET(req: NextRequest) {
         expiringProductsCount,
         expiredProductsCount,
         pendingLeavesCount,
-        totalStockPurchaseValue: totalStockPurchaseValue || 0,
-        totalCustomerAdvance: totalCustomerAdvance || 0,
+        totalStockPurchaseValue,
+        totalCustomerAdvance,
         isShowroomFiltered: !!isShowroomFiltered,
         ledgerAccounts: ledgerAccounts || [],
         loanProviders: loanProviders || []

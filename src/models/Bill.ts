@@ -110,6 +110,9 @@ const BillSchema: Schema<IBill> = new Schema(
   { timestamps: true }
 );
 
+BillSchema.index({ documentType: 1, status: 1, showroom: 1 });
+BillSchema.index({ createdAt: -1 });
+
 const Bill: Model<IBill> = mongoose.models.Bill || mongoose.model<IBill>('Bill', BillSchema);
 
 export default Bill;

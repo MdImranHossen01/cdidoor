@@ -53,6 +53,9 @@ const ExpenseSchema: Schema<IExpense> = new Schema(
   { timestamps: true }
 );
 
+ExpenseSchema.index({ date: -1, type: 1, status: 1 });
+ExpenseSchema.index({ showroom: 1, date: -1 });
+
 if (mongoose.models.Expense) {
   delete mongoose.models.Expense;
 }

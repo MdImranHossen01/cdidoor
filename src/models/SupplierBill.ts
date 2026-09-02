@@ -49,11 +49,8 @@ const SupplierBillSchema: Schema<ISupplierBill> = new Schema(
   { timestamps: true }
 );
 
-// Pre-save hook to calculate dueAmount and status
-SupplierBillSchema.pre('save', function (this: any) {
-  this.dueAmount = Math.max(0, this.total - this.paidAmount);
-  this.status = this.dueAmount === 0 ? 'Paid' : 'Due';
-});
+SupplierBillSchema.index({ status: 1, date: -1 });
+SupplierBillSchema.index({ createdAt: -1 });
 
 const SupplierBill: Model<ISupplierBill> = mongoose.models.SupplierBill || mongoose.model<ISupplierBill>('SupplierBill', SupplierBillSchema);
 
