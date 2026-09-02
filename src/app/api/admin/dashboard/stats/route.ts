@@ -725,15 +725,16 @@ export async function GET(req: NextRequest) {
     const wholesalerDuesMap: Record<string, any> = {};
     for (const order of creditOrders) {
       if (!order.user) continue;
-      const uId = String(order.user._id);
+      const userObj = order.user as any;
+      const uId = String(userObj._id || userObj);
       const outstanding = (order.totalAmount || 0) - (order.couponDiscountAmount || 0) - (order.walletAmountUsed || 0);
       if (wholesalerDuesMap[uId]) {
         wholesalerDuesMap[uId].due += outstanding;
       } else {
         wholesalerDuesMap[uId] = {
-          name: order.user.name || 'Unknown Wholesaler',
-          email: order.user.email,
-          phone: order.user.phone,
+          name: userObj.name || 'Unknown Wholesaler',
+          email: userObj.email,
+          phone: userObj.phone,
           due: outstanding
         };
       }
