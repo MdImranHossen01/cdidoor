@@ -6,6 +6,7 @@ export interface IBillItem {
   name: string;
   quantity: number;
   price: number;
+  purchasePrice?: number;
   batchesUsed?: { batchNumber: string; quantity: number }[];
 }
 
@@ -78,6 +79,7 @@ const BillSchema: Schema<IBill> = new Schema(
         name: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true, min: 0 },
+        purchasePrice: { type: Number, min: 0 },
         batchesUsed: [
           {
             batchNumber: { type: String, required: true },

@@ -70,7 +70,7 @@ const orderSchema = z.object({
 
 export async function POST(req: NextRequest) {
   let session: mongoose.ClientSession | null = null;
-  const successfulDeductions: { productId: string, quantity: number, variantId?: string }[] = [];
+  const successfulDeductions: { productId: string; quantity: number; variantId?: string; batchesUsed?: { batchNumber: string; quantity: number }[] }[] = [];
   try {
     const sessionUser = await auth();
     const body = await req.json();
@@ -308,15 +308,35 @@ export async function POST(req: NextRequest) {
       // 2d. Price Verification and Validated Items List (using ORIGINAL items for order structure)
       const isWholesalerUser = (sessionUser?.user as any)?.role === 'wholesaler';
 
+      // Prepare batch distribution pool for each deduction grouping
+      const deductionBatchesPool = new Map<any, { batchNumber: string; remainingQty: number }[]>();
+      for (const ded of successfulDeductions) {
+        if (ded.batchesUsed && ded.batchesUsed.length > 0) {
+          deductionBatchesPool.set(ded, ded.batchesUsed.map(b => ({ ...b, remainingQty: b.quantity })));
+        }
+      }
+
       for (const item of items) {
         const product = await Product.findOne({ _id: item.product }).session(session);
         if (!product) throw new Error('Product not found during price verification');
 
         const hasVariant = !!(item.color || item.size);
-        let itemPrice = isWholesalerUser
-          ? (product.wholesaleSalePrice ?? product.wholesalePrice ?? product.salePrice ?? product.price)
-          : (product.salePrice ?? product.price);
+        let itemPrice = product.price;
+        if (isWholesalerUser) {
+          itemPrice = (product.wholesaleSalePrice && product.wholesaleSalePrice > 0)
+            ? product.wholesaleSalePrice
+            : (product.wholesalePrice && product.wholesalePrice > 0)
+              ? product.wholesalePrice
+              : (product.salePrice && product.salePrice > 0)
+                ? product.salePrice
+                : product.price;
+        } else {
+          itemPrice = (product.salePrice && product.salePrice > 0)
+            ? product.salePrice
+            : product.price;
+        }
         let itemPurchasePrice = product.purchasePrice ?? 0;
+        let resolvedVariantId: string | undefined = undefined;
 
         if (hasVariant) {
           const variant = product.variants?.find((v: any) =>
@@ -324,9 +344,24 @@ export async function POST(req: NextRequest) {
             String(v.size || '').trim() === String(item.size || '').trim()
           );
           if (variant) {
-            itemPrice = isWholesalerUser
-              ? ((variant.wholesaleSalePrice ?? variant.wholesalePrice) ?? (variant.salePrice ?? variant.price) ?? (product.wholesaleSalePrice ?? product.wholesalePrice ?? product.salePrice ?? product.price))
-              : ((variant.salePrice ?? variant.price) ?? (product.salePrice ?? product.price));
+            resolvedVariantId = (variant as any)?._id?.toString();
+            if (isWholesalerUser) {
+              itemPrice = (variant.wholesaleSalePrice && variant.wholesaleSalePrice > 0)
+                ? variant.wholesaleSalePrice
+                : (variant.wholesalePrice && variant.wholesalePrice > 0)
+                  ? variant.wholesalePrice
+                  : (variant.salePrice && variant.salePrice > 0)
+                    ? variant.salePrice
+                    : (variant.price && variant.price > 0)
+                      ? variant.price
+                      : itemPrice;
+            } else {
+              itemPrice = (variant.salePrice && variant.salePrice > 0)
+                ? variant.salePrice
+                : (variant.price && variant.price > 0)
+                  ? variant.price
+                  : itemPrice;
+            }
             itemPurchasePrice = variant.purchasePrice ?? product.purchasePrice ?? 0;
           }
         }
@@ -334,14 +369,25 @@ export async function POST(req: NextRequest) {
         serverComputedTotal += itemPrice * item.quantity;
 
         // Find the matched deduction to get batchesUsed
-        const matchedDeduction = successfulDeductions.find(d => 
-          d.productId === product._id.toString() && 
-          (!hasVariant || d.variantId === (product.variants?.find((v: any) =>
-            String(v.color || '').trim() === String(item.color || '').trim() &&
-            String(v.size || '').trim() === String(item.size || '').trim()
-          ) as any)?._id?.toString())
+        const matchedDeduction = successfulDeductions.find(d =>
+          d.productId === product._id.toString() &&
+          d.variantId === resolvedVariantId
         );
-        const batchesUsed = (matchedDeduction as any)?.batchesUsed || [];
+        
+        const itemBatchesUsed: { batchNumber: string; quantity: number }[] = [];
+        if (matchedDeduction && deductionBatchesPool.has(matchedDeduction)) {
+          const pool = deductionBatchesPool.get(matchedDeduction)!;
+          let neededQty = item.quantity;
+          for (const b of pool) {
+            if (neededQty <= 0) break;
+            if (b.remainingQty > 0) {
+              const take = Math.min(b.remainingQty, neededQty);
+              itemBatchesUsed.push({ batchNumber: b.batchNumber, quantity: take });
+              b.remainingQty -= take;
+              neededQty -= take;
+            }
+          }
+        }
 
         validatedItems.push({
           product: product._id,
@@ -352,7 +398,7 @@ export async function POST(req: NextRequest) {
           image: item.image || product.images?.[0] || '',
           color: item.color,
           size: item.size,
-          batchesUsed: batchesUsed.length > 0 ? batchesUsed : undefined,
+          batchesUsed: itemBatchesUsed.length > 0 ? itemBatchesUsed : undefined,
         });
       }
     } catch (err: any) {
@@ -538,16 +584,33 @@ export async function POST(req: NextRequest) {
       console.log('Attempting manual stock restoration for failed order...');
       for (const ded of successfulDeductions) {
         try {
-          if (ded.variantId) {
-            await Product.updateOne(
-              { _id: ded.productId, "variants._id": ded.variantId },
-              { $inc: { "variants.$.stock": ded.quantity } }
-            );
-          } else {
-            await Product.updateOne(
-              { _id: ded.productId },
-              { $inc: { stock: ded.quantity } }
-            );
+          const prod = await Product.findById(ded.productId);
+          if (prod) {
+            if (ded.variantId) {
+              const variant = prod.variants?.find((v: any) => v._id?.toString() === ded.variantId?.toString());
+              if (variant) {
+                variant.stock = (variant.stock || 0) + ded.quantity;
+                if (ded.batchesUsed && ded.batchesUsed.length > 0 && variant.batches) {
+                  for (const bUsed of ded.batchesUsed) {
+                    const b = variant.batches.find((b: any) => b.batchNumber === bUsed.batchNumber);
+                    if (b) {
+                      b.stock = (b.stock || 0) + bUsed.quantity;
+                    }
+                  }
+                }
+              }
+            } else {
+              prod.stock = (prod.stock || 0) + ded.quantity;
+              if (ded.batchesUsed && ded.batchesUsed.length > 0 && prod.batches) {
+                for (const bUsed of ded.batchesUsed) {
+                  const b = prod.batches.find((b: any) => b.batchNumber === bUsed.batchNumber);
+                  if (b) {
+                    b.stock = (b.stock || 0) + bUsed.quantity;
+                  }
+                }
+              }
+            }
+            await prod.save();
           }
         } catch (rollbackErr) {
           console.error('Critical: Manual rollback failed for product:', ded.productId, rollbackErr);
@@ -624,7 +687,7 @@ export async function GET(req: NextRequest) {
             { email: { $regex: search, $options: 'i' } }
           ]
         }).select('_id');
-        
+
         const searchConditions: any[] = [
           { "shippingAddress.fullName": { $regex: search, $options: 'i' } },
           { "shippingAddress.phone": { $regex: search, $options: 'i' } }
@@ -652,7 +715,7 @@ export async function GET(req: NextRequest) {
     }
 
     const totalCount = await Order.countDocuments(query);
-    
+
     // Get counts for each status to display in tabs
     let counts = {
       all: 0,
@@ -721,7 +784,7 @@ export async function GET(req: NextRequest) {
       };
       counts.due = await Order.countDocuments(dueQuery);
     }
-    
+
     let ordersQuery = Order.find(query).sort({ createdAt: -1 });
 
     if (fetchAll && isAdmin) {
@@ -751,9 +814,9 @@ export async function GET(req: NextRequest) {
           return order.items.every((item: any) => {
             return other.items.some((otherItem: any) => {
               return String(otherItem.product) === String(item.product) &&
-                     String(otherItem.color || '') === String(item.color || '') &&
-                     String(otherItem.size || '') === String(item.size || '') &&
-                     otherItem.quantity === item.quantity;
+                String(otherItem.color || '') === String(item.color || '') &&
+                String(otherItem.size || '') === String(item.size || '') &&
+                otherItem.quantity === item.quantity;
             });
           });
         });

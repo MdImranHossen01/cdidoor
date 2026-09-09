@@ -196,8 +196,14 @@ export async function POST(req: NextRequest) {
                 }
               }
             }
+            if (item.purchasePrice === undefined || item.purchasePrice === null) {
+              item.purchasePrice = variant.purchasePrice ?? product.purchasePrice;
+            }
             variant.stock -= item.quantity;
           } else {
+            if (item.purchasePrice === undefined || item.purchasePrice === null) {
+              item.purchasePrice = product.purchasePrice;
+            }
             // Deduct base product batch stock
             let availableBatches = (product.batches || []) || [];
             if (item.batchNumber && item.batchNumber !== 'auto') {
@@ -232,6 +238,8 @@ export async function POST(req: NextRequest) {
 
           await product.save({ session: dbSession });
         }
+        newBill.items = items;
+        newBill.markModified('items');
       }
 
       await newBill.save({ session: dbSession });

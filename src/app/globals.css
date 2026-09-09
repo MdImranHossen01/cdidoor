@@ -105,3 +105,16 @@ html.lenis {
 }
 
 
+
+/* --- Report Print Styles --- */
+@media print {
+  header, nav, aside, .print\\:hidden, [class*='MobileBottomNav'], [class*='AdminTopbar'], [class*='AppSidebar'] {
+    display: none !important;
+  }
+  body { background: white !important; color: black !important; }
+  .bg-card { background: white !important; border: 1px solid #ddd !important; }
+  .text-emerald-600 { color: #059669 !important; }
+  .text-rose-600 { color: #dc2626 !important; }
+  .text-amber-600 { color: #d97706 !important; }
+  main { padding: 0 !important; }
+}

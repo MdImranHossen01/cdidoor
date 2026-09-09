@@ -123,8 +123,7 @@ export async function POST(req: NextRequest) {
     const validatedDeliveryCharge = Math.max(0, Number(deliveryCharge) || 0);
     const validatedServiceFee = Math.max(0, Number(serviceFee) || 0);
     const validatedDiscountValue = Math.max(0, Number(discountValue) || 0);
-    const validatedCouponDiscount = Math.max(0, Number(couponDiscount) || 0);
-    const validatedWalletAmountUsed = Math.max(0, Number(walletAmountUsed) || 0);
+    const requestedWalletAmountUsed = Math.max(0, Number(walletAmountUsed) || 0);
     const validatedPrevDue = Math.max(0, Number(prevDue) || 0);
     const validatedCashIn = Math.max(0, Number(cashIn) || 0);
 
@@ -132,6 +131,7 @@ export async function POST(req: NextRequest) {
     const sanitizedItems = items.map((item: any) => {
       const q = Math.max(1, parseInt(item.quantity) || 1);
       const p = Math.max(0, parseFloat(item.price) || 0);
+      const purchasePrice = item.purchasePrice != null ? Math.max(0, parseFloat(item.purchasePrice) || 0) : undefined;
       calculatedSubtotal += q * p;
       return {
         productId: item.productId,
@@ -140,6 +140,7 @@ export async function POST(req: NextRequest) {
         name: String(item.name),
         quantity: q,
         price: p,
+        purchasePrice,
         size: item.size ? String(item.size) : undefined,
         color: item.color ? String(item.color) : undefined,
       };
@@ -152,19 +153,6 @@ export async function POST(req: NextRequest) {
       calculatedDiscount = validatedDiscountValue;
     }
     calculatedDiscount = Math.max(0, calculatedDiscount);
-
-    const totalDiscountCombined = calculatedDiscount + validatedCouponDiscount;
-    const calculatedTotal = Math.max(0, calculatedSubtotal + validatedDeliveryCharge + validatedServiceFee - totalDiscountCombined - validatedWalletAmountUsed);
-    const calculatedGTotal = calculatedTotal + validatedPrevDue;
-    const calculatedCurrentBillDue = Math.max(0, calculatedGTotal - validatedCashIn);
-    const derivedStatus = validatedCashIn >= calculatedGTotal ? 'Paid' : 'Due';
-
-    if (!isFinite(calculatedSubtotal) || calculatedSubtotal < 0 ||
-        !isFinite(calculatedTotal) || calculatedTotal < 0 ||
-        !isFinite(calculatedGTotal) || calculatedGTotal < 0 ||
-        !isFinite(calculatedCurrentBillDue) || calculatedCurrentBillDue < 0) {
-      return NextResponse.json({ message: 'Invalid monetary calculations' }, { status: 400 });
-    }
 
     // Generate unique sequential document number using Counter model
     const docType = documentType || 'bill';
@@ -188,9 +176,88 @@ export async function POST(req: NextRequest) {
     dbSession.startTransaction();
 
     try {
+      const normalizedPhone = normalizePhoneNumber(clientPhone);
+
+      // 1. Coupon validation & guarded increment
+      let validatedCouponDiscount = 0;
+      let validCouponCode: string | undefined = undefined;
+
+      if (couponCode && typeof couponCode === 'string' && couponCode.trim()) {
+        const normalizedCouponCode = couponCode.trim().toUpperCase();
+        const Coupon = (await import('@/models/Coupon')).default;
+        const coupon = await Coupon.findOneAndUpdate(
+          {
+            code: normalizedCouponCode,
+            isActive: true,
+            expiryDate: { $gt: new Date() },
+            minPurchase: { $lte: calculatedSubtotal },
+            $or: [
+              { usageLimit: { $exists: false } },
+              { usageLimit: { $gt: 0 }, $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+            ]
+          },
+          { $inc: { usedCount: 1 } },
+          { session: dbSession, returnDocument: 'after' }
+        );
+
+        if (!coupon) {
+          await dbSession.abortTransaction();
+          dbSession.endSession();
+          return NextResponse.json({
+            message: 'Invalid, expired, or minimum purchase not met for this coupon code.'
+          }, { status: 400 });
+        }
+
+        validCouponCode = normalizedCouponCode;
+        if (coupon.discountType === 'fixed') {
+          validatedCouponDiscount = coupon.discountValue;
+        } else {
+          validatedCouponDiscount = Math.round((calculatedSubtotal * coupon.discountValue) / 100);
+        }
+        validatedCouponDiscount = Math.min(validatedCouponDiscount, calculatedSubtotal);
+      }
+
+      // 2. User Wallet validation & capping
+      let validatedWalletAmountUsed = 0;
+      let userDoc: any = null;
+
+      if (requestedWalletAmountUsed > 0) {
+        const User = (await import('@/models/User')).default;
+        userDoc = await User.findOne({
+          $or: [
+            ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
+            ...(clientEmail ? [{ email: clientEmail }] : [])
+          ]
+        }).session(dbSession);
+
+        if (userDoc && (userDoc.walletBalance || 0) > 0) {
+          validatedWalletAmountUsed = Math.min(userDoc.walletBalance, requestedWalletAmountUsed);
+        }
+      }
+
+      // 3. Compute Totals
+      const totalDiscountCombined = calculatedDiscount + validatedCouponDiscount;
+      const totalBeforeWallet = Math.max(0, calculatedSubtotal + validatedDeliveryCharge + validatedServiceFee - totalDiscountCombined);
+      validatedWalletAmountUsed = Math.min(validatedWalletAmountUsed, totalBeforeWallet);
+
+      const calculatedTotal = Math.max(0, totalBeforeWallet - validatedWalletAmountUsed);
+      const calculatedGTotal = calculatedTotal + validatedPrevDue;
+      const calculatedCurrentBillDue = Math.max(0, calculatedGTotal - validatedCashIn);
+      const derivedStatus = validatedCashIn >= calculatedGTotal ? 'Paid' : 'Due';
+      const derivedChangeReturn = validatedCashIn > calculatedGTotal ? validatedCashIn - calculatedGTotal : 0;
+
+      if (!isFinite(calculatedSubtotal) || calculatedSubtotal < 0 ||
+          !isFinite(calculatedTotal) || calculatedTotal < 0 ||
+          !isFinite(calculatedGTotal) || calculatedGTotal < 0 ||
+          !isFinite(calculatedCurrentBillDue) || calculatedCurrentBillDue < 0) {
+        await dbSession.abortTransaction();
+        dbSession.endSession();
+        return NextResponse.json({ message: 'Invalid monetary calculations' }, { status: 400 });
+      }
+
       const newBill = new Bill({
         clientName,
-        clientPhone: normalizePhoneNumber(clientPhone),
+        clientPhone: normalizedPhone,
         clientAddress,
         clientEmail,
         clientDivision,
@@ -206,14 +273,14 @@ export async function POST(req: NextRequest) {
         discountType,
         discountValue: validatedDiscountValue,
         discount: totalDiscountCombined,
-        couponCode: couponCode ? couponCode.toUpperCase() : undefined,
+        couponCode: validCouponCode,
         couponDiscount: validatedCouponDiscount,
         walletAmountUsed: validatedWalletAmountUsed,
         total: calculatedTotal,
         prevDue: validatedPrevDue,
         gTotal: calculatedGTotal,
         cashIn: validatedCashIn,
-        changeReturn: changeReturn || (validatedCashIn > calculatedGTotal ? validatedCashIn - calculatedGTotal : 0),
+        changeReturn: derivedChangeReturn,
         currentBillDue: calculatedCurrentBillDue,
         status: derivedStatus,
         expectedReceivableDate: derivedStatus === 'Due' && expectedReceivableDate ? new Date(expectedReceivableDate) : undefined,
@@ -266,7 +333,14 @@ export async function POST(req: NextRequest) {
                 }
               }
             }
+            if (item.purchasePrice === undefined || item.purchasePrice === null) {
+              item.purchasePrice = variant.purchasePrice ?? product.purchasePrice;
+            }
+            variant.stock -= item.quantity;
           } else {
+            if (item.purchasePrice === undefined || item.purchasePrice === null) {
+              item.purchasePrice = product.purchasePrice;
+            }
             // Deduct base product batch stock
             let availableBatches = (product.batches || []) || [];
             if (item.batchNumber && item.batchNumber !== 'auto') {
@@ -295,6 +369,7 @@ export async function POST(req: NextRequest) {
                 }
               }
             }
+            product.stock -= item.quantity;
           }
           item.batchesUsed = batchesUsed;
 
@@ -306,6 +381,8 @@ export async function POST(req: NextRequest) {
 
           await product.save({ session: dbSession });
         }
+        newBill.items = sanitizedItems;
+        newBill.markModified('items');
       }
 
       await newBill.save({ session: dbSession });
@@ -356,39 +433,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Deduct User Wallet Tokens if used
-        if (validatedWalletAmountUsed > 0) {
-          try {
-            const User = (await import('@/models/User')).default;
-            const normalizedPhone = normalizePhoneNumber(clientPhone);
-            const userDoc = await User.findOne({
-              $or: [
-                ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
-                ...(clientEmail ? [{ email: clientEmail }] : [])
-              ]
-            }).session(dbSession);
-
-            if (userDoc && (userDoc.walletBalance || 0) > 0) {
-              const deductAmount = Math.min(userDoc.walletBalance, validatedWalletAmountUsed);
-              userDoc.walletBalance = Math.max(0, userDoc.walletBalance - deductAmount);
-              await userDoc.save({ session: dbSession });
-            }
-          } catch (walletErr) {
-            console.error('Error deducting wallet balance in showroom bill creation:', walletErr);
-          }
-        }
-
-        // Increment Coupon usedCount if coupon code provided
-        if (couponCode) {
-          try {
-            const Coupon = (await import('@/models/Coupon')).default;
-            await Coupon.findOneAndUpdate(
-              { code: couponCode.toUpperCase() },
-              { $inc: { usedCount: 1 } },
-              { session: dbSession }
-            );
-          } catch (couponErr) {
-            console.error('Error updating coupon used count in showroom bill creation:', couponErr);
-          }
+        if (validatedWalletAmountUsed > 0 && userDoc) {
+          userDoc.walletBalance = Math.max(0, (userDoc.walletBalance || 0) - validatedWalletAmountUsed);
+          await userDoc.save({ session: dbSession });
         }
       }
 
