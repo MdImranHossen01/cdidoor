@@ -6,8 +6,16 @@ import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import {
   Search, Calendar, FileText, CheckCircle2, XCircle, Clock,
   Truck, RefreshCw, Eye, Share2, Plus, SlidersHorizontal,
-  ChevronDown, Filter as FilterIcon, MoreHorizontal
+  ChevronDown, Filter as FilterIcon, MoreHorizontal, Copy
 } from 'lucide-react';
+import { getWhatsAppLink } from '@/lib/utils';
+
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" {...props}>
+    <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.37 5.054L2 22l5.132-1.347a9.937 9.937 0 004.877 1.28h.005c5.505 0 9.989-4.478 9.99-9.985A9.992 9.992 0 0012.012 2zm5.836 14.199c-.32.899-1.576 1.706-2.185 1.761-.559.05-1.286.074-2.074-.176a9.839 9.839 0 01-4.705-3.023 9.388 9.388 0 01-1.926-3.412 5.097 5.097 0 01-.137-2.138c.112-.601.442-1.01.691-1.272.249-.262.502-.328.67-.328.167 0 .335.006.475.014.148.009.347-.058.544.417.202.489.691 1.684.75 1.805.059.12.098.262.019.41-.079.158-.12.262-.24.399-.118.136-.251.306-.358.411-.118.114-.242.238-.104.475.138.238.614 1.01.32.957.382.341.703.56.963.666.26.106.41.088.56-.079.15-.167.643-.75.814-.999.171-.249.34-.208.573-.122.233.086 1.48.697 1.737.825.257.128.428.192.488.295.06.103.06.596-.26 1.495z" />
+  </svg>
+);
+
 import { Button } from '@/components/ui/button';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -34,11 +42,13 @@ interface OrderItem {
     fullName: string;
     phone: string;
     city: string;
+    street?: string;
   };
   paymentMethod: string;
   paymentStatus: string;
   status: string;
   totalAmount: number;
+  deliveryCharge?: number;
   items?: any[];
 }
 
@@ -304,7 +314,7 @@ function ShowroomOrdersContent() {
       </div>
 
       {/* ── Table & Cards ── */}
-      <div className="rounded-md border bg-background overflow-hidden relative">
+      <div className="border-0 md:border md:rounded-md bg-transparent md:bg-background overflow-hidden relative">
 
         {/* Desktop Table */}
         <div className="hidden md:block">
@@ -388,89 +398,242 @@ function ShowroomOrdersContent() {
         </div>
 
         {/* ── Mobile Cards (Admin Pattern) ── */}
-        <div className="block md:hidden divide-y">
+        <div className="block md:hidden space-y-3">
           {orders.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-xs">
+            <div className="p-8 text-center text-muted-foreground text-xs bg-background rounded-lg border">
               {t('store.showroom.no_orders_found') || 'No orders found.'}
             </div>
           ) : (
-            orders.map(order => (
-              <div key={order._id}
-                className={`p-4 sm:p-5 transition-colors ${selectedIds.includes(order._id) ? 'bg-muted/50' : 'bg-background'}`}
-              >
-                {/* Card Header: Checkbox + Order ID + Status */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={selectedIds.includes(order._id)}
-                      onCheckedChange={() => toggleSelect(order._id)}
-                      className="h-5 w-5"
-                    />
-                    <button type="button"
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
-                    >
-                      <span className="text-sm font-bold text-primary hover:underline">
+            orders.map(order => {
+              const isSelected = selectedIds.includes(order._id);
+              const isPaid = order.paymentStatus === 'Paid';
+              const totalAmt = Math.round(order.totalAmount || 0);
+              const netSale = Math.max(0, Math.round(totalAmt - (order.deliveryCharge || 0)));
+              const paidAmt = isPaid ? totalAmt : 0;
+              const dueAmt = isPaid ? 0 : totalAmt;
+
+              return (
+                <div
+                  key={order._id}
+                  className={`rounded-lg border bg-card text-card-foreground shadow-xs transition-all overflow-hidden ${
+                    isSelected ? 'ring-2 ring-primary border-primary' : 'border-border'
+                  }`}
+                >
+                  {/* Top Action Header */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelect(order._id)}
+                        className="h-4 w-4"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
+                        className="text-xs font-mono font-bold text-primary hover:underline"
+                      >
                         #{order.shortId}
-                      </span>
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {getStatusBadge(order.status)}
-                  </div>
-                </div>
+                      </button>
+                    </div>
 
-                {/* Customer name + Total */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-base text-foreground">
-                    {order.shippingAddress?.fullName || '—'}
-                  </span>
-                  <span className="font-bold text-lg text-foreground">
-                    ৳{Math.round(order.totalAmount)}
-                  </span>
-                </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Action Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="h-7 bg-primary text-primary-foreground hover:bg-primary/90 text-[11px] font-semibold px-2 py-0 rounded flex items-center gap-1 shadow-xs"
+                          >
+                            <span>{t('orders.action_btn') || 'Action'}</span>
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 text-xs">
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>{t('store.showroom.th_actions') || 'Actions'}</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}>
+                              <Eye className="mr-2 h-3.5 w-3.5 text-primary" /> {t('store.showroom.view_details') || 'View Details'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
+                              <Share2 className="mr-2 h-3.5 w-3.5 text-indigo-600" /> {t('store.showroom.copy_link_title_mobile') || 'Copy Link'}
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                {/* Phone + Date */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2.5">
-                  <span className="font-medium">{order.shippingAddress?.phone || '—'}</span>
-                  <span>{order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy, p') : '—'}</span>
-                </div>
-
-                {/* Payment info */}
-                <div className="flex items-center gap-2 py-2 border-t border-b mb-2.5">
-                  <span className="text-xs text-muted-foreground">{order.paymentMethod}</span>
-                  <Badge variant={order.paymentStatus === 'Paid' ? 'default' : 'secondary'} className="text-[10px]">
-                    {order.paymentStatus}
-                  </Badge>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between pt-0.5">
-                  <Button variant="outline" size="sm" className="h-8 text-xs flex-1 mr-2"
-                    onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
-                  >
-                    <Eye className="mr-1.5 h-3.5 w-3.5" />
-                    {t('store.showroom.view_details') || 'View Details'}
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-8 w-8 shrink-0">
-                        <MoreHorizontal className="h-4 w-4" />
+                      {/* Quick View Button */}
+                      <Button
+                        size="icon"
+                        className="h-7 w-7 bg-emerald-600 hover:bg-emerald-700 text-white rounded p-0 shadow-xs"
+                        title={t('store.showroom.view_details') || 'View Details'}
+                        onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
+                      >
+                        <Eye className="h-3.5 w-3.5" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel>{t('store.showroom.th_actions') || 'Actions'}</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
-                          <Share2 className="mr-2 h-4 w-4 text-indigo-600" />
-                          {t('store.showroom.copy_link_title_mobile') || 'Copy Shareable Link'}
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </div>
+                  </div>
+
+                  {/* Key-Value Structured Rows */}
+                  <div className="px-3 py-1 divide-y divide-border/40 text-xs">
+
+                    {/* Row 1: ইনঃ নং ও স্ট্যাটাস */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.inv_status') || 'ইনঃ নং ও স্ট্যাটাস'}
+                      </span>
+                      <div className="text-right flex flex-col items-end gap-1">
+                        <button
+                          type="button"
+                          className="font-bold text-primary hover:underline font-mono text-xs cursor-pointer"
+                          onClick={() => { setSelectedOrderId(order._id); setIsDetailsOpen(true); }}
+                        >
+                          #{order.shortId}
+                        </button>
+                        <div>{getStatusBadge(order.status)}</div>
+                      </div>
+                    </div>
+
+                    {/* Row 2: তারিখ */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.date') || 'তারিখ'}
+                      </span>
+                      <div className="text-right">
+                        <span className="font-medium text-foreground block">
+                          {order.createdAt ? format(new Date(order.createdAt), 'dd-MMM-yyyy, hh:mm a') : '—'}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground block mt-0.5">
+                          By: Showroom
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Row 3: কাস্টমার */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.customer') || 'কাস্টমার'}
+                      </span>
+                      <div className="text-right flex flex-col items-end">
+                        <span className="font-bold text-foreground text-xs">
+                          {order.shippingAddress?.fullName || '—'}
+                        </span>
+                        {order.shippingAddress?.phone ? (
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap justify-end">
+                            <span
+                              onClick={() => setSearch(order.shippingAddress.phone)}
+                              className="font-medium text-muted-foreground hover:text-primary cursor-pointer hover:underline text-[11px]"
+                            >
+                              {order.shippingAddress.phone}
+                            </span>
+                            <a
+                              href={getWhatsAppLink(order.shippingAddress.phone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-green-600 hover:text-green-700 p-0.5"
+                              title="WhatsApp"
+                            >
+                              <WhatsAppIcon className="h-3.5 w-3.5" />
+                            </a>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(order.shippingAddress.phone);
+                                  toast.success('Phone copied!');
+                                } catch {
+                                  toast.error('Failed to copy');
+                                }
+                              }}
+                              className="text-muted-foreground hover:text-primary p-0.5"
+                              title="Copy Phone"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-[11px]">—</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 4: এরিয়া ও ডেলিভারী */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.area_delivery') || 'এরিয়া ও ডেলিভারী'}
+                      </span>
+                      <div className="text-right max-w-[200px]">
+                        <span className="text-foreground font-medium block">
+                          {[order.shippingAddress?.street, order.shippingAddress?.city].filter(Boolean).join(', ') || '—'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Row 5: নীট সেল */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.net_sale') || 'নীট সেল'}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        ৳{netSale.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Row 6: ডেলিভারী */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.delivery') || 'ডেলিভারী'}
+                      </span>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className="text-muted-foreground text-[11px]">
+                          {t('orders.delivery_charge_label') || 'চার্জ:'} <span className="font-semibold text-foreground">৳{order.deliveryCharge || 0}</span>
+                        </span>
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white border-none text-[10px] px-1.5 py-0">
+                          {order.paymentMethod || 'ডেলিভারী'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Row 7: মোট */}
+                    <div className="flex items-center justify-between py-2 gap-2 bg-muted/20 -mx-3 px-3">
+                      <span className="font-bold text-foreground shrink-0 min-w-[85px]">
+                        {t('orders.total') || 'মোট'}
+                      </span>
+                      <span className="font-extrabold text-foreground text-sm">
+                        ৳{totalAmt.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Row 8: পেইড */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.paid_label') || 'পেইড'}
+                      </span>
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <span className={isPaid ? "font-bold text-emerald-600 dark:text-emerald-400" : "font-medium text-muted-foreground"}>
+                          ৳{paidAmt.toLocaleString()}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={isPaid ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 text-[10px] px-1.5 py-0" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 text-[10px] px-1.5 py-0"}
+                        >
+                          {order.paymentStatus || 'Pending'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Row 9: বাকি */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t('orders.due_label') || 'বাকি'}
+                      </span>
+                      <span className={dueAmt > 0 ? "font-bold text-red-600 dark:text-red-400" : "font-bold text-emerald-600 dark:text-emerald-400"}>
+                        ৳{dueAmt.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -274,7 +274,7 @@ export default function ManualOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden p-3.5 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold font-logo text-primary">Create Manual Order</DialogTitle>
         </DialogHeader>

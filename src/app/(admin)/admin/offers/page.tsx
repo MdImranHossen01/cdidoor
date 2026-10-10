@@ -906,15 +906,15 @@ function ClientOffersContent() {
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if(!open) resetForm(); }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-4xl max-h-[92vh] overflow-y-auto overflow-x-hidden p-3.5 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{editingOffer ? t("offers.edit_offer") : t("offers.create_new")}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg font-bold truncate pr-6">{editingOffer ? t("offers.edit_offer") : t("offers.create_new")}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Client Info */}
-            <div className="space-y-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100/80">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 relative" ref={nameRef}>
+            <div className="space-y-3 sm:space-y-4 bg-muted/40 p-3 sm:p-4 rounded-xl border border-border/60">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2 relative" ref={nameRef}>
                   <Label htmlFor="cName">{t("bills.client_name")} <span className="text-destructive">*</span></Label>
                   <div className="relative">
                     <Input
@@ -942,10 +942,10 @@ function ClientOffersContent() {
                     )}
                   </div>
                 </div>
-                <div className="space-y-2 relative" ref={phoneRef}>
+                <div className="space-y-1.5 sm:space-y-2 relative" ref={phoneRef}>
                   <Label htmlFor="cPhone">{t("bills.client_phone")} <span className="text-destructive">*</span></Label>
                   <div className="flex gap-2 items-center">
-                    <div className="relative flex-1">
+                    <div className="relative flex-1 min-w-0">
                       <Input
                         id="cPhone"
                         placeholder="e.g. 017XXXXXXXX"
@@ -972,7 +972,7 @@ function ClientOffersContent() {
                     </div>
                     <Button
                       type="button"
-                      className={`h-8 px-3 text-xs font-bold rounded-lg shrink-0 transition-all ${
+                      className={`h-9 px-3 text-xs font-bold rounded-lg shrink-0 transition-all ${
                         showMoreFields 
                           ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
                           : 'bg-primary hover:bg-primary/90 text-primary-foreground'
@@ -1116,38 +1116,46 @@ function ClientOffersContent() {
               )}
             </div>
 
-            {/* Product Picker */}
-            <div className="flex items-center justify-between">
-              <Label className="text-lg font-semibold">{t("chalans.items_list")}</Label>
-              <div className="flex items-center gap-2">
+            {/* Product Picker Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <Label className="text-base sm:text-lg font-semibold">{t("chalans.items_list")}</Label>
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="h-8 text-xs font-medium"
                   onClick={() => setProductPickerOpen(true)}
                 >
                   <Plus className="mr-1 h-3.5 w-3.5" /> {t("bills.select_products")}
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItemRow} className="font-bold">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddItemRow}
+                  className="font-bold h-8 text-xs"
+                >
                   <Plus className="h-3 w-3 mr-1" /> {t("bills.add_custom_item")}
                 </Button>
               </div>
             </div>
 
             {/* Manual item entries */}
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               {billItems.map((item, index) => (
-                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border p-2 sm:p-0 sm:border-none rounded-md">
-                  <div className="flex-1">
+                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-muted/25 sm:bg-transparent border sm:border-none p-2.5 sm:p-0 rounded-lg">
+                  <div className="flex-1 min-w-0">
                     <Input
                       placeholder={t("bills.item_description") as string}
                       value={item.name}
                       onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                       required
+                      className="w-full"
                     />
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="flex-1 sm:w-24">
+                    <div className="flex-1 sm:w-24 min-w-0">
                       <Input
                         type="number"
                         placeholder={t("bills.qty") as string}
@@ -1155,9 +1163,10 @@ function ClientOffersContent() {
                         value={item.quantity}
                         onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
                         required
+                        className="w-full"
                       />
                     </div>
-                    <div className="flex-1 sm:w-28">
+                    <div className="flex-1 sm:w-28 min-w-0">
                       <Input
                         type="number"
                         placeholder={t("offers.price") as string}
@@ -1165,6 +1174,7 @@ function ClientOffersContent() {
                         value={item.price}
                         onChange={(e) => handleItemChange(index, 'price', e.target.value)}
                         required
+                        className="w-full"
                       />
                     </div>
                     <Button
@@ -1172,7 +1182,7 @@ function ClientOffersContent() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveItemRow(index)}
-                      className="text-destructive hover:bg-destructive/10 shrink-0"
+                      className="text-destructive hover:bg-destructive/10 shrink-0 h-9 w-9"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -1184,16 +1194,16 @@ function ClientOffersContent() {
             <hr />
 
             {/* Calculations & Discounts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0 space-y-1.5 sm:space-y-2">
                     <Label htmlFor="discType">{t("offers.discount_type")}</Label>
                     <Select
                       value={discountType}
                       onValueChange={(val: any) => { setDiscountType(val); setDiscountValue(0); }}
                     >
-                      <SelectTrigger id="discType">
+                      <SelectTrigger id="discType" className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1202,7 +1212,7 @@ function ClientOffersContent() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 min-w-0 space-y-1.5 sm:space-y-2">
                     <Label htmlFor="discVal">{t("bills.discount_value")}</Label>
                     <Input
                       id="discVal"
@@ -1210,11 +1220,12 @@ function ClientOffersContent() {
                       min="0"
                       value={discountValue}
                       onChange={(e) => setDiscountValue(Math.max(0, parseFloat(e.target.value) || 0))}
+                      className="w-full"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="delCharge">{t("bills.delivery_charge")}</Label>
                   <Input
                     id="delCharge"
@@ -1222,9 +1233,10 @@ function ClientOffersContent() {
                     min="0"
                     value={deliveryCharge}
                     onChange={(e) => setDeliveryCharge(Math.max(0, parseFloat(e.target.value) || 0))}
+                    className="w-full"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="serviceFeeOffer">{t("bills.service_fee")} <span className="text-muted-foreground font-normal text-xs">— {t("bills.optional")}</span></Label>
                   <Input
                     id="serviceFeeOffer"
@@ -1233,11 +1245,12 @@ function ClientOffersContent() {
                     placeholder="0"
                     value={serviceFee || ''}
                     onChange={(e) => setServiceFee(Math.max(0, parseFloat(e.target.value) || 0))}
+                    className="w-full"
                   />
                 </div>
               </div>
 
-              <div className="bg-muted p-4 rounded-lg space-y-2.5 text-sm">
+              <div className="bg-muted/50 p-3.5 sm:p-4 rounded-xl space-y-2.5 text-sm border border-border/40">
                 <div className="flex justify-between">
                   <span>{t("bills.subtotal")}:</span>
                   <span className="font-medium">৳{subtotal}</span>
@@ -1260,18 +1273,18 @@ function ClientOffersContent() {
                     <span>৳{serviceFee}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold border-t pt-2">
+                <div className="flex justify-between text-base sm:text-lg font-bold border-t pt-2">
                   <span>{t("offers.total_offer")}:</span>
                   <span>৳{total}</span>
                 </div>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="w-full sm:w-auto">
                 {t("bills.cancel")}
               </Button>
-              <Button type="submit" disabled={formLoading} className="bg-primary text-primary-foreground">
+              <Button type="submit" disabled={formLoading} className="w-full sm:w-auto bg-primary text-primary-foreground">
                 {formLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingOffer ? t("offers.update_offer") : t("offers.generate_offer")}
               </Button>
@@ -1282,9 +1295,9 @@ function ClientOffersContent() {
 
       {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
-        <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto p-3.5 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{t("chalans.select_products_title")}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg font-bold">{t("chalans.select_products_title")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
@@ -1296,8 +1309,96 @@ function ClientOffersContent() {
                 onChange={(e) => setProductSearchTerm(e.target.value)}
               />
             </div>
-            <div className="border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
-              <Table className="min-w-[600px] sm:min-w-0">
+            {/* Mobile Card List (md:hidden) */}
+            <div className="md:hidden flex-1 overflow-y-auto space-y-2 pr-0.5 max-h-[52vh]">
+              {products
+                .filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
+                .map((prod) => {
+                  const hasVariants = prod.variants && prod.variants.length > 0;
+                  const isMainSelected = selectedProductVariants[prod._id] === null;
+                  const hasSelectedVariant = hasVariants && prod.variants.some((v: any) => selectedProductVariants[prod._id] === v._id);
+                  const isCardActive = isMainSelected || hasSelectedVariant;
+
+                  return (
+                    <div
+                      key={prod._id}
+                      onClick={() => {
+                        if (!hasVariants) {
+                          toggleProductVariant(prod._id, null);
+                        }
+                      }}
+                      className={`p-3 rounded-xl border transition-all ${
+                        !hasVariants ? 'cursor-pointer' : ''
+                      } ${
+                        isCardActive
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary/25 shadow-xs'
+                          : 'border-border bg-card hover:bg-muted/30'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                          {!hasVariants && (
+                            <Checkbox
+                              checked={isMainSelected}
+                              onCheckedChange={() => toggleProductVariant(prod._id, null)}
+                              className="mt-0.5 h-4 w-4 rounded shrink-0 pointer-events-none"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-xs sm:text-sm text-foreground leading-tight">{prod.name}</p>
+                            {prod.partNo && (
+                              <p className="text-[10px] text-muted-foreground mt-0.5">পার্ট নং: {prod.partNo}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {!hasVariants && (
+                          <span className="font-bold text-xs sm:text-sm text-primary shrink-0">
+                            ৳{prod.salePrice || prod.price}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Variant Options for Mobile */}
+                      {hasVariants && (
+                        <div className="mt-2.5 pt-2 border-t border-border/50 flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          {prod.variants.map((v: any) => {
+                            const label = [v.color, v.size].filter(Boolean).join(' / ') || 'Variant';
+                            const isSelected = selectedProductVariants[prod._id] === v._id;
+
+                            return (
+                              <Button
+                                key={v._id}
+                                type="button"
+                                variant={isSelected ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => toggleProductVariant(prod._id, v._id)}
+                                className={`text-[11px] h-7 px-2 font-medium flex items-center gap-1 transition-all ${
+                                  isSelected
+                                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                                    : 'border-border bg-background hover:bg-muted'
+                                }`}
+                              >
+                                <span>{label}</span>
+                                <span className="opacity-90 font-bold">(৳{v.salePrice || v.price})</span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              {products.filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
+                <div className="py-8 text-center text-xs text-muted-foreground">
+                  কোনো পণ্য পাওয়া যায়নি
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
+              <Table className="min-w-[500px] sm:min-w-0">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">Select</TableHead>
@@ -1355,11 +1456,26 @@ function ClientOffersContent() {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t mt-2">
-              <span className="text-sm text-muted-foreground font-medium">{selectedCount} {t("chalans.items_selected")}</span>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2.5 pt-3 border-t mt-2">
+              <span className="text-xs sm:text-sm text-muted-foreground font-semibold">
+                {selectedCount} {t("chalans.items_selected")}
+              </span>
               <div className="flex gap-2 w-full sm:w-auto justify-end">
-                <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={() => setProductPickerOpen(false)}>{t("bills.cancel")}</Button>
-                <Button type="button" className="flex-1 sm:flex-none bg-primary text-primary-foreground" onClick={handleAddSelectedProducts}>{t("chalans.add_selected")}</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 sm:flex-none h-9 text-xs sm:text-sm font-semibold"
+                  onClick={() => setProductPickerOpen(false)}
+                >
+                  {t("bills.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  className="flex-1 sm:flex-none h-9 text-xs sm:text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleAddSelectedProducts}
+                >
+                  {t("chalans.add_selected")}
+                </Button>
               </div>
             </div>
           </div>
@@ -1368,18 +1484,20 @@ function ClientOffersContent() {
 
       {/* Offer Detail View Dialog */}
       <Dialog open={!!selectedOffer} onOpenChange={(open) => { if (!open) setSelectedOffer(null); }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto p-3.5 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{t("offers.offer_details")} — {selectedOffer?.invoiceNo}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg font-bold truncate pr-6">{t("offers.offer_details")} — {selectedOffer?.invoiceNo}</DialogTitle>
           </DialogHeader>
           {selectedOffer && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm bg-muted/30 p-3 rounded-lg border">
                 <div>
                   <h4 className="font-semibold text-muted-foreground mb-1 uppercase tracking-wider text-xs">{t("offers.quotation_to")}</h4>
                   <p className="font-medium text-base">{selectedOffer.clientName}</p>
                   <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {selectedOffer.clientPhone}</p>
-                  <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {selectedOffer.clientAddress}</p>
+                  {selectedOffer.clientAddress && (
+                    <p className="flex items-center gap-1.5 mt-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {selectedOffer.clientAddress}</p>
+                  )}
                 </div>
                 <div>
                   <h4 className="font-semibold text-muted-foreground mb-1 uppercase tracking-wider text-xs">{t("chalans.document_info")}</h4>
@@ -1388,8 +1506,8 @@ function ClientOffersContent() {
                 </div>
               </div>
 
-              <div className="border rounded-md overflow-hidden">
-                <Table>
+              <div className="border rounded-md overflow-x-auto w-full">
+                <Table className="min-w-[450px] sm:min-w-0">
                   <TableHeader>
                     <TableRow className="bg-muted hover:bg-muted">
                       <TableHead>{t("chalans.description")}</TableHead>
@@ -1412,7 +1530,7 @@ function ClientOffersContent() {
               </div>
 
               <div className="flex justify-end">
-                <div className="w-64 space-y-2 text-sm border-t pt-3">
+                <div className="w-full sm:w-64 space-y-2 text-sm border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t("bills.subtotal")}:</span>
                     <span className="font-medium">৳{Math.round(selectedOffer.subtotal)}</span>
@@ -1442,15 +1560,16 @@ function ClientOffersContent() {
                 </div>
               </div>
 
-              <DialogFooter className="gap-2">
+              <DialogFooter className="flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => generateBillPDF(selectedOffer, settings, 'print')}
                 >
                   <Printer className="mr-2 h-4 w-4" /> {t("offers.print_offer")}
                 </Button>
                 <Button
-                  className="bg-primary text-primary-foreground"
+                  className="w-full sm:w-auto bg-primary text-primary-foreground"
                   onClick={() => {
                     const off = selectedOffer;
                     setSelectedOffer(null);

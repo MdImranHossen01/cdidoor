@@ -1805,9 +1805,9 @@ function ShowroomBillsContent() {
 
       {/* Product Selection Dialog */}
       <Dialog open={productPickerOpen} onOpenChange={setProductPickerOpen}>
-        <DialogContent className="max-w-3xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogContent className="w-[calc(100vw-1rem)] sm:w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto p-3.5 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Select Products</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg font-bold">Select Products</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
@@ -1819,7 +1819,107 @@ function ShowroomBillsContent() {
                 onChange={(e) => setProductSearchTerm(e.target.value)}
               />
             </div>
-            <div className="border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
+
+            {/* Mobile Card List (md:hidden) */}
+            <div className="md:hidden flex-1 overflow-y-auto space-y-2 pr-0.5 max-h-[52vh]">
+              {products
+                .filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
+                .map((prod) => {
+                  const hasVariants = prod.variants && prod.variants.length > 0;
+                  const isMainSelected = selectedProductVariants[prod._id] === null;
+                  const hasSelectedVariant = hasVariants && prod.variants.some((v: any) => selectedProductVariants[prod._id] === v._id);
+                  const isCardActive = isMainSelected || hasSelectedVariant;
+                  const basePrice = selectedCustomer?.role === 'wholesaler'
+                    ? (prod.wholesaleSalePrice || prod.wholesalePrice || prod.salePrice || prod.price)
+                    : (prod.salePrice || prod.price);
+
+                  return (
+                    <div
+                      key={prod._id}
+                      onClick={() => {
+                        if (!hasVariants) {
+                          toggleProductVariant(prod._id, null);
+                        }
+                      }}
+                      className={`p-3 rounded-xl border transition-all ${
+                        !hasVariants ? 'cursor-pointer' : ''
+                      } ${
+                        isCardActive
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary/25 shadow-xs'
+                          : 'border-border bg-card hover:bg-muted/30'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                          {!hasVariants && (
+                            <Checkbox
+                              checked={isMainSelected}
+                              onCheckedChange={() => toggleProductVariant(prod._id, null)}
+                              className="mt-0.5 h-4 w-4 rounded shrink-0 pointer-events-none"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-xs sm:text-sm text-foreground leading-tight">{prod.name}</p>
+                            {selectedCustomer?.role === 'wholesaler' && (
+                              <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-1 rounded-sm inline-block mt-0.5">
+                                Wholesale
+                              </span>
+                            )}
+                            {prod.partNo && (
+                              <p className="text-[10px] text-muted-foreground mt-0.5">পার্ট নং: {prod.partNo}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {!hasVariants && (
+                          <span className="font-bold text-xs sm:text-sm text-primary shrink-0">
+                            ৳{basePrice}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Variant Options for Mobile */}
+                      {hasVariants && (
+                        <div className="mt-2.5 pt-2 border-t border-border/50 flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          {prod.variants.map((v: any) => {
+                            const label = [v.color, v.size].filter(Boolean).join(' / ') || 'Variant';
+                            const isSelected = selectedProductVariants[prod._id] === v._id;
+                            const vPrice = selectedCustomer?.role === 'wholesaler'
+                              ? (v.wholesaleSalePrice || v.wholesalePrice || v.salePrice || v.price || basePrice)
+                              : (v.salePrice || v.price);
+
+                            return (
+                              <Button
+                                key={v._id}
+                                type="button"
+                                variant={isSelected ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => toggleProductVariant(prod._id, v._id)}
+                                className={`text-[11px] h-7 px-2 font-medium flex items-center gap-1 transition-all ${
+                                  isSelected
+                                    ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                                    : 'border-border bg-background hover:bg-muted'
+                                }`}
+                              >
+                                <span>{label}</span>
+                                <span className="opacity-90 font-bold">(৳{vPrice})</span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              {products.filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
+                <div className="py-8 text-center text-xs text-muted-foreground">
+                  কোনো পণ্য পাওয়া যায়নি
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block border rounded-md max-h-[45vh] sm:max-h-[55vh] overflow-y-auto overflow-x-auto w-full">
               <Table className="min-w-[600px] sm:min-w-0">
                 <TableHeader>
                   <TableRow>
@@ -1892,11 +1992,24 @@ function ShowroomBillsContent() {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t mt-2">
-              <span className="text-sm text-muted-foreground font-medium">{selectedCount} items selected</span>
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2.5 pt-3 border-t mt-2">
+              <span className="text-xs sm:text-sm text-muted-foreground font-semibold">{selectedCount} items selected</span>
               <div className="flex gap-2 w-full sm:w-auto justify-end">
-                <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={() => setProductPickerOpen(false)}>Cancel</Button>
-                <Button type="button" className="flex-1 sm:flex-none bg-primary text-primary-foreground" onClick={handleAddSelectedProducts}>Add Selected</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 sm:flex-none h-9 text-xs sm:text-sm font-semibold"
+                  onClick={() => setProductPickerOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  className="flex-1 sm:flex-none h-9 text-xs sm:text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleAddSelectedProducts}
+                >
+                  Add Selected
+                </Button>
               </div>
             </div>
           </div>

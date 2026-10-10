@@ -945,7 +945,7 @@ function OrdersContent() {
         })}
       </div>
 
-      <div className="rounded-md border bg-background overflow-hidden relative">
+      <div className="border-0 md:border md:rounded-md bg-transparent md:bg-background overflow-hidden relative">
         {/* Bulk Action Toolbar */}
         {selectedIds.length > 0 && (
           <div className="sticky top-0 z-20 w-full bg-primary text-primary-foreground px-4 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 animate-in slide-in-from-top duration-200">
@@ -1275,245 +1275,385 @@ function OrdersContent() {
         </div>
 
         {/* Mobile View */}
-        <div className="block md:hidden divide-y">
+        <div className="block md:hidden space-y-3">
           {filteredOrders.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-xs">
+            <div className="p-8 text-center text-muted-foreground text-xs bg-background rounded-lg border">
               {t("orders.no_orders_found")}
             </div>
           ) : (
-            filteredOrders.map((order) => (
-               <div
-                 key={order._id}
-                 className={`p-4 sm:p-5 transition-colors ${selectedIds.includes(order._id) ? 'bg-muted/50' : 'bg-background'
-                   }`}
-               >
-                 {/* Header: Checkbox, Order ID, Status, and Actions dropdown */}
-                 <div className="flex items-center justify-between mb-3">
-                   <div className="flex items-center gap-2">
-                     <Checkbox
-                       checked={selectedIds.includes(order._id)}
-                       onCheckedChange={() => toggleSelect(order._id)}
-                       id={`check-${order._id}`}
-                       className="h-5 w-5"
-                     />
-                     <button
-                       type="button"
-                       className="cursor-pointer hover:opacity-80 transition-opacity text-left"
-                       onClick={() => openDetails(order._id)}
-                     >
-                       <span className={`text-sm md:text-xs font-bold hover:underline ${order.isDuplicate ? 'text-red-500 font-extrabold' : order.isRepeat ? 'text-yellow-600 font-extrabold' : 'text-primary'}`}>
-                         #{order._id.slice(-8).toUpperCase()}
-                       </span>
-                     </button>
-                     {order.isDuplicate ? (
-                       <Badge className="bg-red-500 text-white hover:bg-red-600 border-none text-[10px] px-1.5 py-0.5 h-4.5">{t("orders.duplicate")}</Badge>
-                     ) : order.isRepeat ? (
-                       <Badge className="bg-yellow-500 text-black hover:bg-yellow-600 border-none text-[10px] px-1.5 py-0.5 h-4.5">{t("orders.repeat")}</Badge>
-                     ) : null}
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                     {getStatusBadge(order.status)}
-                   </div>
-                 </div>
+            filteredOrders.map((order) => {
+              const isSelected = selectedIds.includes(order._id);
+              const netSale = Math.max(0, Math.round((order.totalAmount || 0) - (order.deliveryCharge || 0)));
+              const isPaid = order.paymentStatus === 'Paid';
+              const totalAmt = Math.round(order.totalAmount ?? 0);
+              const paidAmt = isPaid ? totalAmt : 0;
+              const dueAmt = isPaid ? 0 : totalAmt;
 
-                 {/* Details */}
-                 <div className="space-y-2.5 text-sm md:text-xs">
-                   {/* Name and Price */}
-                   <div className="flex flex-col gap-1">
-                     <div className="font-semibold text-slate-900 dark:text-white text-base md:text-sm flex items-center justify-between">
-                       <span>{order.shippingAddress?.fullName || order.user?.name || t("orders.guest_user")}</span>
-                       <span className="font-bold text-slate-900 dark:text-white text-lg md:text-base">৳{Math.round(order.totalAmount ?? 0)}</span>
-                     </div>
+              return (
+                <div
+                  key={order._id}
+                  className={`rounded-lg border bg-card text-card-foreground shadow-xs transition-all overflow-hidden ${
+                    isSelected ? 'ring-2 ring-primary border-primary' : 'border-border'
+                  }`}
+                >
+                  {/* Top Action Header */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelect(order._id)}
+                        id={`check-${order._id}`}
+                        className="h-4 w-4"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => openDetails(order._id)}
+                        className="text-xs font-mono font-bold text-primary hover:underline"
+                      >
+                        #{order._id.slice(-8).toUpperCase()}
+                      </button>
+                    </div>
 
-                     {/* Contact details */}
-                     <div className="flex items-center flex-wrap gap-2 mt-0.5">
-                       <span
-                         onClick={() => order.shippingAddress?.phone && setSearchTerm(order.shippingAddress.phone)}
-                         className="text-muted-foreground hover:text-primary cursor-pointer hover:underline font-medium text-sm md:text-[11px]"
-                       >
-                         {order.shippingAddress?.phone || t("orders.no_phone")}
-                       </span>
-                       {order.shippingAddress?.phone && (
-                         <div className="flex items-center gap-1.5">
-                           <a
-                             href={getWhatsAppLink(order.shippingAddress.phone)}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className="text-green-600 p-1 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded"
-                             title="Chat on WhatsApp"
-                           >
-                             <WhatsAppIcon className="h-4.5 w-4.5" />
-                           </a>
-                           <button
-                             type="button"
-                             onClick={async () => {
-                               try {
-                                 await navigator.clipboard.writeText(order.shippingAddress.phone);
-                                 toast.success('Phone number copied!');
-                               } catch (err) {
-                                 toast.error('Failed to copy phone number.');
-                               }
-                             }}
-                             className="text-muted-foreground p-1 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded"
-                             title="Copy Phone"
-                           >
-                             <Copy className="h-4 w-4" />
-                           </button>
-                         </div>
-                       )}
-                       {order.shippingAddress?.phone && (
-                         <FraudCheckBadge phone={order.shippingAddress.phone} />
-                       )}
-                     </div>
-                     {order.user?.email && (
-                       <span className="text-muted-foreground text-xs md:text-[10px] truncate max-w-[200px]">{order.user.email}</span>
-                     )}
-                     <span className="text-xs md:text-[9px] text-muted-foreground uppercase mt-0.5">
-                       {order.createdAt ? format(new Date(order.createdAt), 'MMM dd, yyyy p') : 'N/A'}
-                     </span>
-                   </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Action Dropdown Button (reference project style) */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="h-7 bg-primary text-primary-foreground hover:bg-primary/90 text-[11px] font-semibold px-2 py-0 rounded flex items-center gap-1 shadow-xs"
+                          >
+                            <span>{t("orders.action_btn") || "Action"}</span>
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52 text-xs">
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>{t("orders.actions")}</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => openDetails(order._id)}>
+                              <Eye className="mr-2 h-3.5 w-3.5 text-primary" /> {t("orders.view")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
+                              <Share2 className="mr-2 h-3.5 w-3.5 text-indigo-600" /> {t("orders.copy_link")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDownloadInvoice(order)}>
+                              <FileText className="mr-2 h-3.5 w-3.5 text-primary" /> {t("orders.download_invoice")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePrint([order._id])}>
+                              <Printer className="mr-2 h-3.5 w-3.5 text-primary" /> {t("orders.print_invoice")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePrintStickers([order._id])}>
+                              <Printer className="mr-2 h-3.5 w-3.5 text-primary" /> {t("orders.print_sticker_invoice")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSendToSteadfast([order._id])} disabled={!!order.shippingDetails?.consignmentId}>
+                              <Truck className="mr-2 h-3.5 w-3.5 text-orange-500" /> {t("orders.send_to_steadfast")}
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>{t("orders.change_status")}</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => updateStatus(order._id, 'Confirmed')}>{t("orders.confirm")}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(order._id, 'Paid', { paymentStatus: 'Paid' })}>{t("orders.mark_paid")}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(order._id, 'Ready for Delivery')}>{t("orders.ready_for_delivery")}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(order._id, 'Released for Delivery')}>{t("orders.release_for_delivery")}</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(order._id, 'Delivered')}>{t("orders.mark_delivered")}</DropdownMenuItem>
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem className="text-destructive" onClick={() => handleCancelOrder(order._id)}>{t("orders.cancel_order")}</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive font-bold" onClick={() => deleteOrder(order._id)}>{t("orders.delete_order")}</DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                   {/* Payment Details */}
-                   <div className="flex flex-wrap items-center gap-2 py-0.5">
-                     <Badge
-                       variant="outline"
-                       className={`text-xs md:text-[9px] ${order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700 border-none font-bold' : 'bg-yellow-100 text-yellow-700 border-none font-bold'}`}
-                     >
-                       {order.paymentStatus}
-                     </Badge>
-                     {(order.isCreditOrder || order.paymentMethod === 'Credit') && (
-                       <div className={`flex flex-row items-center gap-1 px-2 py-0.5 rounded border ${order.paymentStatus === 'Paid' ? 'bg-green-500/10 dark:bg-green-500/20 border-green-500/20' : 'bg-red-500/10 dark:bg-red-500/20 border-red-500/20'}`}>
-                         <span className={`font-extrabold text-xs md:text-[9px] uppercase tracking-wider ${order.paymentStatus === 'Paid' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                           {order.paymentStatus === 'Paid' ? t("orders.credit_paid") : t("orders.credit_due")}
-                         </span>
-                         {order.expectedPaymentDate && (
-                           <span className={`text-xs md:text-[9px] font-semibold border-l pl-1.5 ml-0.5 ${order.paymentStatus === 'Paid' ? 'text-green-700 dark:text-green-300 border-green-500/30' : 'text-red-700 dark:text-red-300 border-red-500/30'}`}>
-                             {t("orders.due_date")} {format(new Date(order.expectedPaymentDate), 'MMM dd, yyyy')}
-                           </span>
-                         )}
-                       </div>
-                     )}
-                     {order.paymentMethod === 'Manual' && order.manualPaymentDetails && (
-                       <span className="text-xs md:text-[9px] text-muted-foreground font-mono bg-slate-50 dark:bg-zinc-900 px-2 py-0.5 rounded border">
-                         {order.manualPaymentDetails.methodName}
-                         {order.manualPaymentDetails.senderNumber ? ` (${order.manualPaymentDetails.senderNumber})` : ''}
-                       </span>
-                     )}
-                   </div>
+                      {/* Quick Print Button (blue icon button) */}
+                      <Button
+                        size="icon"
+                        className="h-7 w-7 bg-blue-600 hover:bg-blue-700 text-white rounded p-0 shadow-xs"
+                        title={t("orders.print_invoice") || "Print Invoice"}
+                        onClick={() => handlePrint([order._id])}
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                      </Button>
 
-                   {/* Items list */}
-                   <div className="flex flex-wrap gap-1.5 pt-0.5">
-                     {order.items?.map((item: any, idx: number) => (
-                       <Badge key={idx} variant="outline" className="text-xs md:text-[8px] px-2 py-0.5 font-normal truncate max-w-[240px]">
-                         {item.quantity}× {item.name}
-                         {(item.color || item.size) && (
-                           <span className="text-muted-foreground ml-0.5">
-                             ({[item.color, item.size].filter(Boolean).join('/')})
-                           </span>
-                         )}
-                       </Badge>
-                     ))}
-                   </div>
+                      {/* Quick View Button (green icon button) */}
+                      <Button
+                        size="icon"
+                        className="h-7 w-7 bg-emerald-600 hover:bg-emerald-700 text-white rounded p-0 shadow-xs"
+                        title={t("orders.view") || "View Details"}
+                        onClick={() => openDetails(order._id)}
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
 
-                   {order.internalNote && (
-                     <div className="text-xs md:text-[9px] bg-yellow-50 dark:bg-yellow-950/20 text-amber-800 dark:text-amber-300 px-2 py-1 rounded border border-yellow-200/50 font-medium whitespace-pre-line">
-                       {t("orders.note")} {order.internalNote}
-                     </div>
-                   )}
+                  {/* Key-Value Structured Rows (Reference DSB POS style) */}
+                  <div className="px-3 py-1 divide-y divide-border/40 text-xs">
 
-                   {/* Footer actions */}
-                   <div className="flex items-center justify-between pt-2.5 border-t mt-2">
-                     <div className="flex items-center gap-1.5">
-                       {order.paymentMethod === 'Manual' && order.paymentStatus === 'Pending' && order.status !== 'Cancelled' && (
-                         <>
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             className="h-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs px-3 py-1"
-                             onClick={() => {
-                               Swal.fire({
-                                 title: 'Approve Payment?',
-                                 text: `Are you sure you want to approve manual payment for order #${order._id.slice(-8).toUpperCase()}? This will mark the order as Confirmed & Paid.`,
-                                 icon: 'question',
-                                 showCancelButton: true,
-                                 confirmButtonColor: '#00D1B2',
-                                 confirmButtonText: 'Yes, Approve!'
-                               }).then((result) => {
-                                 if (result.isConfirmed) {
-                                   updateStatus(order._id, 'Confirmed', { paymentStatus: 'Paid' });
-                                 }
-                               });
-                             }}
-                           >
-                             {t("orders.approve")}
-                           </Button>
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             className="h-8 text-destructive hover:text-red-700 hover:bg-red-50 text-xs px-3 py-1"
-                             onClick={() => handleCancelOrder(order._id)}
-                           >
-                             {t("orders.cancel")}
-                           </Button>
-                         </>
-                       )}
-                     </div>
+                    {/* Row 1: ইনঃ নং ও স্ট্যাটাস (Inv No & Status) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.inv_status") || "ইনঃ নং ও স্ট্যাটাস"}
+                      </span>
+                      <div className="text-right flex flex-col items-end gap-1">
+                        <button
+                          type="button"
+                          className="font-bold text-primary hover:underline font-mono text-xs cursor-pointer"
+                          onClick={() => openDetails(order._id)}
+                        >
+                          #{order._id.slice(-8).toUpperCase()}
+                        </button>
+                        <div className="flex items-center gap-1 flex-wrap justify-end">
+                          {getStatusBadge(order.status)}
+                          {order.isDuplicate ? (
+                            <Badge className="bg-red-500 text-white hover:bg-red-600 border-none text-[9px] px-1 py-0 h-4">
+                              {t("orders.duplicate")}
+                            </Badge>
+                          ) : order.isRepeat ? (
+                            <Badge className="bg-yellow-500 text-black hover:bg-yellow-600 border-none text-[9px] px-1 py-0 h-4">
+                              {t("orders.repeat")}
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
 
-                     <div className="flex items-center gap-1.5 ml-auto">
-                       <Button variant="outline" size="sm" className="h-8 text-primary text-xs px-3 py-1 flex items-center gap-1" onClick={() => openDetails(order._id)}>
-                         <Eye className="h-3.5 w-3.5" /> {t("orders.view")}
-                       </Button>
+                    {/* Row 2: তারিখ (Date) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.date") || "তারিখ"}
+                      </span>
+                      <div className="text-right">
+                        <span className="font-medium text-foreground block">
+                          {order.createdAt ? format(new Date(order.createdAt), 'dd-MMM-yyyy, hh:mm a') : 'N/A'}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground block mt-0.5">
+                          By: {order.creator?.name || (order.user?.email ? order.user?.email?.split('@')[0] : (order.shippingAddress?.fullName ? 'Online Store' : 'Walk-in'))}
+                        </span>
+                      </div>
+                    </div>
 
-                       <DropdownMenu>
-                         <DropdownMenuTrigger asChild>
-                           <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                             <MoreHorizontal className="h-4 w-4" />
-                           </Button>
-                         </DropdownMenuTrigger>
-                         <DropdownMenuContent align="end">
-                           <DropdownMenuGroup>
-                             <DropdownMenuLabel>{t("orders.actions")}</DropdownMenuLabel>
-                             <DropdownMenuItem onClick={() => handleCopyLink(order._id)}>
-                               <Share2 className="mr-2 h-4 w-4 text-indigo-600" /> {t("orders.copy_link")}
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleDownloadInvoice(order)}>
-                               <FileText className="mr-2 h-4 w-4 text-primary" /> {t("orders.download_invoice")}
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handlePrint([order._id])}>
-                               <Printer className="mr-2 h-4 w-4 text-primary" /> {t("orders.print_invoice")}
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handlePrintStickers([order._id])}>
-                               <Printer className="mr-2 h-4 w-4 text-primary" /> {t("orders.print_sticker_invoice")}
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleSendToSteadfast([order._id])} disabled={!!order.shippingDetails?.consignmentId}>
-                               <Truck className="mr-2 h-4 w-4 text-orange-500" /> {t("orders.send_to_steadfast")}
-                             </DropdownMenuItem>
-                           </DropdownMenuGroup>
-                           <DropdownMenuSeparator />
-                           <DropdownMenuGroup>
-                             <DropdownMenuLabel>{t("orders.change_status")}</DropdownMenuLabel>
-                             <DropdownMenuItem onClick={() => updateStatus(order._id, 'Confirmed')}>{t("orders.confirm")}</DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => updateStatus(order._id, 'Paid', { paymentStatus: 'Paid' })}>{t("orders.mark_paid")}</DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => updateStatus(order._id, 'Ready for Delivery')}>{t("orders.ready_for_delivery")}</DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => updateStatus(order._id, 'Released for Delivery')}>{t("orders.release_for_delivery")}</DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => updateStatus(order._id, 'Delivered')}>{t("orders.mark_delivered")}</DropdownMenuItem>
-                           </DropdownMenuGroup>
-                           <DropdownMenuSeparator />
-                           <DropdownMenuGroup>
-                             <DropdownMenuItem className="text-destructive" onClick={() => handleCancelOrder(order._id)}>{t("orders.cancel_order")}</DropdownMenuItem>
-                             <DropdownMenuItem className="text-destructive font-bold" onClick={() => deleteOrder(order._id)}>{t("orders.delete_order")}</DropdownMenuItem>
-                           </DropdownMenuGroup>
-                         </DropdownMenuContent>
-                       </DropdownMenu>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             ))
+                    {/* Row 3: কাস্টমার (Customer) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.customer") || "কাস্টমার"}
+                      </span>
+                      <div className="text-right flex flex-col items-end">
+                        <span className="font-bold text-foreground text-xs">
+                          {order.shippingAddress?.fullName || order.user?.name || t("orders.guest_user")}
+                        </span>
+                        {order.shippingAddress?.phone ? (
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap justify-end">
+                            <span
+                              onClick={() => setSearchTerm(order.shippingAddress.phone)}
+                              className="font-medium text-muted-foreground hover:text-primary cursor-pointer hover:underline text-[11px]"
+                            >
+                              {order.shippingAddress.phone}
+                            </span>
+                            <a
+                              href={getWhatsAppLink(order.shippingAddress.phone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-green-600 hover:text-green-700 p-0.5"
+                              title="WhatsApp"
+                            >
+                              <WhatsAppIcon className="h-3.5 w-3.5" />
+                            </a>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(order.shippingAddress.phone);
+                                  toast.success('Phone copied!');
+                                } catch {
+                                  toast.error('Failed to copy');
+                                }
+                              }}
+                              className="text-muted-foreground hover:text-primary p-0.5"
+                              title="Copy Phone"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                            <FraudCheckBadge phone={order.shippingAddress.phone} />
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-[11px]">{t("orders.no_phone")}</span>
+                        )}
+                        {order.user?.email && (
+                          <span className="text-[10px] text-muted-foreground truncate max-w-[180px] mt-0.5">
+                            {order.user.email}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 4: এরিয়া ও ডেলিভারী ম্যান (Area & Delivery / Courier) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.area_delivery") || "এরিয়া ও ডেলিভারী ম্যান"}
+                      </span>
+                      <div className="text-right max-w-[200px]">
+                        <span className="text-foreground font-medium block break-words">
+                          {[order.shippingAddress?.street, order.shippingAddress?.city, order.shippingAddress?.division].filter(Boolean).join(', ') || '—'}
+                        </span>
+                        {order.shippingDetails?.consignmentId && (
+                          <span className="text-[10px] text-primary font-mono block mt-0.5">
+                            CID: {order.shippingDetails.consignmentId}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 5: আইটেম (Items) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.items") || "আইটেম"}
+                      </span>
+                      <div className="flex flex-wrap gap-1 justify-end max-w-[220px]">
+                        {order.items?.map((item: any, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-[10px] font-normal px-1.5 py-0.5 max-w-[200px] truncate">
+                            {item.quantity}× {item.name}
+                            {(item.color || item.size) && (
+                              <span className="text-muted-foreground ml-1">
+                                ({[item.color, item.size].filter(Boolean).join('/')})
+                              </span>
+                            )}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Row 6: নীট সেল (Net Sale) */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.net_sale") || "নীট সেল"}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        ৳{netSale.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Row 7: ডেলিভারী (Delivery Charge & Badge) */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.delivery") || "ডেলিভারী"}
+                      </span>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className="text-muted-foreground text-[11px]">
+                          {t("orders.delivery_charge_label") || "চার্জ:"} <span className="font-semibold text-foreground">৳{order.deliveryCharge || 0}</span>
+                        </span>
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white border-none text-[10px] px-1.5 py-0">
+                          {order.paymentMethod === 'Cash on Delivery' ? 'ডেলিভারী' : (order.paymentMethod || 'ডেলিভারী')}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Row 8: মোট (Total) */}
+                    <div className="flex items-center justify-between py-2 gap-2 bg-muted/20 -mx-3 px-3">
+                      <span className="font-bold text-foreground shrink-0 min-w-[85px]">
+                        {t("orders.total") || "মোট"}
+                      </span>
+                      <span className="font-extrabold text-foreground text-sm">
+                        ৳{totalAmt.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Row 9: পেইড (Paid) */}
+                    <div className="flex items-center justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.paid_label") || "পেইড"}
+                      </span>
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <span className={isPaid ? "font-bold text-emerald-600 dark:text-emerald-400" : "font-medium text-muted-foreground"}>
+                          ৳{paidAmt.toLocaleString()}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={isPaid ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 text-[10px] px-1.5 py-0" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 text-[10px] px-1.5 py-0"}
+                        >
+                          {order.paymentStatus || 'Pending'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Row 10: বাকি (Due) */}
+                    <div className="flex items-start justify-between py-2 gap-2">
+                      <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                        {t("orders.due_label") || "বাকি"}
+                      </span>
+                      <div className="text-right">
+                        <span className={dueAmt > 0 ? "font-bold text-red-600 dark:text-red-400" : "font-bold text-emerald-600 dark:text-emerald-400"}>
+                          ৳{dueAmt.toLocaleString()}
+                        </span>
+                        {(order.isCreditOrder || order.paymentMethod === 'Credit') && order.expectedPaymentDate && (
+                          <span className="text-[10px] text-red-600 dark:text-red-400 block mt-0.5">
+                            {t("orders.due_date")} {format(new Date(order.expectedPaymentDate), 'dd-MMM-yyyy')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 11: নোট (Note) - only if exists */}
+                    {order.internalNote && (
+                      <div className="flex items-start justify-between py-2 gap-2">
+                        <span className="font-semibold text-muted-foreground shrink-0 min-w-[85px]">
+                          {t("orders.note") || "নোট"}
+                        </span>
+                        <div className="text-right max-w-[200px]">
+                          <span className="text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded border border-amber-200/50 text-[11px] block font-medium whitespace-pre-line text-left">
+                            {order.internalNote}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Optional Manual Payment Approval Banner (if pending) */}
+                  {order.paymentMethod === 'Manual' && order.paymentStatus === 'Pending' && order.status !== 'Cancelled' && (
+                    <div className="flex items-center justify-between px-3 py-2 bg-amber-50/60 dark:bg-amber-950/20 border-t border-amber-200/60 gap-2">
+                      <div className="text-[10px] text-amber-800 dark:text-amber-300 font-medium truncate">
+                        {order.manualPaymentDetails?.methodName} ({order.manualPaymentDetails?.senderNumber || 'No number'})
+                        {order.manualPaymentDetails?.transactionId && ` - Trx: ${order.manualPaymentDetails.transactionId}`}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          size="sm"
+                          className="h-6 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] px-2 py-0"
+                          onClick={() => {
+                            Swal.fire({
+                              title: 'Approve Payment?',
+                              text: `Are you sure you want to approve manual payment for order #${order._id.slice(-8).toUpperCase()}? This will mark the order as Confirmed & Paid.`,
+                              icon: 'question',
+                              showCancelButton: true,
+                              confirmButtonColor: '#00D1B2',
+                              confirmButtonText: 'Yes, Approve!'
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                updateStatus(order._id, 'Confirmed', { paymentStatus: 'Paid' });
+                              }
+                            });
+                          }}
+                        >
+                          {t("orders.approve")}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-6 text-destructive hover:text-red-700 text-[10px] px-2 py-0"
+                          onClick={() => handleCancelOrder(order._id)}
+                        >
+                          {t("orders.cancel")}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
         {totalPages > 1 && (
-          <div className="py-6 border-t bg-white px-6">
+          <div className="py-6 border bg-background md:border-0 md:border-t px-4 md:px-6 rounded-md md:rounded-none mt-4 md:mt-0">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
