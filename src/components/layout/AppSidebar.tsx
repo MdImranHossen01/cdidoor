@@ -90,6 +90,11 @@ const data = {
           url: "/admin/bills",
         },
         {
+          title: "Due Sales List",
+          tKey: "sidebar.due_sale_list",
+          url: "/admin/bills?status=Due",
+        },
+        {
           title: "Add Quotation",
           tKey: "sidebar.add_quotation",
           url: "/admin/offers/new",
@@ -102,7 +107,7 @@ const data = {
         {
           title: "Sales Delete Log",
           tKey: "sidebar.sales_delete_log",
-          url: "/admin/orders?status=deleted",
+          url: "/admin/sales-delete-log",
         },
         {
           title: "Delivery Challans",
@@ -312,18 +317,13 @@ const data = {
       icon: Receipt,
       items: [
         {
-          title: "Expenses & Incomes",
-          tKey: "sidebar.expenses_incomes",
+          title: "Expense List",
+          tKey: "sidebar.expense_list",
           url: "/admin/expenses-incomes",
         },
         {
-          title: "Add New Entry",
-          tKey: "sidebar.add_expense_income",
-          url: "/admin/expenses-incomes?action=new",
-        },
-        {
-          title: "Category",
-          tKey: "sidebar.add_category",
+          title: "Expense Category",
+          tKey: "sidebar.expense_category",
           url: "/admin/expenses-incomes/categories",
         },
       ],

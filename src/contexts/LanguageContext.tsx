@@ -68,6 +68,8 @@ const translations = {
     "sidebar.label_print": "Label Print",
     "sidebar.sms": "SMS",
     "sidebar.expenses": "Expenses",
+    "sidebar.expense_list": "Expense List",
+    "sidebar.expense_category": "Expense Category",
     "sidebar.accounts": "Accounts",
     "sidebar.reports": "Reports",
     "sidebar.admin_users": "Admin Users",
@@ -1806,7 +1808,22 @@ const translations = {
     "store.showroom.filters": "Filters",
 
     "topbar.toggle_menu": "Toggle Menu",
-    "topbar.open_sidebar": "Open sidebar"
+    "topbar.open_sidebar": "Open sidebar",
+
+    "expenses.add_expense": "Add Expense",
+    "expenses.category": "Category",
+    "expenses.select": "Select...",
+    "expenses.staff": "Staff",
+    "expenses.select_staff": "Select Staff...",
+    "expenses.date": "Date",
+    "expenses.total": "Total",
+    "expenses.amount": "Amount",
+    "expenses.note": "Note",
+    "expenses.add_payment": "Add Payment",
+    "expenses.paid_amount": "Paid Amount",
+    "expenses.payment_account": "Payment Account",
+    "expenses.save": "Save",
+    "expenses.save_print": "Save & Print"
   },
   bn: {
     "store.home.testimonials.title_start": "আমাদের",
@@ -1865,6 +1882,8 @@ const translations = {
     "sidebar.label_print": "লেবেল প্রিন্ট",
     "sidebar.sms": "এসএমএস",
     "sidebar.expenses": "খরচ",
+    "sidebar.expense_list": "খরচের তালিকা",
+    "sidebar.expense_category": "খরচের ক্যাটাগরি",
     "sidebar.accounts": "অ্যাকাউন্ট",
     "sidebar.reports": "রিপোর্ট",
     "sidebar.admin_users": "অ্যাডমিন ইউজার",
@@ -3611,7 +3630,22 @@ const translations = {
     "store.showroom.filters": "ফিল্টার",
 
     "topbar.toggle_menu": "মেনু টগল করুন",
-    "topbar.open_sidebar": "সাইডবার খুলুন"
+    "topbar.open_sidebar": "সাইডবার খুলুন",
+
+    "expenses.add_expense": "খরচ অ্যাড",
+    "expenses.category": "ক্যাটাগরি",
+    "expenses.select": "সিলেক্ট...",
+    "expenses.staff": "স্টাফ",
+    "expenses.select_staff": "স্টাফ সিলেক্ট করুন...",
+    "expenses.date": "তারিখ",
+    "expenses.total": "মোট",
+    "expenses.amount": "এমাউন্ট",
+    "expenses.note": "নোট",
+    "expenses.add_payment": "অ্যাড পেমেন্ট",
+    "expenses.paid_amount": "পেইড এমাউন্ট",
+    "expenses.payment_account": "পেমেন্ট অ্যাকাউন্ট",
+    "expenses.save": "সেভ",
+    "expenses.save_print": "সেভ ও প্রিন্ট"
   }
 };
 

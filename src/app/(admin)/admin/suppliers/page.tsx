@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Plus, Trash2, Edit, Search, User, Eye, CreditCard, DollarSign, Loader2, Phone, Copy, MoreHorizontal } from 'lucide-react';
+import { Plus, Trash2, Edit, Search, User, Eye, CreditCard, DollarSign, Loader2, Phone, Copy, MoreHorizontal, ChevronDown, FileText, Upload, Printer } from 'lucide-react';
 import { AdminTableSkeleton } from '@/components/admin/AdminSkeletons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { normalizePhoneNumber } from '@/lib/utils';
 import { getWhatsAppLink } from '@/lib/utils';
@@ -305,29 +306,78 @@ function SuppliersContent() {
 
   return (
     <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="flex items-center justify-between gap-0 md:gap-4 px-0 md:px-0 mb-[1px] md:mb-0">
-        <div className="hidden md:block">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t("suppliers.title")}</h1>
-          <p className="text-muted-foreground text-xs md:text-sm hidden md:block">
-            {t("suppliers.subtitle")}
-          </p>
+      
+      {/* Mobile Top Header (from reference) */}
+      <div className="bg-[#dcf0e2] p-2 space-y-2 md:bg-transparent md:p-0 md:space-y-6">
+        
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t("suppliers.title") || "সাপ্লায়ার তালিকা"}</h1>
+            <p className="text-muted-foreground text-sm">
+              {t("suppliers.subtitle") || "Manage your suppliers"}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={openAddDialog} className="bg-[#28a745] hover:bg-[#218838] text-white rounded font-medium">
+              <Plus className="mr-1.5 h-4 w-4 stroke-[3]" /> অ্যাড
+            </Button>
+            <Button className="bg-[#17a2b8] hover:bg-[#138496] text-white rounded font-medium">
+              <Plus className="mr-1.5 h-4 w-4 stroke-[3]" /> বাল্ক অ্যাড
+            </Button>
+            <Button className="bg-[#007bff] hover:bg-[#0069d9] text-white rounded font-medium">
+              <Upload className="mr-1.5 h-4 w-4 stroke-[3]" /> ইম্পোর্ট
+            </Button>
+          </div>
         </div>
-        <Button onClick={openAddDialog} className="w-full sm:w-auto rounded-none h-10 shrink-0 font-bold bg-primary text-primary-foreground">
-          <Plus className="mr-1.5 h-4 w-4" /> {t("suppliers.add_supplier")}
-        </Button>
+
+        {/* Mobile Filter & Buttons */}
+        <div className="block md:hidden">
+          <div className="relative mb-2">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
+            <Input
+              placeholder="নাম/ মোবাইল/ আইডি নং/ কোম্পানি"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 h-10 bg-white border-slate-300 rounded"
+            />
+          </div>
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            <Button onClick={openAddDialog} className="bg-[#28a745] hover:bg-[#218838] text-white h-9 px-3 rounded font-medium shrink-0 shadow-sm">
+              <Plus className="mr-1 h-4 w-4 stroke-[3]" /> অ্যাড
+            </Button>
+            <Button className="bg-[#17a2b8] hover:bg-[#138496] text-white h-9 px-3 rounded font-medium shrink-0 shadow-sm">
+              <Plus className="mr-1 h-4 w-4 stroke-[3]" /> বাল্ক অ্যাড
+            </Button>
+            <Button className="bg-[#007bff] hover:bg-[#0069d9] text-white h-9 px-3 rounded font-medium shrink-0 shadow-sm">
+              <Upload className="mr-1 h-4 w-4 stroke-[3]" /> ইম্পোর্ট
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 max-w-sm px-0 md:px-0 !mt-[1px] md:!mt-6">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={t("suppliers.search_placeholder") as string}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full"
-        />
+      <div className="px-1 md:px-0 mt-2 md:mt-0 bg-white md:bg-transparent print:hidden">
+        <div className="flex items-center justify-between mb-3 px-1 md:px-0">
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <span>শো হবে</span>
+            <select 
+              className="border border-slate-300 rounded p-1 bg-white outline-none"
+              value={ITEMS_PER_PAGE}
+              onChange={(e) => {}}
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span>এন্ট্রিস</span>
+          </div>
+          <Button onClick={() => window.print()} size="sm" className="bg-[#17a2b8] hover:bg-[#138496] text-white h-8 rounded px-3">
+            <Printer className="mr-1.5 h-4 w-4" /> প্রিন্ট
+          </Button>
+        </div>
       </div>
 
-      <div className="px-0 md:px-0 !mt-[1px] md:!mt-6">
+      <div className="px-1 md:px-0">
         <Card className="border-0 bg-transparent md:border md:bg-card shadow-none md:shadow-sm">
         <CardContent className="p-0">
           {/* Desktop View */}
@@ -335,10 +385,12 @@ function SuppliersContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("suppliers.name_company")} / {t("suppliers.contact") || "Contact"}</TableHead>
-                  <TableHead>{t("suppliers.address")}</TableHead>
-                  <TableHead className="text-right">{t("suppliers.outstanding_payable")}</TableHead>
-                  <TableHead className="text-right">{t("suppliers.actions")}</TableHead>
+                  <TableHead>নাম / কন্টাক্ট</TableHead>
+                  <TableHead>ঠিকানা</TableHead>
+                  <TableHead className="text-right">কোম্পানি</TableHead>
+                  <TableHead className="text-right">বাকি</TableHead>
+                  <TableHead className="text-right">অ্যাডভান্স</TableHead>
+                  <TableHead className="text-right">অ্যাকশন</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -353,19 +405,17 @@ function SuppliersContent() {
                       </TableCell>
                       <TableCell><Skeleton className="h-4 w-40 rounded" /></TableCell>
                       <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded ml-auto" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded ml-auto" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-20 rounded ml-auto" /></TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Skeleton className="h-8 w-8 rounded-md" />
-                          <Skeleton className="h-8 w-8 rounded-md" />
-                          <Skeleton className="h-8 w-8 rounded-md" />
-                        </div>
+                        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : filteredSuppliers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                      {t("suppliers.no_suppliers_found")}
+                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                      {t("suppliers.no_suppliers_found") || "কোনো সাপ্লায়ার পাওয়া যায়নি"}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -373,9 +423,6 @@ function SuppliersContent() {
                     <TableRow key={supplier._id}>
                       <TableCell>
                         <div className="font-semibold text-foreground">{supplier.name}</div>
-                        {supplier.companyName && (
-                          <div className="text-xs text-muted-foreground">{supplier.companyName}</div>
-                        )}
                         <div className="flex flex-col gap-0.5 mt-1 text-slate-600 font-normal text-xs">
                           {supplier.phone && (
                             <span className="text-slate-500 font-medium">{supplier.phone}</span>
@@ -386,29 +433,50 @@ function SuppliersContent() {
                         </div>
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">{supplier.address}</TableCell>
-                      <TableCell className="text-right font-semibold text-rose-600">
-                        ৳{(supplier.currentBalance || 0).toLocaleString()}
+                      <TableCell className="text-right">{supplier.companyName}</TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {(supplier.currentBalance || 0) > 0 ? (supplier.currentBalance).toLocaleString() : '0.00'}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {(supplier.currentBalance || 0) < 0 ? Math.abs(supplier.currentBalance).toLocaleString() : '0.00'}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button className="bg-[#17a2b8] hover:bg-[#138496] text-white h-8 px-3 rounded font-medium text-xs">
+                              অ্যাকশন <ChevronDown className="ml-1 h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-card">
-                            <DropdownMenuItem onClick={() => viewSupplierDetails(supplier)} className="cursor-pointer">
-                              <Eye className="mr-2 h-4 w-4 text-sky-600" /> View Details
+                          <DropdownMenuContent align="end" className="bg-card w-48 text-sm">
+                            <DropdownMenuItem className="cursor-pointer py-2">
+                              <FileText className="mr-2 h-4 w-4 text-slate-600" /> পেমেন্টের তালিকা
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openDirectPaymentDialog(supplier)} className="cursor-pointer">
-                              <CreditCard className="mr-2 h-4 w-4 text-emerald-650" /> Record Payout
+                            <DropdownMenuItem className="cursor-pointer py-2">
+                              <FileText className="mr-2 h-4 w-4 text-slate-600" /> লেজার
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openEditDialog(supplier)} className="cursor-pointer">
-                              <Edit className="mr-2 h-4 w-4 text-indigo-600" /> Edit Supplier
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem onClick={() => openDirectPaymentDialog(supplier)} className="cursor-pointer py-2">
+                              <Plus className="mr-2 h-4 w-4 text-slate-600 stroke-[3]" /> অ্যাড অ্যাডভান্স
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(supplier._id)} className="cursor-pointer text-rose-600 focus:text-rose-600">
-                              <Trash2 className="mr-2 h-4 w-4 text-rose-600" /> Delete Supplier
+                            <DropdownMenuItem className="cursor-pointer py-2">
+                              <FileText className="mr-2 h-4 w-4 text-slate-600" /> অ্যাডভান্সের তালিকা
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer py-2">
+                              <FileText className="mr-2 h-4 w-4 text-slate-600" /> অ্যাডভান্স লেজার
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem onClick={() => viewSupplierDetails(supplier)} className="cursor-pointer py-2">
+                              <FileText className="mr-2 h-4 w-4 text-slate-600" /> বিস্তারিত
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(supplier)} className="cursor-pointer py-2">
+                              <Edit className="mr-2 h-4 w-4 text-slate-600" /> এডিট
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(supplier._id)} className="cursor-pointer py-2 text-rose-600 focus:text-rose-600">
+                              <Trash2 className="mr-2 h-4 w-4 text-rose-600" /> ডিলিট
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -421,19 +489,13 @@ function SuppliersContent() {
           </div>
 
           {/* Mobile View */}
-          <div className="block md:hidden space-y-3 p-2">
+          <div className="block md:hidden space-y-3 pb-4">
             {loading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="p-3 border rounded-lg bg-background shadow-sm space-y-2.5">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <Skeleton className="h-4 w-28 rounded" />
-                        <Skeleton className="h-3 w-20 rounded" />
-                      </div>
-                      <Skeleton className="h-4 w-16 rounded" />
-                    </div>
-                    <Skeleton className="h-3 w-40 rounded" />
+                  <div key={i} className="border rounded-md bg-white shadow-sm space-y-2.5 p-3">
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-20 w-full" />
                   </div>
                 ))}
               </div>
@@ -441,75 +503,87 @@ function SuppliersContent() {
               <div className="p-6 text-center text-muted-foreground text-xs">{t("suppliers.no_suppliers_found")}</div>
             ) : (
               paginatedSuppliers.map((supplier) => (
-                <div key={supplier._id} className="p-3 border rounded-lg bg-background shadow-sm space-y-2.5">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold text-foreground text-sm">{supplier.name}</div>
-                      {supplier.companyName && (
-                        <div className="text-xs text-muted-foreground">{supplier.companyName}</div>
-                      )}
-                    </div>
-                    <span className="font-bold text-rose-600 text-sm">৳{(supplier.currentBalance || 0).toLocaleString()}</span>
+                <div key={supplier._id} className="border border-slate-200 rounded-sm bg-white shadow-sm text-[13px] text-slate-800">
+                  <div className="flex justify-end p-2 border-b border-slate-200">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className="bg-[#17a2b8] hover:bg-[#138496] text-white h-7 px-2.5 rounded shadow-sm text-xs font-medium">
+                          অ্যাকশন <ChevronDown className="ml-1 h-3 w-3 stroke-[3]" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-card w-48 text-sm">
+                        <DropdownMenuItem className="cursor-pointer py-2">
+                          <FileText className="mr-2 h-4 w-4 text-slate-600" /> পেমেন্টের তালিকা
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer py-2">
+                          <FileText className="mr-2 h-4 w-4 text-slate-600" /> লেজার
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuSeparator />
+                        
+                        <DropdownMenuItem onClick={() => openDirectPaymentDialog(supplier)} className="cursor-pointer py-2">
+                          <Plus className="mr-2 h-4 w-4 text-slate-600 stroke-[3]" /> অ্যাড অ্যাডভান্স
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer py-2">
+                          <FileText className="mr-2 h-4 w-4 text-slate-600" /> অ্যাডভান্সের তালিকা
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer py-2">
+                          <FileText className="mr-2 h-4 w-4 text-slate-600" /> অ্যাডভান্স লেজার
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuSeparator />
+                        
+                        <DropdownMenuItem onClick={() => viewSupplierDetails(supplier)} className="cursor-pointer py-2">
+                          <FileText className="mr-2 h-4 w-4 text-slate-600" /> বিস্তারিত
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEditDialog(supplier)} className="cursor-pointer py-2">
+                          <Edit className="mr-2 h-4 w-4 text-slate-600" /> এডিট
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(supplier._id)} className="cursor-pointer py-2 text-rose-600 focus:text-rose-600">
+                          <Trash2 className="mr-2 h-4 w-4 text-rose-600" /> ডিলিট
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span>{supplier.phone || t("suppliers.na")}</span>
-                      {supplier.phone && (
-                        <div className="flex items-center gap-1">
-                          <a 
-                            href={getWhatsAppLink(supplier.phone)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-600 p-0.5 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded"
-                            title={t("suppliers.chat_whatsapp") as string}
-                          >
-                            <WhatsAppIcon className="h-3.5 w-3.5" />
-                          </a>
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              try {
-                                await navigator.clipboard.writeText(supplier.phone);
-                                toast.success(t("suppliers.phone_copied") as string);
-                              } catch (err) {
-                                // Ignore or silently fail/handle rejection without unhandled promise
-                              }
-                            }}
-                            className="text-muted-foreground p-0.5 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded"
-                            title={t("suppliers.copy_phone") as string}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </button>
-                        </div>
-                      )}
+                  
+                  <div className="flex justify-between items-start px-3 py-2 border-b border-slate-200">
+                    <span className="font-bold">নাম</span>
+                    <div className="text-right">
+                      <div className="font-bold text-slate-900">{supplier.name}</div>
+                      <div className="text-blue-600 text-xs">ID: {supplier._id.slice(-6).toUpperCase()}</div>
                     </div>
-                    {supplier.address && (
-                      <div className="text-muted-foreground truncate max-w-full">
-                        {t("suppliers.address")}: {supplier.address}
-                      </div>
-                    )}
                   </div>
-                  <div className="flex flex-wrap items-center justify-end gap-1.5 pt-2 border-t">
-                    <Button variant="outline" size="sm" className="h-8 text-sky-600 text-[10px] px-2" onClick={() => viewSupplierDetails(supplier)}>
-                      <Eye className="h-3.5 w-3.5 mr-1" /> {t("suppliers.view")}
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 text-emerald-600 text-[10px] px-2" onClick={() => openDirectPaymentDialog(supplier)}>
-                      <CreditCard className="h-3.5 w-3.5 mr-1" /> Pay Out
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 text-indigo-600 text-[10px] px-2" onClick={() => openEditDialog(supplier)}>
-                      <Edit className="h-3.5 w-3.5 mr-1" /> {t("suppliers.edit")}
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 text-rose-600 text-[10px] px-2" onClick={() => handleDelete(supplier._id)}>
-                      <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("suppliers.delete")}
-                    </Button>
+                  
+                  <div className="flex justify-between items-center px-3 py-2 border-b border-slate-200">
+                    <span className="font-bold">মোবাইল</span>
+                    <span>{supplier.phone}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center px-3 py-2 border-b border-slate-200">
+                    <span className="font-bold">কোম্পানি</span>
+                    <span>{supplier.companyName || '-'}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center px-3 py-2 border-b border-slate-200">
+                    <span className="font-bold">বাকি</span>
+                    <span>{(supplier.currentBalance || 0) > 0 ? (supplier.currentBalance).toLocaleString() : '0.00'}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center px-3 py-2 border-b border-slate-200">
+                    <span className="font-bold">অ্যাডভান্স</span>
+                    <span>{(supplier.currentBalance || 0) < 0 ? Math.abs(supplier.currentBalance).toLocaleString() : '0.00'}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center px-3 py-2">
+                    <span className="font-bold">ঠিকানা</span>
+                    <span>{supplier.address}</span>
                   </div>
                 </div>
               ))
             )}
           </div>
           {totalPages > 1 && (
-            <div className="py-4 border-t bg-background px-6">
+            <div className="py-4 bg-background px-2 md:px-6">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

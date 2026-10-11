@@ -42,6 +42,7 @@ import { toast } from 'sonner';
 import Swal from 'sweetalert2';
 import { Pagination } from '@/components/ui/pagination';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { TransactionForm } from '@/components/admin/TransactionForm';
 
 function AccountsLedgerContent() {
   const { t } = useLanguage();
@@ -81,6 +82,7 @@ function AccountsLedgerContent() {
   const [editingAccount, setEditingAccount] = useState<any>(null);
   const [newOpeningBalance, setNewOpeningBalance] = useState<number>(0);
   const [updatingOpening, setUpdatingOpening] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const isMounted = useRef(false);
 
@@ -255,11 +257,36 @@ function AccountsLedgerContent() {
 
   return (
     <div className="space-y-0 md:space-y-6 px-[1px] pt-[1px] pb-4 md:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="hidden md:block">
-        <h2 className="text-3xl font-bold tracking-tight">{t("ledger.title")}</h2>
-        <p className="text-muted-foreground text-sm">
-          {t("ledger.subtitle")}
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="hidden md:block">
+          <h2 className="text-3xl font-bold tracking-tight">{t("ledger.title")}</h2>
+          <p className="text-muted-foreground text-sm">
+            {t("ledger.subtitle")}
+          </p>
+        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#28a745] hover:bg-[#218838] text-white rounded font-medium">
+              <Plus className="h-4 w-4 stroke-[3] mr-1.5" />
+              <span>{t("ledger.cash_in_out")}</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[480px] w-full animate-in fade-in duration-200 max-h-[85vh] overflow-y-auto p-0 border-0 rounded-md">
+            <DialogHeader className="bg-[#28a745] text-white p-3 rounded-t-md m-0">
+              <DialogTitle className="text-white text-lg m-0">{t("ledger.cash_in_out")}</DialogTitle>
+            </DialogHeader>
+            <div className="p-4 bg-[#f8f9fa] rounded-b-md">
+              <TransactionForm
+                onSuccess={(wasEdit) => {
+                  setIsDialogOpen(false);
+                  fetchTransactions();
+                  if (activeTab === 'summary') fetchSummary();
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
 

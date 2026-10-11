@@ -166,10 +166,26 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { id } = await params;
     await connectToDatabase();
 
-    const bill = await Bill.findByIdAndDelete(id);
-    if (!bill) {
+    const billToDelete = await Bill.findById(id);
+    if (!billToDelete) {
       return NextResponse.json({ message: 'Bill not found' }, { status: 404 });
     }
+
+    try {
+      const { default: DeletedBill } = await import('@/models/DeletedBill');
+      await DeletedBill.create({
+        invoiceNo: billToDelete.invoiceNo,
+        date: billToDelete.date,
+        gTotal: billToDelete.gTotal,
+        cashIn: billToDelete.cashIn,
+        currentBillDue: billToDelete.currentBillDue,
+        deletedBy: (session.user as any)?.email || (session.user as any)?.name || 'admin'
+      });
+    } catch (logErr) {
+      console.error('Error logging deleted bill:', logErr);
+    }
+
+    await Bill.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Bill deleted successfully' });
   } catch (error: any) {
