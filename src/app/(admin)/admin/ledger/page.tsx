@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import {
@@ -266,11 +266,9 @@ function AccountsLedgerContent() {
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#28a745] hover:bg-[#218838] text-white rounded font-medium">
-              <Plus className="h-4 w-4 stroke-[3] mr-1.5" />
-              <span>{t("ledger.cash_in_out")}</span>
-            </Button>
+          <DialogTrigger render={<Button className="bg-[#28a745] hover:bg-[#218838] text-white rounded font-medium" />}>
+            <Plus className="h-4 w-4 stroke-[3] mr-1.5" />
+            <span>{t("ledger.cash_in_out")}</span>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[480px] w-full animate-in fade-in duration-200 max-h-[85vh] overflow-y-auto p-0 border-0 rounded-md">
             <DialogHeader className="bg-[#28a745] text-white p-3 rounded-t-md m-0">
