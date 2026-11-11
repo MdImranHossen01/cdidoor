@@ -24,10 +24,22 @@ export async function PUT(
     const body = await req.json();
     await connectToDatabase();
     
+    const existingBanner = await Banner.findById(id);
+    if (!existingBanner) {
+      return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
+    }
+
     const banner = await Banner.findOneAndUpdate({ _id: id }, body, { new: true });
     
     if (!banner) {
       return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
+    }
+
+    // Clean up old image from R2 if image was changed
+    if (existingBanner.image && body.image && existingBanner.image !== body.image) {
+      deleteFromR2(existingBanner.image).catch((err) =>
+        console.error('Failed to delete old banner image from R2:', err)
+      );
     }
 
     purgeCloudflareCache().catch((err) =>

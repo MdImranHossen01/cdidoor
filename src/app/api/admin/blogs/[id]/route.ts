@@ -54,10 +54,15 @@ export async function PUT(
     const body = await req.json();
     await connectToDatabase();
 
+    const existingBlog = await Blog.findById(id);
+    if (!existingBlog) {
+      return NextResponse.json({ message: 'Blog not found' }, { status: 404 });
+    }
+
     // Check slug uniqueness if it's changing
     if (body.slug) {
-      const existingBlog = await Blog.findOne({ slug: body.slug, _id: { $ne: id } });
-      if (existingBlog) {
+      const duplicateSlugBlog = await Blog.findOne({ slug: body.slug, _id: { $ne: id } });
+      if (duplicateSlugBlog) {
         return NextResponse.json({ message: 'A blog with this slug already exists' }, { status: 400 });
       }
     }
@@ -84,6 +89,13 @@ export async function PUT(
 
     if (!blog) {
       return NextResponse.json({ message: 'Blog not found' }, { status: 404 });
+    }
+
+    // Clean up old thumbnail from R2 if thumbnail was updated
+    if (existingBlog.thumbnail && updates.thumbnail && existingBlog.thumbnail !== updates.thumbnail) {
+      deleteFromR2(existingBlog.thumbnail).catch((err) =>
+        console.error('Failed to delete old blog thumbnail from R2:', err)
+      );
     }
 
     // Revalidate paths to show the changes instantly

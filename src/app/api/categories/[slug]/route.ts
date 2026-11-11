@@ -63,6 +63,11 @@ export async function PUT(
     await connectToDatabase();
 
     const query = mongoose.Types.ObjectId.isValid(slug) ? { _id: slug } : { slug };
+    const existingCategory = await Category.findOne(query);
+    if (!existingCategory) {
+      return NextResponse.json({ message: 'Category not found' }, { status: 404 });
+    }
+
     const updatedCategory = await Category.findOneAndUpdate(
       query,
       { $set: updateData },
@@ -71,6 +76,13 @@ export async function PUT(
 
     if (!updatedCategory) {
       return NextResponse.json({ message: 'Category not found' }, { status: 404 });
+    }
+
+    // Clean up old category image from R2 if image was changed
+    if (existingCategory.image && updateData.image && existingCategory.image !== updateData.image) {
+      deleteFromR2(existingCategory.image).catch((err) =>
+        console.error('Failed to delete old category image from R2:', err)
+      );
     }
 
     await revalidateTag('categories', 'max');

@@ -115,6 +115,13 @@ export async function PUT(
       ? { _id: slug }
       : { slug: slug };
 
+    const existingProduct = await Product.findOne(query);
+    if (!existingProduct) {
+      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+    }
+
+    let updatedProduct;
+
     if (safeUpdate.slug) {
       const maxRetries = 3;
       let attempt = 0;
@@ -126,14 +133,13 @@ export async function PUT(
 
         let actualId = slug;
         if (!mongoose.Types.ObjectId.isValid(slug)) {
-          const existingProduct = await Product.findOne({ slug: slug });
-          if (existingProduct) actualId = existingProduct._id.toString();
+          actualId = existingProduct._id.toString();
         }
 
         const uniqueSlug = await generateUniqueSlug(Product, currentSlugCandidate, actualId);
 
         try {
-          const updatedProduct = await Product.findOneAndUpdate(
+          updatedProduct = await Product.findOneAndUpdate(
             query,
             { $set: { ...safeUpdate, slug: uniqueSlug } },
             { new: true, runValidators: true }
@@ -142,10 +148,7 @@ export async function PUT(
           if (!updatedProduct) {
             return NextResponse.json({ message: 'Product not found' }, { status: 404 });
           }
-
-          revalidateTag(CACHE_TAGS.products, 'max');
-          revalidatePath('/');
-          return NextResponse.json(updatedProduct);
+          break;
         } catch (error: any) {
           lastError = error;
           if (error.code === 11000 && error.keyPattern?.slug) {
@@ -159,20 +162,54 @@ export async function PUT(
         }
       }
 
-      return NextResponse.json({
-        message: 'Failed to generate a unique slug after several attempts.',
-        error: lastError?.message
-      }, { status: 400 });
+      if (!updatedProduct) {
+        return NextResponse.json({
+          message: 'Failed to generate a unique slug after several attempts.',
+          error: lastError?.message
+        }, { status: 400 });
+      }
+    } else {
+      updatedProduct = await Product.findOneAndUpdate(
+        query,
+        { $set: safeUpdate },
+        { returnDocument: 'after', runValidators: true }
+      );
+
+      if (!updatedProduct) {
+        return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+      }
     }
 
-    const updatedProduct = await Product.findOneAndUpdate(
-      query,
-      { $set: safeUpdate },
-      { returnDocument: 'after', runValidators: true }
-    );
+    // Clean up any removed images from Cloudflare R2
+    try {
+      const oldImages: string[] = [];
+      if (Array.isArray(existingProduct.images)) oldImages.push(...existingProduct.images);
+      if (Array.isArray(existingProduct.variants)) {
+        existingProduct.variants.forEach((v: any) => {
+          if (Array.isArray(v.images)) oldImages.push(...v.images);
+          if (v.image) oldImages.push(v.image);
+        });
+      }
 
-    if (!updatedProduct) {
-      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+      const newImages = new Set<string>();
+      if (Array.isArray(updatedProduct.images)) {
+        updatedProduct.images.forEach((img: string) => newImages.add(img));
+      }
+      if (Array.isArray(updatedProduct.variants)) {
+        updatedProduct.variants.forEach((v: any) => {
+          if (Array.isArray(v.images)) v.images.forEach((img: string) => newImages.add(img));
+          if (v.image) newImages.add(v.image);
+        });
+      }
+
+      const removedImages = oldImages.filter((img) => !newImages.has(img));
+      if (removedImages.length > 0) {
+        deleteMultipleFromR2(removedImages).catch((err) =>
+          console.error('Failed to clean up removed product images from R2:', err)
+        );
+      }
+    } catch (cleanErr) {
+      console.warn('Error checking removed product images:', cleanErr);
     }
 
     revalidateTag('products', 'max');
