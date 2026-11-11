@@ -1,4 +1,4 @@
-const CACHE_NAME = 'storefront-cache-v1';
+const CACHE_NAME = 'cdidoorind-cache-v2';
 const OFFLINE_URL = '/offline';
 
 const ASSETS_TO_CACHE = [
@@ -13,7 +13,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('Service Worker: Caching critical assets');
-      // Use a more resilient approach: cache what we can, don't fail everything if one fails
       return Promise.allSettled(
         ASSETS_TO_CACHE.map(url =>
           cache.add(url).catch(err => console.error(`Failed to cache ${url}:`, err))
@@ -48,9 +47,15 @@ self.addEventListener('fetch', (event) => {
   // Skip non-http schemes
   if (!['http:', 'https:'].includes(url.protocol)) return;
 
-  // 1. API Requests - Network Only
-  if (url.pathname.startsWith('/api/')) {
-    return; // Let browser handle it normally
+  // 1. API, Admin, and Next.js RSC / Data Prefetch Requests - Bypass Service Worker Completely
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/admin') ||
+    url.searchParams.has('_rsc') ||
+    event.request.headers.get('RSC') === '1' ||
+    url.pathname.startsWith('/_next/data/')
+  ) {
+    return; // Let browser and Next.js handle prefetch and RSC navigation directly
   }
 
   // 2. Next.js Static Assets (Hashed/Immutable) - Cache First
