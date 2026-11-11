@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUpload } from '@/components/ui/image-upload';
 import { AdminSystemDesignSkeleton } from '@/components/admin/AdminSkeletons';
+import { R2MediaCleaner } from '@/components/admin/R2MediaCleaner';
 
 const TEMPLATE_OPTIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6'];
 const THEME_OPTIONS = ['default', 'emerald', 'black', 'caffeine', 'claude', 'elegant', 'marvel', 'material', 'midnight', 'nature', 'perplexity', 'slack', 'summer', 'sunset', 'valorant', 'supabase', 'amber', 'catppuccin', 'clay', 'cyberpunk', 'darkmatter', 'ocean', 'quantum', 't3', 'tangerine', 'vintage', 'green', 'red', 'rose', 'orange', 'blue', 'yellow', 'violet'];
@@ -882,6 +883,11 @@ export default function SuperConfigPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Cloudflare R2 Storage & Media Cleaner */}
+        <div className="lg:col-span-3">
+          <R2MediaCleaner />
+        </div>
 
       </div>
     </div>

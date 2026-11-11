@@ -59,27 +59,43 @@ export async function deleteFromR2(urlOrKey: string): Promise<boolean> {
 /**
  * Delete multiple objects from Cloudflare R2 in a single batch
  */
-export async function deleteMultipleFromR2(urlsOrKeys: string[]): Promise<boolean> {
-  const keys = urlsOrKeys
-    .map(extractR2Key)
-    .filter((k): k is string => Boolean(k));
+export async function deleteMultipleFromR2(urlsOrKeys: string[]): Promise<number> {
+  if (!Array.isArray(urlsOrKeys) || urlsOrKeys.length === 0) return 0;
 
-  if (keys.length === 0) return true;
+  const validKeys = Array.from(
+    new Set(
+      urlsOrKeys
+        .map(extractR2Key)
+        .filter((k): k is string => Boolean(k) && typeof k === 'string')
+    )
+  );
+
+  if (validKeys.length === 0) return 0;
 
   try {
-    await r2Client.send(
-      new DeleteObjectsCommand({
-        Bucket: R2_BUCKET_NAME,
-        Delete: {
-          Objects: keys.map((Key) => ({ Key })),
-          Quiet: true,
-        },
-      })
-    );
-    return true;
+    const chunks: string[][] = [];
+    for (let i = 0; i < validKeys.length; i += 1000) {
+      chunks.push(validKeys.slice(i, i + 1000));
+    }
+
+    let deletedCount = 0;
+    for (const chunk of chunks) {
+      const res = await r2Client.send(
+        new DeleteObjectsCommand({
+          Bucket: R2_BUCKET_NAME,
+          Delete: {
+            Objects: chunk.map((Key) => ({ Key })),
+            Quiet: true,
+          },
+        })
+      );
+      deletedCount += chunk.length - (res.Errors?.length || 0);
+    }
+
+    return deletedCount;
   } catch (err) {
-    console.error('Error batch deleting objects from R2:', keys, err);
-    return false;
+    console.error('Error batch deleting objects from R2:', validKeys, err);
+    return 0;
   }
 }
 
