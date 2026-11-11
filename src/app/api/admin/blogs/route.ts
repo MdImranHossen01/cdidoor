@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import connectToDatabase from '@/lib/db';
 import Blog from '@/models/Blog';
 import { auth } from '@/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // GET all blogs for admin
 export async function GET(req: NextRequest) {
@@ -76,6 +77,9 @@ export async function POST(req: NextRequest) {
       revalidatePath('/');
       revalidatePath('/blog');
       revalidateTag('blogs', 'max');
+      purgeCloudflareCache().catch((err) =>
+        console.error('Failed to purge Cloudflare cache on blog create:', err)
+      );
     } catch (revalidateError) {
       console.error('[Admin Blog Create revalidatePath] error:', revalidateError);
     }

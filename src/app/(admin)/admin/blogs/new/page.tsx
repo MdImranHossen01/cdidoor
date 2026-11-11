@@ -10,7 +10,8 @@ import {
     Type,
     FileSearch,
     ImageIcon,
-    Upload
+    Upload,
+    Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -203,7 +204,26 @@ export default function CreateBlogPage() {
                     setFormData(prev => ({ ...prev, thumbnail: url }));
                     setImageLoadError(false);
                   }}
+                  folder="blogs"
+                  maxWidthOrHeight={1200}
+                  targetMaxKB={200}
                 />
+                <div className="space-y-2 pt-1">
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs space-y-1.5 text-muted-foreground">
+                    <div className="flex items-center gap-1.5 font-semibold text-primary">
+                      <Info className="h-4 w-4 shrink-0" />
+                      <span>Blog Thumbnail Guidelines</span>
+                    </div>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-1 list-disc list-inside text-[11px] leading-relaxed">
+                      <li><strong>Max Size:</strong> Maximum file size is <strong>1 MB</strong>.</li>
+                      <li><strong>Dimensions:</strong> 16:9 aspect ratio (recommended <strong>1200×630px</strong>).</li>
+                    </ul>
+                    <div className="flex items-center gap-1.5 text-destructive font-semibold text-[11px] bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 mt-1">
+                      <span className="font-bold uppercase tracking-wider text-[10px] bg-destructive text-white px-1.5 py-0.5 rounded shrink-0">Max 1 MB • WebP</span>
+                      <span>Upload in <strong>.webp</strong> format (Max 1 MB) for 100% sharpness and instant loading!</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

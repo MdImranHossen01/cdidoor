@@ -4,6 +4,8 @@ import connectToDatabase from '@/lib/db';
 import Blog from '@/models/Blog';
 import { auth } from '@/auth';
 import mongoose from 'mongoose';
+import { deleteFromR2 } from '@/lib/r2';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 export async function GET(
   req: NextRequest,
@@ -90,6 +92,9 @@ export async function PUT(
       revalidatePath('/blog');
       revalidatePath(`/blog/${blog.slug}`);
       revalidateTag('blogs', 'max');
+      purgeCloudflareCache().catch((err) =>
+        console.error('Failed to purge Cloudflare cache on blog update:', err)
+      );
     } catch (revalidateError) {
       console.error('[Admin Blog Update revalidatePath] error:', revalidateError);
     }
@@ -123,6 +128,16 @@ export async function DELETE(
     if (!blog) {
       return NextResponse.json({ message: 'Blog not found' }, { status: 404 });
     }
+
+    if (blog.thumbnail) {
+      deleteFromR2(blog.thumbnail).catch((err) =>
+        console.error('Failed to delete blog thumbnail from R2:', err)
+      );
+    }
+
+    purgeCloudflareCache().catch((err) =>
+      console.error('Failed to purge Cloudflare cache on blog delete:', err)
+    );
 
     // Revalidate paths after deletion
     try {

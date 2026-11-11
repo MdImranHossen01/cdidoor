@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, X, Loader2, Image as ImageIcon, User } from 'lucide-react';
-import { uploadToImgBB } from '@/lib/upload';
+import { uploadImageToR2 } from '@/lib/upload';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -18,9 +18,23 @@ interface ImageUploadProps {
   iconClassName?: string;
   compact?: boolean;
   aspect?: "square" | "video" | "banner" | "circle";
+  folder?: string;
+  maxWidthOrHeight?: number;
+  targetMaxKB?: number;
 }
 
-export function ImageUpload({ onUpload, value, label, className, iconClassName, compact, aspect = "banner" }: ImageUploadProps) {
+export function ImageUpload({ 
+  onUpload, 
+  value, 
+  label, 
+  className, 
+  iconClassName, 
+  compact, 
+  aspect = "banner",
+  folder,
+  maxWidthOrHeight,
+  targetMaxKB
+}: ImageUploadProps) {
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const generatedId = useId();
@@ -43,9 +57,30 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
       return;
     }
 
+    // 1 MB File Size Guard: Disallow any image over 1 MB
+    const MAX_ALLOWED_BYTES = 1 * 1024 * 1024; // 1 MB
+    if (file.size > MAX_ALLOWED_BYTES) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      toast.error(`Image size cannot exceed 1 MB! Your file is ${sizeMB} MB. Please choose an image under 1 MB.`);
+      if ('target' in e && 'value' in e.target) {
+        (e.target as any).value = '';
+      }
+      setIsDragging(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const url = await uploadToImgBB(file);
+      const isBanner = folder === 'banners' || (!compact && aspect === 'banner' && folder !== 'products');
+      const uploadFolder = folder || (isBanner ? 'banners' : 'products');
+      const maxDim = maxWidthOrHeight ?? (isBanner ? 2100 : 1200);
+      const maxKB = targetMaxKB ?? (isBanner ? 400 : 150);
+
+      const url = await uploadImageToR2(file, {
+        folder: uploadFolder,
+        maxWidthOrHeight: maxDim,
+        targetMaxKB: maxKB,
+      });
       onUpload(url);
       toast.success('Image uploaded successfully');
     } catch (error: any) {
@@ -75,9 +110,9 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleFileChange}
             className={cn(
-              "relative flex flex-col items-center justify-center w-full h-full rounded-full border-2 border-dashed transition-all duration-300 overflow-hidden bg-emerald-50/10 hover:bg-emerald-50/20 cursor-pointer",
+              "relative flex flex-col items-center justify-center w-full h-full rounded-full border-2 border-dashed transition-all duration-300 overflow-hidden bg-primary/5 hover:bg-primary/10 cursor-pointer",
               isDragging 
-                ? "border-primary bg-primary/5 scale-[0.99]" 
+                ? "border-primary bg-primary/10 scale-[0.99]" 
                 : "border-primary/40 hover:border-primary hover:shadow-xl hover:shadow-primary/5",
               loading && "opacity-70 cursor-not-allowed"
             )}
@@ -96,7 +131,7 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-1">
-                <div className={cn("rounded-full bg-emerald-50 p-1 text-primary", iconClassName)}>
+                <div className={cn("rounded-full bg-primary/10 p-1 text-primary", iconClassName)}>
                   <User className="h-8 w-8 text-primary" />
                 </div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary">Upload</span>
@@ -207,7 +242,7 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
                     Click to <span className="text-primary underline underline-offset-4">upload</span>
                   </p>
                   <p className="text-[10px] text-gray-400 uppercase font-medium text-center max-w-full px-2 break-words">
-                    PNG, JPG or WEBP (Max 5MB)
+                    PNG, JPG or WEBP (Max 1MB)
                   </p>
                 </div>
               )}
@@ -227,6 +262,3 @@ export function ImageUpload({ onUpload, value, label, className, iconClassName, 
     </div>
   );
 }
-
-
-

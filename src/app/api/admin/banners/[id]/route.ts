@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/db';
 import Banner from '@/models/Banner';
 import { auth } from '@/auth';
 import mongoose from 'mongoose';
+import { deleteFromR2 } from '@/lib/r2';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 export async function PUT(
   req: NextRequest,
@@ -27,6 +29,10 @@ export async function PUT(
     if (!banner) {
       return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
     }
+
+    purgeCloudflareCache().catch((err) =>
+      console.error('Failed to purge Cloudflare cache on banner update:', err)
+    );
 
     return NextResponse.json(banner);
   } catch (error) {
@@ -57,6 +63,16 @@ export async function DELETE(
     if (!banner) {
       return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
     }
+
+    if (banner.image) {
+      deleteFromR2(banner.image).catch((err) =>
+        console.error('Failed to delete banner image from R2:', err)
+      );
+    }
+
+    purgeCloudflareCache().catch((err) =>
+      console.error('Failed to purge Cloudflare cache on banner delete:', err)
+    );
 
     return NextResponse.json({ message: 'Banner deleted successfully' });
   } catch (error) {

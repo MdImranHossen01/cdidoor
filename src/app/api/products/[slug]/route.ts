@@ -7,6 +7,8 @@ import Product from '@/models/Product';
 import { auth } from '@/auth';
 import { generateUniqueSlug } from '@/lib/slugify-server';
 import { CACHE_TAGS } from '@/lib/data-fetching';
+import { deleteMultipleFromR2 } from '@/lib/r2';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // GET a single product
 export async function GET(
@@ -174,6 +176,9 @@ export async function PUT(
     }
 
     revalidateTag('products', 'max');
+    purgeCloudflareCache().catch((err) =>
+      console.error('Failed to purge Cloudflare cache on product update:', err)
+    );
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -206,6 +211,29 @@ export async function DELETE(
     if (!deletedProduct) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
+
+    // Collect all image URLs for cleanup from Cloudflare R2
+    const imagesToDelete: string[] = [];
+    if (Array.isArray(deletedProduct.images)) {
+      imagesToDelete.push(...deletedProduct.images);
+    }
+    if (Array.isArray(deletedProduct.variants)) {
+      deletedProduct.variants.forEach((v: any) => {
+        if (Array.isArray(v.images)) imagesToDelete.push(...v.images);
+        if (v.image) imagesToDelete.push(v.image);
+      });
+    }
+
+    if (imagesToDelete.length > 0) {
+      deleteMultipleFromR2(imagesToDelete).catch((err) =>
+        console.error('Failed to delete product images from R2:', err)
+      );
+    }
+
+    // Trigger Cloudflare edge cache purge
+    purgeCloudflareCache().catch((err) =>
+      console.error('Failed to purge Cloudflare cache on product delete:', err)
+    );
 
     try {
       await revalidateTag(CACHE_TAGS.products, 'max');

@@ -19,7 +19,8 @@ import { Input } from '@/components/ui/input';
 import {
   Loader2,
   ArrowLeft,
-  X
+  X,
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/ui/image-upload';
@@ -245,10 +246,14 @@ export function BannerForm({ initialData }: BannerFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <ImageUpload
+                          <ImageUpload 
                             value={field.value}
-                            onUpload={(url) => field.onChange(url)}
+                            onUpload={(url) => field.onChange(url)} 
                             className="aspect-[21/9] w-full"
+                            aspect="banner"
+                            folder="banners"
+                            maxWidthOrHeight={2100}
+                            targetMaxKB={400}
                           />
                         </FormControl>
                         <FormMessage />
@@ -256,7 +261,22 @@ export function BannerForm({ initialData }: BannerFormProps) {
                     )}
                   />
                 </div>
-                <p className="text-[0.8rem] text-muted-foreground italic">Recommended aspect ratio: 21:9 or 1920x800px for best display across all devices.</p>
+                <div className="space-y-2 pt-1">
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs space-y-1.5 text-muted-foreground">
+                    <div className="flex items-center gap-1.5 font-semibold text-primary">
+                      <Info className="h-4 w-4 shrink-0" />
+                      <span>Banner Upload Guidelines</span>
+                    </div>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-1 list-disc list-inside text-[11px] leading-relaxed">
+                      <li><strong>Max Size:</strong> Maximum file size is <strong>1 MB</strong>.</li>
+                      <li><strong>Dimensions:</strong> 21:9 aspect ratio (recommended <strong>2100×900px</strong>).</li>
+                    </ul>
+                    <div className="flex items-center gap-1.5 text-destructive font-semibold text-[11px] bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 mt-1">
+                      <span className="font-bold uppercase tracking-wider text-[10px] bg-destructive text-white px-1.5 py-0.5 rounded shrink-0">Max 1 MB • WebP</span>
+                      <span>Upload in <strong>.webp</strong> format (Max 1 MB) for 100% sharpness and instant loading!</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

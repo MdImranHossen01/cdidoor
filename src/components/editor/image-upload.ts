@@ -1,50 +1,26 @@
 import { createImageUpload } from "novel";
 import { toast } from "sonner";
-
-// Use IMGBB if possible (simple client-side upload or server-side proxy).
-// Since we have an IMGBB_API_KEY in .env.local, we should use a server action or API route.
-// For now, let's use a simple placeholder upload function that mocks it if we don't have the API route ready.
-// Or even better, try to use IMGBB client-side upload if the key is exposed, but better not expose it.
-// We will assume /api/upload exists or just return a placeholder.
-
-// Actually, I'll create a minimal /api/upload route in the next step to support this properly using ImgBB.
+import { uploadImageToR2 } from "@/lib/upload";
 
 const onUpload = (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const promise = fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-    });
+    const promise = uploadImageToR2(file, { folder: 'editor' });
 
     return new Promise((resolve, reject) => {
         toast.promise(
-            promise.then(async (res) => {
-                // Successfully uploaded image
-                if (res.status === 200) {
-                    const { url } = (await res.json()) as { url: string };
-                    // preload the image
-                    const image = new Image();
-                    image.src = url;
-                    image.onload = () => {
-                        resolve(url);
-                    };
-                    // No blob store configured
-                } else if (res.status === 401) {
-                    resolve(file);
-                    throw new Error("`BLOB_READ_WRITE_TOKEN` environment variable not found, reading image locally instead.");
-                    // Unknown error
-                } else {
-                    throw new Error("Error uploading image. Please try again.");
-                }
+            promise.then((url) => {
+                const image = new Image();
+                image.src = url;
+                image.onload = () => {
+                    resolve(url);
+                };
+                return url;
             }),
             {
                 loading: "Uploading image...",
                 success: "Image uploaded successfully.",
                 error: (e) => {
                     reject(e);
-                    return e.message;
+                    return e.message || "Error uploading image. Please try again.";
                 },
             },
         );
@@ -55,14 +31,14 @@ export const uploadFn = createImageUpload({
     onUpload,
     validateFn: (file) => {
         if (!file.type.includes("image/")) {
-            toast.error("File type not supported.");
+            toast.error("File type not supported. Please upload an image.");
             return false;
         }
-        if (file.size / 1024 / 1024 > 20) {
-            toast.error("File size too big (max 20MB).");
+        if (file.size > 1 * 1024 * 1024) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            toast.error(`Image size cannot exceed 1 MB! Your file is ${sizeMB} MB.`);
             return false;
         }
         return true;
     },
 });
-
