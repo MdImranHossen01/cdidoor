@@ -1,4 +1,6 @@
 {
+  "framework": "nextjs",
+  "regions": ["bom1"],
   "crons": [
     {
       "path": "/api/cron/auto-attendance",
