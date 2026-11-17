@@ -63,8 +63,10 @@ export const fbEvent = (
 
   const finalEventName = eventName;
   
-  // 1. Browser Pixel Tracking
-  if (typeof window !== "undefined" && typeof window.fbq === "function") {
+  // 1. Browser Pixel Tracking (with retry if fbevents.js inline init hasn't executed yet on initial 0ms load)
+  if (typeof window !== "undefined") {
+    const fireBrowserPixel = (attempts = 25) => {
+      if (typeof window.fbq === "function") {
     const standardEvents = [
       "AddPaymentInfo", "CompleteRegistration",
       "Contact", "CustomizeProduct", "Donate", "FindLocation",
@@ -77,16 +79,23 @@ export const fbEvent = (
     if (userData && (userData.em || userData.ph)) {
       // We call 'set' to update user data before tracking the event
       // This improves matching between Browser and Server events
-      (window as any).fbq('set', 'user_data', {
-        ...(userData.em && { em: userData.em.trim().toLowerCase() }),
-        ...(userData.ph && { ph: userData.ph.replace(/\D/g, '') }),
-        ...(userData.fn && { fn: userData.fn.trim().toLowerCase() }),
-        ...(userData.ln && { ln: userData.ln.trim().toLowerCase() }),
-        ...(userData.ct && { ct: userData.ct.trim().toLowerCase() }),
-        ...(userData.st && { st: userData.st.trim().toLowerCase() }),
-        ...(userData.zp && { zp: userData.zp.trim().toLowerCase() }),
-        ...(userData.country && { country: userData.country.trim().toLowerCase() }),
-      });
+      const activePixelId =
+        (window as any).__fbPixelId ||
+        Object.keys((window as any)._fbq?.instance?.pixelsByID || {})[0];
+      if (activePixelId) {
+        const cleanPh = userData.ph ? userData.ph.replace(/\D/g, '') : '';
+        const normalizedPh = cleanPh && !cleanPh.startsWith('88') ? `88${cleanPh}` : cleanPh;
+        (window as any).fbq('init', activePixelId, {
+          ...(userData.em && { em: userData.em.trim().toLowerCase() }),
+          ...(normalizedPh && { ph: normalizedPh }),
+          ...(userData.fn && { fn: userData.fn.trim().toLowerCase() }),
+          ...(userData.ln && { ln: userData.ln.trim().toLowerCase() }),
+          ...(userData.ct && { ct: userData.ct.trim().toLowerCase() }),
+          ...(userData.st && { st: userData.st.trim().toLowerCase() }),
+          ...(userData.zp && { zp: userData.zp.trim().toLowerCase() }),
+          ...(userData.country && { country: userData.country.trim().toLowerCase() }),
+        });
+      }
     }
 
     // If it's not a standard event, track as Custom
@@ -95,6 +104,11 @@ export const fbEvent = (
     } else {
       window.fbq("track", finalEventName, customData, { eventID: eventId });
     }
+      } else if (attempts > 0) {
+        setTimeout(() => fireBrowserPixel(attempts - 1), 100);
+      }
+    };
+    fireBrowserPixel();
   }
 
   // 2. Server-side (CAPI) Tracking
