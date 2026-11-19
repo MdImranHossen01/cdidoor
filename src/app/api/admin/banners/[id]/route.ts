@@ -42,7 +42,7 @@ export async function PUT(
       );
     }
 
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on banner update:', err)
     );
 
@@ -82,7 +82,7 @@ export async function DELETE(
       );
     }
 
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on banner delete:', err)
     );
 

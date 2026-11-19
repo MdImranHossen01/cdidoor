@@ -213,7 +213,7 @@ export async function PUT(
     }
 
     revalidateTag('products', 'max');
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on product update:', err)
     );
 
@@ -268,7 +268,7 @@ export async function DELETE(
     }
 
     // Trigger Cloudflare edge cache purge
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on product delete:', err)
     );
 

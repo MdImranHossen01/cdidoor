@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       revalidatePath('/');
       revalidatePath('/blog');
       revalidateTag('blogs', 'max');
-      purgeCloudflareCache().catch((err) =>
+      await purgeCloudflareCache().catch((err) =>
         console.error('Failed to purge Cloudflare cache on blog create:', err)
       );
     } catch (revalidateError) {

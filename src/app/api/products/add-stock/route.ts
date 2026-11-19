@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import { auth } from '@/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 
 export async function POST(req: Request) {
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
 
     await product.save();
 
+    await purgeCloudflareCache().catch(() => {});
     return NextResponse.json({ message: 'Stock added successfully', product }, { status: 200 });
   } catch (error: any) {
     console.error('Add Stock Error:', error);

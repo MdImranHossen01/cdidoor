@@ -87,7 +87,7 @@ export async function PUT(
 
     await revalidateTag('categories', 'max');
     revalidatePath('/');
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on category update:', err)
     );
 
@@ -149,7 +149,7 @@ export async function DELETE(
       }
 
       // Purge Cloudflare cache
-      purgeCloudflareCache().catch((err) =>
+      await purgeCloudflareCache().catch((err) =>
         console.error('Failed to purge Cloudflare cache on category delete:', err)
       );
 

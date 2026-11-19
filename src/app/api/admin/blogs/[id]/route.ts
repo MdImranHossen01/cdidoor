@@ -104,7 +104,7 @@ export async function PUT(
       revalidatePath('/blog');
       revalidatePath(`/blog/${blog.slug}`);
       revalidateTag('blogs', 'max');
-      purgeCloudflareCache().catch((err) =>
+      await purgeCloudflareCache().catch((err) =>
         console.error('Failed to purge Cloudflare cache on blog update:', err)
       );
     } catch (revalidateError) {
@@ -147,7 +147,7 @@ export async function DELETE(
       );
     }
 
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on blog delete:', err)
     );
 

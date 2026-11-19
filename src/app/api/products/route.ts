@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
 
         revalidateTag('products', 'max');
         revalidatePath('/');
-        purgeCloudflareCache().catch((err) =>
+        await purgeCloudflareCache().catch((err) =>
           console.error('Failed to purge Cloudflare cache on product create:', err)
         );
         return NextResponse.json(newProduct, { status: 201 });

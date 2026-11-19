@@ -3,6 +3,7 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import connectToDatabase from '@/lib/db';
 import Brand from '@/models/Brand';
 import { auth } from '@/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // GET all brands
 export async function GET() {
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
     revalidateTag('brands', 'max');
     revalidatePath('/');
 
+    await purgeCloudflareCache().catch(() => {});
     return NextResponse.json(newBrand, { status: 201 });
   } catch (error) {
     console.error('Error creating brand:', error);

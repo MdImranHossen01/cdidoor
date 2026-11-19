@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     revalidateTag('categories', 'max');
     revalidatePath('/');
-    purgeCloudflareCache().catch((err) =>
+    await purgeCloudflareCache().catch((err) =>
       console.error('Failed to purge Cloudflare cache on category create:', err)
     );
 

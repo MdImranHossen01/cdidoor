@@ -6,6 +6,7 @@ import connectToDatabase from '@/lib/db';
 import Brand from '@/models/Brand';
 import Product from '@/models/Product';
 import { auth } from '@/auth';
+import { purgeCloudflareCache } from '@/lib/cloudflareCache';
 
 // GET a single brand
 export async function GET(
@@ -83,6 +84,7 @@ export async function PUT(
     revalidateTag('brands', 'max');
     revalidatePath('/');
 
+    await purgeCloudflareCache().catch(() => {});
     return NextResponse.json(updatedBrand);
   } catch (error) {
     console.error('Error updating brand:', error);
@@ -126,6 +128,7 @@ export async function DELETE(
     revalidateTag('brands', 'max');
     revalidatePath('/');
 
+    await purgeCloudflareCache().catch(() => {});
     return NextResponse.json({ message: 'Brand deleted successfully' });
   } catch (error) {
     console.error('Error deleting brand:', error);
