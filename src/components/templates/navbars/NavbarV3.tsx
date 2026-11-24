@@ -23,13 +23,17 @@ import {
 import { MobileMenu } from '@/components/layout/MobileMenu';
 import { MobileNavbar } from '@/components/layout/MobileNavbar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSettings } from '@/components/SettingsProvider';
 
 export default function NavbarV3() {
   const { t } = useLanguage();
+  const settings = useSettings();
   const router = useRouter();
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>(() =>
+    Array.isArray(settings?.categories) ? settings.categories.filter((c: any) => c.isActive && !c.parentCategory) : []
+  );
   const [profile, setProfile] = useState<any>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +47,7 @@ export default function NavbarV3() {
   const wishlistCount = useAppSelector((state) => state.wishlist.items.length);
 
   useEffect(() => {
+    if (Array.isArray(settings?.categories)) { setCategories(settings.categories.filter((c: any) => c.isActive && !c.parentCategory)); return; }
     fetch('/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data.filter((c: any) => c.isActive && !c.parentCategory)))

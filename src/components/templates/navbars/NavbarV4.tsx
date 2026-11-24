@@ -69,13 +69,17 @@ export default function NavbarV4() {
   const { totalQuantity: cartCount, totalAmount } = useAppSelector((state) => state.cart);
   const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
 
-  const [categories, setCategories] = useState<any[]>([]);
+  const settings = useSettings();
+  const [categories, setCategories] = useState<any[]>(() =>
+    Array.isArray(settings?.categories) ? settings.categories.filter((c: any) => c.isActive) : []
+  );
   const [profile, setProfile] = useState<any>(null);
 
 
   useEffect(() => {
     const controller = new AbortController();
     async function fetchCats() {
+      if (Array.isArray(settings?.categories)) { setCategories(settings.categories.filter((c: any) => c.isActive)); return; }
       try {
         const res = await fetch('/api/categories', { signal: controller.signal });
         if (res.ok) {
