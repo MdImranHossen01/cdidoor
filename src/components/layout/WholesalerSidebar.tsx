@@ -82,7 +82,7 @@ function NavMain({ items, pathname }: { items: typeof navItems; pathname: string
                     {item.items.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.titleDefault}>
                         <SidebarMenuSubButton
-                          render={<Link href={subItem.url} onClick={handleLinkClick} />}
+                          render={<Link prefetch={false} href={subItem.url} onClick={handleLinkClick} />}
                           isActive={pathname === subItem.url || pathname.startsWith(subItem.url + "/")}
                         >
                           <span>{t(subItem.titleKey) || subItem.titleDefault}</span>
@@ -97,7 +97,7 @@ function NavMain({ items, pathname }: { items: typeof navItems; pathname: string
         })}
         {/* Browse Store - direct link item */}
         <SidebarMenuItem>
-          <SidebarMenuButton tooltip={t('store.wholesaler.browse_store') || "Browse Store"} render={<Link href="/shop" />}>
+          <SidebarMenuButton tooltip={t('store.wholesaler.browse_store') || "Browse Store"} render={<Link prefetch={false} href="/shop" />}>
             <ExternalLink className="h-4 w-4" />
             <span>{t('store.wholesaler.browse_store') || "Browse Store"}</span>
           </SidebarMenuButton>

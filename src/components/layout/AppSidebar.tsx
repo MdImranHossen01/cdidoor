@@ -608,7 +608,7 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
-                  render={<Link href={item.url} onClick={(e) => handleItemClick(e, item.url)} />}
+                  render={<Link prefetch={false} href={item.url} onClick={(e) => handleItemClick(e, item.url)} />}
                   tooltip={t(item.tKey as string) || item.title}
                   isActive={isActive}
                 >
@@ -645,7 +645,7 @@ function NavMain({ items, pathname, role }: { items: typeof data.navMain; pathna
                     {item.items.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton
-                          render={<Link href={subItem.url} onClick={(e) => handleItemClick(e, subItem.url)} />}
+                          render={<Link prefetch={false} href={subItem.url} onClick={(e) => handleItemClick(e, subItem.url)} />}
                           isActive={
                             pathname === subItem.url ||
                             (subItem.url !== "#" &&
@@ -739,7 +739,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* Sidebar Footer with Profile, Logout and Version */}
       <div className="border-t p-3 bg-background/50 flex flex-col gap-2">
         <div className="flex items-center justify-center gap-3">
-          <Link
+          <Link prefetch={false}
             href="/admin/settings/profile"
             className="flex items-center justify-center h-9 px-4 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm"
             title="Profile"

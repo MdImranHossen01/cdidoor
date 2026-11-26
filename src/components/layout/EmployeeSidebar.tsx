@@ -95,7 +95,7 @@ function NavMain({ items, pathname }: { items: typeof navItems; pathname: string
                     {item.items.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.titleDefault}>
                         <SidebarMenuSubButton
-                          render={<Link href={subItem.url} onClick={handleLinkClick} />}
+                          render={<Link prefetch={false} href={subItem.url} onClick={handleLinkClick} />}
                           isActive={pathname === subItem.url || pathname.startsWith(subItem.url + "/")}
                         >
                           <span>{t(subItem.titleKey) || subItem.titleDefault}</span>
@@ -150,7 +150,7 @@ export function EmployeeSidebar({ ...props }: React.ComponentProps<typeof Sideba
   return (
     <Sidebar {...props}>
       <SidebarHeader className="border-b h-14 lg:h-[60px] px-4 flex items-center">
-        <Link href="/employee/dashboard">
+        <Link prefetch={false} href="/employee/dashboard">
           <Logo />
         </Link>
       </SidebarHeader>
