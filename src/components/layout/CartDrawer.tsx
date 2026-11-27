@@ -149,7 +149,7 @@ export function CartDrawer({ children }: { children: React.ReactElement }) {
                   <Button 
                       className="w-full h-12 rounded-full font-bold uppercase tracking-widest text-xs group"
                       nativeButton={false}
-                      render={<Link href="/checkout">{t('store.cart.proceed_checkout') || 'Proceed to Checkout'} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>}
+                      render={<Link prefetch={false} href="/checkout">{t('store.cart.proceed_checkout') || 'Proceed to Checkout'} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>}
                   />
                 } />
                 <Button 

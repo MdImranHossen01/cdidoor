@@ -258,7 +258,7 @@ export default function NavbarV3() {
                 )}
               </div>
 
-              <Link
+              <Link prefetch={false}
                 href="/dashboard/wishlist"
                 aria-label="Wishlist"
                 className="relative hidden sm:block group hover:scale-110 transition-all"
@@ -315,12 +315,12 @@ export default function NavbarV3() {
                       {(session.user as any)?.role === 'super_admin' && (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link href="/admin/dashboard" className="cursor-pointer">
+                            <Link prefetch={false} href="/admin/dashboard" className="cursor-pointer">
                               <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href="/admin/system-design" className="cursor-pointer">
+                            <Link prefetch={false} href="/admin/system-design" className="cursor-pointer">
                               <Settings className="mr-2 h-4 w-4" /> {t('store.nav.infrastructure')}
                             </Link>
                           </DropdownMenuItem>
@@ -330,12 +330,12 @@ export default function NavbarV3() {
                       {(session.user as any)?.role === 'admin' && (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link href="/admin/dashboard" className="cursor-pointer">
+                            <Link prefetch={false} href="/admin/dashboard" className="cursor-pointer">
                               <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.admin_dashboard')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href="/admin/orders" className="cursor-pointer">
+                            <Link prefetch={false} href="/admin/orders" className="cursor-pointer">
                               <Truck className="mr-2 h-4 w-4" /> {t('store.nav.manage_orders')}
                             </Link>
                           </DropdownMenuItem>
@@ -345,7 +345,7 @@ export default function NavbarV3() {
                       {(session.user as any)?.role === 'user' && (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link href="/dashboard" className="cursor-pointer">
+                            <Link prefetch={false} href="/dashboard" className="cursor-pointer">
                               <LayoutDashboard className="mr-2 h-4 w-4" /> {t('store.nav.dashboard')}
                             </Link>
                           </DropdownMenuItem>
@@ -364,7 +364,7 @@ export default function NavbarV3() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link href="/login" className="hidden sm:block">
+                <Link prefetch={false} href="/login" className="hidden sm:block">
                   <User className="h-5 w-5 stroke-[1.5] hover:text-primary transition-colors" />
                 </Link>
               )}
